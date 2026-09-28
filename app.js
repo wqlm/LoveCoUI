@@ -290,6 +290,14 @@
     voiceHold:null, voiceQuery:'review', legalKey:'terms',
     requestSeq:0,
     accountEpoch:0, gender:saved.gender||'暂不设置', age:saved.age||'暂不设置', mutationBusy:false, formCache:{},
+    /* 首次登录后的「资料引导」（2026-09-28 需求，见 appOnboardPage）：第一次登录成功收起登录层
+       那一刻接着走两步 —— ① **选择性别**（不可跳过）→ ② **你的出生日期**（可跳过），
+       走完（或跳过第 ② 步）才进主 App 首页，之后登录不再出现。
+       onboarded 只记这套流程有没有走完（**落库**）—— 没走完时每次登录成功都会再走一遍；
+       birthday 是 'YYYY-MM-DD'（跳过则留空，落库；「我的 › 个人资料」里的年龄段随之对上）；
+       onboarding 是当前停在第几步（'' / 'gender' / 'birthday'）、onboardPick 是出生日期那一步
+       滚轮上停着的年月日 —— 两者都是页面内存，不落库。 */
+    birthday:saved.birthday||'', onboarded:saved.onboarded===true, onboarding:'', onboardPick:{y:2006,m:9,d:28},
   };
   /* ?surface=app 直接进入主 App 形态。进入不再直接落首页：先走一遍状态检查链
      appEntryCheck() —— 键盘未开启就整页进「开启键盘」引导、完全访问没开弹引导层、
@@ -344,7 +352,8 @@
         nickname:state.nickname,credits:state.credits,member:state.member,memberExpiry:state.memberExpiry,
         /* 「模拟额度耗尽」的开关状态与快照一起落库：积分与开关始终成对（见 state 顶部注释） */
         creditsOut:state.creditsOut,creditsSnapshot:state.creditsSnapshot,
-        partners:state.partners,gender:state.gender,age:state.age}));
+        /* 首次登录资料引导的结果一起落库：生日（跳过则留空）+「已走完」标记（见 state.onboarded） */
+        partners:state.partners,gender:state.gender,age:state.age,birthday:state.birthday,onboarded:state.onboarded}));
     } catch (_) {}
   }
   function person() { return state.partners.find(p=>p.id===state.selectedPartner); }
@@ -609,6 +618,10 @@
     {id:'kb-guide-settings-ios',name:'系统-键盘设置(ios)',route:'引导页（?platform=ios）›「启用LoveCo输入法」（模拟系统设置）',trigger:'iOS 引导页点「启用LoveCo输入法」；本列表点入（切到 iOS）',desc:'模拟 iOS 设置里**按 App 分组的「LoveCo 键盘」页**（深色整页，2026-09-28 按设计图补入）：顶部一条导航条 —— 左侧蓝色「‹ App」返回（回引导页；纯导航、不完成引导），居中标题「LoveCo 键盘」；正文两组圆角卡片（#1C1C1E、行高约 44px、分隔线自图标右侧起）：① **允许“LoveCo 键盘”访问** —— 照片（白底彩色风车图标，右侧值「私密访问」）/ Siri（深底彩色光球）/ 搜索（灰底白放大镜）/ 通知（红底白铃铛，副标题「关」）/ 无线数据（绿底白信号弧，副标题「无线局域网与蜂窝网络」）/ **键盘**（灰底白键盘图形）六行，其中**只有「键盘」行可点** —— 点它进 **iOS 版键盘权限页**（`kb-guide-detail-ios`：两行开关 ——「LoveCo 键盘」+「允许完全访问」，与鸿蒙那条链路的落点对应）；页脚说明也正是让人去点「键盘」；② **首选语言** —— 语言（蓝底白地球）|「简体中文」。卡下压一段灰色页脚说明（「LoveCo 键盘」设置 / ⭐️ 如果此页面没有显示「键盘」/ ❶ 上滑关闭设置应用后，再重新打开设置进入这个界面 / ❷ 进入后，点击「键盘」，打开「LoveCo」和「允许完全访问开关」/ 由于系统限制，未打开允许完全访问时，键盘部分功能将受到影响 / 🚫 开启完全访问权限仅用于键盘请求输出内容 / 我们严格遵循《LoveCo隐私协议》，不会收集您的个人信息）。**按需求不渲染设计图里的「从其他 App 粘贴」分组**（连同那张「… | 询问 ›」卡片一并删掉）；设计图里的 lovekey 字样一律改 LoveCo。**左下角同一颗视频悬浮窗**（画中画，iOS 下播 iOS 素材）：键盘启用后浮出绿勾与「完成后返回LoveCo App」，点它（或从系统设置「回到 App」：设置页左上角的返回箭头，两处同一套校验）＝ 从系统设置**返回 LoveCo App** 并重新校验（键盘已启用**且**当前键盘已切成 LoveCo，见 guideSatisfied），通过就关闭引导页、完成引导回首页；键盘已启用但还没切键盘则落到**第二步整页「切换到 LoveCo 键盘」**（2026-09-28 起 —— iOS / 鸿蒙共用那一页，长按地球把键盘切过来再点「完成」，见 kb-guide-switch），即「‹ App」返回键在键盘开好之后的那一下也是这一步的入口',note:'iOS 的键盘设置页与鸿蒙不是同一套结构（iOS 按 App 分组、没有「输入法管理」列表），所以按端分叉渲染 —— 本页只在 iOS 平台出现（appKbGuideScreen 里按 state.platform 选页，鸿蒙走 kb-guide-settings、安卓走 kb-guide-settings-android）；详情页已按设计图补入 iOS 版（kb-guide-detail-ios）'},
     {id:'kb-guide-settings-android',name:'系统-键盘设置(安卓)',route:'引导页（?platform=android）›「第一步 启用LoveCo输入法」（模拟系统设置）',trigger:'安卓引导页点「第一步 启用LoveCo输入法」；本列表点入（切到 Android）',desc:'模拟安卓（小米 HyperOS 风格）系统「设置 › 输入法」页的**浅色整页**（2026-09-28 按设计截图补入，与鸿蒙 / iOS 两版结构都不同；只服务安卓引导）：浅灰底（#F2F2F6，状态栏连着一起转浅色）+ 白色圆角卡片 + 两段灰色分组标题，顶部左上返回箭头（回引导页，纯导航、不完成引导 —— **退回引导页那一刻才按键盘状态切到第二步**：键盘已启用就收起演示卡与卡下说明（第二步不放演示视频）、并弹出键盘切换悬浮窗，见 kb-guide-android / kb-guide-ime-switch）+ 下方大号加粗标题「设置」。分组 ①「**官方输入法**」：只留一行**讯飞输入法**（副标题「中文（中国）」、行首蓝色圆形 iFLY 标、右侧开关开着）—— 设计截图里的「搜狗输入法小米版」按需求删除、原「小米定制版输入法」分组改名「官方输入法」而来；这一行是静态展示，开关不参与任何状态。分组 ②「**其他输入法**」：只放一行 **LoveCo 输入法**（副标题「中文（中国）」、行首一枚 LoveCo 图标 `assets/brand/LoveCo_128_128.png`、右侧开关**默认关闭**）—— 截图里 LoveCo / Lovekey键盘 / 灵焰恋爱大师 / ToDesk 四行全部删除后只留这一行。这颗开关就是 `permissions.kbEnabled`（与左栏「设备权限 › 开启键盘」、详情页「启用LoveCo」是同一个开关）：打开即键盘启用、关掉即停用（当前输入法随之复位成系统默认、完全访问一并复位）—— **安卓没有「键盘完全访问」这个权限**（系统侧默认就给到），打开键盘时 `permissions.keyboard` 一并置开（见 syncFullAccess）。**本页不启动视频悬浮窗**（2026-09-28 需求）：出口只有顶部那枚返回箭头（离开系统设置 = 回到 App：键盘已启用就换第二步、并自动弹出键盘切换悬浮窗，见 guideBack）；「切换到 LoveCo 输入法」（引导第二步）的落点也不在这一页（是退回引导页后自动弹出的**键盘切换悬浮窗**，见 kb-guide-ime-switch）—— 本页只负责「启用」',note:'三端设置页现已分家：鸿蒙 = 深色「输入法」页（appGuideSettings）、iOS = 深色「LoveCo 键盘」页（appGuideSettingsIos）、安卓 = 本页浅色「设置」页（appGuideSettingsAndroid，appKbGuideScreen 里按 state.platform 选页）；整页皮肤连着状态栏一起换浅色（renderApp 挂 .guide-light，样式见 theme.css 的 .mi-* 一组）。安卓下一步（切换到 LoveCo 输入法）的落点是键盘切换悬浮窗（kb-guide-ime-switch）—— 从本页返回引导页时按键盘状态自动弹出'},
     {id:'kb-guide-ime-switch',name:'键盘切换悬浮窗(安卓)',route:'安卓引导页 ›「第二步 切换到LoveCo输入法」；从「系统-键盘设置(安卓)」退回引导页时自动弹出（模拟系统输入法选择器）',trigger:'① 安卓引导页点「第二步 切换到LoveCo输入法」；② 从「系统-键盘设置(安卓)」按返回箭头退回引导页、且键盘已启用、当前输入法还不是 LoveCo（自动弹出，2026-09-28 需求）；本列表点入（切到 Android，摆成第二步那一刻：键盘已启用 + 当前输入法系统默认 + 悬浮窗开着）',desc:'仿真安卓系统「点键盘上的切换输入法按钮」弹出的**输入法选择器**（2026-09-28 按设计截图补入）：屏幕底部一张白色抽屉（圆角顶、浅紫选中行、带一层半透明遮罩，见 theme.css 的 .ie-* 一组），自上而下：**顶部一行提示「选择 LoveCo 输入法」**（2026-09-28 需求：引导第二步不再放演示视频卡与卡下说明，这句指路话挪进这一层的弹框里，见 kb-guide-android）+ 按输入法分组 —— 灰字组名 + 该输入法的语言行：①「**LoveCo**」→ 一行「中文（中国）」；②「**讯飞输入法**」→ 一行「中文（中国）」；**只列这两个输入法**（设计截图里第三组「👉 Lovekey键盘」按需求去掉），当前输入法（`permissions.ime`）那一行铺淡紫底 + 右侧深色对勾（截图里选中的正是 LoveCo）。点任一行 = 在系统里把当前输入法切过去（选 LoveCo 即 `permissions.ime=loveco`）、**本层随即收起**，引导页第二步随之完成（两颗按钮都置灰）；点抽屉外的遮罩收起本层、不改任何状态。收起本层 = 回到 App：选完 LoveCo（引导最后一步）**当场完成引导**（与设置页返回箭头同一处校验，见 pickGuideIme / guideBack）；选回系统默认则留在引导页继续',note:'只有安卓引导流程会开它（`state.kbImeSwitch`）；鸿蒙 / iOS 没有这一层（鸿蒙在模拟设置页的「默认输入法」行里切，见 kb-guide-settings）—— 安卓系统不允许 App 直接切输入法，所以第二步的手感就是「用户在系统选择器里自己选」。真机上的选择器还列其它系统输入法，这里按需求只留 LoveCo 与讯飞输入法两个'},
+    /* 首次登录后的「资料引导」两条（2026-09-28 需求）：第一次登录成功收起登录层那一刻接这两页 ——
+       「选择性别」**不可跳过**、「你的出生日期」**可跳过**；两步各占一条便于静态对照 */
+    {id:'onboard-gender',name:'资料设置 · 选择性别(首次登录)',route:'首次登录成功 › 第一步',trigger:'**第一次登录成功**（一键登录 / 短信登录）收起登录层那一刻自动进入（`state.onboarded` 为假时每次登录都走一遍；左栏「模拟 › 登录状态」开关置成开同样进）；或本列表点入（现场摆成「已登录 + 还没走完资料引导」的第一步，不落库）',desc:'**主 App 的整页**（无底部 Tab 栏，状态栏连着一起转淡紫 `.guide-lavender`）：淡紫底（#F5F6FC）、元素**整体上下居中**，自上而下 —— ① 顶部一行**三个分页圆点**（当前这一步深色 #2E2E3A、其余浅灰 #D9DBE6 —— 设计图是三步的资料页，目前只做前两步）；② 大标题「**选择性别**」（21px / 700）；③ 两张**并列的白色圆角卡**（1:1、圆角 26px、白底 + 一层淡投影、间距 18px），卡里各摆一个**性别符号图形**（按需求用 ♂ / ♀ 代替原来的插画头像：粗圆头描边 7.5 + 渐变描边色 —— 男 ♂ 蓝紫渐变 #7C8CFF→#4B57E6、女 ♀ 粉红渐变 #FFA8C4→#F4558C；♂ = 圆 + 指向右上（↗）的箭头，♀ = 圆 + 下方十字），卡下各自一行 16px 标签「男」/「女」—— 选中那张铺浅紫底 + 蓝紫描边、标签转品牌色；④ 底部**蓝色胶囊箭头按钮**（112×56、圆角 28、#5B68F5 + 白色右箭头）—— **没选性别时置灰、不可点**（这一步没有「跳过」，也不留出口）。点卡片即选中（写 `state.gender`，与「我的 › 个人资料」的性别是同一个值），箭头点亮后点它进第二步「你的出生日期」',note:'首次登录资料引导的第一步（见 finishKbLogin / startOnboarding）：**不可跳过** —— 页面上没有「跳过」那颗按钮，底部箭头在选中之前一直置灰；这一步只改 `state.gender`（不落库），走完第二步的箭头才与生日一起落库（见 finishOnboarding）。它是主 App 的页面 —— 从键盘形态登录进来也会切到主 App 走完再回'},
+    {id:'onboard-birthday',name:'资料设置 · 你的出生日期(首次登录)',route:'首次登录成功 › 第二步',trigger:'性别那一步选好点底部箭头进入；或本列表点入（现场摆成「已登录 + 性别已选」的第二步，滚轮默认停在 2006年9月28日，不落库）',desc:'**与第一步同一套整页皮肤**（淡紫底、居中、三个分页圆点这回亮第 2 个），自上而下 —— ① 顶栏三件事：左侧**白色圆形返回钮**（36px + 淡投影，回第一步「选择性别」，选过的性别留着）、中间分页圆点、右侧**「跳过」**（灰字 15px —— 这一步**可跳过**：点了不带生日结束引导）；② **蛋糕插画**（116px，照设计图：粉色托盘 + 两层蓝蛋糕 + 奶油波浪 + 一根点着的蜡烛）；③ 大标题「**你的出生日期**」；④ **三列滚轮**（年 1980–2015 / 月 1–12 / 日 1–31，行高 44px、整块高 220px，CSS scroll-snap 吸附到中线那一行，中线上铺一条白色圆角选中带、选中行深色加粗，滚 / 点某一行即停到那行）；⑤ 滚轮下一行**「N岁  星座」**（17px / 600，两项间隔 26px，按停着的那天实时算 —— 年龄按今天、星座按 12 段月日划分，设计图 2006-09-28 = **20岁 天秤座**；日按当月天数收紧，2 月 30 日按当月最后一天算）；⑥ 底部同一颗**蓝色胶囊箭头按钮**（这一步常亮）：点它把那天写成 `state.birthday`（`YYYY-MM-DD`）并结束引导。滚轮改动**不整页重渲染**（重建 DOM 会把滚轮位置弹回），只就地刷新「N岁 星座」这一行（见 bindOnboardWheel）',note:'首次登录资料引导的第二步（**可跳过**）：跳过 = 不带生日结束引导（性别已在第一步选好），返回箭头只是回第一步、不算跳过。生日落库时顺带把「我的 › 个人资料」里的年龄段（`state.age`）对上 18–22 / 23–30 / 31–40 / 40以上 里那一档；两步走完（或跳过第二步）写 `state.onboarded` 落库、进主 App 首页 —— 之后登录不再出现这两页'},
   ];
   function pageCatalog() { return state.appView==='app' ? APP_PAGES : KB_PAGES; }
   /* 页面列表：按组分节，组名可点击折叠 / 展开。
@@ -853,14 +866,20 @@
     node.addEventListener('animationend', () => node.classList.remove('shake'), {once:true});
   }
   /* 登录成功后的收尾：一键登录与短信登录共用 —— 先给一记「登录成功」提示（登录层的收尾形态，
-     KB_LOGIN_DONE_MS 之后自动收起），再回到键盘；状态落库，号码由调用方写进 state.phone。 */
+     KB_LOGIN_DONE_MS 之后自动收起），再回到键盘；状态落库，号码由调用方写进 state.phone。
+     **第一次登录还要多走一步**（2026-09-28 需求）：登录层收起那一刻接着进「资料引导」
+     （选择性别 → 你的出生日期，见 startOnboarding），走完才回首页；走过的（onboarded）照旧直接回。 */
   const KB_LOGIN_DONE_MS = 1000;
   function finishKbLogin() {
     state.loggedIn = true;
     persist();
     clearTimeout(state.kbLoginTimer);
     state.kbLogin = 'done';
-    state.kbLoginTimer = setTimeout(() => { state.kbLoginTimer = null; state.kbLogin = ''; render(); }, KB_LOGIN_DONE_MS);
+    state.kbLoginTimer = setTimeout(() => {
+      state.kbLoginTimer = null; state.kbLogin = '';
+      if(!state.onboarded) return startOnboarding();
+      render();
+    }, KB_LOGIN_DONE_MS);
     render();
   }
   /* 点击页面列表项后把手机跳到对应页面：
@@ -876,6 +895,9 @@
       /* 「我的 · 已开通 L+ 会员」看的是「我的」的会员态：现场摆上会员标识与到期日
          （2026-09-30），不落库 —— 刷新页面即回到真实会员状态 */
       if(it.id==='account-member'){state.member=true;state.memberExpiry=new Date(2026,8,30).getTime();return openAppScreen('account');}
+      /* 首次登录的「资料引导」两条：现场摆成「已登录 + 还没走完引导」，分别停在对应那一步（不落库） */
+      if(it.id==='onboard-gender'){state.loggedIn=true;state.onboarded=false;state.onboarding='gender';return openAppScreen('onboard');}
+      if(it.id==='onboard-birthday'){state.loggedIn=true;state.onboarded=false;state.onboardPick={y:2006,m:9,d:28};state.onboarding='birthday';return openAppScreen('onboard');}
       /* 「开启键盘」引导流程（引导页三端各一条 + 模拟设置两页）：点引导页任一条目时
          先切到它对应的运行平台（引导页形态三端大致相同、演示动画素材按平台取，见 GUIDE_VIDEOS），
          再现场摆成「一台还没启用键盘的新设备」（与左栏关掉「开启键盘」同一套联动：
@@ -1536,13 +1558,148 @@
       ${appSection('相关协议',[appRow('用户协议','legal:terms'),appRow('隐私政策','legal:privacy'),appRow('个人信息收集清单','legal:collection'),appRow('第三方信息共享清单','legal:sharing'),appRow('协议中心','legal-list')].join(''))}
     </div>`;
   }
+  /* —— 首次登录后的「资料引导」（2026-09-28 需求，主 App 的整页流程）——
+     第一次登录成功（一键登录 / 短信登录）收起登录层那一刻**接着走这两步**，走完才进首页：
+     ① **选择性别**：**不可跳过** —— 页面上没有「跳过」，两颗白卡二选一，卡上是 ♂ / ♀ 两个
+        符号图形（按需求用符号代替原来的插画头像）；没选时底部箭头置灰，选中才亮；
+     ② **你的出生日期**：**可跳过** —— 三列滚轮（年 / 月 / 日）停在中线那一行，下面实时算出
+        「N岁  星座」；点「跳过」不带生日结束，点箭头才把生日写进 state.birthday。
+     两步都是整页（无底部 Tab，状态栏连着一起转淡紫 —— .guide-lavender，样式见 theme.css 的
+     .onb-* 一组）；它是**主 App 的页面**（键盘形态没有这一页）—— 从键盘里登录进来也切到主 App
+     走完再回（startOnboarding）。走完写 onboarded 落库，之后登录不再出现（见 finishOnboarding）。 */
+  /* 滚轮一行的高度（px）：CSS 的 scroll-snap 与「停在哪一行」都按它算（见 bindOnboardWheel） */
+  const ONB_ROW = 44;
+  const ONB_YEARS = Array.from({length:36},(_,i)=>1980+i);
+  const ONB_MONTHS = Array.from({length:12},(_,i)=>i+1);
+  const ONB_DAYS = Array.from({length:31},(_,i)=>i+1);
+  function onboardDayMax(y,m){ return m===2 ? ((y%4===0&&y%100!==0)||y%400===0?29:28) : [4,6,9,11].includes(m)?30:31; }
+  /* 星座：按月 / 日落在哪一段（设计图 2006-09-28 → 天秤座）—— 从后往前找第一个「起始月日 ≤ 这天」的
+     星座，1 月 1–19 日落在最后一段（摩羯座） */
+  const ZODIACS = [[1,20,'水瓶座'],[2,19,'双鱼座'],[3,21,'白羊座'],[4,20,'金牛座'],[5,21,'双子座'],[6,22,'巨蟹座'],
+    [7,23,'狮子座'],[8,23,'处女座'],[9,23,'天秤座'],[10,24,'天蝎座'],[11,23,'射手座'],[12,22,'摩羯座']];
+  function zodiacOf(m,d){
+    for(let i=ZODIACS.length-1;i>=0;i--){const [mm,dd,name]=ZODIACS[i];if(m>mm||(m===mm&&d>=dd))return name;}
+    return '摩羯座';
+  }
+  function ageFrom(y,m,d){
+    const now=new Date(); let age=now.getFullYear()-y;
+    if(now.getMonth()+1<m||(now.getMonth()+1===m&&now.getDate()<d))age--;
+    return Math.max(age,0);
+  }
+  /* 滚轮上停着的那天：日按当月天数收紧（2 月 30 日按 2 月 28 / 29 日算） */
+  function onboardPicked(){
+    const p=state.onboardPick||{y:2006,m:9,d:28};
+    return {y:p.y,m:p.m,d:Math.min(p.d,onboardDayMax(p.y,p.m))};
+  }
+  function onboardMetaText(){
+    const {y,m,d}=onboardPicked();
+    return `<span>${ageFrom(y,m,d)}岁</span><span>${zodiacOf(m,d)}</span>`;
+  }
+  /* 性别符号（按需求用 ♂ / ♀ 代替插画头像）：粗圆头描边 + 渐变描边色 ——
+     ♂ = 圆 + 指向右上（↗）的箭头、♀ = 圆 + 下方十字；男走蓝紫渐变、女走粉红渐变 */
+  function onboardGlyph(kind){
+    const [id,a,b] = kind==='男' ? ['onb-gm','#7C8CFF','#4B57E6'] : ['onb-gf','#FFA8C4','#F4558C'];
+    const shape = kind==='男'
+      ? `<circle cx="40" cy="62" r="24"/><path d="M57 45 L86 16"/><path d="M86 16 H64"/><path d="M86 16 V38"/>`
+      : `<circle cx="50" cy="40" r="23"/><path d="M50 63 V92"/><path d="M34 76 H66"/>`;
+    /* 渐变坐标用 userSpaceOnUse：默认的 objectBoundingBox 对纯竖 / 纯横的线（♀ 的竖杆与横杠、
+       ♂ 箭头的竖向小枝）会算出零宽的包围盒，描边整个画不出来 */
+    return `<svg class="onb-glyph" viewBox="0 0 100 100" aria-hidden="true"><defs><linearGradient id="${id}" gradientUnits="userSpaceOnUse" x1="14" y1="96" x2="92" y2="10"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></linearGradient></defs><g fill="none" stroke="url(#${id})" stroke-width="7.5" stroke-linecap="round" stroke-linejoin="round">${shape}</g></svg>`;
+  }
+  /* 出生日期那一步的蛋糕插画（照设计图：粉色托盘 + 两层蓝蛋糕 + 奶油波浪 + 一根点着的蜡烛） */
+  function onboardCake(){
+    return `<svg class="onb-cake" viewBox="0 0 120 120" aria-hidden="true">
+      <ellipse cx="60" cy="104" rx="46" ry="9" fill="#FFB6C8"/><rect x="14" y="96" width="92" height="8" rx="4" fill="#FFC8D6"/>
+      <rect x="20" y="68" width="80" height="28" rx="8" fill="#7EA6F5"/><rect x="30" y="50" width="60" height="20" rx="7" fill="#9DBBF9"/>
+      <rect x="56" y="26" width="8" height="26" rx="4" fill="#FF9BB5"/>
+      <path d="M58.5 30 v8 M58.5 40 v5" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/>
+      <path d="M30 52 q7.5 -10 15 0 t15 0 t15 0 t15 0 v5 H30 z" fill="#FFF3F6"/>
+      <path d="M60 8 c7 8 9 12 9 16 a9 9 0 0 1 -18 0 c0 -4 2 -8 9 -16 z" fill="#FFB020"/>
+      <path d="M60 17 c3 4 4 6 4 8 a4 4 0 0 1 -8 0 c0 -2 1 -4 4 -8 z" fill="#FFF0A8"/></svg>`;
+  }
+  /* 分页圆点：**三个**（设计图是三步的资料页），当前这一步深色 —— 目前只做前两步（性别 / 出生日期） */
+  function onboardDots(step){
+    const cur = step==='birthday' ? 1 : 0;
+    return `<div class="onb-dots">${[0,1,2].map(i=>`<i class="${i===cur?'on':''}"></i>`).join('')}</div>`;
+  }
+  function onboardGenderPage(){
+    const g=state.gender, picked=g==='男'||g==='女';
+    const card=label=>`<button class="onb-card${g===label?' on':''}" data-action="onboard-gender:${label}" aria-pressed="${g===label}"><span class="onb-card-box">${onboardGlyph(label)}</span><span class="onb-card-label">${label}</span></button>`;
+    return `<div class="onb-page">
+      <div class="onb-top"><span class="onb-top-side" aria-hidden="true"></span>${onboardDots('gender')}<span class="onb-top-side" aria-hidden="true"></span></div>
+      <h1 class="onb-title">选择性别</h1>
+      <div class="onb-cards">${card('男')}${card('女')}</div>
+      <button class="onb-next" data-action="onboard-next" aria-label="下一步"${picked?'':' disabled'}>${icon('ArrowRight')}</button>
+    </div>`;
+  }
+  function onboardBirthdayPage(){
+    const p=onboardPicked();
+    const col=(key,list,fmt,cur)=>`<div class="onb-col" data-col="${key}">${list.map(v=>`<button class="onb-row${v===cur?' on':''}" data-v="${v}" type="button">${fmt(v)}</button>`).join('')}</div>`;
+    return `<div class="onb-page">
+      <div class="onb-top">
+        <button class="onb-back" data-action="onboard-back" aria-label="返回">${icon('ArrowLeft')}</button>
+        ${onboardDots('birthday')}
+        <button class="onb-skip" data-action="onboard-skip">跳过</button>
+      </div>
+      ${onboardCake()}
+      <h1 class="onb-title">你的出生日期</h1>
+      <div class="onb-wheel">
+        ${col('y',ONB_YEARS,v=>v+'年',p.y)}${col('m',ONB_MONTHS,v=>v+'月',p.m)}${col('d',ONB_DAYS,v=>v+'日',p.d)}
+      </div>
+      <p class="onb-meta" id="onb-meta">${onboardMetaText()}</p>
+      <button class="onb-next" data-action="onboard-next" aria-label="完成">${icon('ArrowRight')}</button>
+    </div>`;
+  }
+  function appOnboardPage(){ return state.onboarding==='birthday' ? onboardBirthdayPage() : onboardGenderPage(); }
+  /* 开始 / 收尾（入口：finishKbLogin；动作：onboard-gender / onboard-next / onboard-back / onboard-skip） */
+  function startOnboarding(step){
+    state.onboarding = step || 'gender';
+    /* 资料引导是主 App 的整页（键盘形态没有这一页）：从键盘里登录进来也切到主 App 走完 */
+    openAppScreen('onboard');
+  }
+  function finishOnboarding(birthday){
+    if(birthday){
+      state.birthday=birthday;
+      const {y,m,d}=onboardPicked(), band=ageBand(ageFrom(y,m,d));
+      if(band)state.age=band;
+    }
+    state.onboarded=true; state.onboarding='';
+    persist();
+    openAppScreen('home');
+  }
+  /* 出生日期顺带对上「我的 › 个人资料」里的年龄段（那一页是 18–22 / 23–30 / 31–40 / 40以上 四档） */
+  function ageBand(age){ return age<18?null:age<=22?'18–22':age<=30?'23–30':age<=40?'31–40':'40以上'; }
+  /* 出生日期滚轮（三列）：滚动吸附由 CSS 给（.onb-col 的 scroll-snap），这里负责
+     ① 首帧把每列摆到已选的那一行（scrollTop = 行号 × ONB_ROW，不用平滑滚动）；
+     ② 滚 / 点行都把停住的那行记进 state.onboardPick，并**就地**刷新「N岁 星座」
+        （不整页重渲染 —— 重建 DOM 会把滚轮位置弹回，见 render 里的滚动记忆）；
+     ③ 点箭头（onboard-next）时才真正落库（见 finishOnboarding）。 */
+  function bindOnboardWheel(){
+    document.querySelectorAll('.onb-col').forEach(col=>{
+      const key=col.dataset.col, rows=[...col.querySelectorAll('.onb-row')];
+      if(!rows.length)return;
+      const apply=()=>{
+        const i=Math.max(0,Math.min(rows.length-1,Math.round(col.scrollTop/ONB_ROW)));
+        const v=Number(rows[i].dataset.v);
+        if(v===state.onboardPick[key])return;
+        state.onboardPick[key]=v;
+        rows.forEach((r,ri)=>r.classList.toggle('on',ri===i));
+        const meta=$('#onb-meta'); if(meta)meta.innerHTML=onboardMetaText();
+      };
+      const start=Math.max(0,rows.findIndex(r=>Number(r.dataset.v)===state.onboardPick[key]));
+      col.scrollTop=start*ONB_ROW;
+      let raf=0;
+      col.addEventListener('scroll',()=>{ if(raf)return; raf=requestAnimationFrame(()=>{raf=0;apply();}); },{passive:true});
+      rows.forEach((r,i)=>r.addEventListener('click',()=>col.scrollTo({top:i*ONB_ROW,behavior:'smooth'})));
+    });
+  }
   /* 底部 Tab 栏：首页 / 对象 / 我的。子页保留父 Tab 的选中态（对象的新增 / 编辑算「对象」，
      其余账户类子页算「我的」），登录页不属于任何 Tab，不点亮。 */
   const APP_TABS = [['home','首页','home'],['partners','对象','users'],['account','我的','user']];
   const APP_TAB_OF = {home:'home',partners:'partners','partner-edit':'partners',account:'account',profile:'account',feedback:'account','legal-list':'account'};
   function appTabBar() {
-    /* 「开启键盘」引导流程没有底部 Tab（整页流程） */
-    if(state.appScreen==='kb-guide')return '';
+    /* 「开启键盘」引导流程与首次登录的「资料引导」都没有底部 Tab（都是整页流程） */
+    if(state.appScreen==='kb-guide'||state.appScreen==='onboard')return '';
     const glyph = window.LoveCoSystemGlyphs;
     const active = APP_TAB_OF[state.appScreen] || '';
     return `<nav class="app-nav" role="tablist">${APP_TABS.map(([id,label,g])=>`<button data-action="app-tab:${id}" class="${active===id?'active':''}" aria-selected="${active===id}" role="tab">${glyph[g]}${label}</button>`).join('')}</nav>`;
@@ -1553,6 +1710,8 @@
     const s = state.appScreen;
     /* 「开启键盘」引导流程是主 App 自己的整页：此刻正文整页替换、底部 Tab 栏一并隐藏（见 appTabBar） */
     if(s==='kb-guide')return appKbGuideScreen();
+    /* 首次登录后的「资料引导」（选择性别 / 出生日期两步）同样是整页流程 */
+    if(s==='onboard')return appOnboardPage();
     if(s==='home')return appHomePage();
     if(s==='account')return appAccountPage();
     if(s==='partners')return appPartnersPage();
@@ -1564,14 +1723,16 @@
     /* 「模拟」组在左栏与「仿真控制台」弹层两处同时渲染时靠前缀区分控件 id（与键盘形态同一套机制） */
     state.renderedControls=false;
     const title = state.appScreen==='confirm' ? (state.modalData.title||'确认操作')
-      : ({home:'首页',account:'我的',profile:'个人资料',feedback:'反馈与建议','legal-list':'协议中心',partners:'聊天对象',simulator:'仿真控制台','kb-guide':'开启键盘','partner-edit':state.modalData&&state.modalData.id?'编辑聊天对象':'新增聊天对象'}[state.appScreen] || 'LoveCo');
+      : ({home:'首页',account:'我的',profile:'个人资料',feedback:'反馈与建议','legal-list':'协议中心',partners:'聊天对象',simulator:'仿真控制台','kb-guide':'开启键盘',onboard:'资料设置','partner-edit':state.modalData&&state.modalData.id?'编辑聊天对象':'新增聊天对象'}[state.appScreen] || 'LoveCo');
     const content=appScreenContent();
     /* 引导流程的整页皮肤要连着状态栏一起换底色（引导页紫蓝、模拟设置 / 详情页黑、
        安卓设置页浅色、切换到 LoveCo 键盘页白），给手机挂上对应 class，状态栏配色在 theme.css 里跟着走 */
     const guideCls = state.appScreen==='kb-guide'
       ? (state.kbGuidePage==='guide' ? ' guide-purple'
         : state.kbGuidePage==='switch' ? ' guide-white'
-        : (state.kbGuidePage==='settings' && state.platform==='android') ? ' guide-light' : ' guide-dark') : '';
+        : (state.kbGuidePage==='settings' && state.platform==='android') ? ' guide-light' : ' guide-dark')
+      /* 首次登录的「资料引导」连状态栏一起转淡紫（见 theme.css 的 .guide-lavender） */
+      : state.appScreen==='onboard' ? ' guide-lavender' : '';
     const scrollMemo = captureScrolls($('#app'));
     $('#app').innerHTML = `<div class="shell app-workspace">
       <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">主 App 手机模拟器</span></div><div class="top-actions"><span class="sandbox-pill"><i class="dot"></i>本地仿真 · 无真实扣款</span><button class="text-button" data-action="reset">重置会话</button></div></header>
@@ -3206,6 +3367,23 @@
        回键盘的入口了，回键盘形态走工作台左栏的 App形态切换。 */
     if(name==='app-tab'){if(!state.loggedIn){openKbLogin();return;}return openAppScreen(arg);}
     if(name==='app-membership'){if(needLogin())return;return openPaywall();}
+    /* —— 首次登录后的「资料引导」（appOnboardPage，见 finishOnboarding）—— */
+    /* 选性别：只改 state.gender（这一步不落库），底部箭头随之点亮 */
+    if(name==='onboard-gender'){state.gender=arg;return render();}
+    /* 底部箭头：性别这一步 = 进「你的出生日期」；出生日期这一步 = 把滚轮上停着的那天落库并结束引导 */
+    if(name==='onboard-next'){
+      if(state.onboarding==='birthday'){
+        const {y,m,d}=onboardPicked();
+        return finishOnboarding(`${y}-${String(m).padStart(2,'0')}-${String(d).padStart(2,'0')}`);
+      }
+      /* 性别**不可跳过**：没选就不放行（按钮本来就是 disabled，这里是兜底） */
+      if(state.gender!=='男'&&state.gender!=='女')return;
+      return startOnboarding('birthday');
+    }
+    /* 出生日期这一步的返回箭头 = 回性别那一步（之前选的性别留着） */
+    if(name==='onboard-back')return startOnboarding('gender');
+    /* 出生日期**可跳过**：不带生日结束引导（性别已在第一步选好） */
+    if(name==='onboard-skip')return finishOnboarding('');
     /* 「我的」客户支持：键盘内容投诉与举报 → 反馈页并把类型预选成「举报」
        （先清掉反馈页的表单缓存，否则上一次选过的类型会盖掉这次预选）
        —— 原「在线客服」入口（support 动作与页面）已于 2026-09-26 删除 */
@@ -3663,6 +3841,8 @@
     document.querySelectorAll('[data-action]').forEach(node=>node.addEventListener('click',()=>action(node.dataset.action)));
     bindKbLoginInputs();
     bindKbSwitchPage();
+    /* 首次登录「资料引导」的出生日期滚轮（不在这一页时查不到 .onb-col，空跑） */
+    bindOnboardWheel();
     /* 按住说话（语音入口全部改为 pointer 按住，不再有点击弹层）：
        pointerdown 即开始「录音」（遮罩由 render 输出），preventDefault 压掉文本选择 / 拖拽；
        后续 move / up 由 window 级监听接管（见 beginVoiceHold），按钮上不挂任何 click 动作。
@@ -3807,6 +3987,8 @@
           if(checkKbEntry())return;
           render();return;
         }
+        /* 第一次登录（用这个开关直接置成已登录也算）也要先走一遍资料引导（见 startOnboarding） */
+        if(!state.onboarded){startOnboarding();return;}
         render();return;
       }
       /* 键盘在屏时这就是一次「键盘上的前置检查」：先看完全访问、再看登录 —— 没权限弹引导层、

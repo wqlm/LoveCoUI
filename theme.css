@@ -1617,8 +1617,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 @keyframes aps-up { from { transform: translateY(100%); } }
 /* 屏幕右上角的两行白色提示（iOS 会把「双击侧边按钮」的提示浮在弹窗上方） */
 .aps-hint { position: absolute; top: 7px; right: 12px; margin: 0; color: #FFF; font-size: 13px; line-height: 1.35; text-align: center; text-shadow: 0 1px 6px #00000066; }
-/* 底部 sheet：占屏幕下方约三分之二（min-height），确认区沉在它底边之上；顶部大圆角 + 向上投影 */
-.aps-sheet { min-height: 66%; padding: 16px 18px 20px; border-radius: 18px 18px 0 0; background: var(--aps-bg); box-shadow: 0 -16px 44px #00000073; }
+/* 底部 sheet：**高度随内容走**（2026-09-28 按反馈：原先靠 `min-height:66%` + 确认区
+   `margin-top:auto` 把它沉底，屏幕越高、确认区与上方「Account」行之间空出的那段就越大（实测 179px）；
+   现在去掉这两条、改成固定间距，各种屏高下都是同一段留白）；顶部大圆角 + 向上投影 */
+.aps-sheet { padding: 16px 18px 20px; border-radius: 18px 18px 0 0; background: var(--aps-bg); box-shadow: 0 -16px 44px #00000073; }
 .aps-title { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: .2px; }
 .aps-close { width: 32px; height: 32px; border-radius: 50%; background: #3A3A3C; color: #FFF; }
 .aps-close:hover { background: #48484A; }
@@ -1633,8 +1635,9 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .aps-price { margin: 14px 0 0; font-size: 19px; font-weight: 600; }
 .aps-charge { margin: 2px 0 0; font-size: 12px; color: var(--aps-sub); }
 .aps-account { margin: 18px 0 0; font-size: 12px; color: var(--aps-sub); }
-/* 确认区：沉在 sheet 底部（margin-top:auto 吃掉余高），点它 = 确认支付（真机是双击侧边按钮） */
-.aps-confirm { margin-top: auto; padding: 22px 0 4px; color: var(--aps-sub); }
+/* 确认区：紧跟在「Account」行下面（24px + 8px 内边距 = 一段固定留白），不再沉到 sheet 底边；
+   点它 = 确认支付（真机是双击侧边按钮） */
+.aps-confirm { margin-top: 24px; padding: 8px 0 4px; color: var(--aps-sub); }
 .aps-confirm:hover .aps-side { transform: scale(1.04); }
 .aps-side { width: 46px; height: 46px; transition: transform .16s ease-out; }
 /* 侧边按钮图形按容器铺满 —— 这条必须写在 theme.css：styles.css 在 base layer，
@@ -2268,7 +2271,10 @@ html[data-view="device"] .sheet-footer {
 .app-phone.guide-purple > .statusbar { background: #5B68F5; color: #fff; }
 .app-phone.guide-dark > .statusbar { background: #0B0B0C; color: #fff; }
 .app-phone.guide-light > .statusbar { background: #F2F2F6; color: #191919; }
-.app-phone.guide-purple .app-main, .app-phone.guide-dark .app-main, .app-phone.guide-light .app-main { width: 100%; padding: 0; }
+/* 首次登录的「资料引导」（2026-09-28）：淡紫整页，状态栏连着一起转淡紫 */
+.app-phone.guide-lavender { background: #F5F6FC; }
+.app-phone.guide-lavender > .statusbar { background: #F5F6FC; color: #191919; }
+.app-phone.guide-purple .app-main, .app-phone.guide-dark .app-main, .app-phone.guide-light .app-main, .app-phone.guide-lavender .app-main { width: 100%; padding: 0; }
 
 /* 引导页（紫蓝整页）：白圆角大卡播演示动画 + 一行说明 + 黑胶囊按钮（一至两颗）。
    元素**整体上下居中**（2026-09-27 按其反馈调，此前挤在顶部、下面一大片留白）：
@@ -2574,3 +2580,46 @@ html[data-view="device"] .sheet-footer {
 /* 打字机光标：正在输出的那一段末尾，淡紫竖条闪烁 */
 .gx-typing:after { background: #8F7BF2; animation: gx-caret 1s steps(1) infinite; }
 @keyframes gx-caret { 50% { opacity: 0; } }
+
+/* ---- 首次登录的「资料引导」（2026-09-28，选择性别 / 你的出生日期两步）----
+   主 App 的**整页流程**（无底部 Tab，状态栏连着一起转淡紫 .guide-lavender，见上面那三条），
+   淡紫底（#F5F6FC）+ 白卡 + 一枚蓝色胶囊箭头按钮，两步共用同一套骨架：
+   ① 选择性别：两颗并列的 1:1 白卡，卡上是 **♂ / ♀ 两个符号图形**（按需求代替插画头像 ——
+      SVG 粗圆头描边 + 渐变描边色：男蓝紫、女粉红，见 app.js 的 onboardGlyph）；
+   ② 你的出生日期：蛋糕插画 + 三列滚轮（年 / 月 / 日）—— 吸附由 CSS 的 scroll-snap 给，
+      行高 44px = app.js 的 ONB_ROW（滚动停在哪一行按它换算，见 bindOnboardWheel）。 */
+.onb-page { min-height: 100%; background: #F5F6FC; color: #191919; padding: 6px 24px 30px; display: flex; flex-direction: column; align-items: center; }
+.onb-top { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; }
+/* 性别那一步没有返回钮也没有「跳过」（不可跳过），两侧各留一个与返回钮同宽的占位，圆点才在正中 */
+.onb-top-side { width: 36px; }
+.onb-dots { display: flex; gap: 7px; }
+.onb-dots i { width: 6px; height: 6px; border-radius: 50%; background: #D9DBE6; }
+.onb-dots i.on { background: #2E2E3A; }
+.onb-back { width: 36px; height: 36px; border-radius: 50%; border: 0; background: #fff; color: #2E2E3A; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(40, 40, 90, .1); cursor: pointer; }
+.onb-back svg { width: 16px; height: 16px; }
+.onb-skip { min-width: 36px; border: 0; background: none; color: #9B9BAA; font-size: 15px; text-align: right; cursor: pointer; }
+.onb-title { margin: 24px 0 0; font-size: 21px; font-weight: 700; letter-spacing: .5px; }
+.onb-cards { display: flex; gap: 18px; width: 100%; margin-top: 30px; }
+.onb-card { flex: 1; border: 0; background: none; padding: 0; display: flex; flex-direction: column; align-items: center; gap: 14px; cursor: pointer; }
+.onb-card-box { width: 100%; aspect-ratio: 1; border-radius: 26px; background: #fff; box-shadow: 0 10px 26px rgba(40, 40, 90, .09); border: 2px solid transparent; display: flex; align-items: center; justify-content: center; transition: border-color .18s, background .18s; }
+.onb-card.on .onb-card-box { border-color: #5B68F5; background: #F2F3FF; }
+.onb-glyph { width: 62%; height: 62%; }
+.onb-card-label { font-size: 16px; font-weight: 600; color: #4A4A57; }
+.onb-card.on .onb-card-label { color: #4B57E6; }
+.onb-cake { width: 116px; height: 116px; margin-top: 16px; }
+/* 滚轮：整块 5 行高（220px），中线上铺一条白色圆角选中带（第 3 行 = 88–132px） */
+.onb-wheel { position: relative; display: flex; gap: 10px; width: 100%; height: 220px; margin-top: 18px; }
+.onb-wheel:before { content: ''; position: absolute; left: 0; right: 0; top: 88px; height: 44px; border-radius: 12px; background: #fff; box-shadow: 0 6px 18px rgba(40, 40, 90, .08); pointer-events: none; }
+/* position:relative 把列抬到选中带（.onb-wheel:before，同级的定位元素）之上 —— 否则白带会盖住
+   中线那一行的字；上下两端的 mask 渐隐做出「远近两行更淡」的景深（设计图的样子） */
+.onb-col { position: relative; flex: 1; height: 220px; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; display: flex; flex-direction: column; -webkit-overflow-scrolling: touch; -webkit-mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent); mask-image: linear-gradient(to bottom, transparent, #000 20%, #000 80%, transparent); }
+.onb-col::-webkit-scrollbar { display: none; }
+/* 上下各垫两行，第一 / 最后一行才能滚到中线停住 */
+.onb-col::before, .onb-col::after { content: ''; display: block; height: 88px; flex: 0 0 auto; }
+.onb-row { display: flex; align-items: center; justify-content: center; width: 100%; height: 44px; flex: 0 0 auto; scroll-snap-align: center; border: 0; background: none; color: #A2A3B2; font-size: 16px; cursor: pointer; }
+.onb-row.on { color: #191919; font-weight: 700; }
+.onb-meta { display: flex; justify-content: center; gap: 26px; margin: 18px 0 0; font-size: 17px; font-weight: 600; color: #2A2A33; }
+/* 底部箭头：居中贴底（margin-top:auto 把它推到底），没选性别时置灰不可点 */
+.onb-next { display: flex; align-items: center; justify-content: center; width: 112px; height: 56px; margin: auto auto 0; border: 0; border-radius: 28px; background: #5B68F5; color: #fff; box-shadow: 0 10px 24px rgba(91, 104, 245, .32); cursor: pointer; }
+.onb-next svg { width: 22px; height: 22px; }
+.onb-next:disabled { background: #DCDDE8; color: #AEB0C2; box-shadow: none; cursor: default; }
