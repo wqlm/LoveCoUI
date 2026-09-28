@@ -241,6 +241,19 @@ small{font-size:11px;color:#73847d}
 .kb-paywall .pw-legal-link{padding:0;border:0;background:none;font:inherit;font-weight:600;line-height:inherit;cursor:pointer}
 .kb-paywall .pw-cta{position:relative;flex-shrink:0;border:0;border-radius:999px}
 .kb-paywall .pw-cta-tag{position:absolute;border-radius:6px}
+/* iOS 系统支付框（ios-pay-sheet）：iOS 上点会员开通层的「立即解锁」就地弹出的系统级弹层 ——
+   挂在手机根节点上、铺满整个手机屏（骨架；深色皮肤在 theme.css，只有 iOS 会走到它） */
+.aps-layer{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;justify-content:flex-end}
+.aps-scrim{position:absolute;inset:0}
+.aps-sheet{position:relative;display:flex;flex-direction:column}
+.aps-head{display:flex;align-items:center;justify-content:space-between}
+.aps-close{display:grid;place-items:center;border:0}
+.aps-card{display:flex;flex-direction:column}
+.aps-item{display:flex}
+.aps-info{flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+.aps-sub{display:flex;align-items:center}
+.aps-confirm{display:flex;flex-direction:column;align-items:center;border:0;background:none;cursor:pointer}
+.aps-side{display:flex}
 /* 键盘完全访问引导页（kb-full-access）：骨架（深色头部 / 浅色主体 / 卡片与两张引导图的轮播在 theme.css） */
 .kb-full-access{position:absolute;inset:0;z-index:18;display:flex;flex-direction:column}
 .kb-full-access .kfa-head{flex-shrink:0;display:flex;align-items:center;justify-content:flex-end}
@@ -469,5 +482,47 @@ to{transform:translateY(0);opacity:1}
 .kb-toolbar{padding:0 7px;gap:1px}
 .phone .sheet{max-height:96%}
 }
+/* ---- 键盘使用引导（kb-usage-guide 组件）：整机覆盖的演示层（假页面）----
+   铺满手机屏幕（含状态栏），z-index 25 —— 高于键盘区域里的全部覆盖层（15–18）与
+   手机内弹层遮罩（20）。内部四块：.gx-body（状态栏以下的自绘聊天页 + 键盘）、
+   .gx-flash（截图白闪）、.gx-mask（全屏挡板 + 高亮框 + 提示）、.gx-win（庆祝层）。
+   皮肤与动画在 theme.css；高亮框的坐标由 app.js 的 paintKbUsageGuide 渲染后实测写入。 */
+.kb-usage-guide{position:absolute;inset:0;z-index:25}
+.gx-body{position:absolute;inset:var(--lc-sysbar-height) 0 0;display:flex;flex-direction:column;overflow:hidden}
+.gx-host{flex:1;min-height:0;display:flex;flex-direction:column}
+.gx-chat{flex:1;min-height:0;overflow-y:auto}
+.gx-field-text{flex:1;min-width:0;padding:7px 11px;font-size:14px;line-height:19px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+/* 键盘：高度按步骤走（0 = 未弹出 / 常规高 = 键盘页 / 面板高 = 分析面板那几步），
+   展开与回落都是高度动画（主题在 theme.css）—— 里面那块 .keyboard 贴底，容器长高时
+   整块从下往上露出来（真机手感）；高度 0 时它藏在容器下方外面（被裁掉）。
+   键区 / 底栏 / 菜单栏整块关掉指针事件：演示层里只有遮罩上的高亮框可点，键盘是「图片」。 */
+.gx-kb{position:relative;flex-shrink:0;height:0;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end}
+.gx-kb-inner{flex-shrink:0}
+.gx-kb .kb-toolbar,.gx-kb .kb-body,.gx-kb .kb-sysbar{pointer-events:none}
+/* 遮罩层：透明挡板吃掉高亮区以外的点击（点别处 = 什么都不发生）+ 高亮框 + 笔刷提示。
+   z-index 20 要压在键盘区域里那两块整页层（扫描过渡 / 聊天分析面板，各 16）之上 ——
+   选回复那一步的高亮目标就在面板里，遮罩被面板盖住就什么也看不见了；
+   白闪与庆祝层再高一档（两者与遮罩不会同时出现，这里的次序只为读起来直观）。 */
+.gx-mask{position:absolute;inset:0;z-index:20}
+.gx-shield{position:absolute;inset:0}
+.gx-spot{position:absolute;border-radius:16px}
+.gx-spot:after{content:"";position:absolute;inset:-3px;border-radius:19px;border:2px solid #5C7CF0}
+/* nowrap 不只是排版：绝对定位元素靠右时 shrink-to-fit 会被剩余空间压窄
+   （整块提示被压成几个字宽），nowrap 把最小宽度抬到整行，宽度才始终由内容决定 */
+.gx-tip{position:absolute;display:flex;align-items:center;gap:5px;white-space:nowrap;transform:translateX(-50%);cursor:pointer}
+.gx-tip-up{transform:translate(-50%,-100%)}
+.gx-tip-face{flex-shrink:0;font-size:30px;line-height:1}
+.gx-tip-text{flex-shrink:0;padding:9px 16px 10px;font-size:17px;font-weight:800;letter-spacing:.5px}
+/* 截图白闪（点击高亮消息那一下）与庆祝层（win） */
+.gx-flash{position:absolute;inset:0;z-index:21;background:#FFF;pointer-events:none}
+.gx-win{position:absolute;inset:0;z-index:22;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:30px;overflow:hidden}
+.gx-win-title{margin:0;font-size:34px;font-weight:900;font-style:italic;letter-spacing:2px}
+.gx-win-btn{height:46px;padding:0 42px;border:0;border-radius:23px;font-size:17px;font-weight:700;cursor:pointer}
+.gx-confetti{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.gx-confetti i{position:absolute;top:-16px;left:calc(var(--x)*1%);width:8px;height:12px;background:var(--c)}
+.gx-confetti i:nth-child(3n){width:10px;height:10px;border-radius:50%}
+.gx-confetti i:nth-child(4n){width:6px;height:14px}
+/* 打字机光标：正在输出的那一段的末尾 */
+.gx-typing:after{content:"";display:inline-block;width:2px;height:12px;margin-left:2px;vertical-align:-2px}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}
 }

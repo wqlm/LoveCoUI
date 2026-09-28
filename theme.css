@@ -1564,7 +1564,9 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 /* 自动续订说明（照设计图 1:1，只在 iOS 渲染；永久会员那一档整段不出现）：
    浅灰小字、两端对齐，压在协议行下面 —— 同样在首屏之外，要滚动才看得到 */
 .kb-paywall .pw-note { margin: 13px 0 0; font-size: 10px; line-height: 1.75; color: var(--pw-faint); text-align: justify; }
-/* 主按钮：整宽蓝色胶囊（在滚动列内），红色小标悬在右上角、文案随档位变 */
+/* 主按钮：整宽蓝色胶囊（在滚动列内），红色小标悬在右上角、文案随档位变；
+   **整颗持续一闪一闪**（2026-09-28 需求：引导点击 —— 1.4s 一个来回，亮度在 1 ↔ .72 之间脉动、
+   蓝色光晕同步收放；与引导页主按钮的 kg-breathe 同一路做法，这里用亮度闪烁更显眼） */
 .kb-paywall .pw-cta {
   width: 100%;
   height: 38px;
@@ -1574,9 +1576,14 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   font-size: 15px;
   font-weight: 650;
   box-shadow: 0 6px 16px #3F66F13D;
+  animation: pw-cta-blink 1.4s ease-in-out infinite;
+}
+@keyframes pw-cta-blink {
+  0%, 100% { opacity: 1; box-shadow: 0 6px 16px #3F66F13D; }
+  50% { opacity: .72; box-shadow: 0 6px 22px #3F66F166; }
 }
 .kb-paywall .pw-cta:hover { background: var(--pw-cta-strong); }
-.kb-paywall .pw-cta:disabled { background: #B9C4F0; box-shadow: none; }
+.kb-paywall .pw-cta:disabled { background: #B9C4F0; box-shadow: none; animation: none; }
 .kb-paywall .pw-cta-tag { right: 10px; top: -8px; height: 16px; padding: 0 5px; background: var(--pw-tag); color: #FFF; font-size: 9px; line-height: 16px; font-weight: 600; }
 /* 极矮窗口（device 视图 <520px 高，键盘只有 210px）：整条再收紧一档，三档卡与按钮都够得着 */
 @media (max-height: 519px) {
@@ -1592,6 +1599,48 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   .kb-paywall .pw-cta { height: 35px; margin-top: 24px; font-size: 14px; }
   .kb-paywall .pw-cta-tag { top: -7px; height: 15px; line-height: 15px; }
 }
+/* iOS 系统支付框（ios-pay-sheet 组件）：iOS 上点会员开通层的「立即解锁」就地弹出的**系统级**弹窗
+   （App Store 内购确认，照参考截图）—— 挂在手机根节点上、铺满整个手机屏（含键盘与宿主 App），
+   自成一层皮肤：**固定系统深色外观**（系统弹窗不跟随键盘的浅色 / 深色皮肤）。
+   自上而下：屏幕右上角两行白色提示「Double Click / to Pay」（压在蒙层之上）→ 底部深色 sheet：
+   大标题「App Store」+ 右上角圆形 X → 商品卡（LoveCo 图标 + 档位名 + App 名与「12+」评级 +
+   「In-App Purchase」+ 价格与计费说明）→ 卡外一行「Account: …」→ 底部居中「侧边按钮图形 +
+   Confirm with Side Button」。层级 50：压过按住说话遮罩（40），是手机内的最高层。
+   弹入动画（蒙层淡入 + sheet 从底部滑入）只在打开那一次渲染播放（app.js 用 pickerEnter 挂 .entering）。 */
+.aps-layer { --aps-bg: #1C1C1E; --aps-card: #2C2C2E; --aps-ink: #FFFFFF; --aps-sub: #98989F; color: var(--aps-ink); }
+.aps-scrim { background: #0000007A; }
+.aps-layer.entering .aps-scrim { animation: aps-fade .24s ease-out both; }
+.aps-layer.entering .aps-sheet { animation: aps-up .34s cubic-bezier(.32, .72, 0, 1) both; }
+.aps-layer.entering .aps-hint { animation: aps-fade .5s ease-out .18s both; }
+@keyframes aps-fade { from { opacity: 0; } }
+@keyframes aps-up { from { transform: translateY(100%); } }
+/* 屏幕右上角的两行白色提示（iOS 会把「双击侧边按钮」的提示浮在弹窗上方） */
+.aps-hint { position: absolute; top: 7px; right: 12px; margin: 0; color: #FFF; font-size: 13px; line-height: 1.35; text-align: center; text-shadow: 0 1px 6px #00000066; }
+/* 底部 sheet：占屏幕下方约三分之二（min-height），确认区沉在它底边之上；顶部大圆角 + 向上投影 */
+.aps-sheet { min-height: 66%; padding: 16px 18px 20px; border-radius: 18px 18px 0 0; background: var(--aps-bg); box-shadow: 0 -16px 44px #00000073; }
+.aps-title { margin: 0; font-size: 24px; font-weight: 700; letter-spacing: .2px; }
+.aps-close { width: 32px; height: 32px; border-radius: 50%; background: #3A3A3C; color: #FFF; }
+.aps-close:hover { background: #48484A; }
+.aps-close svg { width: 15px; height: 15px; }
+/* 商品卡：图标 + 档位名 / App 名与评级 / In-App Purchase，下半是价格与计费说明 */
+.aps-card { margin-top: 14px; padding: 14px; border-radius: 14px; background: var(--aps-card); }
+.aps-item { gap: 12px; }
+.aps-icon { width: 52px; height: 52px; border-radius: 12px; }
+.aps-name { font-size: 16px; font-weight: 600; line-height: 1.3; }
+.aps-sub { margin: 3px 0 0; font-size: 12px; line-height: 1.4; color: var(--aps-sub); }
+.aps-rating { margin-left: 5px; padding: 0 3px; border: 1px solid currentColor; border-radius: 3px; font-size: 9.5px; font-style: normal; line-height: 1.4; }
+.aps-price { margin: 14px 0 0; font-size: 19px; font-weight: 600; }
+.aps-charge { margin: 2px 0 0; font-size: 12px; color: var(--aps-sub); }
+.aps-account { margin: 18px 0 0; font-size: 12px; color: var(--aps-sub); }
+/* 确认区：沉在 sheet 底部（margin-top:auto 吃掉余高），点它 = 确认支付（真机是双击侧边按钮） */
+.aps-confirm { margin-top: auto; padding: 22px 0 4px; color: var(--aps-sub); }
+.aps-confirm:hover .aps-side { transform: scale(1.04); }
+.aps-side { width: 46px; height: 46px; transition: transform .16s ease-out; }
+/* 侧边按钮图形按容器铺满 —— 这条必须写在 theme.css：styles.css 在 base layer，
+   会被无分层的全局 `svg { width: var(--lc-icon-size) }` 压过（骨架里写同义规则不生效） */
+.aps-side svg { display: block; width: 100%; height: 100%; }
+.aps-confirm-text { margin-top: 7px; font-size: 13px; }
+.aps-confirm:disabled { opacity: .6; cursor: default; }
 /* —— 登录层 / 会员开通层 / 键盘内协议正文页在主 App 里的适配 ——
    同一套结构在键盘形态里按「一条键盘那么高的横带」紧凑排布（见上面的 .kb-login / .kb-paywall /
    .kb-legal 规则），主 App 里铺满整个正文区（.app-shell，含底部 Tab 栏）会显得元素全挤在顶部 ——
@@ -2477,6 +2526,9 @@ html[data-view="device"] .sheet-footer {
 .kb-usage-guide { background: var(--wx-bg); color: var(--wx-received-ink); }
 .gx-body { background: var(--wx-bg); }
 .gx-chat { background: var(--wx-bg); }
+/* 消息从顶部开始排（与参考截图一致；宿主会话本体仍是贴底的 .wx-chat 那一套）——
+   内容不满一屏时停在顶部，超出后由 app.js 滚到最新一条 */
+.kb-usage-guide .gx-chat > :first-child { margin-top: 0; }
 .gx-field-text { color: var(--wx-received-ink); }
 /* 键盘高度：按步骤展开（kb 那步从 0 长到常规高）/ 拉高到面板高（scan / stream / pick）/
    回落（send 从面板高收回常规高）。动画从「上一态的兑现高度」出发、用 px 变量插值
