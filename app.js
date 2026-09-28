@@ -900,6 +900,9 @@
      「AI 分析过渡页」不设定时器：避免 1 秒后自动切走，方便静态查看（真实链路里由 openScanPanel 播完接面板）。 */
   function setupPage(it) {
     if(state.appView==='app'){
+      /* 键盘使用引导（kb-usage-guide 组件）：这一层铺在**键盘形态**的整机上 —— 主 App 列表点入
+         先切回键盘形态，再从头开演（openKbUsageGuide 内部处理） */
+      if(it.id==='kb-usage-guide')return openKbUsageGuide();
       /* 目录里的整屏流程子页（不在 appScreens 集合、从流程中途进入）：静态跳转补上运行上下文
          （原「确认模拟订单」「权益已到账」两条子页已随购买链路合并而删除） */
       if(it.id==='partner-new')return openAppScreen('partner-edit');
