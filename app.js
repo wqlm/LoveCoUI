@@ -31,21 +31,14 @@
       r2: '完了，这下要被爸爸警告了',
     },
     order: ['brief', 't1', 'r1', 't2', 'r2'],
-    /* 聊天页剧本：最后一条（hot）是引导第一步的高亮目标（要「截」的那句话） */
+    /* 聊天页剧本：**只留一条**（要「截」的那句话）—— 上面不留历史记录，第一屏保持干净 */
     messages: [
-      { time: '9月26日 星期六 20:14', text: '终于下班了，今天真的好漫长。', mine: false },
-      { text: '辛苦啦，今天过得怎么样？', mine: true },
-      { text: '今天有点累，感觉什么都没做好。', mine: false },
-      { time: '9月27日 星期日 09:07', text: '那你早点休息，我也赶紧把活干完撤了。', mine: true },
-      { text: '爸爸说，离花言巧语的男生要远一点。', mine: false, hot: true },
+      { time: '9月27日 星期日 09:07', text: '爸爸说，离花言巧语的男生要远一点。', mine: false, hot: true },
     ],
   };
-  /* 「刚截的截图」：菜单栏上那张缩略图（core/kit.js 的 shotThumb 画成方形位图）就用它 ——
-     最近三条消息按聊天页的左右顺序取，缩略图里看到的就是刚刚那一屏 */
-  GUIDE_DEMO.shot = {
-    id: 'gx-shot', name: '刚刚的截图', time: '刚刚',
-    messages: ['今天有点累，感觉什么都没做好。', '那你早点休息，我也赶紧把活干完撤了。', '爸爸说，离花言巧语的男生要远一点。'],
-  };
+  /* 截图缩略图不再用 core/kit.js 的位图画法：改成组件里自绘的「聊天页缩影」
+     （.gx-shot-art = 顶部条 / 一条消息 / 底部输入栏）—— 截屏瞬间左下角浮出的那张与
+     菜单栏那颗方形缩略图是同一张画法的两种尺寸，「刚截的截图」长什么样一眼就对得上 */
   const initialPartners = [
     {id:'p1',name:'林间',gender:'女',stage:'暧昧',note:'喜欢周末散步、独立书店和不太甜的咖啡。',color:'coral',avatar:AV.p1||''},
     {id:'p2',name:'陈一',gender:'男',stage:'熟悉',note:'最近在筹备摄影展，喜欢轻松直接的聊天。',color:'blue',avatar:AV.p2||''},
@@ -275,6 +268,11 @@
        开关，kbPlan 是它选中的档位（默认永久会员）。商品只有一张表（PLANS，见下）——
        原「键盘内 / 主 App 各一套商品、靠 planSource 分流」的做法已随主 App 会员页删除作废。 */
     kbPaywall:false, kbPlan:'permanent',
+    /* 主 App · 商品购买页（appPurchasePage，2026-09-28 新增）：主 App 的购买都走这一整页
+       （「我的」横幅 / 额度不足 / 键盘安卓·鸿蒙跳转过来，见 gotoAppPurchase）。
+       purchaseAgreed 是页面上那颗圆形协议勾选框（照参考图带勾选：未勾选点「立即解锁」
+       只让协议行抖动，不往下走）—— 键盘内的付费引导层不带勾选框，两边互不影响。 */
+    purchaseAgreed:false,
     /* iOS 系统支付框（state.iosPaySheet，ios-pay-sheet 组件）：iOS 上点会员开通层的「立即解锁」
        就地弹出的 App Store 内购确认弹窗（系统级、铺满整机）—— 只在 iOS 出现；取消 / 支付成功 /
        切形态 / 换页都会收起。开着时 Esc 与它自己的 X 同一条出口（试付进行中不可关）。 */
@@ -293,11 +291,15 @@
     /* 首次登录后的「资料引导」（2026-09-28 需求，见 appOnboardPage）：第一次登录成功收起登录层
        那一刻接着走两步 —— ① **选择性别**（不可跳过）→ ② **你的出生日期**（可跳过），
        走完（或跳过第 ② 步）才进主 App 首页，之后登录不再出现。
-       onboarded 只记这套流程有没有走完（**落库**）—— 没走完时每次登录成功都会再走一遍；
+       「是否首次登录」由左栏「模拟 › 首次登录App」仿真开关控制（firstLogin，**默认开**、落库；
+       两种 App形态左栏与「仿真控制台」弹层三处同步）—— 开 = 登录成功就走资料引导；
+       走完（或跳过）时开关像「模拟额度耗尽」那样**自动复位成关**（生命周期同理：模拟的是
+       「这台设备还是首次登录」这一状态），想再看一遍就手动再打开。
        birthday 是 'YYYY-MM-DD'（跳过则留空，落库；「我的 › 个人资料」里的年龄段随之对上）；
        onboarding 是当前停在第几步（'' / 'gender' / 'birthday'）、onboardPick 是出生日期那一步
        滚轮上停着的年月日 —— 两者都是页面内存，不落库。 */
-    birthday:saved.birthday||'', onboarded:saved.onboarded===true, onboarding:'', onboardPick:{y:2006,m:9,d:28},
+    birthday:saved.birthday||'',
+    firstLogin:saved.firstLogin===false || saved.onboarded===true ? false : true, onboarding:'', onboardPick:{y:2006,m:9,d:28},
   };
   /* ?surface=app 直接进入主 App 形态。进入不再直接落首页：先走一遍状态检查链
      appEntryCheck() —— 键盘未开启就整页进「开启键盘」引导、完全访问没开弹引导层、
@@ -352,8 +354,8 @@
         nickname:state.nickname,credits:state.credits,member:state.member,memberExpiry:state.memberExpiry,
         /* 「模拟额度耗尽」的开关状态与快照一起落库：积分与开关始终成对（见 state 顶部注释） */
         creditsOut:state.creditsOut,creditsSnapshot:state.creditsSnapshot,
-        /* 首次登录资料引导的结果一起落库：生日（跳过则留空）+「已走完」标记（见 state.onboarded） */
-        partners:state.partners,gender:state.gender,age:state.age,birthday:state.birthday,onboarded:state.onboarded}));
+        /* 首次登录资料引导的结果一起落库：生日（跳过则留空）+「模拟 › 首次登录App」开关（见 state.firstLogin） */
+        partners:state.partners,gender:state.gender,age:state.age,birthday:state.birthday,firstLogin:state.firstLogin}));
     } catch (_) {}
   }
   function person() { return state.partners.find(p=>p.id===state.selectedPartner); }
@@ -575,21 +577,18 @@
     {id:'platform-ios',group:'系统外观',name:'平台外观 · iOS',route:'键盘 › 平台外观（?platform=ios）',trigger:'工作台「运行平台」切到 iOS，或本列表点入',desc:'顶部状态栏「药丸挖孔」（灵动岛）样式；键盘底栏是「地球 + 语音输入（按住说话）」两颗键',note:'三端外观差异另见「平台差异」表；切平台同时影响选图的接力文案等仿真行为'},
     {id:'platform-harmony',group:'系统外观',name:'平台外观 · 鸿蒙',route:'键盘 › 平台外观（?platform=harmony）',trigger:'工作台「运行平台」切到鸿蒙，或本列表点入',desc:'顶部状态栏「圆点挖孔」样式；键盘底栏左侧「地球」键（切换输入法）、右侧「小艺」星芒标识（纯装饰，不选不亮、点击无反应）',note:'三端外观差异另见「平台差异」表'},
     {id:'platform-android',group:'系统外观',name:'平台外观 · Android',route:'键盘 › 平台外观（?platform=android）',trigger:'工作台「运行平台」切到 Android，或本列表点入',desc:'顶部状态栏「圆点挖孔」样式；键盘底栏整条不渲染（Android 无此栏），覆盖层 / 选择器直接铺到屏幕底部',note:'三端外观差异另见「平台差异」表'},
-    /* 键盘形态的付费引导：额度不足时盖住整个键盘区域（与主 App「会员与积分」页是两套商品、两套皮肤） */
-    {id:'kb-paywall',group:'会员与积分',name:'会员开通覆盖层（主 App / 键盘共用）',route:'键盘 › 整页覆盖层；主 App › 整页覆盖层（「我的」横幅 / 额度不足）',trigger:'① 键盘模式下发起 AI 生成（立即分析 / 重新生成 / 语音追问 / 键盘发送）时额度不足 —— 左栏「模拟 › 模拟额度耗尽」打开（积分清零且非会员）；② 主 App 点「我的」的会员横幅「立即查看」、或主 App 形态下发起的生成额度不足（原「会员与积分」整页已删，两处打开的是同一层）。本列表点入为静态查看（现场把额度置成耗尽，不落库）',desc:'额度不足（或主 App 点会员横幅）时打开这一层：键盘形态铺满**整个键盘区域**（菜单栏 / 键区 / 底栏一并盖住；键盘高度不额外拉高，就是常规键盘那一块 250px / 矮窗口 210px）、从下往上滑入；主 App 形态浮在整个主 App 上。结构自上而下：① 右上角一枚圆形 X（只收起这一层回键盘，额度仍是 0 —— 再发起生成还会弹）；② 两行居中标题「成为LoveCo会员，/ 无限次使用AI功能～」（16px 深墨字，两行等宽居中排，标题上方**不再放**「3000 万+用户选择」「第 1 名」那两块徽章）；③ 三档商品卡**横向等分并排**（永久会员 ¥128 / 周会员 ¥9.9 / 季度会员 ¥98，卡内自上而下：12px 灰档位名 → 20px 加粗现价（¥ 比数字小一档）→ 11px 灰字划线原价 ¥576 / ¥48 / ¥128），选中的那张浅紫底 + 2px 紫描边、其余白底浅灰描边，点卡片即切换选中档位（默认永久会员）；④ 整宽蓝色胶囊「立即解锁」（在滚动列内 —— 不是钉在底栏上方；**整颗持续一跳一跳**（放大缩小：1.4s 一个来回、scale 1 ↔ 1.055 + 蓝色投影同步加深，2026-09-28 需求定稿），引导点击；右上角悬一枚红色小标，**文案随档位变**：永久会员「一次性买断」/ 周会员「畅享 7 天」/ 季度会员「畅享 90 天」）；⑤ **协议行沉在按钮下方** —— 10px 灰字「我已阅读并同意《会员协议》、《续费协议》」，**不带勾选框**（已按需求去掉，购买不再前置勾选），两份协议名都是同一层里可点的深色文字按钮：点开键盘内协议正文页 kb-legal，压在这一层之上、X 一关即回本层；**永久会员那一档只留《会员协议》**（一次性买断、不涉续订），《续费协议》跟着下方那段说明一起不出现；⑥ **自动续订说明**（照设计图 1:1：iTunes 自动续订、到期前 24 小时内扣费、取消方式、试用期规则；文案本身是 iOS 场景的，**只在 iOS 渲染**）压在协议行下面；⑦ 平台底栏（键盘形态才渲染：kb-navbar，Android 不渲染、面板直接铺到屏幕底边；主 App 形态没有这条，这一层直接铺到主 App 底边）。**协议与说明默认在可视区之外**（设计图的小心机）：整列内容高过这一层，首屏只看到标题 / 三档卡 /「立即解锁」，把这一层往上滚一段才露出协议与说明（常规 250px 档约多出 200px 可滚内容、矮窗口 210px 档约 160px；永久会员档少了说明那一段，也仍差约 30px 才够到协议行）。**未勾选协议就点「立即解锁」的拦截已随勾选框一并去掉**：点它的落点按平台 / 形态分两路（2026-09-28 需求）—— **iOS**：不跳转也不当场到账，就地弹出 **iOS 系统支付框**（App Store 内购确认，深色系统弹窗、盖住整机，见同组「iOS 系统支付框」条目），在支付框里确认后才走完仿真支付、会员当场生效、两层一起收起；**安卓 / 鸿蒙的键盘形态**：跳转到主 App 的会员页 —— 切到主 App 形态、落到「我的」（会员入口所在页）并就地打开这一层（同一层、同一张商品表），到主 App 里再完成购买；安卓 / 鸿蒙的主 App 形态点它仍是一键到账（purchase 动作，2026-09-26 起不再经「确认模拟订单 → 权益已到账」两个中间页），会员当场生效、本层收起（停原页）',note:'商品取 PLANS（永久 ¥128 / 周 ¥9.9 / 季度 ¥98，均带划线原价、kind 一律 member）—— 主 App 与键盘形态**共用这一张表**（原「键盘内三档 vs 主 App 月度 / 年度 / 积分」两套分开卖的做法已随主 App 会员页删除作废；积分档就此不存在）；设计图里的两块徽章（3000 万+用户选择 / 第 1 名）与永久会员卡上的「告白季特惠」标签按要求不呈现；皮肤固定浅色（顶部淡紫渐变向下渐隐到白），不跟随键盘的浅色 / 深色外观；Esc 与 X 同一条出口；「立即解锁」按平台 / 形态分两路（iOS 弹系统支付框、安卓 / 鸿蒙键盘形态跳主 App 会员页，主 App 形态一键到账，见 desc 与同组「iOS 系统支付框」条目）；键盘形态里协议行与续订说明是「往上滚一段才看得到」的（首屏在按钮处收住），主 App 形态同理；《续费协议》与自动续订说明只对周 / 季度两档出现，永久会员档不显示；说明文案是 iOS 场景的，Android / 鸿蒙下只保留协议行'},
+    /* 键盘形态的付费引导：额度不足时盖住整个键盘区域（2026-09-28 起主 App 的购买走商品购买页，这一层回归键盘专属） */
+    {id:'kb-paywall',group:'会员与积分',name:'会员开通覆盖层（键盘）',route:'键盘 › 整页覆盖层（额度不足）',trigger:'键盘模式下发起 AI 生成（立即分析 / 重新生成 / 语音追问 / 键盘发送）时额度不足 —— 左栏「模拟 › 模拟额度耗尽」打开（积分清零且非会员）。本列表点入为静态查看（现场把额度置成耗尽，不落库）。**2026-09-28 起主 App 不再弹这一层**：会员横幅 / 主 App 额度不足 / 键盘安卓·鸿蒙跳转都改落**商品购买页**（APP_PAGES 的 purchase 条目）',desc:'额度不足时打开这一层：铺满**整个键盘区域**（菜单栏 / 键区 / 底栏一并盖住；键盘高度不额外拉高，就是常规键盘那一块 250px / 矮窗口 210px）、从下往上滑入。结构自上而下：① 右上角一枚圆形 X（只收起这一层回键盘，额度仍是 0 —— 再发起生成还会弹）；② 两行居中标题「成为LoveCo会员，/ 无限次使用AI功能～」（16px 深墨字，两行等宽居中排，标题上方**不再放**「3000 万+用户选择」「第 1 名」那两块徽章）；③ 三档商品卡**横向等分并排**（永久会员 ¥128 / 周会员 ¥9.9 / 季度会员 ¥98，卡内自上而下：12px 灰档位名 → 20px 加粗现价（¥ 比数字小一档）→ 11px 灰字划线原价 ¥576 / ¥48 / ¥128），选中的那张浅紫底 + 2px 紫描边、其余白底浅灰描边，点卡片即切换选中档位（默认永久会员）；④ 整宽蓝色胶囊「立即解锁」（在滚动列内 —— 不是钉在底栏上方；**整颗持续一跳一跳**（放大缩小：1.4s 一个来回、scale 1 ↔ 1.055 + 蓝色投影同步加深，2026-09-28 需求定稿），引导点击；右上角悬一枚红色小标，**文案随档位变**：永久会员「一次性买断」/ 周会员「畅享 7 天」/ 季度会员「畅享 90 天」）；⑤ **协议行沉在按钮下方** —— 10px 灰字「我已阅读并同意《会员协议》、《续费协议》」，**不带勾选框**（已按需求去掉，购买不再前置勾选），两份协议名都是同一层里可点的深色文字按钮：点开键盘内协议正文页 kb-legal，压在这一层之上、X 一关即回本层；**永久会员那一档只留《会员协议》**（一次性买断、不涉续订），《续费协议》跟着下方那段说明一起不出现；⑥ **自动续订说明**（照设计图 1:1：iTunes 自动续订、到期前 24 小时内扣费、取消方式、试用期规则；文案本身是 iOS 场景的，**只在 iOS 渲染**）压在协议行下面；⑦ 平台底栏（kb-navbar，Android 不渲染、面板直接铺到屏幕底边）。**协议与说明默认在可视区之外**（设计图的小心机）：整列内容高过这一层，首屏只看到标题 / 三档卡 /「立即解锁」，把这一层往上滚一段才露出协议与说明（常规 250px 档约多出 200px 可滚内容、矮窗口 210px 档约 160px；永久会员档少了说明那一段，也仍差约 30px 才够到协议行）。**未勾选协议就点「立即解锁」的拦截已随勾选框一并去掉**：点它的落点按平台 / 形态分两路（2026-09-28 需求）—— **iOS**：不跳转也不当场到账，就地弹出 **iOS 系统支付框**（App Store 内购确认，深色系统弹窗、盖住整机，见同组「iOS 系统支付框」条目），在支付框里确认后才走完仿真支付、会员当场生效、两层一起收起；**安卓 / 鸿蒙的键盘形态**：跳转到主 App 的**商品购买页**（gotoAppPurchase —— 切到主 App 形态、直接落 purchase 页里再购买；2026-09-28 起不再就地打开本层）。本层在主 App 形态已不再出现，安卓 / 鸿蒙跳走后由购买页的一键到账（purchase 动作）完成支付',note:'商品取 PLANS（永久 ¥128 / 周 ¥9.9 / 季度 ¥98，均带划线原价、kind 一律 member）—— 与主 App 商品购买页**共用这一张表与同一个选中态**（原「键盘内三档 vs 主 App 月度 / 年度 / 积分」两套分开卖的做法已随主 App 会员页删除作废；积分档就此不存在）；设计图里的两块徽章（3000 万+用户选择 / 第 1 名）与永久会员卡上的「告白季特惠」标签按要求不呈现；皮肤固定浅色（顶部淡紫渐变向下渐隐到白），不跟随键盘的浅色 / 深色外观；Esc 与 X 同一条出口；「立即解锁」按平台分两路（iOS 弹系统支付框、安卓 / 鸿蒙跳主 App 商品购买页，见 desc 与同组「iOS 系统支付框」条目）；协议行与续订说明是「往上滚一段才看得到」的（首屏在按钮处收住）；《续费协议》与自动续订说明只对周 / 季度两档出现，永久会员档不显示；说明文案是 iOS 场景的，Android / 鸿蒙下只保留协议行'},
     /* iOS 系统支付框（kb-ios-pay，2026-09-28 按需求补入）：iOS 上点会员开通层的「立即解锁」
        就地弹出的 **App Store 内购确认弹窗**（系统级、铺满整机）—— 不属于键盘、也不属于 LoveCo
        的界面，照参考截图 1:1；单独一条便于从列表跳进静态查看。 */
-    {id:'kb-ios-pay',group:'会员与积分',name:'iOS 系统支付框（App Store 内购确认）',route:'键盘 / 主 App › 系统级弹层（挂在手机根节点、铺满整机；iOS 平台专属）',trigger:'iOS 平台下点会员开通覆盖层的「立即解锁」就地弹出（键盘与主 App 两种形态都会弹；正常链路里由额度不足 / 会员横幅打开会员开通层，见同组「会员开通覆盖层」条目）。本列表点入＝现场摆成「iOS + 额度过期 + 在会员开通层里点过『立即解锁』」那一刻（平台切 iOS 落库，额度不落库）',desc:'iOS 上点会员开通层的「立即解锁」**不跳转、也不当场到账**，就地弹出这层系统弹窗（App Store 内购确认，照参考截图 1:1）—— 弹窗里确认后才走完仿真支付、权益到账。**功能**：① 点底部确认区（真机是双击侧边按钮）= 确认支付：走完仿真支付（purchase 链路）、会员当场生效，支付框与下面的会员开通层一起收起回原处（键盘形态回键盘、主 App 形态停原页）；② 点右上角圆形 X = 取消购买：只收起支付框、回会员开通层（额度仍是 0，可再点一次）；③ 点蒙层不关闭（与 iOS 的系统弹窗一致）；试付进行中两个出口都不可点。商品随选中档位变：永久档「**Lifetime** / One-time charge」（一次性买断、即截图那一档）、周「**Weekly** / Auto-renewable · 7 days」、季度「**Quarterly** / Auto-renewable · 90 days」，价格取 PLANS 同一张表、统一格式化成两位小数（¥128.00 / ¥9.90 / ¥98.00）。**设计**：系统级弹窗（不属于键盘、也不属于 LoveCo）—— 挂在手机根节点上、铺满**整个手机屏**（含键盘与宿主 App），层级压过按住说话遮罩，是手机内的最高层。**固定系统深色外观**（不跟随键盘的浅色 / 深色皮肤）：整屏盖一层黑色半透明蒙层；屏幕右上角两行白色提示「**Double Click / to Pay**」（iOS 的「双击侧边按钮」提示，浮在蒙层之上、带文字投影）；底部一块深色 sheet —— 占屏幕下方约三分之二（min-height 66%）、顶部 18px 大圆角 + 向上投影，自上而下：① 大标题「**App Store**」（24px 粗体白字）+ 右上角深灰圆形 X（32px）；② 商品卡（深灰 #2C2C2E 圆角 14px）：LoveCo 图标（52px 圆角 12px，取 assets/brand）+ 档位名（16px 600 白字）+ 一行灰字「LoveCo 键盘-恋爱聊天键盘&AI智能聊天回复神器」+「12+」评级小框 + 一行灰字「In-App Purchase」+ 下半价格（19px 600 白字）与计费说明（12px 灰字）；③ 卡外一行灰字「Account: 649924325@qq.com」（仿真 Apple 账户，与 App 内登录无关）；④ 底部居中的确认区（沉在 sheet 底边之上）：侧边按钮指示图形（46px：蓝圆底 + 白色手机轮廓 + 右侧边按钮 + 指向它的箭头）与「Confirm with Side Button」文字（13px 灰字）。弹入动画：蒙层淡入（0.24s）+ sheet 从底部滑入（0.34s cubic-bezier(.32,.72,0,1)），只在打开那一次渲染播放',note:'只在 iOS 出现：安卓 / 鸿蒙的键盘形态点「立即解锁」不弹它、而是跳转主 App 的会员页（见「会员开通覆盖层」条目），安卓 / 鸿蒙的主 App 形态则一键到账；Esc 与 X 同一条出口（取消购买、不到账）；「Account」与商品名映射（Lifetime / Weekly / Quarterly）是这层弹窗的仿真数据（组件 MARKETING 表 + PLANS）；层级 50（z-index），是手机内最高的一层'},
-    /* 键盘使用引导（kb-usage-guide 组件）：整机覆盖的**纯演示层**（假页面）——
-       不接真实链路，只把「截图 → 唤出键盘 → AI 分析 → 选回复 → 发送」从头演一遍。
-       它贯穿聊天页与键盘两个区域，所以单独一组；不属于任何真实用户路径。 */
-    {id:'kb-usage-guide',group:'使用引导',name:'键盘使用引导（演示）',route:'键盘 › 整机覆盖层（贯穿全屏的演示流程）',trigger:'左栏「模拟 › 键盘使用引导」按钮；或从本列表点入（现场摆成引导第一步：聊天页 + 遮罩高亮对方最后一句话）',desc:'**纯演示的假页面**：不接真实链路 —— 没有截图进相册、没有 AI 请求，也不动积分与会话消息，只在整机覆盖层里把「截图分析一条龙」从头演到尾（每一步只有高亮区域可点、点别处无反应；Esc 随时收场）。十步：① 仿微信聊天页（林间、深色，最后一条是对方转述「爸爸说，离花言巧语的男生要远一点。」）+ 半透明黑遮罩，高亮最后一条消息并提示「点这里，模拟截屏」；② 点掉遮罩、整屏白闪一下（模拟截图动效）；③ 遮罩回来改高亮宿主输入栏，提示「点这里，唤出键盘」；④ 键盘从屏幕底部弹上来（高度 0 → 常规键盘高，聊天区随之压缩）；⑤ 遮罩再回来，高亮菜单栏里那张**刚截的缩略图**（相册图标就地换成截图缩略图、持续放大缩小），提示「点这里，AI 帮你分析」；⑥ 约 1 秒的「AI 分析」过渡动画（复用 kb-scan 的取景框 + 扫描线皮肤，键盘整块拉高到三分之二屏）；⑦ 打字机逐字输出聊天分析：关系简报（「关系阶段：熟悉 / 聊天氛围：相互拉扯试探」+ 一段分析正文）→ 两条回复思路卡（标题 + 回复正文，只演这两条）；⑧ 输出完遮罩回来，高亮第一条回复（整卡）提示「点它，就用这句」；⑨ 点选后整卡亮起、面板收起、回复带入输入框、高亮移到键盘右下角的「发送」键提示「点这里，发送给他」；⑩ 点发送 → 回复进会话（我的绿色气泡入场）+ 庆祝层「**哇！你好棒呀**」（彩带飘落 + 蓝色胶囊「去使用吧」）→ 点它收场并跳主 App 首页。**设计**：遮罩是半透明黑（rgba(0,0,0,.62)），高亮区用「聚光灯」做法（高亮框的 box-shadow 铺满全屏，框内透出下层内容），框缘一圈呼吸描边；高亮框的位置**不写死在 CSS 里** —— 渲染后由 JS 实测目标元素（消息行 / 输入栏 / 缩略图 / 回复卡 / 发送键）贴合，屏幕高度、键盘状态变了也不会错位，提示块跟着目标自动落在它的上方或下方（手指 emoji 换向），提示是蓝色笔刷块（白字 + 手绘感圆角 + 轻浮动）。聊天页与键盘都是**自绘**的（聊天复用宿主会话的 .wx-* 骨架与皮肤，键盘外壳借 .keyboard 的骨架、键区与底栏直接复用真键盘组件 kb-keys / kb-navbar），不读底层手机当前停在哪个页面。步骤之间的过渡都是动画：白闪 .42s、键盘弹起 / 回落 .34s、面板从下滑入 .34s、高亮框落到发送键时从上方滑入、打字机每帧 2 字 / 40ms（全篇约 2 秒）。',note:'演示性质，不进真实用户路径（入口只在左栏「模拟」与本列表）；推进动作 gx-next:<步> 会校验当前步 —— 连点、旧 DOM 的点击推进不了；中途 Esc 直接收场回干净键盘页。结束时跳主 App 首页（openAppScreen("home")）—— 首页当前是空白模板，落地即见底部 Tab 栏。本条目点入 = 从第一步开始，每一步点击照常推进（可以整条走完）；剧本（聊天记录 / 分析结果 / 缩略图素材）在 app.js 的 GUIDE_DEMO，改文案只改那一处'},
-  ];
+    {id:'kb-ios-pay',group:'会员与积分',name:'iOS 系统支付框（App Store 内购确认）',route:'键盘 / 主 App › 系统级弹层（挂在手机根节点、铺满整机；iOS 平台专属）',trigger:'iOS 平台下点「立即解锁」就地弹出（键盘的会员开通覆盖层与主 App 商品购买页上都会弹；正常链路里由额度不足打开键盘付费引导层 / 会员横幅与主 App 额度不足打开商品购买页，见同组两条目）。本列表点入＝现场摆成「iOS + 额度过期 + 在会员开通层里点过『立即解锁』」那一刻（平台切 iOS 落库，额度不落库）',desc:'iOS 上点会员开通层的「立即解锁」**不跳转、也不当场到账**，就地弹出这层系统弹窗（App Store 内购确认，照参考截图 1:1）—— 弹窗里确认后才走完仿真支付、权益到账。**功能**：① 点底部确认区（真机是双击侧边按钮）= 确认支付：走完仿真支付（purchase 链路）、会员当场生效，支付框与下面的会员开通层一起收起回原处（键盘形态回键盘、主 App 形态停原页）；② 点右上角圆形 X = 取消购买：只收起支付框、回会员开通层（额度仍是 0，可再点一次）；③ 点蒙层不关闭（与 iOS 的系统弹窗一致）；试付进行中两个出口都不可点。商品随选中档位变：永久档「**Lifetime** / One-time charge」（一次性买断、即截图那一档）、周「**Weekly** / Auto-renewable · 7 days」、季度「**Quarterly** / Auto-renewable · 90 days」，价格取 PLANS 同一张表、统一格式化成两位小数（¥128.00 / ¥9.90 / ¥98.00）。**设计**：系统级弹窗（不属于键盘、也不属于 LoveCo）—— 挂在手机根节点上、铺满**整个手机屏**（含键盘与宿主 App），层级压过按住说话遮罩，是手机内的最高层。**固定系统深色外观**（不跟随键盘的浅色 / 深色皮肤）：整屏盖一层黑色半透明蒙层；屏幕右上角两行白色提示「**Double Click / to Pay**」（iOS 的「双击侧边按钮」提示，浮在蒙层之上、带文字投影）；底部一块深色 sheet —— 占屏幕下方约三分之二（min-height 66%）、顶部 18px 大圆角 + 向上投影，自上而下：① 大标题「**App Store**」（24px 粗体白字）+ 右上角深灰圆形 X（32px）；② 商品卡（深灰 #2C2C2E 圆角 14px）：LoveCo 图标（52px 圆角 12px，取 assets/brand）+ 档位名（16px 600 白字）+ 一行灰字「LoveCo 键盘-恋爱聊天键盘&AI智能聊天回复神器」+「12+」评级小框 + 一行灰字「In-App Purchase」+ 下半价格（19px 600 白字）与计费说明（12px 灰字）；③ 卡外一行灰字「Account: 649924325@qq.com」（仿真 Apple 账户，与 App 内登录无关）；④ 底部居中的确认区（沉在 sheet 底边之上）：侧边按钮指示图形（46px：蓝圆底 + 白色手机轮廓 + 右侧边按钮 + 指向它的箭头）与「Confirm with Side Button」文字（13px 灰字）。弹入动画：蒙层淡入（0.24s）+ sheet 从底部滑入（0.34s cubic-bezier(.32,.72,0,1)），只在打开那一次渲染播放',note:'只在 iOS 出现：安卓 / 鸿蒙的键盘形态点「立即解锁」不弹它、而是跳转主 App 的会员页（见「会员开通覆盖层」条目），安卓 / 鸿蒙的主 App 形态则一键到账；Esc 与 X 同一条出口（取消购买、不到账）；「Account」与商品名映射（Lifetime / Weekly / Quarterly）是这层弹窗的仿真数据（组件 MARKETING 表 + PLANS）；层级 50（z-index），是手机内最高的一层'},
+      ];
   const APP_PAGES = [
     {id:'home',name:'首页',route:'/home',trigger:'主 App 底部 Tab 第一项「首页」；登录成功后也落在这里',desc:'**空白模板**：原首页的四段内容（问候行 / 会员横幅 /「快捷开始」/「我的对象」+「账户概览」）已按需求全部删除，这一页现在只留整页骨架（.app-content.app-page），不渲染任何元素 —— 只有底部 Tab 栏照常，等按新设计重做',note:'主 App 的落地页（进入主 App 按状态检查链走：键盘权限 → 键盘完全访问 → 登录状态，哪一环没过就停在对应引导上 —— 整页「开启键盘」引导 / 完全访问引导层 / 键盘同款登录层，都通过才停在首页，见 appEntryGuards）。因内容清空，原先挂在这一页的入口（去键盘问 AI / 分析聊天截图 / 键盘设置 / 模拟订单 / 兑换积分 / 新建对象）在主 App 内随之不再可达：新建对象改从「对象」页进（模拟订单 / 兑换积分 / 键盘设置三个页面与入口已于 2026-09-26 整体删除）'},
     {id:'account',name:'我的',route:'/account',trigger:'主 App 底部 Tab 第三项「我的」',desc:'按设计图重做的「我的」页，自上而下：① 问候行（「你好，昵称」+ 折角箭头，点它进个人资料；已开通会员时下面多一行金色会员标识「L+ 会员到期日 2026-09-30」，永久档写「永久会员」）；② 会员横幅（未开通蓝底「成为 L+ 会员 / 解锁全部高级功能」，已开通橙底「L+ 会员 / 已解锁全部高级功能」，右侧白胶囊「立即查看」弹出**键盘同款的会员开通覆盖层** —— 原「会员与积分」整页已删）；③「客户支持」卡片两行（键盘内容投诉与举报 → 反馈页并把类型预选成「举报」；反馈与建议）；④「账户」卡片一行（退出登录）；⑤「相关协议」卡片五行（用户协议 / 隐私政策 / 个人信息收集清单 / 第三方信息共享清单，各自打开对应协议正文覆盖层，末行进协议中心看全部）。设计图里右上角的邮箱图标（消息通知）、「基础设置 · 键盘基础预设」与「消息提醒 · 消息通知」两组按需求不呈现（键盘设置页面与入口已于 2026-09-26 整体删除）。2026-09-26 另删三行入口：「在线客服」「我的订单」「兑换积分」（对应页面一并删除）；同日晚些时候卡片下方那枚「注销仿真账户」文字按钮也删除（连同确认框链路，页面至此没有任何注销类入口）',note:'「我的」不再有键盘设置入口（该页面已删除）；注销入口已删，页面内不再有「需先清空会员 / 积分才能操作」的前置条件；这一页需要登录 —— 未登录时点「我的」Tab 不切页，就地弹出键盘同款的登录覆盖层（原独立登录页已删）'},
     {id:'account-member',name:'我的 · 已开通 L+ 会员',route:'/account（会员态）',trigger:'本列表点入（现场摆上会员标识与到期日 2026-09-30，不落库）；真实链路里购买会员到账后也是这一形态',desc:'「我的」页的会员态：问候行下方多一行金色会员标识（小方块「L+」+「会员到期日 2026-09-30」，永久档写「永久会员 · 已解锁全部高级功能」），会员横幅同时换成橙底「L+ 会员 / 已解锁全部高级功能」，其余分区（客户支持 / 账户 / 相关协议）与未开通时完全一致',note:'会员到期日与会员标识一起持久化：购买后写入（主 App 与键盘内是同一张商品表 —— 永久档落 0 = 永久，周 / 季度档按 7 / 90 天算）；老存档只有会员标识、没有到期信息时不硬编日期，只说「已解锁全部高级功能」'},
+    {id:'purchase',name:'商品购买页',route:'/account/purchase',trigger:'「我的」页的会员横幅「立即查看」（未开通蓝底 / 已开通橙底都进）；主 App 内额度不足发起生成被拦时也落这一页；键盘安卓 / 鸿蒙点「立即解锁」同样跳到这里（gotoAppPurchase）。本列表点入即静态查看',desc:'**参考竞品（恋爱回复键盘）购买页布局重做的整页购买页**（2026-09-28 需求），主 App 的购买都走这一页（键盘内的付费引导层 kb-paywall 回归键盘形态专属）。**功能**：三档商品卡点选切换档位（state.kbPlan，与键盘付费引导层共用同一张表 PLANS 与同一个选中态）→「立即解锁」按平台 / 形态分路：iOS 就地弹 iOS 系统支付框（确认后才到账）、安卓 / 鸿蒙一键到账（completePurchase）；购买到账后横幅转橙底、页内按钮换置灰的「已解锁会员权益」。照参考图**带协议勾选**：未勾选点「立即解锁」不往下走，底部协议行左右抖一下提示先勾选；两份协议名（《自动续费协议》《会员协议》）点开键盘同款协议正文覆盖层（kb-legal，压在本页之上，X 关掉回本页）；左上角 X 回「我的」。**设计**：固定粉色浅色皮肤（不跟随深色外观），整页两段 —— ① **粉色渐变 Hero**：左上角白底圆形 X、右上角白描边「平台专属」角标（文案随运行平台变），两行标题（小字「解锁高情商回复键盘」+ 大号加粗「LoveCo会员「限时特惠」」），下接五条权益清单（白色圆形图标章 + 玫红 13px 文案：键盘实时帮回复 / 上传聊天截图读懂TA的潜台词（挂红色「新上线」小标）/ 海量人设免费使用 / 会员专享定制专属人设 / 亲密调节自动把控聊天分寸）；② **白色圆角主体**（上缘圆角盖在渐变上）：三档商品卡横向等分（档位名 + 大号玫红现价 + 划线原价，选中的那张粉描边浅粉底、顶部浮一枚渐变玫红角标 = 该档 badge：一次性买断 / 畅享 7 天 / 畅享 90 天）→ 随档位变的续订说明（永久档「一次性买断，永久有效」/ 周·季度「到期后 ¥xx/期自动续订，可随时取消」）→ 浅灰支付方式行（iOS = 「Apple 账户 · App Store 内购」，安卓 / 鸿蒙 = 蓝色「支」圆形标 +「支付宝」，右侧换向图标，纯展示不可切换）→ 整宽粉色渐变胶囊「立即解锁」（42px 高、玫红投影）→ 底部协议勾选行（14px 圆形勾选框，勾选后变玫红实底白勾）',note:'商品只有一张表 PLANS（永久 / 周 / 季度）：本页与键盘付费引导层共用，改档位 / 价格 / badge 两处同时变；支付方式行是纯展示（真机上支付渠道由系统 / SDK 决定），iOS 上点「立即解锁」先弹 iOS 系统支付框、确认才到账'},
     {id:'profile',name:'个人资料',route:'/account/profile',trigger:'「我的」页最上方的问候行（「你好，昵称」）',desc:'昵称、性别、年龄段（选填）编辑并保存（PATCH /v1/me）。这里的性别也是对象编辑页「性别默认取反」的依据',note:'昵称会同步到聊天页「我」的头像兜底与各处显示'},
     {id:'feedback',name:'反馈与建议',route:'/feedback',trigger:'「我的」· 客户支持 ·「反馈与建议」；从「键盘内容投诉与举报」进来时类型预选「举报」',desc:'反馈类型（功能问题 / 键盘问题 / AI 效果 / 建议 / 投诉 / 举报）+ 详细说明提交（POST /v1/feedback）；页内不再有「我的反馈」入口',note:'提交成功后回「我的」页（原落点「我的反馈」页与反馈历史记录已删除，反馈不留历史列表）'},
     {id:'legal-list',name:'协议中心',route:'/legal',trigger:'「我的」· 相关协议 ·「协议中心」',desc:'内置 7 份协议的列表（用户协议、隐私、会员与积分、自动续费、联通认证等），点任一行打开**协议正文覆盖层**（不是独立页面，见下）',note:'协议为静态快照，不联网更新；协议正文原是一个独立页面（/legal/:key），2026-09-26 按需求删除页面后降级为浮在当前页上的覆盖层（state.appLegal），X / 返回 / Esc 关掉即回原页'},
@@ -622,6 +621,10 @@
        「选择性别」**不可跳过**、「你的出生日期」**可跳过**；两步各占一条便于静态对照 */
     {id:'onboard-gender',name:'资料设置 · 选择性别(首次登录)',route:'首次登录成功 › 第一步',trigger:'**第一次登录成功**（一键登录 / 短信登录）收起登录层那一刻自动进入（`state.onboarded` 为假时每次登录都走一遍；左栏「模拟 › 登录状态」开关置成开同样进）；或本列表点入（现场摆成「已登录 + 还没走完资料引导」的第一步，不落库）',desc:'**主 App 的整页**（无底部 Tab 栏，状态栏连着一起转淡紫 `.guide-lavender`）：淡紫底（#F5F6FC）、元素**整体上下居中**，自上而下 —— ① 顶部一行**三个分页圆点**（当前这一步深色 #2E2E3A、其余浅灰 #D9DBE6 —— 设计图是三步的资料页，目前只做前两步）；② 大标题「**选择性别**」（21px / 700）；③ 两张**并列的白色圆角卡**（1:1、圆角 26px、白底 + 一层淡投影、间距 18px），卡里各摆一个**性别符号图形**（按需求用 ♂ / ♀ 代替原来的插画头像：粗圆头描边 7.5 + 渐变描边色 —— 男 ♂ 蓝紫渐变 #7C8CFF→#4B57E6、女 ♀ 粉红渐变 #FFA8C4→#F4558C；♂ = 圆 + 指向右上（↗）的箭头，♀ = 圆 + 下方十字），卡下各自一行 16px 标签「男」/「女」—— 选中那张铺浅紫底 + 蓝紫描边、标签转品牌色；④ 底部**蓝色胶囊箭头按钮**（112×56、圆角 28、#5B68F5 + 白色右箭头）—— **没选性别时置灰、不可点**（这一步没有「跳过」，也不留出口）。点卡片即选中（写 `state.gender`，与「我的 › 个人资料」的性别是同一个值），箭头点亮后点它进第二步「你的出生日期」',note:'首次登录资料引导的第一步（见 finishKbLogin / startOnboarding）：**不可跳过** —— 页面上没有「跳过」那颗按钮，底部箭头在选中之前一直置灰；这一步只改 `state.gender`（不落库），走完第二步的箭头才与生日一起落库（见 finishOnboarding）。它是主 App 的页面 —— 从键盘形态登录进来也会切到主 App 走完再回'},
     {id:'onboard-birthday',name:'资料设置 · 你的出生日期(首次登录)',route:'首次登录成功 › 第二步',trigger:'性别那一步选好点底部箭头进入；或本列表点入（现场摆成「已登录 + 性别已选」的第二步，滚轮默认停在 2006年9月28日，不落库）',desc:'**与第一步同一套整页皮肤**（淡紫底、居中、三个分页圆点这回亮第 2 个），自上而下 —— ① 顶栏三件事：左侧**白色圆形返回钮**（36px + 淡投影，回第一步「选择性别」，选过的性别留着）、中间分页圆点、右侧**「跳过」**（灰字 15px —— 这一步**可跳过**：点了不带生日结束引导）；② **蛋糕插画**（116px，照设计图：粉色托盘 + 两层蓝蛋糕 + 奶油波浪 + 一根点着的蜡烛）；③ 大标题「**你的出生日期**」；④ **三列滚轮**（年 1980–2015 / 月 1–12 / 日 1–31，行高 44px、整块高 220px，CSS scroll-snap 吸附到中线那一行，中线上铺一条白色圆角选中带、选中行深色加粗，滚 / 点某一行即停到那行）；⑤ 滚轮下一行**「N岁  星座」**（17px / 600，两项间隔 26px，按停着的那天实时算 —— 年龄按今天、星座按 12 段月日划分，设计图 2006-09-28 = **20岁 天秤座**；日按当月天数收紧，2 月 30 日按当月最后一天算）；⑥ 底部同一颗**蓝色胶囊箭头按钮**（这一步常亮）：点它把那天写成 `state.birthday`（`YYYY-MM-DD`）并结束引导。滚轮改动**不整页重渲染**（重建 DOM 会把滚轮位置弹回），只就地刷新「N岁 星座」这一行（见 bindOnboardWheel）',note:'首次登录资料引导的第二步（**可跳过**）：跳过 = 不带生日结束引导（性别已在第一步选好），返回箭头只是回第一步、不算跳过。生日落库时顺带把「我的 › 个人资料」里的年龄段（`state.age`）对上 18–22 / 23–30 / 31–40 / 40以上 里那一档；两步走完（或跳过第二步）写 `state.onboarded` 落库、进主 App 首页 —— 之后登录不再出现这两页'},
+    /* 键盘使用引导（kb-usage-guide 组件）：整机覆盖的**纯演示层**（假页面）——
+       不接真实链路，只把「截图 → 唤出键盘 → AI 分析 → 选回复 → 发送」从头演一遍。
+       它贯穿聊天页与键盘两个区域、铺在整机之上；不属于任何真实用户路径。 */
+    {id:'kb-usage-guide',name:'键盘使用引导（演示）',route:'键盘 › 整机覆盖层（贯穿全屏的演示流程）',trigger:'本列表点入（现场摆成引导第一步：干净的聊天页 + 一枚「点这里，模拟截屏」的提示，页面不压暗）',desc:'**纯演示的假页面**：不接真实链路 —— 没有截图进相册、没有 AI 请求，也不动积分与会话消息，只在整机覆盖层里把「截图分析一条龙」从头演到尾（每一步只有高亮区域可点、点别处无反应；Esc 随时收场）。十步：① 仿微信聊天页（林间、深色，**只留**对方那句「爸爸说，离花言巧语的男生要远一点。」，上面不留历史记录）+ 一枚提示「点这里，模拟截屏」（**没有遮罩**、页面不压暗，手指朝右）—— 只有那句话与提示可点；② 点掉后整屏白闪一下 + **左下角浮出「刚截的截图」缩略图**（iOS 截屏缩略图的样子，停约半秒自动滑走，滑走后正好进下一步）；③ 遮罩出现，改高亮宿主输入栏，提示「点击输入框，唤出键盘」；④ 键盘从屏幕底部弹上来（高度 0 → 常规键盘高，聊天区随之压缩）；⑤ 遮罩再回来，高亮菜单栏里那张**刚截的缩略图**（相册图标就地换成截图缩略图、持续跳动），提示「点这里，AI 帮你分析」放在缩略图的**左侧**、手指朝右指着它；⑥ 分析面板**从底部滑入一次**，内容区先是约 1 秒的「正在分析中…」取景框扫描动画；⑦ 同一块面板换成结果，打字机逐字输出：关系简报（「关系阶段：熟悉 / 聊天氛围：相互拉扯试探」+ 一段分析正文）→ 两条回复思路卡（标题 + 回复正文，只演这两条）；⑧ 输出完面板底部浮出悬浮按钮条（麦克风 / 重新生成 / 发送），遮罩高亮第一条回复（整卡）提示「点它，就用这句」；⑨ 点选后整卡亮起、**面板不收起**，遮罩改高亮面板底部那颗「发送」提示「点这里，发送给他」；⑩ 点发送 → 回复进会话（我的绿色气泡入场）+ 庆祝层「**哇！你好棒呀**」（彩带飘落 + 蓝色胶囊「去使用吧」）→ 点它收场并跳主 App 首页。**设计**：遮罩是半透明黑（rgba(0,0,0,.62)），高亮区用「聚光灯」做法（高亮框的 box-shadow 铺满全屏，框内透出下层内容），框缘一圈呼吸描边；高亮框的位置**不写死在 CSS 里** —— 渲染后由 JS 实测目标元素（消息行 / 输入栏 / 缩略图 / 回复卡 / 发送按钮）贴合，屏幕高度、键盘状态变了也不会错位；提示块跟着目标自动落在它的上方或下方（手指 emoji 换向），也可贴到目标左侧、手指朝右（缩略图那一步）。聊天页与键盘都是**自绘**的（聊天复用宿主会话的 .wx-* 骨架与皮肤，键盘外壳借 .keyboard 的骨架、键区与底栏直接复用真键盘组件 kb-keys / kb-navbar），不读底层手机当前停在哪个页面；「刚截的截图」缩略图（浮出的大图与菜单栏的小图）也是自绘的「聊天页缩影」（同一张画法两种尺寸）。分析面板**从扫描那一步起一直在屏** —— 只换内容、不重播弹入动画（此前每步都重建 DOM，看着像弹了两次）。步骤之间的过渡都是动画：白闪 .42s + 缩略图浮出 .9s、键盘弹起 / 回落 .34s、面板滑入 .34s（仅一次）、打字机每帧 2 字 / 40ms（全篇约 2 秒）。',note:'演示性质，不进真实用户路径（入口只有本列表这一条）；推进动作 gx-next:<步> 会校验当前步 —— 连点、旧 DOM 的点击推进不了；中途 Esc 直接收场回干净键盘页。结束时跳主 App 首页（openAppScreen("home")）—— 首页当前是空白模板，落地即见底部 Tab 栏。本条目点入 = 从第一步开始，每一步点击照常推进（可以整条走完）；剧本（聊天记录 / 分析结果）在 app.js 的 GUIDE_DEMO，改文案只改那一处'},
   ];
   function pageCatalog() { return state.appView==='app' ? APP_PAGES : KB_PAGES; }
   /* 页面列表：按组分节，组名可点击折叠 / 展开。
@@ -786,18 +789,19 @@
     state.kbLegalEnter = true; render(); state.kbLegalEnter = false;
   }
   function closeKbLegal() { state.kbLegal = ''; }
-  /* —— 会员开通覆盖层（kb-paywall 组件，主 App 与键盘形态共用同一层）——
-     触发两处：① 键盘形态发起生成时额度不足（左栏「模拟 › 模拟额度耗尽」打开：积分清零且非会员），
-     generate() 拦下生成后打开；② 主 App 形态点「我的」的会员横幅「立即查看」、或额度不足发起生成 ——
-     两处打开的是同一层、同一套设计、同一张商品表（PLANS）。
-     键盘形态打开前把其它覆盖层收掉（同一时刻只留一层）—— 这一层只占**常规键盘那一块**
+  /* —— 会员开通覆盖层（kb-paywall 组件，键盘形态专属）——
+     触发一处：键盘形态发起生成时额度不足（左栏「模拟 › 模拟额度耗尽」打开：积分清零且非会员），
+     generate() 拦下生成后打开。2026-09-28 起主 App 的购买走**商品购买页**（appPurchasePage）：
+     会员横幅 / 主 App 额度不足 / 键盘安卓·鸿蒙跳转（gotoAppPurchase）都落那一页，不再弹这一层；
+     商品仍是同一张表（PLANS）、同一个选中档位（state.kbPlan）。
+     打开前把其它覆盖层收掉（同一时刻只留一层）—— 这一层只占**常规键盘那一块**
      （250px / 矮窗口 210px），得先把会把键盘拉高的面板收掉：聊天分析面板 / 选图选择器 /
      AI 分析过渡页 / 对象编辑面板还在的话，`.keyboard` 仍是 with-picker 的三分之二屏，
      这一层跟着 `inset:0` 就会铺满三分之二屏（不是键盘那一块）；对象管理页 / 设置页一并收掉。
-     主 App 形态不动当前页与 modalData（这层只是浮在页面上的覆盖层）。
-     协议行不带勾选框（已按需求去掉）：点「立即解锁」按平台分两路（2026-09-28 需求，见 action
-     的 purchase 分支）—— iOS 就地弹系统支付框（ios-pay-sheet，确认后才到账）；
-     安卓 / 鸿蒙的键盘形态跳主 App 的会员页（gotoAppMembership，到主 App 里再购买）。
+     协议行不带勾选框（已按需求去掉；主 App 购买页照参考图带勾选，两边不同）：点「立即解锁」
+     按平台分两路（2026-09-28 需求，见 action 的 purchase 分支）—— iOS 就地弹系统支付框
+     （ios-pay-sheet，确认后才到账）；
+     安卓 / 鸿蒙的键盘形态跳主 App 的商品购买页（gotoAppPurchase，到主 App 里再购买）。
      **不动 state.draft**：本次输入草稿留着，关掉这一层后可以再发起一次生成。 */
   function openPaywall() {
     abortVoiceHold();
@@ -825,13 +829,10 @@
      安卓 / 鸿蒙的主 App 形态下点「立即解锁」不跳转（已经在主 App 了），走一键到账。 */
   function openIosPaySheet() { state.iosPaySheet=true;state.pickerEnter=true;render();state.pickerEnter=false; }
   function closeIosPaySheet() { if(state.paymentBusy)return; state.iosPaySheet=false; }
-  function gotoAppMembership() {
-    openAppScreen('account');
-    /* openAppScreen 会清掉键盘侧的各层与 iosPaySheet —— 会员开通层在切过去之后才打开
-       （这时它按主 App 形态渲染：浮在整个主 App 上，而不是只盖住一条键盘） */
-    state.kbPaywall=true;
-    render();
-  }
+  /* —— 键盘安卓 / 鸿蒙点「立即解锁」的跳转落点（2026-09-28 起改跳商品购买页）——
+     键盘没有内购能力，切到主 App 形态、直接落到商品购买页（appPurchasePage）里再购买；
+     商品仍是同一张表 PLANS、同一个选中档位 state.kbPlan。 */
+  function gotoAppPurchase() { openAppScreen('purchase'); }
   /* 仿真支付（权益到账）：主 App 的会员开通层与键盘内付费引导共用这一步 —— 现在由 iOS 系统支付框的
      确认动作（ios-pay-confirm）与安卓 / 鸿蒙主 App 形态的「立即解锁」调用。
      2026-09-26 起「确认模拟订单 → 权益已到账」两个中间页已删除，一次调用走完：
@@ -865,10 +866,21 @@
     node.classList.add('shake');
     node.addEventListener('animationend', () => node.classList.remove('shake'), {once:true});
   }
+  /* 商品购买页的同一套「未勾选协议」提示：未勾选就点「立即解锁」，让页面底部那行协议左右抖一下
+     （shake 动画与登录层共用；只抖一次、不重渲染 —— 重建 DOM 会把动画一起重建） */
+  function shakePurchaseConsent() {
+    const node = document.querySelector('.pu-consent');
+    if(!node)return;
+    node.classList.remove('shake');
+    void node.offsetWidth;
+    node.classList.add('shake');
+    node.addEventListener('animationend', () => node.classList.remove('shake'), {once:true});
+  }
   /* 登录成功后的收尾：一键登录与短信登录共用 —— 先给一记「登录成功」提示（登录层的收尾形态，
      KB_LOGIN_DONE_MS 之后自动收起），再回到键盘；状态落库，号码由调用方写进 state.phone。
      **第一次登录还要多走一步**（2026-09-28 需求）：登录层收起那一刻接着进「资料引导」
-     （选择性别 → 你的出生日期，见 startOnboarding），走完才回首页；走过的（onboarded）照旧直接回。 */
+     （选择性别 → 你的出生日期，见 startOnboarding），走完才回首页 —— 「算不算第一次」
+     由左栏「模拟 › 首次登录App」仿真开关控制（默认开；走完自动关上），关着就照旧直接回。 */
   const KB_LOGIN_DONE_MS = 1000;
   function finishKbLogin() {
     state.loggedIn = true;
@@ -877,7 +889,7 @@
     state.kbLogin = 'done';
     state.kbLoginTimer = setTimeout(() => {
       state.kbLoginTimer = null; state.kbLogin = '';
-      if(!state.onboarded) return startOnboarding();
+      if(state.firstLogin) return startOnboarding();
       render();
     }, KB_LOGIN_DONE_MS);
     render();
@@ -895,9 +907,10 @@
       /* 「我的 · 已开通 L+ 会员」看的是「我的」的会员态：现场摆上会员标识与到期日
          （2026-09-30），不落库 —— 刷新页面即回到真实会员状态 */
       if(it.id==='account-member'){state.member=true;state.memberExpiry=new Date(2026,8,30).getTime();return openAppScreen('account');}
-      /* 首次登录的「资料引导」两条：现场摆成「已登录 + 还没走完引导」，分别停在对应那一步（不落库） */
-      if(it.id==='onboard-gender'){state.loggedIn=true;state.onboarded=false;state.onboarding='gender';return openAppScreen('onboard');}
-      if(it.id==='onboard-birthday'){state.loggedIn=true;state.onboarded=false;state.onboardPick={y:2006,m:9,d:28};state.onboarding='birthday';return openAppScreen('onboard');}
+      /* 首次登录的「资料引导」两条：现场摆成「已登录 + 算首次登录（开关置开，不落库）」，
+         分别停在对应那一步（性别已选 / 滚轮停在默认那天） */
+      if(it.id==='onboard-gender'){state.loggedIn=true;state.firstLogin=true;state.onboarding='gender';return openAppScreen('onboard');}
+      if(it.id==='onboard-birthday'){state.loggedIn=true;state.firstLogin=true;state.onboardPick={y:2006,m:9,d:28};state.onboarding='birthday';return openAppScreen('onboard');}
       /* 「开启键盘」引导流程（引导页三端各一条 + 模拟设置两页）：点引导页任一条目时
          先切到它对应的运行平台（引导页形态三端大致相同、演示动画素材按平台取，见 GUIDE_VIDEOS），
          再现场摆成「一台还没启用键盘的新设备」（与左栏关掉「开启键盘」同一套联动：
@@ -1026,7 +1039,7 @@
          平台切 iOS（支付框只在 iOS 出现，落库与「平台外观 · iOS」条目一致）、额度过期（不落库），
          会员开通层 + 系统支付框两层一起开着 */
       case 'kb-ios-pay': kbReset(); state.platform='ios'; persist(); state.loggedIn=true; state.member=false; state.credits=0; state.creditsOut=true; openPaywall(); return openIosPaySheet();
-      /* 键盘使用引导（演示层）：清场后从第一步（截图）开始播 —— 与左栏入口同一现场 */
+      /* 键盘使用引导（演示层）：清场后从第一步（截图）开始播 —— 主 App 形态点入会先切回键盘形态 */
       case 'kb-usage-guide': kbReset(); return openKbUsageGuide();
       default: kbReset(); return render(); /* host-chat：清场后即为目标页面（离开按住说话等静态态也走这里） */
     }
@@ -1057,8 +1070,11 @@
      同日晚些又删 2 个：`login` 登录 LoveCo / `membership` 会员与积分 —— 两个整页都不再存在，
      登录改弹**键盘同款的登录覆盖层**（kb-login 组件，见 openKbLogin / needLogin），
      会员开通改弹**键盘同款的付费覆盖层**（kb-paywall 组件，见 openPaywall），
-     两处与键盘形态共用同一套设计与同一张商品表（PLANS），主 App 这边不再另做一套，勿再补回整页。 */
-  const appScreens = new Set(['home','account','profile','feedback','legal-list','partners']);
+     两处与键盘形态共用同一套设计与同一张商品表（PLANS），主 App 这边不再另做一套，勿再补回整页。
+    2026-09-28 又按需求补回一个整页：`purchase` 商品购买页（appPurchasePage，参考竞品购买页布局）——
+    主 App 的购买入口（会员横幅 / 额度不足 / 键盘安卓·鸿蒙跳转）都落到这一页，
+    键盘内的付费引导层（kb-paywall）随之回归键盘形态专属。 */
+  const appScreens = new Set(['home','account','profile','feedback','legal-list','partners','purchase']);
   /* —— 主 App：底部 Tab 三页（首页 / 对象 / 我的）——
      主 App 形态的骨架 = 页面正文 + 底部 Tab 栏（首页 / 对象 / 我的，见 appTabBar）。
      **顶部没有导航栏**：状态栏之下直接就是正文，「我的」拿问候行当页头、「对象」拿
@@ -1558,15 +1574,75 @@
       ${appSection('相关协议',[appRow('用户协议','legal:terms'),appRow('隐私政策','legal:privacy'),appRow('个人信息收集清单','legal:collection'),appRow('第三方信息共享清单','legal:sharing'),appRow('协议中心','legal-list')].join(''))}
     </div>`;
   }
+  /* —— 主 App · 商品购买页（appPurchasePage，2026-09-28 新增）——
+     参考竞品（恋爱回复键盘）购买页布局重做的整页购买页，主 App 的所有购买入口都落到这里：
+     「我的」会员横幅「立即查看」（app-membership 动作）、主 App 内额度不足发起生成被拦、
+     键盘安卓 / 鸿蒙点「立即解锁」跳转过来（gotoAppPurchase）。
+     商品与键盘内付费引导层共用同一张表 PLANS、同一个选中档位（state.kbPlan，kb-plan 动作切档）。
+     结构自上而下两段：**粉色渐变 Hero**（左上角圆形 X（purchase-close，回「我的」）+ 右上角
+     平台专属角标 + 两行标题「解锁高情商回复键盘 / LoveCo会员「限时特惠」」+ 五条会员权益清单，
+     第二条挂红色「新上线」小标）；**白色圆角主体**（三档商品卡横向等分：档位名 + 现价 + 划线原价，
+     选中的那张粉描边浅粉底、顶部浮一枚玫红角标（PLANS 的 badge）→ 随档位变的续订说明 →
+     支付方式行（iOS = Apple 账户 · App Store 内购；安卓 / 鸿蒙 = 支付宝；纯展示不可切换）→
+     整宽粉色渐变胶囊「立即解锁」（purchase 动作：iOS 就地弹系统支付框、安卓 / 鸿蒙一键到账；
+     已是会员时整颗置灰「已解锁会员权益」）→ 协议勾选行（圆形勾选框 purchase-agree 可点选、
+     协议名点开键盘同款协议正文覆盖层 kb-legal）。
+     照参考图**带协议勾选**（与键盘付费引导层的「无勾选框」不同）：未勾选点「立即解锁」不往下走，
+     只让协议行抖一下提示先勾选（shakePurchaseConsent）。皮肤固定粉色浅色（不跟随深色外观）。
+     已开通会员时也进得来（横幅在会员态仍显示「立即查看」）：页面照常渲染，按钮换成置灰的
+     「已解锁会员权益」，续订说明换成「会员权益生效中」。 */
+  function appPurchasePage() {
+    const plan = PLANS[state.kbPlan] || {};
+    const FEATS = [
+      ['ChatDotRound','键盘实时帮回复，不限次',''],
+      ['Picture','上传聊天截图，读懂TA的潜台词','新上线'],
+      ['MagicStick','幽默、高情商，海量人设免费使用',''],
+      ['Star','会员专享，定制专属人设',''],
+      ['Sunny','亲密调节，自动把控聊天分寸',''],
+    ];
+    const feats = FEATS.map(([ic,txt,tag])=>`<li><i class="pu-feat-ico" aria-hidden="true">${icon(ic)}</i><span>${esc(txt)}</span>${tag?`<b class="pu-feat-tag">${esc(tag)}</b>`:''}</li>`).join('');
+    const cards = Object.entries(PLANS).map(([id,p])=>`<button type="button" class="pu-plan${state.kbPlan===id?' active':''}" data-action="kb-plan:${id}" aria-pressed="${state.kbPlan===id}">
+      <span class="pu-plan-badge">${esc(p.badge)}</span>
+      <span class="pu-plan-name">${esc(p.name)}</span>
+      <span class="pu-plan-price"><i>¥</i>${esc(p.price)}</span>
+      <span class="pu-plan-origin">¥${esc(p.origin)}</span>
+    </button>`).join('');
+    const cap = state.member ? '会员权益生效中，感谢支持'
+      : state.kbPlan==='permanent' ? '一次性买断，永久有效，无需续订'
+      : `到期后 ¥${plan.price}/${plan.days===7?'周':'季度'}自动续订，可随时取消`;
+    const pay = state.platform==='ios'
+      ? `<span class="pu-pay-logo" aria-hidden="true">${icon('Wallet')}</span><span class="pu-pay-name">Apple 账户 · App Store 内购</span>`
+      : `<span class="pu-pay-logo ali" aria-hidden="true">支</span><span class="pu-pay-name">支付宝</span>`;
+    const legalLink = (key,label)=>`<button type="button" class="pu-legal-link" data-action="kb-legal:${key}">${esc(label)}</button>`;
+    return `<div class="pu-page">
+      <section class="pu-hero">
+        <button type="button" class="pu-close" data-action="purchase-close" aria-label="关闭商品购买页">${icon('Close')}</button>
+        <span class="pu-hero-badge">${esc(platformName())}专属</span>
+        <h2 class="pu-hero-title"><span>解锁高情商回复键盘</span><strong>LoveCo会员「限时特惠」</strong></h2>
+        <ul class="pu-feats">${feats}</ul>
+      </section>
+      <section class="pu-body">
+        <div class="pu-plans">${cards}</div>
+        <p class="pu-cap">${esc(cap)}</p>
+        <div class="pu-pay">${pay}<i class="pu-pay-switch" aria-hidden="true">${icon('Switch')}</i></div>
+        ${state.member
+          ? `<button type="button" class="pu-cta" disabled>已解锁会员权益</button>`
+          : `<button type="button" class="pu-cta" data-action="purchase" ${state.paymentBusy?'disabled':''}>立即解锁</button>`}
+        <p class="pu-consent"><button type="button" class="pu-circle${state.purchaseAgreed?' on':''}" data-action="purchase-agree" role="checkbox" aria-checked="${state.purchaseAgreed}" aria-label="同意协议">${state.purchaseAgreed?icon('Check'):''}</button><span>我已阅读并同意${legalLink('renewal','《自动续费协议》')}、${legalLink('membership','《会员协议》')}</span></p>
+      </section>
+    </div>`;
+  }
   /* —— 首次登录后的「资料引导」（2026-09-28 需求，主 App 的整页流程）——
      第一次登录成功（一键登录 / 短信登录）收起登录层那一刻**接着走这两步**，走完才进首页：
      ① **选择性别**：**不可跳过** —— 页面上没有「跳过」，两颗白卡二选一，卡上是 ♂ / ♀ 两个
         符号图形（按需求用符号代替原来的插画头像）；没选时底部箭头置灰，选中才亮；
      ② **你的出生日期**：**可跳过** —— 三列滚轮（年 / 月 / 日）停在中线那一行，下面实时算出
         「N岁  星座」；点「跳过」不带生日结束，点箭头才把生日写进 state.birthday。
+     「算不算第一次」由左栏「模拟 › 首次登录App」仿真开关控制（默认开）：走完（或跳过）自动关上，
+     再登录不再出现这两页 —— 想再看一遍把开关再打开即可（见 state.firstLogin）。
      两步都是整页（无底部 Tab，状态栏连着一起转淡紫 —— .guide-lavender，样式见 theme.css 的
      .onb-* 一组）；它是**主 App 的页面**（键盘形态没有这一页）—— 从键盘里登录进来也切到主 App
-     走完再回（startOnboarding）。走完写 onboarded 落库，之后登录不再出现（见 finishOnboarding）。 */
+     走完再回（startOnboarding）。 */
   /* 滚轮一行的高度（px）：CSS 的 scroll-snap 与「停在哪一行」都按它算（见 bindOnboardWheel） */
   const ONB_ROW = 44;
   const ONB_YEARS = Array.from({length:36},(_,i)=>1980+i);
@@ -1663,7 +1739,10 @@
       const {y,m,d}=onboardPicked(), band=ageBand(ageFrom(y,m,d));
       if(band)state.age=band;
     }
-    state.onboarded=true; state.onboarding='';
+    /* 走完（或跳过）= 这台设备不再是「首次登录」：把左栏「模拟 › 首次登录App」开关自动关上
+       （与「模拟额度耗尽」购买后复位同一套做法），落库 —— 之后登录不再出现这两页；
+       想再看一遍把开关再打开即可 */
+    state.firstLogin=false; state.onboarding='';
     persist();
     openAppScreen('home');
   }
@@ -1696,7 +1775,7 @@
   /* 底部 Tab 栏：首页 / 对象 / 我的。子页保留父 Tab 的选中态（对象的新增 / 编辑算「对象」，
      其余账户类子页算「我的」），登录页不属于任何 Tab，不点亮。 */
   const APP_TABS = [['home','首页','home'],['partners','对象','users'],['account','我的','user']];
-  const APP_TAB_OF = {home:'home',partners:'partners','partner-edit':'partners',account:'account',profile:'account',feedback:'account','legal-list':'account'};
+  const APP_TAB_OF = {home:'home',partners:'partners','partner-edit':'partners',account:'account',profile:'account',feedback:'account','legal-list':'account',purchase:'account'};
   function appTabBar() {
     /* 「开启键盘」引导流程与首次登录的「资料引导」都没有底部 Tab（都是整页流程） */
     if(state.appScreen==='kb-guide'||state.appScreen==='onboard')return '';
@@ -1714,6 +1793,7 @@
     if(s==='onboard')return appOnboardPage();
     if(s==='home')return appHomePage();
     if(s==='account')return appAccountPage();
+    if(s==='purchase')return appPurchasePage();
     if(s==='partners')return appPartnersPage();
     if(s==='partner-edit')return partnerEditor();
     return renderModal().replace(/^<div class="modal-backdrop">/,'<div class="app-content">').replace(/<\/div>\s*$/,'</div>');
@@ -1723,7 +1803,7 @@
     /* 「模拟」组在左栏与「仿真控制台」弹层两处同时渲染时靠前缀区分控件 id（与键盘形态同一套机制） */
     state.renderedControls=false;
     const title = state.appScreen==='confirm' ? (state.modalData.title||'确认操作')
-      : ({home:'首页',account:'我的',profile:'个人资料',feedback:'反馈与建议','legal-list':'协议中心',partners:'聊天对象',simulator:'仿真控制台','kb-guide':'开启键盘',onboard:'资料设置','partner-edit':state.modalData&&state.modalData.id?'编辑聊天对象':'新增聊天对象'}[state.appScreen] || 'LoveCo');
+      : ({home:'首页',account:'我的',purchase:'商品购买页',profile:'个人资料',feedback:'反馈与建议','legal-list':'协议中心',partners:'聊天对象',simulator:'仿真控制台','kb-guide':'开启键盘',onboard:'资料设置','partner-edit':state.modalData&&state.modalData.id?'编辑聊天对象':'新增聊天对象'}[state.appScreen] || 'LoveCo');
     const content=appScreenContent();
     /* 引导流程的整页皮肤要连着状态栏一起换底色（引导页紫蓝、模拟设置 / 详情页黑、
        安卓设置页浅色、切换到 LoveCo 键盘页白），给手机挂上对应 class，状态栏配色在 theme.css 里跟着走 */
@@ -1736,7 +1816,7 @@
     const scrollMemo = captureScrolls($('#app'));
     $('#app').innerHTML = `<div class="shell app-workspace">
       <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">主 App 手机模拟器</span></div><div class="top-actions"><span class="sandbox-pill"><i class="dot"></i>本地仿真 · 无真实扣款</span><button class="text-button" data-action="reset">重置会话</button></div></header>
-      <main class="workspace"><aside class="rail left-rail"><div class="rail-section"><div class="eyebrow">LOVECO / APP</div><div class="rail-heading"><h2>主 App</h2></div>${deviceSwitchers()}</div>${permissionSection()}<div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}${guideDemoButton()}</div></aside>
+      <main class="workspace"><aside class="rail left-rail"><div class="rail-section"><div class="eyebrow">LOVECO / APP</div><div class="rail-heading"><h2>主 App</h2></div>${deviceSwitchers()}</div>${permissionSection()}<div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}</div></aside>
         <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbLogin?LoveCoUI.render('kb-login', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${state.appLegal?legalSheet('app-legal-close'):''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div><button class="icon-btn" title="仿真设置" aria-label="仿真设置" data-action="simulator">${icon('Monitor')}</button><button class="icon-btn" title="重置会话" aria-label="重置会话" data-action="reset">${icon('RefreshLeft')}</button></div></section><aside class="rail right-rail">${pageListSection()}<div class="rail-section"><div class="eyebrow">APP STATE</div><div class="kv"><span>App形态</span><strong>主 App 模式</strong></div><div class="kv"><span>当前页面</span><strong>${esc(title)}</strong></div><div class="kv"><span>运行平台</span><strong>${platformName()}</strong></div><button class="row-button" data-action="simulator">${icon('Monitor')}仿真控制台<span class="end">${icon('ArrowRight')}</span></button></div></aside></main>
     </div>`;
     bind();
@@ -1868,7 +1948,7 @@
       <main class="workspace">
         <aside class="rail left-rail"><div class="rail-section"><div class="rail-heading"><h2>会话工作台</h2></div>${deviceSwitchers()}</div>
         ${permissionSection()}
-        <div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}${guideDemoButton()}</div></aside>
+        <div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}</div></aside>
         <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 键盘模式 · 宿主 App 内</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div>
           <div class="phone host-wechat ${state.dark?'dark':''}" id="phone" data-platform="${state.platform}">
             ${LoveCoUI.render('status-bar', ctx)}
@@ -1942,20 +2022,24 @@
     /* 键盘使用引导（演示层）：高亮框贴合目标元素 + 打字机（不在引导里时空跑） */
     paintKbUsageGuide();
   }
-  /* 「模拟」组（两种 App形态的左栏都渲染；窄屏是「仿真控制台」弹层）的三个仿真开关：
-     登录状态 / 模拟额度耗尽 / 模拟安全拦截（2026-09-27 起主 App 形态左栏也用这一节 —— 与「设备权限」同理，
-     这些仿真都是「设备级」的，切到主 App 也能直接切登录态 / 额度 / 拦截，不必先回键盘形态）。
-     原「请求结果」下拉已删除（见 state.outcome 注释），三条都是同一格式的 control-line + 开关。
+  /* 「模拟」组（两种 App形态的左栏都渲染；窄屏是「仿真控制台」弹层）的四个仿真开关：
+     登录状态 / 首次登录App / 模拟额度耗尽 / 模拟安全拦截（2026-09-27 起主 App 形态左栏也用这一节 —— 与「设备权限」同理，
+     这些仿真都是「设备级」的，切到主 App 也能直接切登录态 / 首登 / 额度 / 拦截，不必先回键盘形态）。
+     「首次登录App」（2026-09-28 补，默认开）控制**这次登录算不算第一次**：开 = 登录成功后走
+     首次登录的资料引导（选择性别 → 出生日期，见 startOnboarding），走完（或跳过）自动关上
+     —— 与「模拟额度耗尽」购买后复位同一套做法；想再看一遍就手动再打开。
+     原「请求结果」下拉已删除（见 state.outcome 注释），四条都是同一格式的 control-line + 开关。
      多处同时渲染时靠前缀区分控件 id（见 state.renderedControls）。
      底部一行「语音指令」下拉是按住面板麦克风时说的那句话（见 VOICE_QUERIES，只有一档）——
-     它是「输入内容的仿真」，与上面三条开关一样只在本地生效。 */
+     它是「输入内容的仿真」，与上面四条开关一样只在本地生效。 */
   function simControls() {
     const prefix=state.renderedControls?'sim-dialog-':'sim-';state.renderedControls=true;
     const markup=`<div class="control-line"><label for="mock-login">登录状态</label><input id="mock-login" class="switch" type="checkbox" ${state.loggedIn?'checked':''}></div>
+   <div class="control-line"><label for="mock-first-login" title="控制这次登录算不算「第一次」：开 = 登录成功后走资料引导（选择性别 → 出生日期），走完自动关上">首次登录App</label><input id="mock-first-login" class="switch" type="checkbox" ${state.firstLogin?'checked':''}></div>
    <div class="control-line"><label for="mock-credits">模拟额度耗尽</label><input id="mock-credits" class="switch" type="checkbox" ${state.creditsOut?'checked':''}></div>
    <div class="control-line"><label for="mock-block">模拟安全拦截</label><input id="mock-block" class="switch" type="checkbox" ${state.outcome==='blocked'?'checked':''}></div>
    <div class="control-line"><label for="mock-voice">语音指令</label><select id="mock-voice" title="按住聊天分析面板的麦克风时说的那句话，AI 按它重新生成（AI 通用回复）">${Object.entries(VOICE_QUERIES).map(([id,q])=>`<option value="${id}"${state.voiceQuery===id?' selected':''}>${q.label}</option>`).join('')}</select></div>`;
-    return markup.replace(/(id|for)="(mock-login|mock-credits|mock-block|mock-voice)"/g,(_,attribute,id)=>`${attribute}="${prefix+id}"${attribute==='id'?` data-control="${id}"`:''}`);
+    return markup.replace(/(id|for)="(mock-login|mock-first-login|mock-credits|mock-block|mock-voice)"/g,(_,attribute,id)=>`${attribute}="${prefix+id}"${attribute==='id'?` data-control="${id}"`:''}`);
   }
   /* 「模拟」组底部的「模拟截屏」（两种形态的左栏与「仿真控制台」弹层三处同名按钮，都走 sim-screenshot）：
      它不是开关，而是「按一下发生一件事」的按钮 —— 一次系统截屏键的仿真，
@@ -1967,7 +2051,7 @@
     return `<button class="row-button" data-action="sim-screenshot">${icon('Picture')}模拟截屏${end}</button>`;
   }
   /* —— 键盘使用引导（kb-usage-guide 组件）：整机覆盖的纯演示层（假页面）——
-     入口是左栏「模拟 › 键盘使用引导」与页面列表的对应条目。它不接真实链路：截图不进
+     入口是**主 App 页面列表**的对应条目（右栏点入）。它不接真实链路：截图不进
      相册、分析不发请求、发送也不走宿主输入框 —— 每一步只改 state.kbGuideDemo 再渲染，
      步骤之间的过渡（白闪 / 键盘弹起 / 分析动画 / 选回复）由 gxTimer 接力；
      高亮框与提示的位置、以及打字机的逐帧推进，都在每次 render 之后由
@@ -1997,10 +2081,11 @@
   function gxAdvance(arg) {
     if (state.kbGuideDemo !== arg) return;
     if (arg === 'shot') {
-      /* 模拟截屏：遮罩消失 → 整屏白闪一下 → 遮罩回来改成高亮宿主输入栏 */
+      /* 模拟截屏：整屏白闪一下 + 左下角浮出「刚截的截图」缩略图（约半秒后自己滑走，
+         动画写在 .gx-shot-pop 上）—— 900ms 与那一段动画同步后改成高亮宿主输入栏 */
       state.kbGuideDemo = 'flash';
       render();
-      state.gxTimer = setTimeout(() => { state.gxTimer = null; if (state.kbGuideDemo === 'flash') { state.kbGuideDemo = 'composer'; render(); } }, 380);
+      state.gxTimer = setTimeout(() => { state.gxTimer = null; if (state.kbGuideDemo === 'flash') { state.kbGuideDemo = 'composer'; render(); } }, 900);
       return;
     }
     if (arg === 'composer') {
@@ -2018,7 +2103,8 @@
       return;
     }
     if (arg === 'pick') {
-      /* 选回复：整卡先亮一下（.picked），半拍后收起面板、把回复带进输入框、高亮移到发送键 */
+      /* 选回复：整卡先亮一下（.picked），半拍后面板**留在屏上**（不再收起回键盘）——
+         高亮移到面板底部那颗「发送」，点它才发 */
       $('.kb-usage-guide [data-gx="idea1"]')?.classList.add('picked');
       state.gxTimer = setTimeout(() => { state.gxTimer = null; if (state.kbGuideDemo === 'pick') { state.kbGuideDemo = 'send'; render(); } }, 420);
       return;
@@ -2059,15 +2145,26 @@
       const b = target.getBoundingClientRect();
       spot.style.cssText = `left:${Math.round(b.left - a.left - pad)}px;top:${Math.round(b.top - a.top - pad)}px;width:${Math.round(b.width + pad * 2)}px;height:${Math.round(b.height + pad * 2)}px`;
       if (tip) {
-        /* 目标偏上 → 提示放下方（手指朝上指）；目标偏下 → 提示放上方（手指朝下指）；
-           水平跟着目标中心走，再按提示的实际宽度夹进手机内（两侧各留 6px），免得文字出屏 */
-        const below = b.bottom + 74 < a.bottom;
-        tip.classList.toggle('gx-tip-up', !below);
+        /* 提示三种摆法：① 默认 —— 落在目标的上方或下方（手指朝目标换向 👆 / 👇）；
+           ② flip —— 同上，但手指挪到文字的右端、朝右（👉，第一步要的手势）；
+           ③ left —— 贴在目标的**左侧**、垂直居中，手指在文字右端朝右指着目标
+           （菜单栏那颗缩略图右边只剩几十像素，提示只能往左摆） */
+        const mode = spot.dataset.mode || '';
         const face = tip.querySelector('.gx-tip-face');
-        if (face) face.textContent = below ? '👆' : '👇';
-        const half = tip.offsetWidth / 2 + 6;
-        tip.style.left = `${Math.round(Math.min(Math.max(b.left - a.left + b.width / 2, half), a.width - half))}px`;
-        tip.style.top = `${Math.round(below ? b.bottom - a.top + 14 : b.top - a.top - 14)}px`;
+        if (mode === 'left') {
+          const w = tip.offsetWidth;
+          tip.style.left = `${Math.round(Math.min(Math.max(b.left - a.left - 10, w + 6), a.width - 6))}px`;
+          tip.style.top = `${Math.round(b.top - a.top + b.height / 2)}px`;
+        } else {
+          /* 目标偏上 → 提示放下方（手指朝上指）；目标偏下 → 提示放上方（手指朝下指）；
+             水平跟着目标中心走，再按提示的实际宽度夹进手机内（两侧各留 6px），免得文字出屏 */
+          const below = b.bottom + 74 < a.bottom;
+          tip.classList.toggle('gx-tip-up', !below);
+          if (face && mode !== 'flip') face.textContent = below ? '👆' : '👇';
+          const half = tip.offsetWidth / 2 + 6;
+          tip.style.left = `${Math.round(Math.min(Math.max(b.left - a.left + b.width / 2, half), a.width - half))}px`;
+          tip.style.top = `${Math.round(below ? b.bottom - a.top + 14 : b.top - a.top - 14)}px`;
+        }
       }
     };
     place();
@@ -2121,10 +2218,6 @@
       else gxTyping();
     };
     tick();
-  }
-  /* 左栏「模拟」里的引导入口（与「模拟截屏」并列）：点一下从头播整条使用引导 */
-  function guideDemoButton() {
-    return `<button class="row-button" data-action="kb-usage-guide">${icon('MagicStick')}键盘使用引导</button>`;
   }
   /* 键盘顶部：菜单栏（第一状态），打字时切到候选词栏（第二状态）；
      问AI 页（kb-free-chat）打开时整块换成「问AI」标题栏 + 输入区（缩略图行 / 快捷栏 / 提问输入行）
@@ -3007,9 +3100,12 @@
     if(!state.draft.trim()){return;}
     /* 积分不足的付费引导**只由左栏「模拟额度耗尽」开关触发**（state.creditsOut）：
        开关关着时 App 永远有额度，正常生成不会被拦（额度也不会被自然消耗光，见下面的扣减）。 */
-    /* 付费引导两种形态共用同一层（kb-paywall 组件、同一张商品表 PLANS）：
-       键盘形态铺满整个键盘区域；主 App 形态浮在主 App 页面上（原「会员与积分」整页已删） */
-    if(state.creditsOut&&!state.member&&state.credits<1){openPaywall();return;}
+    /* 额度不足被拦（2026-09-28 起分两路）：主 App 形态落到商品购买页（appPurchasePage，
+       主 App 的购买都走这一页）；键盘形态仍弹键盘内的付费引导层（kb-paywall） */
+    if(state.creditsOut&&!state.member&&state.credits<1){
+      if(state.appView==='app')return openAppScreen('purchase');
+      return openPaywall();
+    }
     state.results=[];state.pending=true;state.modal=null;state.caPicked=-1;
     state.chatAnswer='';state.chatThinking='';   /* 新请求：上一轮的 AI 回复与回复思路一并清掉 */
     /* 本次结果的结构按输入来：截图转写 / 打字恒为三组建议，语音追问恒为「AI 通用回复」
@@ -3366,7 +3462,7 @@
        会员入口在「我的」的会员横幅上；主 App 已无顶部导航栏，首页清空后主 App 内也没有
        回键盘的入口了，回键盘形态走工作台左栏的 App形态切换。 */
     if(name==='app-tab'){if(!state.loggedIn){openKbLogin();return;}return openAppScreen(arg);}
-    if(name==='app-membership'){if(needLogin())return;return openPaywall();}
+    if(name==='app-membership'){if(needLogin())return;return openAppScreen('purchase');}
     /* —— 首次登录后的「资料引导」（appOnboardPage，见 finishOnboarding）—— */
     /* 选性别：只改 state.gender（这一步不落库），底部箭头随之点亮 */
     if(name==='onboard-gender'){state.gender=arg;return render();}
@@ -3738,19 +3834,25 @@
        按需求整体删除：「我的」页不再有这个入口，state.deleted 也随之清除，勿补回。 */
     /* 会员开通覆盖层的三档商品卡：选中即切换 state.kbPlan（主 App 与键盘共用同一个选中态） */
     if(name==='kb-plan'){state.kbPlan=arg;return render();}
-    /* 「立即解锁」（会员开通层的主按钮）：按平台 / 形态分三路（2026-09-28 需求）——
+    /* 「立即解锁」（商品购买页与会员开通层共用的主按钮）：按平台 / 形态分三路（2026-09-28 需求）——
        iOS：不跳转也不当场到账，就地弹出 iOS 系统支付框（App Store 内购确认，ios-pay-sheet），
             在支付框里点确认（ios-pay-confirm）才走 completePurchase；
-       安卓 / 鸿蒙的键盘形态：跳转到主 App 的会员页（gotoAppMembership：切到主 App 形态、
-            落到「我的」并就地打开会员开通层），到主 App 里再完成购买；
-       其余（安卓 / 鸿蒙的主 App 形态）：一键到账（completePurchase，见其注释）。
-       协议行不带勾选框（已按需求去掉）：购买不再有前置勾选。 */
+       安卓 / 鸿蒙的键盘形态：跳转到主 App 的商品购买页（gotoAppPurchase），到主 App 里再完成购买；
+       其余（安卓 / 鸿蒙的主 App 形态，即商品购买页上）：一键到账（completePurchase，见其注释）。
+       商品购买页照参考图带协议勾选：未勾选点它不往下走，只让协议行抖一下（键盘付费引导层
+       无勾选框、不受这一关）。 */
     if(name==='purchase'){
       if(state.paymentBusy)return;
+      if(state.appScreen==='purchase'&&!state.purchaseAgreed)return shakePurchaseConsent();
       if(state.platform==='ios')return openIosPaySheet();
-      if(state.appView==='keyboard')return gotoAppMembership();
+      if(state.appView==='keyboard')return gotoAppPurchase();
       return completePurchase();
     }
+    /* 商品购买页的协议勾选框与右上角 X：勾选只翻本页的 state.purchaseAgreed；
+       X 收起这一页回「我的」（入口所在的页 —— 横幅 / 额度不足都从「我的」语境进来，
+       键盘跳转过来的落点也按会员入口页算） */
+    if(name==='purchase-agree'){state.purchaseAgreed=!state.purchaseAgreed;return render();}
+    if(name==='purchase-close')return openAppScreen('account');
     /* iOS 系统支付框的两个出口：X = 取消购买（只收起支付框、回会员开通层，不到账）；
        确认区 = 确认支付（真机是双击侧边按钮），走完仿真支付、权益到账并连同会员开通层一起收起 */
     if(name==='ios-pay-close'){closeIosPaySheet();return render();}
@@ -3987,13 +4089,22 @@
           if(checkKbEntry())return;
           render();return;
         }
-        /* 第一次登录（用这个开关直接置成已登录也算）也要先走一遍资料引导（见 startOnboarding） */
-        if(!state.onboarded){startOnboarding();return;}
+        /* 首次登录（「模拟 › 首次登录App」开关开着 + 用这个开关直接置成已登录也算）也要先走一遍资料引导（见 startOnboarding） */
+        if(state.firstLogin){startOnboarding();return;}
         render();return;
       }
       /* 键盘在屏时这就是一次「键盘上的前置检查」：先看完全访问、再看登录 —— 没权限弹引导层、
          未登录弹登录层；重新打开（且权限已开）则把两层收起、键盘恢复可用（见 checkKbEntry()） */
       if(state.appView==='keyboard'&&!state.kbCollapsed){closeKbLogin();closeKbFullAccess();if(checkKbEntry())return;return render();}
+      render();
+    }));
+    /* 左栏「模拟 › 首次登录App」仿真开关（键盘 / 主 App 左栏与「仿真控制台」弹层三处同步）：
+       开 = 登录成功算「第一次」、接着走资料引导；关 = 不算。只改状态、落库，不当场进引导 ——
+       生效时机在**下一次登录成功**那一刻（finishKbLogin / mock-login 的主 App 分支都读它）。
+       资料引导走完（或跳过）时它会自动关上（见 finishOnboarding）。 */
+    document.querySelectorAll('[data-control="mock-first-login"]').forEach(n=>n.addEventListener('change',e=>{
+      state.firstLogin=e.target.checked;
+      persist();
       render();
     }));
     /* 左栏「设备权限」的开关：蜂窝网络（决定未登录时弹哪张登录页）/ 开启键盘（关掉整块键盘换占位）

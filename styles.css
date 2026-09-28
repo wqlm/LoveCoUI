@@ -241,6 +241,40 @@ small{font-size:11px;color:#73847d}
 .kb-paywall .pw-legal-link{padding:0;border:0;background:none;font:inherit;font-weight:600;line-height:inherit;cursor:pointer}
 .kb-paywall .pw-cta{position:relative;flex-shrink:0;border:0;border-radius:999px}
 .kb-paywall .pw-cta-tag{position:absolute;border-radius:6px}
+/* 主 App · 商品购买页（appPurchasePage，2026-09-28 新增）：整页购买页的骨架 ——
+   粉色渐变皮肤与配色在 theme.css 的 .pu-* 一组；商品与 kb-paywall 共用 PLANS / state.kbPlan，
+   样式独立（那边浅紫蓝、这边照参考截图走粉色） */
+.pu-page{display:flex;flex-direction:column;min-height:100%}
+.pu-hero{position:relative;flex-shrink:0}
+.pu-close{position:absolute;top:10px;left:10px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.pu-hero-badge{position:absolute;top:14px;right:14px;border-radius:999px}
+.pu-hero-title span,.pu-hero-title strong{display:block}
+.pu-feats{list-style:none;margin:0;padding:0}
+.pu-feats li{display:flex;align-items:center}
+.pu-feat-ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%}
+.pu-feat-ico svg{width:100%;height:100%}
+.pu-feat-tag{flex-shrink:0;border-radius:4px;font-style:normal}
+.pu-body{flex:1;border-radius:18px 18px 0 0}
+.pu-plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.pu-plan{position:relative;display:flex;flex-direction:column;align-items:center;border:1px solid transparent;border-radius:12px}
+.pu-plan-badge{display:none;position:absolute;left:50%;transform:translateX(-50%);border-radius:999px;white-space:nowrap}
+.pu-plan.active .pu-plan-badge{display:block}
+.pu-plan-name,.pu-plan-price,.pu-plan-origin{display:block}
+.pu-plan-price i{font-style:normal}
+.pu-plan-origin{text-decoration:line-through}
+.pu-cap{margin:0}
+.pu-pay{display:flex;align-items:center;border-radius:12px}
+.pu-pay-logo{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%}
+.pu-pay-logo svg{width:60%;height:60%}
+.pu-pay-name{flex:1}
+.pu-pay-switch{display:flex;flex-shrink:0}
+.pu-pay-switch svg{width:100%;height:100%}
+.pu-cta{width:100%;border:0;border-radius:999px}
+.pu-consent{display:flex;align-items:center;justify-content:center}
+.pu-circle{display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;border-radius:50%}
+.pu-circle svg{width:100%;height:100%}
+.pu-legal-link{padding:0;border:0;background:none;font:inherit;font-weight:600;line-height:inherit;cursor:pointer}
+.pu-consent.shake{animation:kbl-shake .42s cubic-bezier(.36,.07,.19,.97) both}
 /* iOS 系统支付框（ios-pay-sheet）：iOS 上点会员开通层的「立即解锁」就地弹出的系统级弹层 ——
    挂在手机根节点上、铺满整个手机屏（骨架；深色皮肤在 theme.css，只有 iOS 会走到它） */
 .aps-layer{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;justify-content:flex-end}
@@ -524,5 +558,28 @@ to{transform:translateY(0);opacity:1}
 .gx-confetti i:nth-child(4n){width:6px;height:14px}
 /* 打字机光标：正在输出的那一段的末尾 */
 .gx-typing:after{content:"";display:inline-block;width:2px;height:12px;margin-left:2px;vertical-align:-2px}
+/* 「刚截的那张截图」（自绘）：深色聊天页的缩影 —— 顶部条 / 一条消息（带头像点）/ 底部输入栏。
+   截屏瞬间左下角浮出的那张是 .big、菜单栏那颗是默认尺寸 —— 同一套结构两种尺寸，
+   「刚截的截图」长什么样，两处一眼就对得上 */
+.gx-shot-art{flex-shrink:0;display:flex;flex-direction:column;gap:2px;width:32px;height:32px;padding:3px 2px;overflow:hidden}
+.gx-shot-art i{display:block;border-radius:2px}
+.gx-shot-art .gsa-head{flex-shrink:0;align-self:center;width:42%;height:3px}
+.gx-shot-art .gsa-msg{position:relative;flex:1;margin-left:6px;border-radius:3px}
+.gx-shot-art .gsa-msg:before{content:"";position:absolute;left:-5px;top:1px;width:4px;height:4px;border-radius:50%}
+.gx-shot-art .gsa-bar{flex-shrink:0;height:4px}
+.gx-shot-art.big{width:86px;height:118px;gap:5px;padding:7px 5px}
+.gx-shot-art.big .gsa-head{height:5px;border-radius:3px}
+.gx-shot-art.big .gsa-bar{height:9px;border-radius:3px}
+.gx-shot-art.big .gsa-msg{margin-left:14px;border-radius:4px}
+.gx-shot-art.big .gsa-msg:before{left:-12px;top:0;width:10px;height:10px}
+/* 截屏后浮出的缩略图（左下角）：从左滑入、停约半秒再滑走（动画在 theme.css） */
+.gx-shot-pop{position:absolute;left:14px;bottom:16px;z-index:22;padding:4px;pointer-events:none}
+/* 提示的两种摆法（位置由 app.js 实测写入，这里只给变换与排布方式）：
+   flip = 手指挪到文字右端（朝右）；left = 整块贴到目标左侧、垂直居中 */
+.gx-tip-flip{flex-direction:row-reverse}
+.gx-tip.gx-tip-left{transform:translate(-100%,-50%)}
+/* 面板里的「正在分析中」扫描区：复用 .kb-scan 的取景框皮肤，但它是面板内容区里的
+   一块（跟着内容区居中），不再自己铺满键盘区域 */
+.gx-scan{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
 @media(prefers-reduced-motion:reduce){*{animation:none!important;scroll-behavior:auto!important}
 }

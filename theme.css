@@ -1600,6 +1600,62 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   .kb-paywall .pw-cta { height: 35px; margin-top: 24px; font-size: 14px; }
   .kb-paywall .pw-cta-tag { top: -7px; height: 15px; line-height: 15px; }
 }
+/* —— 主 App · 商品购买页（appPurchasePage，2026-09-28 新增）——
+   参考竞品（恋爱回复键盘）购买页照搬的**粉色浅色皮肤**（不跟随深色外观，与付费引导层同一条约定）。
+   整页两段：粉色渐变 Hero（X + 平台专属角标 + 两行玫红标题 + 权益清单）→ 白色圆角主体
+   （三档商品卡 + 续订说明 + 支付方式行 + 粉色渐变胶囊「立即解锁」+ 协议勾选行）。
+   负 margin 抵掉 .app-main 的 10px 侧边距 / 上下留白，让 Hero 顶到状态栏下、白底铺到屏幕底。 */
+.pu-page {
+  --pu-ink: #A81E58;
+  --pu-deep: #C2336F;
+  --pu-hot: #FF3D7F;
+  --pu-hot-2: #FF6FA5;
+  --pu-sub: #7A415A;
+  --pu-faint: #C99AA9;
+  --pu-line: #FFD9E7;
+  margin: -10px -10px -14px;
+  padding-bottom: 16px;
+  background: linear-gradient(180deg, #FF8FB4 0px, #FFC2D6 230px, #FFFFFF 460px);
+  color: var(--pu-ink);
+}
+.pu-hero { padding: 16px 16px 6px; }
+.pu-close { width: 26px; height: 26px; border: 0; background: rgba(255, 255, 255, .88); color: var(--pu-hot); box-shadow: 0 2px 8px #D6336C26; }
+.pu-close svg { width: 14px; height: 14px; }
+.pu-hero-badge { padding: 2px 9px; border: 1px solid rgba(255, 255, 255, .92); background: rgba(255, 255, 255, .2); color: #FFF; font-size: 10px; font-weight: 600; letter-spacing: .5px; }
+.pu-hero-title { margin: 10px 0 0; }
+.pu-hero-title span { font-size: 13.5px; font-weight: 650; color: #9C1D55; letter-spacing: .3px; }
+.pu-hero-title strong { margin-top: 3px; font-size: 23px; font-weight: 800; color: #B01E5A; letter-spacing: .3px; }
+.pu-feats { margin-top: 18px; }
+.pu-feats li { gap: 10px; padding: 7px 0; font-size: 13px; font-weight: 600; color: var(--pu-deep); }
+.pu-feat-ico { width: 26px; height: 26px; background: #FFF; color: var(--pu-hot-2); box-shadow: 0 2px 6px #D6336C1F; }
+.pu-feat-ico svg { width: 14px; height: 14px; }
+.pu-feat-tag { margin-left: 6px; padding: 1px 5px; background: var(--pu-hot); color: #FFF; font-size: 9px; font-weight: 600; line-height: 1.5; }
+/* 白色主体：三档卡（选中那张玫红描边 + 顶部浮一枚玫红角标）→ 续订说明 → 支付方式行 */
+.pu-body { margin-top: 14px; padding: 16px 12px 4px; background: #FFF; box-shadow: 0 -8px 20px #D6336C12; }
+.pu-plan { padding: 11px 2px 12px; background: #FFF7FA; border-color: var(--pu-line); }
+.pu-plan:hover { border-color: #FFB3D0; }
+.pu-plan.active { background: #FFF0F7; border-color: var(--pu-hot); box-shadow: inset 0 0 0 1px var(--pu-hot); }
+.pu-plan-badge { top: -9px; padding: 2px 8px; background: linear-gradient(90deg, var(--pu-hot-2), var(--pu-hot)); color: #FFF; font-size: 9px; font-weight: 600; line-height: 1.5; box-shadow: 0 3px 8px #FF3D7F4D; }
+.pu-plan-name { font-size: 12px; font-weight: 650; color: var(--pu-sub); }
+.pu-plan-price { margin-top: 3px; font-size: 20px; font-weight: 800; color: #E93A7D; letter-spacing: .2px; }
+.pu-plan-price i { margin-right: 1px; font-size: 12px; font-weight: 650; }
+.pu-plan-origin { margin-top: 1px; font-size: 10px; color: var(--pu-faint); }
+.pu-cap { margin: 10px 2px 0; font-size: 10.5px; line-height: 1.5; color: var(--pu-faint); }
+.pu-pay { gap: 10px; margin-top: 12px; padding: 10px 12px; background: #F6F6F8; }
+.pu-pay-logo { width: 22px; height: 22px; background: #FFF; border: 1px solid #E4E4EA; color: #3C3C43; }
+.pu-pay-logo.ali { border: 0; background: #1677FF; color: #FFF; font-size: 12px; font-weight: 700; }
+.pu-pay-name { font-size: 13px; font-weight: 600; color: #4A4458; }
+.pu-pay-switch { width: 14px; height: 14px; color: #B9B3C2; }
+/* 「立即解锁」：整宽粉色渐变胶囊（已是会员时置灰）；协议勾选行：圆形勾选框 + 两份协议名可点 */
+.pu-cta { height: 42px; margin-top: 14px; background: linear-gradient(90deg, var(--pu-hot-2), var(--pu-hot)); color: #FFF; font-size: 15.5px; font-weight: 700; letter-spacing: 2px; box-shadow: 0 8px 18px #FF3D7F40; }
+.pu-cta:hover { box-shadow: 0 10px 22px #FF3D7F66; }
+.pu-cta:disabled { background: #F0D4E0; box-shadow: none; cursor: default; }
+.pu-consent { gap: 5px; margin-top: 11px; font-size: 10px; line-height: 1.5; color: var(--pu-faint); }
+.pu-circle { width: 14px; height: 14px; border: 1.5px solid #E39EBB; background: #FFF; color: #FFF; }
+.pu-circle.on { border-color: var(--pu-hot); background: var(--pu-hot); }
+.pu-circle svg { width: 9px; height: 9px; }
+.pu-consent .pu-legal-link { color: var(--pu-deep); }
+.pu-consent .pu-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
 /* iOS 系统支付框（ios-pay-sheet 组件）：iOS 上点会员开通层的「立即解锁」就地弹出的**系统级**弹窗
    （App Store 内购确认，照参考截图）—— 挂在手机根节点上、铺满整个手机屏（含键盘与宿主 App），
    自成一层皮肤：**固定系统深色外观**（系统弹窗不跟随键盘的浅色 / 深色皮肤）。
@@ -2544,17 +2600,23 @@ html[data-view="device"] .sheet-footer {
 .kb-usage-guide[data-step="thumb"] .gx-kb { height: var(--lc-keyboard-height); }
 .kb-usage-guide[data-step="scan"] .gx-kb,
 .kb-usage-guide[data-step="stream"] .gx-kb,
-.kb-usage-guide[data-step="pick"] .gx-kb { height: var(--gx-kb-panel-h, 520px); }
-.kb-usage-guide[data-step="send"] .gx-kb { height: var(--lc-keyboard-height); animation: gx-kb-drop .34s cubic-bezier(.32, .72, .33, 1); }
-.kb-usage-guide[data-step="win"] .gx-kb { height: var(--lc-keyboard-height); }
+.kb-usage-guide[data-step="pick"] .gx-kb,
+.kb-usage-guide[data-step="send"] .gx-kb { height: var(--gx-kb-panel-h, 520px); }
+/* 发送那一步面板**仍在屏上**（高亮的是面板底部那颗「发送」），只有收场（win）才回落 */
+.kb-usage-guide[data-step="win"] .gx-kb { height: var(--lc-keyboard-height); animation: gx-kb-drop .34s cubic-bezier(.32, .72, .33, 1); }
 @keyframes gx-kb-up { from { height: 0; } }
 @keyframes gx-kb-drop { from { height: var(--gx-kb-panel-h, 520px); } }
-/* 键盘区域里的两块整页层（扫描过渡 / 聊天分析面板）：复用真面板的皮肤，滑入也同一套 */
-.kb-usage-guide .kb-scan, .kb-usage-guide .kb-chat-analysis { animation: gx-sheet-in .34s cubic-bezier(.32, .72, .33, 1); }
+/* 面板只在「AI 分析」那一步从底部滑入**一次** —— 后面三步是同一块面板换内容（打字机
+   输出 → 选回复 → 发送），不再重播弹入动画（此前每步都重建 DOM，看着像弹了两次） */
+.kb-usage-guide[data-step="scan"] .gx-sheet { animation: gx-sheet-in .34s cubic-bezier(.32, .72, .33, 1); }
 @keyframes gx-sheet-in { from { transform: translateY(100%); } }
 /* 截图白闪：亮起后快速淡出（与「模拟截屏」的 .shot-flash 同一种观感） */
 .gx-flash { animation: gx-flash-out .42s ease-out both; }
 @keyframes gx-flash-out { from { opacity: .92; } to { opacity: 0; } }
+/* 第一步不压暗页面（只要那枚提示）：高亮框透明、也不画描边 —— 但挡板照旧吃掉
+   高亮区以外的点击，所以这一步仍然只能点那句话 / 那枚提示 */
+.kb-usage-guide[data-step="shot"] .gx-spot { box-shadow: none; }
+.kb-usage-guide[data-step="shot"] .gx-spot:after { display: none; }
 /* 高亮框：框外的半透明黑由 box-shadow 铺满整层（聚光灯，框内透出下层内容），
    框缘一圈淡紫呼吸描边 */
 .gx-spot { box-shadow: 0 0 0 200vmax rgba(0, 0, 0, .62); }
@@ -2580,6 +2642,24 @@ html[data-view="device"] .sheet-footer {
 /* 打字机光标：正在输出的那一段末尾，淡紫竖条闪烁 */
 .gx-typing:after { background: #8F7BF2; animation: gx-caret 1s steps(1) infinite; }
 @keyframes gx-caret { 50% { opacity: 0; } }
+/* 「刚截的那张截图」的配色（骨架在 styles.css）：深色聊天页 —— 头部条 / 消息气泡 /
+   输入栏各一条，左侧一枚头像点 */
+.gx-shot-art { background: #26282D; border-radius: 5px; }
+.gx-shot-art .gsa-head { background: #4A4C52; }
+.gx-shot-art .gsa-msg { background: #3A3D44; }
+.gx-shot-art .gsa-msg:before { background: #5A5D64; }
+.gx-shot-art .gsa-bar { background: #33353B; }
+.gx-shot-art.big { border-radius: 8px; }
+/* 截屏后左下角浮出的缩略图（iOS 截屏缩略图的样子）：白色圆角卡包着截图缩影，
+   从左滑入 → 停约半秒 → 向左上滑走（总时长与 app.js 里 flash 那一步的 900ms 对齐，
+   滑走后正好接上「高亮输入栏」那一步） */
+.gx-shot-pop { background: #fff; border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .45); animation: gx-shot-pop .9s cubic-bezier(.32, .72, .33, 1) both; }
+@keyframes gx-shot-pop {
+  0% { transform: translate(-130%, 0) rotate(-6deg); opacity: 0; }
+  12% { transform: translate(0, 0) rotate(-4deg); opacity: 1; }
+  58% { transform: translate(0, 0) rotate(-4deg); opacity: 1; }
+  100% { transform: translate(-130%, -30%) rotate(-10deg); opacity: 0; }
+}
 
 /* ---- 首次登录的「资料引导」（2026-09-28，选择性别 / 你的出生日期两步）----
    主 App 的**整页流程**（无底部 Tab，状态栏连着一起转淡紫 .guide-lavender，见上面那三条），
