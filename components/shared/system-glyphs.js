@@ -10,6 +10,10 @@
   const solid = (body, viewBox = '0 0 24 24') => `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}" fill="currentColor">${body}</svg>`;
   /* 九宫格：3×3 圆点，1:1 方形画布 */
   const dots = Array.from({ length: 9 }, (_, i) => `<circle cx="${4.8 + 7.2 * (i % 3)}" cy="${4.8 + 7.2 * Math.floor(i / 3)}" r="2.9"/>`).join('');
+  /* 照片图标（模拟 iOS 设置页「照片」那一行）：绕中心转 8 片彩色花瓣 —— iOS 相册图标的
+     结构简化版，白底由 CSS 给（.ios-set-ic.photos），花瓣自带颜色、微透光压出交叠感 */
+  const photoPetals = ['#FFCC00', '#FF9500', '#FF3B30', '#FF2D55', '#AF52DE', '#5856D6', '#007AFF', '#34C759']
+    .map((c, i) => `<ellipse cx="0" cy="-4.9" rx="2.9" ry="4.9" fill="${c}" opacity=".85" transform="rotate(${i * 45})"/>`).join('');
   /* 全键盘：按设计图重绘 —— 两排四颗圆角方键 + 底部居中的空格长条，整体在 24×17.4 画布内居中 */
   const keys = (() => {
     const k = 4.4, gap = 1.6, x0 = 0.8, y0 = 1.2;
@@ -42,6 +46,15 @@
     home: svg('<path d="M3.4 10.3 12 3.3l8.6 7"/><path d="M5.5 9.5V20.4h13V9.5"/><path d="M9.8 20.4v-5.2h4.4v5.2"/>'),
     users: svg('<circle cx="9.4" cy="8.2" r="3.5"/><path d="M3.3 20.2c0-3.4 2.7-5.9 6.1-5.9s6.1 2.5 6.1 5.9"/><path d="M16.6 5.6a3.5 3.5 0 0 1 0 5.3"/><path d="M17.6 14.8c1.9.7 3.2 2.8 3.2 5.4"/>'),
     user: svg('<circle cx="12" cy="8" r="3.8"/><path d="M4.6 20.4c0-3.7 3.3-6.6 7.4-6.6s7.4 2.9 7.4 6.6"/>'),
+
+    /* —— 模拟 iOS 设置页（主 App「开启键盘」引导里的「LoveCo 键盘」页）里的一排小图标 ——
+       白色图形配彩色圆角底（底色 / 圆角见 theme.css 的 .ios-set-ic 系列）：
+       放大镜（搜索）/ 铃铛（通知）/ 键盘 / 地球（语言，与键盘底栏那枚同形）；
+       照片 = 白底彩色风车（photoPetals）；Siri = 深底彩色光球，纯 CSS 画（.ios-set-ic.siri） */
+    setSearch: svg('<circle cx="10.5" cy="10.5" r="6.3"/><path d="M15.2 15.2 20.6 20.6"/>', '', 2.1),
+    setBell: solid('<path d="M12 2.4a1.6 1.6 0 0 1 1.6 1.6v.8h-3.2V4A1.6 1.6 0 0 1 12 2.4Z"/><path d="M12 4.8a5.7 5.7 0 0 1 5.7 5.7v3.3l1.6 2.8H4.7l1.6-2.8V10.5A5.7 5.7 0 0 1 12 4.8Z"/><path d="M9.7 18.2h4.6a2.3 2.3 0 0 1-4.6 0Z"/>'),
+    setKbd: svg('<rect x="2.2" y="6" width="19.6" height="12" rx="2.6"/><path d="M6 9.5h.01M9.3 9.5h.01M12.6 9.5h.01M15.9 9.5h.01M18.6 9.5h.01M6 12.4h.01M9.3 12.4h.01M12.6 12.4h.01M15.9 12.4h.01M18.6 12.4h.01M7.8 15.3h8.4"/>', '', 1.8),
+    setPhotos: solid(`<g transform="translate(12 12)">${photoPetals}</g>`),
 
     /* ---- 宿主 App（微信）会话界面：按下图 1:1 绘制的图形 ----
        三组圆形图形按「圆环外径 = 22px」定尺寸：圆环中线 r≈10（画布 24）、描边 1.3（≈1.3px），

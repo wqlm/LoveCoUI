@@ -2277,3 +2277,50 @@ html[data-view="device"] .sheet-footer {
 .hz-pip .hz-pip-check { position: absolute; left: 50%; bottom: 17px; transform: translateX(-50%); width: 21px; height: 21px; border-radius: 50%; background: #34C759; color: #fff; display: flex; align-items: center; justify-content: center; }
 .hz-pip .hz-pip-check svg { width: 11px; height: 11px; }
 .hz-pip .hz-pip-caption { position: absolute; left: 0; right: 0; bottom: 3px; font-size: 8px; color: #6B7280; text-align: center; }
+
+/* ---- 模拟 iOS 设置里的「LoveCo 键盘」页（2026-09-28，主 App「开启键盘」引导流程的 iOS 版设置页）----
+   iOS 的键盘设置按 App 分组，与鸿蒙那套「输入法」页不是一回事：顶部一条导航条（蓝色「‹ App」
+   返回 + 居中标题「LoveCo 键盘」），正文两组圆角卡片（#1C1C1E、行高 44px、分隔线自图标右侧起）
+   + 卡下一段灰色页脚说明，整页深色（底色沿用 .hz-page 的 #0B0B0C，与状态栏连成一片）。
+   与鸿蒙版同处一条链路：只有「键盘」行可点（进 LoveCo 详情页）、左下角同一颗视频悬浮窗（.hz-pip）。
+   按需求不渲染设计图里的「从其他 App 粘贴」分组；设计图里的 lovekey 字样全部改 LoveCo。
+   底部留出一条悬浮窗那么高的空档（108px）：这一页比鸿蒙那两页长，页脚说明的末几行不能压在
+   悬浮窗底下（悬浮窗钉在页面左下角，滚到底时正好落在这条空档里）。 */
+.ios-set-page { padding: 0 0 108px; }
+.ios-set-nav { position: relative; display: flex; align-items: center; min-height: 46px; padding: 0 12px; }
+.ios-set-back { display: inline-flex; align-items: center; gap: 4px; padding: 0; border: 0; background: none; color: #0A84FF; font-size: 17px; cursor: pointer; }
+/* 「‹」：两段 2.4px 描边折角（iOS 导航条那枚细箭头，颜色随文字） */
+.ios-set-back .ios-set-chev { width: 8px; height: 8px; border-left: 2.4px solid currentColor; border-bottom: 2.4px solid currentColor; border-radius: 1px; transform: rotate(45deg) translate(1px, -1px); }
+.ios-set-nav h1 { position: absolute; left: 50%; transform: translateX(-50%); font-size: 17px; font-weight: 600; }
+.ios-set-label { margin: 22px 16px 7px; font-size: 13px; color: #8E8E93; }
+.ios-set-card { margin: 0 16px; border-radius: 10px; background: #1C1C1E; overflow: hidden; }
+.ios-set-row { position: relative; display: flex; align-items: center; gap: 12px; width: 100%; min-height: 44px; padding: 7px 16px; text-align: left; }
+/* 分隔线不顶到左边缘：自图标右侧起（16 padding + 29 图标 + 12 间距 = 57px），与 iOS 一致 */
+.ios-set-row + .ios-set-row::before { content: ''; position: absolute; left: 57px; right: 0; top: 0; height: 1px; background: #38383A; }
+.ios-set-row.as-button { border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+.ios-set-row.as-button:active { background: #2C2C2E; }
+/* 行首的彩色小图标：29px 圆角方块（搜索 / 键盘灰底、通知红底、无线数据绿底、语言蓝底圆、照片白底
+   彩色风车、Siri 深底彩色光球），图形一律白色（照片的风车自带颜色） */
+.ios-set-ic { position: relative; flex: 0 0 auto; display: flex; align-items: center; justify-content: center; width: 29px; height: 29px; border-radius: 7px; overflow: hidden; background: #636366; color: #fff; }
+.ios-set-ic svg { width: 19px; height: 19px; }
+.ios-set-ic.photos { background: #fff; }
+.ios-set-ic.photos svg { width: 27px; height: 27px; }
+.ios-set-ic.siri { background: #0A0A0C; }
+.ios-set-ic.siri::before { content: ''; position: absolute; inset: 14%; border-radius: 50%; background: conic-gradient(from 210deg, #57B0FF, #8A5CF6, #FF5FA2, #FFC46B, #57B0FF); filter: blur(2.5px); opacity: .92; }
+.ios-set-ic.notify { background: #FF3B30; }
+.ios-set-ic.cell { background: #34C759; }
+.ios-set-ic.lang { border-radius: 50%; background: #007AFF; }
+.ios-set-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ios-set-name { font-size: 17px; color: #F2F2F5; }
+.ios-set-sub { font-size: 12px; color: #8E8E93; }
+.ios-set-value { margin-left: auto; font-size: 17px; color: #8E8E93; }
+.ios-set-row .chev { display: inline-flex; margin-left: auto; color: #5A5A5F; }
+.ios-set-row .chev svg { width: 13px; height: 13px; }
+/* 值在右时值贴右边、折角跟在它后面（两处都写了 margin-left auto 会平分空隙，这里把折角收回） */
+.ios-set-value + .chev { margin-left: 8px; }
+/* 页脚说明：一段灰色小字，其中 ❶❷ 两条是带圈数字的悬空缩进列表（换行不钻到数字下面、两条靠得更近） */
+.ios-set-note { display: flex; flex-direction: column; gap: 9px; margin: 22px 16px 0; font-size: 13px; line-height: 1.5; color: #8E8E93; }
+.ios-set-note p { margin: 0; }
+.ios-set-note-line { display: flex; gap: 6px; }
+.ios-set-note-line + .ios-set-note-line { margin-top: -3px; }
+.ios-set-num { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; width: 15px; height: 15px; margin-top: 2.5px; border-radius: 50%; background: #E8E8ED; color: #1C1C1E; font-size: 10px; font-style: normal; font-weight: 700; }
