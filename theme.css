@@ -2230,6 +2230,9 @@ html[data-view="device"] .sheet-footer {
 .kb-guide-page { min-height: 100%; background: #5B68F5; color: #fff; padding: 22px 16px; display: flex; flex-direction: column; justify-content: center; }
 .kb-guide-video-card { border-radius: 20px; overflow: hidden; background: #fff; box-shadow: 0 12px 32px rgba(16, 16, 84, 0.28); }
 .kb-guide-video-card video { display: block; width: 100%; }
+/* 第二步的演示卡：素材还没给，先摆一张同比例的空占位（不改动页面高度，见 appGuideHome）——
+   aspect-ratio 取现有演示片（1280×912）的比值，卡内一行浅灰小字说明这是占位 */
+.kb-guide-video-empty { aspect-ratio: 1280 / 912; display: flex; align-items: center; justify-content: center; color: #A6A6B2; font-size: 12px; letter-spacing: 0.4px; }
 .kb-guide-caption { margin: 15px 6px 20px; font-size: 12.5px; font-weight: 600; letter-spacing: 0.4px; text-align: center; }
 .kb-guide-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 54px; padding: 0 22px; border-radius: 27px; border: 0; font-size: 15px; font-weight: 600; cursor: pointer; }
 .kb-guide-btn svg { width: 16px; height: 16px; }
@@ -2365,5 +2368,23 @@ html[data-view="device"] .sheet-footer {
 .mi-switch.on { background: #3482FF; }
 .mi-switch.on i { left: 22px; }
 .mi-switch.is-static { cursor: default; }
-/* 左下角视频悬浮窗落在浅色页上：投影比深色页淡一档 */
+/* 左下角视频悬浮窗落在浅色页上：投影比深色页淡一档（安卓引导的模拟设置页已不渲染悬浮窗，
+   见 appGuideSettingsAndroid —— 这条规则留给别的浅色页/后续复用） */
 .mi-page .hz-pip { box-shadow: 0 10px 26px rgba(38, 33, 50, 0.22); }
+
+/* ---- 键盘切换悬浮窗（2026-09-28，安卓引导第二步的落点）----
+   仿真安卓系统「点键盘上的切换输入法按钮」弹出的输入法选择器（设计截图那一张）：
+   屏幕底部一张白色抽屉 + 一层半透明遮罩，抽屉固定浅色（不跟随引导页的紫蓝皮肤）。
+   抽屉内按输入法分组：灰色组名 + 语言行（整宽按钮，高 60px、圆角 16px、17px 字）；
+   当前输入法那一行铺淡紫底 + 右侧深色对勾（截图里选中的是 LoveCo）。
+   遮罩与抽屉是**兄弟节点**（不是父子）：所有 [data-action] 各自挂 click 监听，
+   嵌套会让一次点击同时触发内外两个动作。层级 19：压在各覆盖层（完全访问 18）之上。 */
+.ie-layer { position: absolute; inset: 0; z-index: 19; display: flex; flex-direction: column; justify-content: flex-end; }
+.ie-scrim { position: absolute; inset: 0; background: rgba(12, 10, 26, 0.16); }
+.ie-sheet { position: relative; background: #fff; color: #191919; border-radius: 22px 22px 0 0; padding: 6px 12px 22px; box-shadow: 0 -8px 26px rgba(20, 16, 40, 0.2); animation: picker-up 0.28s cubic-bezier(.32, .72, 0, 1) both; }
+.ie-group { margin: 12px 8px 5px; font-size: 12.5px; color: #8C8C92; }
+.ie-row { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 60px; padding: 0 18px; border: 0; border-radius: 16px; background: none; color: #191919; font-size: 17px; text-align: left; cursor: pointer; }
+.ie-row.on { background: #EBDFF9; font-weight: 600; }
+.ie-row .ie-check { display: flex; }
+.ie-row .ie-check svg { width: 17px; height: 17px; }
+.ie-sep { height: 1px; margin: 10px 8px 0; background: #E7E7EB; }
