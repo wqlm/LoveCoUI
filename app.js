@@ -762,15 +762,18 @@
       /* 「开启键盘」引导流程（引导页三端各一条 + 模拟设置两页）：点引导页任一条目时
          先切到它对应的运行平台（引导页形态三端大致相同、演示动画素材按平台取，见 GUIDE_VIDEOS），
          再现场把「开启键盘」置成关、落引导页（不落库 —— 刷新即恢复）；
-         设置页 / 详情页保持当前开关状态，方便查看「已启用」后的形态 */
+         设置页 / 详情页保持当前开关状态，方便查看「已启用」后的形态；
+         三条引导条目都顺手收起搁置着的两层覆盖层（完全访问 / 登录）—— 否则从别的页面
+         带着层跳进来，层会一直盖在引导现场上（静态查看容易串台） */
       if(it.id==='kb-guide'||it.id==='kb-guide-android'||it.id==='kb-guide-ios'){
         state.platform=it.id==='kb-guide-android'?'android':it.id==='kb-guide-ios'?'ios':'harmony';
         persist();
+        state.kbFullAccess=false;state.kbLogin=false;
         state.permissions.kbEnabled=false;state.permissions.ime='system';state.appScreen='kb-guide';state.modal='kb-guide';state.kbGuidePage='guide';
         return render();
       }
-      if(it.id==='kb-guide-settings'){state.kbGuidePage='settings';return openAppScreen('kb-guide');}
-      if(it.id==='kb-guide-detail'){state.kbGuidePage='detail';return openAppScreen('kb-guide');}
+      if(it.id==='kb-guide-settings'){state.kbFullAccess=false;state.kbLogin=false;state.kbGuidePage='settings';return openAppScreen('kb-guide');}
+      if(it.id==='kb-guide-detail'){state.kbFullAccess=false;state.kbLogin=false;state.kbGuidePage='detail';return openAppScreen('kb-guide');}
       return openAppScreen(it.id);
     }
     switch(it.id){
