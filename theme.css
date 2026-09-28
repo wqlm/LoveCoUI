@@ -1565,8 +1565,9 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    浅灰小字、两端对齐，压在协议行下面 —— 同样在首屏之外，要滚动才看得到 */
 .kb-paywall .pw-note { margin: 13px 0 0; font-size: 10px; line-height: 1.75; color: var(--pw-faint); text-align: justify; }
 /* 主按钮：整宽蓝色胶囊（在滚动列内），红色小标悬在右上角、文案随档位变；
-   **整颗持续一闪一闪**（2026-09-28 需求：引导点击 —— 1.4s 一个来回，亮度在 1 ↔ .72 之间脉动、
-   蓝色光晕同步收放；与引导页主按钮的 kg-breathe 同一路做法，这里用亮度闪烁更显眼） */
+   **整颗持续一跳一跳**（2026-09-28 需求定稿：不是亮度闪烁，而是「放大缩小」的跳动感 ——
+   1.4s 一个来回，scale 1 ↔ 1.055 + 蓝色投影同步加深；与引导页主按钮的 kg-breathe 同一路做法，
+   幅度略大一点更「跳」，红色小标是按钮子元素、跟着一起放大） */
 .kb-paywall .pw-cta {
   width: 100%;
   height: 38px;
@@ -1576,11 +1577,11 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   font-size: 15px;
   font-weight: 650;
   box-shadow: 0 6px 16px #3F66F13D;
-  animation: pw-cta-blink 1.4s ease-in-out infinite;
+  animation: pw-cta-bounce 1.4s ease-in-out infinite;
 }
-@keyframes pw-cta-blink {
-  0%, 100% { opacity: 1; box-shadow: 0 6px 16px #3F66F13D; }
-  50% { opacity: .72; box-shadow: 0 6px 22px #3F66F166; }
+@keyframes pw-cta-bounce {
+  0%, 100% { transform: scale(1); box-shadow: 0 6px 16px #3F66F13D; }
+  50% { transform: scale(1.055); box-shadow: 0 10px 24px #3F66F166; }
 }
 .kb-paywall .pw-cta:hover { background: var(--pw-cta-strong); }
 .kb-paywall .pw-cta:disabled { background: #B9C4F0; box-shadow: none; animation: none; }
