@@ -2209,23 +2209,13 @@ html[data-view="device"] .sheet-footer {
 }
 
 /* ---- 主 App「开启键盘」引导流程（2026-09-27，鸿蒙版；安卓 / iOS 待后续需求）----
-   三块整页（无底部 Tab）：引导页（紫蓝）/ 模拟鸿蒙设置页与 LoveCo 详情页（深色），
-   外加启动闸门的两块提示页（检查中 / 网络不可用，用主 App 常规浅色皮肤）。
+   三块整页（无底部 Tab）：引导页（紫蓝）/ 模拟鸿蒙设置页与 LoveCo 详情页（深色）。
    整页皮肤连着状态栏一起换底色：手机根元素上的 .guide-purple / .guide-dark 由 renderApp 挂。 */
 .app-phone.guide-purple { background: #5B68F5; }
 .app-phone.guide-dark { background: #0B0B0C; }
 .app-phone.guide-purple > .statusbar { background: #5B68F5; color: #fff; }
 .app-phone.guide-dark > .statusbar { background: #0B0B0C; color: #fff; }
 .app-phone.guide-purple .app-main, .app-phone.guide-dark .app-main { width: 100%; padding: 0; }
-
-/* 启动闸门：检查中（转圈）/ 网络不可用（图标 + 重试），居中排版 */
-.app-gate { min-height: 64vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; }
-.app-gate-spinner { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--lc-accent-soft); border-top-color: var(--lc-accent-strong); animation: kg-spin 0.9s linear infinite; }
-@keyframes kg-spin { to { transform: rotate(360deg); } }
-.app-gate-icon svg { width: 42px; height: 42px; color: var(--lc-muted); }
-.app-gate-title { margin-top: 10px; font-size: 15px; font-weight: 600; }
-.app-gate-hint { font-size: 12px; color: var(--lc-muted); }
-.app-gate-retry { margin-top: 18px; min-height: 38px; padding: 0 30px; border-radius: 19px; border: 0; background: var(--lc-accent-strong); color: #fff; font-size: 13.5px; font-weight: 600; cursor: pointer; }
 
 /* 引导页（紫蓝整页）：白圆角大卡播演示动画 + 一行说明 + 黑胶囊按钮（一至两颗）。
    元素**整体上下居中**（2026-09-27 按其反馈调，此前挤在顶部、下面一大片留白）：

@@ -206,11 +206,7 @@
        都只把它打开，关掉即回原页。协议 key 复用 state.legalKey（'user'/'member' 由动作层映射到
        legal-data.js 的 key）。 */
     appLegal:false,
-    /* 主 App 启动闸门（state.appGate）：进入主 App 先发一次仿真网络请求检查联网状态 ——
-       'checking' 检查中（整页「正在检查网络…」）/ 'nonet' 检查失败（整页网络不可用 + 重试）/
-       '' 通过（接着走状态检查链：键盘权限 → 完全访问 → 登录，见 appEntryGuards）。页面内存、不持久化。 */
-    appGate:'',
-    /* 开启键盘引导（state.kbGuidePage）：启动闸门通过后键盘未开启（!permissions.kbEnabled）时，
+    /* 开启键盘引导（state.kbGuidePage）：进入主 App 时键盘未开启（!permissions.kbEnabled）就走这条链，
        主 App 不落首页、整页进入引导流程 —— 'guide' 引导页（演示视频 + 一至两颗按钮：鸿蒙 / iOS
        一颗，安卓两颗，见 appGuideHome）/ 'settings' 模拟鸿蒙「输入法」设置页 / 'detail' LoveCo
        输入法详情页（两个开关）。kbGuideFull 是详情页「完整体验模式」开关的值（第一个开关
@@ -235,13 +231,11 @@
     requestSeq:0,
     accountEpoch:0, gender:saved.gender||'暂不设置', age:saved.age||'暂不设置', mutationBusy:false, formCache:{},
   };
-  /* ?surface=app 直接进入主 App 形态。进入不再直接落首页：先走一遍启动闸门
-     appEntryCheck() —— 仿真网络请求检查联网状态，通过后再查键盘是否开启；
-     键盘未开启就整页进「开启键盘」引导（不弹登录层），都通过才落首页（未登录补弹登录层）。
-     先把闸门摆成「检查中」让首帧就停在这，真正发请求放定时器里：
+  /* ?surface=app 直接进入主 App 形态。进入不再直接落首页：先走一遍状态检查链
+     appEntryCheck() —— 键盘未开启就整页进「开启键盘」引导、完全访问没开弹引导层、
+     未登录弹登录层，都通过才落首页。放定时器里跑：
      启动脚本还没跑完（后面还有 const），同步调用 render 会踩 TDZ。 */
   if (state.appView === 'app') {
-    state.appGate = 'checking';
     setTimeout(appEntryCheck, 0);
   }
   /* 会员商品表：主 App 的会员开通覆盖层与键盘内付费引导**共用同一张**（两处同一套设计、
@@ -516,7 +510,7 @@
     {id:'kb-paywall',group:'会员与积分',name:'会员开通覆盖层（主 App / 键盘共用）',route:'键盘 › 整页覆盖层；主 App › 整页覆盖层（「我的」横幅 / 额度不足）',trigger:'① 键盘模式下发起 AI 生成（立即分析 / 重新生成 / 语音追问 / 键盘发送）时额度不足 —— 左栏「模拟 › 模拟额度耗尽」打开（积分清零且非会员）；② 主 App 点「我的」的会员横幅「立即查看」、或主 App 形态下发起的生成额度不足（原「会员与积分」整页已删，两处打开的是同一层）。本列表点入为静态查看（现场把额度置成耗尽，不落库）',desc:'额度不足（或主 App 点会员横幅）时打开这一层：键盘形态铺满**整个键盘区域**（菜单栏 / 键区 / 底栏一并盖住；键盘高度不额外拉高，就是常规键盘那一块 250px / 矮窗口 210px）、从下往上滑入；主 App 形态浮在整个主 App 上。结构自上而下：① 右上角一枚圆形 X（只收起这一层回键盘，额度仍是 0 —— 再发起生成还会弹）；② 两行居中标题「成为LoveCo会员，/ 无限次使用AI功能～」（16px 深墨字，两行等宽居中排，标题上方**不再放**「3000 万+用户选择」「第 1 名」那两块徽章）；③ 三档商品卡**横向等分并排**（永久会员 ¥128 / 周会员 ¥9.9 / 季度会员 ¥98，卡内自上而下：12px 灰档位名 → 20px 加粗现价（¥ 比数字小一档）→ 11px 灰字划线原价 ¥576 / ¥48 / ¥128），选中的那张浅紫底 + 2px 紫描边、其余白底浅灰描边，点卡片即切换选中档位（默认永久会员）；④ 整宽蓝色胶囊「立即解锁」（在滚动列内 —— 不是钉在底栏上方；右上角悬一枚红色小标，**文案随档位变**：永久会员「一次性买断」/ 周会员「畅享 7 天」/ 季度会员「畅享 90 天」）；⑤ **协议行沉在按钮下方** —— 10px 灰字「我已阅读并同意《会员协议》、《续费协议》」，**不带勾选框**（已按需求去掉，购买不再前置勾选），两份协议名都是同一层里可点的深色文字按钮：点开键盘内协议正文页 kb-legal，压在这一层之上、X 一关即回本层；**永久会员那一档只留《会员协议》**（一次性买断、不涉续订），《续费协议》跟着下方那段说明一起不出现；⑥ **自动续订说明**（照设计图 1:1：iTunes 自动续订、到期前 24 小时内扣费、取消方式、试用期规则；文案本身是 iOS 场景的，**只在 iOS 渲染**）压在协议行下面；⑦ 平台底栏（键盘形态才渲染：kb-navbar，Android 不渲染、面板直接铺到屏幕底边；主 App 形态没有这条，这一层直接铺到主 App 底边）。**协议与说明默认在可视区之外**（设计图的小心机）：整列内容高过这一层，首屏只看到标题 / 三档卡 /「立即解锁」，把这一层往上滚一段才露出协议与说明（常规 250px 档约多出 200px 可滚内容、矮窗口 210px 档约 160px；永久会员档少了说明那一段，也仍差约 30px 才够到协议行）。**未勾选协议就点「立即解锁」的拦截已随勾选框一并去掉**：点它**直接**一键到账（purchase 动作，2026-09-26 起不再经「确认模拟订单 → 权益已到账」两个中间页），会员当场生效、本层收起（键盘形态回键盘、主 App 形态停原页）',note:'商品取 PLANS（永久 ¥128 / 周 ¥9.9 / 季度 ¥98，均带划线原价、kind 一律 member）—— 主 App 与键盘形态**共用这一张表**（原「键盘内三档 vs 主 App 月度 / 年度 / 积分」两套分开卖的做法已随主 App 会员页删除作废；积分档就此不存在）；设计图里的两块徽章（3000 万+用户选择 / 第 1 名）与永久会员卡上的「告白季特惠」标签按要求不呈现；皮肤固定浅色（顶部淡紫渐变向下渐隐到白），不跟随键盘的浅色 / 深色外观；Esc 与 X 同一条出口；「立即解锁」当场到账并收起本层（会员态即时变化）；键盘形态里协议行与续订说明是「往上滚一段才看得到」的（首屏在按钮处收住），主 App 形态同理；《续费协议》与自动续订说明只对周 / 季度两档出现，永久会员档不显示；说明文案是 iOS 场景的，Android / 鸿蒙下只保留协议行'},
   ];
   const APP_PAGES = [
-    {id:'home',name:'首页',route:'/home',trigger:'主 App 底部 Tab 第一项「首页」；登录成功后也落在这里',desc:'**空白模板**：原首页的四段内容（问候行 / 会员横幅 /「快捷开始」/「我的对象」+「账户概览」）已按需求全部删除，这一页现在只留整页骨架（.app-content.app-page），不渲染任何元素 —— 只有底部 Tab 栏照常，等按新设计重做',note:'主 App 的落地页（启动闸门先查联网，再按状态检查链走：键盘权限 → 键盘完全访问 → 登录状态，哪一环没过就停在对应引导上 —— 整页「开启键盘」引导 / 完全访问引导层 / 键盘同款登录层，都通过才停在首页，见 appEntryGuards）。因内容清空，原先挂在这一页的入口（去键盘问 AI / 分析聊天截图 / 键盘设置 / 模拟订单 / 兑换积分 / 新建对象）在主 App 内随之不再可达：新建对象改从「对象」页进（模拟订单 / 兑换积分 / 键盘设置三个页面与入口已于 2026-09-26 整体删除）'},
+    {id:'home',name:'首页',route:'/home',trigger:'主 App 底部 Tab 第一项「首页」；登录成功后也落在这里',desc:'**空白模板**：原首页的四段内容（问候行 / 会员横幅 /「快捷开始」/「我的对象」+「账户概览」）已按需求全部删除，这一页现在只留整页骨架（.app-content.app-page），不渲染任何元素 —— 只有底部 Tab 栏照常，等按新设计重做',note:'主 App 的落地页（进入主 App 按状态检查链走：键盘权限 → 键盘完全访问 → 登录状态，哪一环没过就停在对应引导上 —— 整页「开启键盘」引导 / 完全访问引导层 / 键盘同款登录层，都通过才停在首页，见 appEntryGuards）。因内容清空，原先挂在这一页的入口（去键盘问 AI / 分析聊天截图 / 键盘设置 / 模拟订单 / 兑换积分 / 新建对象）在主 App 内随之不再可达：新建对象改从「对象」页进（模拟订单 / 兑换积分 / 键盘设置三个页面与入口已于 2026-09-26 整体删除）'},
     {id:'account',name:'我的',route:'/account',trigger:'主 App 底部 Tab 第三项「我的」',desc:'按设计图重做的「我的」页，自上而下：① 问候行（「你好，昵称」+ 折角箭头，点它进个人资料；已开通会员时下面多一行金色会员标识「L+ 会员到期日 2026-09-30」，永久档写「永久会员」）；② 会员横幅（未开通蓝底「成为 L+ 会员 / 解锁全部高级功能」，已开通橙底「L+ 会员 / 已解锁全部高级功能」，右侧白胶囊「立即查看」弹出**键盘同款的会员开通覆盖层** —— 原「会员与积分」整页已删）；③「客户支持」卡片两行（键盘内容投诉与举报 → 反馈页并把类型预选成「举报」；反馈与建议）；④「账户」卡片一行（退出登录）；⑤「相关协议」卡片五行（用户协议 / 隐私政策 / 个人信息收集清单 / 第三方信息共享清单，各自打开对应协议正文覆盖层，末行进协议中心看全部）。设计图里右上角的邮箱图标（消息通知）、「基础设置 · 键盘基础预设」与「消息提醒 · 消息通知」两组按需求不呈现（键盘设置页面与入口已于 2026-09-26 整体删除）。2026-09-26 另删三行入口：「在线客服」「我的订单」「兑换积分」（对应页面一并删除）；同日晚些时候卡片下方那枚「注销仿真账户」文字按钮也删除（连同确认框链路，页面至此没有任何注销类入口）',note:'「我的」不再有键盘设置入口（该页面已删除）；注销入口已删，页面内不再有「需先清空会员 / 积分才能操作」的前置条件；这一页需要登录 —— 未登录时点「我的」Tab 不切页，就地弹出键盘同款的登录覆盖层（原独立登录页已删）'},
     {id:'account-member',name:'我的 · 已开通 L+ 会员',route:'/account（会员态）',trigger:'本列表点入（现场摆上会员标识与到期日 2026-09-30，不落库）；真实链路里购买会员到账后也是这一形态',desc:'「我的」页的会员态：问候行下方多一行金色会员标识（小方块「L+」+「会员到期日 2026-09-30」，永久档写「永久会员 · 已解锁全部高级功能」），会员横幅同时换成橙底「L+ 会员 / 已解锁全部高级功能」，其余分区（客户支持 / 账户 / 相关协议）与未开通时完全一致',note:'会员到期日与会员标识一起持久化：购买后写入（主 App 与键盘内是同一张商品表 —— 永久档落 0 = 永久，周 / 季度档按 7 / 90 天算）；老存档只有会员标识、没有到期信息时不硬编日期，只说「已解锁全部高级功能」'},
     {id:'profile',name:'个人资料',route:'/account/profile',trigger:'「我的」页最上方的问候行（「你好，昵称」）',desc:'昵称、性别、年龄段（选填）编辑并保存（PATCH /v1/me）。这里的性别也是对象编辑页「性别默认取反」的依据',note:'昵称会同步到聊天页「我」的头像兜底与各处显示'},
@@ -530,9 +524,9 @@
        按运行平台取（目前只有鸿蒙一支，其余端回落，见 app.js 的 GUIDE_VIDEOS）；
        鸿蒙 / iOS 是一步形态（一颗按钮），**安卓是两步形态**（两颗按钮 —— 键盘启用后再切换
        当前输入法，见 appGuideHome / guideStepState）；模拟设置页 / 详情页三端暂共用鸿蒙样式。 */
-    {id:'kb-guide',name:'开启键盘 · 引导页(鸿蒙)',route:'/kb-guide?platform=harmony',trigger:'进入主 App：启动闸门先查联网，再按**状态检查链**走（键盘权限 → 键盘完全访问 → 登录状态，见 appEntryGuards），第一环没过（左栏「设备权限 › 开启键盘」关闭）时整页进这条引导；本列表点入（切到鸿蒙，并现场把「开启键盘」置成关，不落库）',desc:'紫蓝色整页（无底部 Tab 栏），**全页元素整体上下居中**（不挤在顶部；内容比屏高时自然从头排、可滚动），自上而下：① 中央白色大圆角卡内嵌**演示动画视频**（循环播、**带声音** —— 素材自带音轨，只是浏览器禁止「有声音的自动播放」，所以先静音起播、拿到用户手势（页面上点过任何一处即算）随即开声音，见 app.js 的 wireGuideVideos；鸿蒙版素材 assets/Enable LoveCo Keyboard HarmonyOS.mp4，画面即「在输入法管理中启用 LoveCo」的操作演示）；② 卡下一行白色小字说明「在「输入法」管理中，启用LoveCo输入法」（不写「第1步」）；③ 黑色胶囊主按钮「启用LoveCo输入法 →」—— 整颗**持续放大缩小、一闪一闪**地引导点击（kg-breathe：1.6s 一个来回，scale 1 ↔ 1.045 配深蓝呼吸投影），点它进模拟鸿蒙设置页。鸿蒙引导页只有这一颗按钮（原「切换到LoveCo输入法」幽灵按钮已按需求删除；安卓版是**两步两颗按钮**的另一套形态，见 kb-guide-android）：完成引导改由「从系统设置返回 App」触发 —— 在设置里打开「启用LoveCo」后，点左下角视频悬浮窗即完成引导回首页',note:'整页落在 appScreen=kb-guide 上，正文与状态栏连成一片紫蓝（状态栏文字转白）；Esc 不提供出口，只能走页面自身的按钮与返回。完成引导（点悬浮窗返回 App）后接着跑状态检查链的后两环 —— 键盘完全访问 → 登录状态，没过就停在对应引导层上（见 finishGuide / appEntryGuards）'},
-    {id:'kb-guide-android',name:'开启键盘 · 引导页(安卓)',route:'/kb-guide?platform=android',trigger:'进入主 App：启动闸门先查联网，再按状态检查链走（键盘权限 → 键盘完全访问 → 登录状态，见 appEntryGuards），第一环没过（键盘未开启）时整页进这条引导；本列表点入（切到 Android，并现场把「开启键盘」置成关、当前输入法复位成系统默认，不落库）',desc:'与「开启键盘 · 引导页(鸿蒙)」共用同一条渲染链路 appGuideHome（拆条是为了分头补各端差异），但安卓是**两颗按钮的两步形态**（2026-09-27 起）：紫蓝整页、白圆角大卡循环播演示动画（安卓素材未提供前回落鸿蒙那支，GUIDE_VIDEOS 里还没有 android 键）、一行说明「在「输入法」管理中，启用LoveCo输入法」、元素整体上下居中。按钮自上而下：① 黑胶囊「**第一步 启用LoveCo输入法 →**」；② 同款黑胶囊「**第二步 切换到LoveCo输入法 →**」。两颗**状态互斥、只有轮到的那颗亮**（kg-breathe 持续放大缩小、一闪一闪；没轮到的那颗置灰、不可点、不跳动，见 .kb-guide-btn:disabled）：键盘未启用（左栏「设备权限 › 开启键盘」关闭）时第一步亮、第二步灰 —— 点第一步进模拟设置页启用键盘；**键盘已启用但「当前输入法」还不是 LoveCo 时**（安卓系统不允许 App 直接切输入法，得由用户自己走这一步），第一步置灰、第二步亮 —— 点第二步同样进模拟设置页，把「默认输入法」行切成 LoveCo；两步都完成即离开引导页、回主 App 首页（判定见 guideStepState / guideSatisfied；首页前还会接着跑状态检查链的后两环 —— 完全访问 → 登录，没过就停在对应引导层上）。平台外观随运行平台（Android 无平台底栏、状态栏圆点挖孔）；模拟设置页 / 详情页三端暂共用鸿蒙样式',note:'「当前输入法」在左栏「设备权限」里也能手动切（系统默认 / LoveCo，默认系统默认）—— 选 LoveCo 会顺带把「开启键盘」打开；反向关掉「开启键盘」则当前输入法复位成系统默认。素材补齐后往 GUIDE_VIDEOS 加 android 键；系统设置页要按端分叉时（安卓设置页外观与鸿蒙不同），再走 platform 分支'},
-    {id:'kb-guide-ios',name:'开启键盘 · 引导页(ios)',route:'/kb-guide?platform=ios',trigger:'进入主 App：启动闸门先查联网，再按状态检查链走（键盘权限 → 键盘完全访问 → 登录状态，见 appEntryGuards），第一环没过（键盘未开启）时整页进这条引导；本列表点入（切到 iOS，并现场把「开启键盘」置成关，不落库）',desc:'与「开启键盘 · 引导页(鸿蒙)」**同一形态**（拆成三端条目是为了分头补各端差异，共用同一条渲染链路 appGuideHome）：紫蓝整页、白圆角大卡循环播演示动画、一行说明「在「输入法」管理中，启用LoveCo输入法」、唯一黑胶囊主按钮（kg-breathe 呼吸动画；iOS 一步完成，**安卓版是两步两颗按钮**，见 kb-guide-android）、元素整体上下居中。**iOS 差异（待补）**：演示动画素材按平台取 —— iOS 素材未提供前**回落到鸿蒙那支**（GUIDE_VIDEOS 里还没有 ios 键）；模拟设置页 / 详情页三端暂共用鸿蒙样式；平台外观随运行平台（状态栏药丸挖孔 / 灵动岛、键盘底栏是地球 + 语音输入）',note:'素材补齐后往 GUIDE_VIDEOS 加 ios 键；系统设置页要按端分叉时（iOS 设置页外观与鸿蒙不同），再走 platform 分支'},
+    {id:'kb-guide',name:'开启键盘 · 引导页(鸿蒙)',route:'/kb-guide?platform=harmony',trigger:'进入主 App：按**状态检查链**走（键盘权限 → 键盘完全访问 → 登录状态，见 appEntryGuards），第一环没过（左栏「设备权限 › 开启键盘」关闭）时整页进这条引导；本列表点入（切到鸿蒙，并现场把「开启键盘」置成关，不落库）',desc:'紫蓝色整页（无底部 Tab 栏），**全页元素整体上下居中**（不挤在顶部；内容比屏高时自然从头排、可滚动），自上而下：① 中央白色大圆角卡内嵌**演示动画视频**（循环播、**带声音** —— 素材自带音轨，只是浏览器禁止「有声音的自动播放」，所以先静音起播、拿到用户手势（页面上点过任何一处即算）随即开声音，见 app.js 的 wireGuideVideos；鸿蒙版素材 assets/Enable LoveCo Keyboard HarmonyOS.mp4，画面即「在输入法管理中启用 LoveCo」的操作演示）；② 卡下一行白色小字说明「在「输入法」管理中，启用LoveCo输入法」（不写「第1步」）；③ 黑色胶囊主按钮「启用LoveCo输入法 →」—— 整颗**持续放大缩小、一闪一闪**地引导点击（kg-breathe：1.6s 一个来回，scale 1 ↔ 1.045 配深蓝呼吸投影），点它进模拟鸿蒙设置页。鸿蒙引导页只有这一颗按钮（原「切换到LoveCo输入法」幽灵按钮已按需求删除；安卓版是**两步两颗按钮**的另一套形态，见 kb-guide-android）：完成引导改由「从系统设置返回 App」触发 —— 在设置里打开「启用LoveCo」后，点左下角视频悬浮窗即完成引导回首页',note:'整页落在 appScreen=kb-guide 上，正文与状态栏连成一片紫蓝（状态栏文字转白）；Esc 不提供出口，只能走页面自身的按钮与返回。完成引导（点悬浮窗返回 App）后接着跑状态检查链的后两环 —— 键盘完全访问 → 登录状态，没过就停在对应引导层上（见 finishGuide / appEntryGuards）'},
+    {id:'kb-guide-android',name:'开启键盘 · 引导页(安卓)',route:'/kb-guide?platform=android',trigger:'进入主 App：按状态检查链走（键盘权限 → 键盘完全访问 → 登录状态，见 appEntryGuards），第一环没过（键盘未开启）时整页进这条引导；本列表点入（切到 Android，并现场把「开启键盘」置成关、当前输入法复位成系统默认，不落库）',desc:'与「开启键盘 · 引导页(鸿蒙)」共用同一条渲染链路 appGuideHome（拆条是为了分头补各端差异），但安卓是**两颗按钮的两步形态**（2026-09-27 起）：紫蓝整页、白圆角大卡循环播演示动画（安卓素材未提供前回落鸿蒙那支，GUIDE_VIDEOS 里还没有 android 键）、一行说明「在「输入法」管理中，启用LoveCo输入法」、元素整体上下居中。按钮自上而下：① 黑胶囊「**第一步 启用LoveCo输入法 →**」；② 同款黑胶囊「**第二步 切换到LoveCo输入法 →**」。两颗**状态互斥、只有轮到的那颗亮**（kg-breathe 持续放大缩小、一闪一闪；没轮到的那颗置灰、不可点、不跳动，见 .kb-guide-btn:disabled）：键盘未启用（左栏「设备权限 › 开启键盘」关闭）时第一步亮、第二步灰 —— 点第一步进模拟设置页启用键盘；**键盘已启用但「当前输入法」还不是 LoveCo 时**（安卓系统不允许 App 直接切输入法，得由用户自己走这一步），第一步置灰、第二步亮 —— 点第二步同样进模拟设置页，把「默认输入法」行切成 LoveCo；两步都完成即离开引导页、回主 App 首页（判定见 guideStepState / guideSatisfied；首页前还会接着跑状态检查链的后两环 —— 完全访问 → 登录，没过就停在对应引导层上）。平台外观随运行平台（Android 无平台底栏、状态栏圆点挖孔）；模拟设置页 / 详情页三端暂共用鸿蒙样式',note:'「当前输入法」在左栏「设备权限」里也能手动切（系统默认 / LoveCo，默认系统默认）—— 选 LoveCo 会顺带把「开启键盘」打开；反向关掉「开启键盘」则当前输入法复位成系统默认。素材补齐后往 GUIDE_VIDEOS 加 android 键；系统设置页要按端分叉时（安卓设置页外观与鸿蒙不同），再走 platform 分支'},
+    {id:'kb-guide-ios',name:'开启键盘 · 引导页(ios)',route:'/kb-guide?platform=ios',trigger:'进入主 App：按状态检查链走（键盘权限 → 键盘完全访问 → 登录状态，见 appEntryGuards），第一环没过（键盘未开启）时整页进这条引导；本列表点入（切到 iOS，并现场把「开启键盘」置成关，不落库）',desc:'与「开启键盘 · 引导页(鸿蒙)」**同一形态**（拆成三端条目是为了分头补各端差异，共用同一条渲染链路 appGuideHome）：紫蓝整页、白圆角大卡循环播演示动画、一行说明「在「输入法」管理中，启用LoveCo输入法」、唯一黑胶囊主按钮（kg-breathe 呼吸动画；iOS 一步完成，**安卓版是两步两颗按钮**，见 kb-guide-android）、元素整体上下居中。**iOS 差异（待补）**：演示动画素材按平台取 —— iOS 素材未提供前**回落到鸿蒙那支**（GUIDE_VIDEOS 里还没有 ios 键）；模拟设置页 / 详情页三端暂共用鸿蒙样式；平台外观随运行平台（状态栏药丸挖孔 / 灵动岛、键盘底栏是地球 + 语音输入）',note:'素材补齐后往 GUIDE_VIDEOS 加 ios 键；系统设置页要按端分叉时（iOS 设置页外观与鸿蒙不同），再走 platform 分支'},
     {id:'kb-guide-settings',name:'开启键盘 · 模拟鸿蒙设置（输入法）',route:'引导页 ›「第一步 启用LoveCo输入法」/「第二步 切换到LoveCo输入法」（模拟系统设置）',trigger:'引导页点任一步按钮（第一步、第二步同一个落点）；本列表点入',desc:'模拟鸿蒙系统「输入法」设置页的**深色整页**：顶部圆形返回钮 + 大标题「输入法」；「输入法管理」灰色小标题；第一张深色卡片「默认输入法 | 小艺输入法 ▾」——**这一行可点**（LoveCo 已启用后点它在「小艺输入法」与「LoveCo」之间来回切，= 安卓引导第二步在系统里的落点，见 switchGuideIme；LoveCo 还没启用时整行不可点、压暗 —— 真实系统里未启用的输入法也选不了），右侧值随当前输入法变化；第二张卡片是输入法列表 —— **小艺输入法**（蓝色勾选圈 + 折角箭头，已启用）与 **LoveCo**（空心圈，右侧「未启用 ›」，启用后改「已启用」）。设计稿里其它几个第三方输入法按需求不渲染（除小艺外全部删掉，只留 LoveCo）。**左下角悬浮窗**（画中画）：同一支演示视频缩成小窗循环播放（**带声音**，与引导页大卡同一套处理，见 wireGuideVideos），「启用LoveCo」打开后浮现绿色对勾与「完成后返回LoveCo App」小字 —— 点它 = 从系统设置**返回 LoveCo App**：重新校验（安卓要求键盘已启用**且**当前输入法已切成 LoveCo，见 guideSatisfied），都通过就关闭引导页（完成引导，进主 App 首页 —— 首页前还会接着跑状态检查链的后两环：完全访问权限 → 登录状态，没过就停在对应引导层上）；安卓下只启用了键盘、还没切输入法就退回引导页 —— 这时第一步已灰、第二步亮着等点击。点 LoveCo 行进它的详情页',note:'返回箭头回引导页（若两步已齐则直接完成引导、回首页，不停在「两颗按钮都灰」的死状态）；「默认输入法」行的切换本身不结束引导 —— 完成仍在点悬浮窗 / 返回箭头那一刻校验'},
     {id:'kb-guide-detail',name:'开启键盘 · LoveCo 详情（双开关）',route:'模拟设置 › LoveCo 行（模拟系统设置）',trigger:'模拟鸿蒙设置页点「LoveCo」行；本列表点入',desc:'LoveCo 输入法在系统设置里的详情页（深色整页）：顶部圆形返回钮 + 大标题「LoveCo」，下方一张深色卡片放两个开关行 —— ①「启用LoveCo」：**默认关**，蓝色鸿蒙样式开关，打开即键盘启用（与左栏「开启键盘」是同一个开关 permissions.kbEnabled）；②「完整体验模式」：**第一个开关打开之后才显现**（默认关，显现带淡入）。左下角同一颗视频悬浮窗：启用后浮现绿色对勾与「完成后返回LoveCo App」，点它 = 返回 LoveCo App 并重新校验权限（安卓要求当前输入法也已切到 LoveCo）—— 通过就关闭引导页（完成引导，回主 App 首页 —— 首页前还会接着跑状态检查链的后两环：完全访问权限 → 登录状态，没过就停在对应引导层上）；走返回箭头则逐级退回模拟设置页 / 引导页',note:'「启用LoveCo」关掉即回到未启用态（第二个开关随之隐藏、悬浮窗对勾消失），同时把「当前输入法」复位成系统默认（未启用的键盘不可能当当前输入法）；返回箭头回模拟设置页'},
   ];
@@ -926,16 +920,8 @@
   function appHomePage() {
     return `<div class="app-content app-page"></div>`;
   }
-  /* —— 主 App 启动闸门的两块整页（appGate）：检查中 / 网络不可用 ——
-     进入主 App 的第一屏：先发仿真网络请求查联网状态，通过才轮到键盘检查（见 appEntryCheck）。 */
-  function appGatePage() {
-    if(state.appGate==='checking'){
-      return `<div class="app-content app-page app-gate"><span class="app-gate-spinner" aria-hidden="true"></span><p class="app-gate-title">正在检查网络…</p></div>`;
-    }
-    return `<div class="app-content app-page app-gate"><span class="app-gate-icon" aria-hidden="true">${icon('Connection')}</span><p class="app-gate-title">网络不可用</p><p class="app-gate-hint">请检查网络连接后重试</p><button class="app-gate-retry" data-action="app-gate-retry">重试</button></div>`;
-  }
   /* —— 开启键盘引导流程（appScreen='kb-guide'，kbGuidePage 三态）——
-     进入主 App 时网络检查通过、但键盘未开启（permissions.kbEnabled=false）就走这条流程。
+     进入主 App 时键盘未开启（permissions.kbEnabled=false）就走这条流程。
      引导页三端**大致相同、各有差异**（见 README「需求记录」）：当前先做鸿蒙版 ——
      模拟设置页 / 详情页三端暂时共用，只有中央的演示动画按平台取：目前只有鸿蒙素材
      （设计给的录屏，其余端先回落到它，素材补齐后往 GUIDE_VIDEOS 里加键即可）。
@@ -1098,8 +1084,8 @@
   const APP_TABS = [['home','首页','home'],['partners','对象','users'],['account','我的','user']];
   const APP_TAB_OF = {home:'home',partners:'partners','partner-edit':'partners',account:'account',profile:'account',feedback:'account','legal-list':'account'};
   function appTabBar() {
-    /* 启动闸门（检查中 / 网络不可用）与「开启键盘」引导流程没有底部 Tab（整页流程） */
-    if(state.appGate||state.appScreen==='kb-guide')return '';
+    /* 「开启键盘」引导流程没有底部 Tab（整页流程） */
+    if(state.appScreen==='kb-guide')return '';
     const glyph = window.LoveCoSystemGlyphs;
     const active = APP_TAB_OF[state.appScreen] || '';
     return `<nav class="app-nav" role="tablist">${APP_TABS.map(([id,label,g])=>`<button data-action="app-tab:${id}" class="${active===id?'active':''}" aria-selected="${active===id}" role="tab">${glyph[g]}${label}</button>`).join('')}</nav>`;
@@ -1108,9 +1094,7 @@
      （把 sheet 外壳换成 .app-content 容器，卡片直接作为页面内容）。 */
   function appScreenContent() {
     const s = state.appScreen;
-    /* 启动闸门（检查中 / 网络不可用）与「开启键盘」引导流程：都是主 App 自己的整页，
-       此刻正文整页替换、底部 Tab 栏一并隐藏（见 appTabBar） */
-    if(state.appGate)return appGatePage();
+    /* 「开启键盘」引导流程是主 App 自己的整页：此刻正文整页替换、底部 Tab 栏一并隐藏（见 appTabBar） */
     if(s==='kb-guide')return appKbGuideScreen();
     if(s==='home')return appHomePage();
     if(s==='account')return appAccountPage();
@@ -1127,8 +1111,8 @@
     const content=appScreenContent();
     /* 引导流程的整页皮肤要连着状态栏一起换底色（引导页紫蓝、模拟设置 / 详情页黑），
        给手机挂上对应 class，状态栏配色在 theme.css 里跟着走 */
-    const guideCls = state.appGate || state.appScreen==='kb-guide'
-      ? (state.appScreen==='kb-guide' && state.kbGuidePage!=='guide' ? ' guide-dark' : ' guide-purple') : '';
+    const guideCls = state.appScreen==='kb-guide'
+      ? (state.kbGuidePage!=='guide' ? ' guide-dark' : ' guide-purple') : '';
     const scrollMemo = captureScrolls($('#app'));
     $('#app').innerHTML = `<div class="shell app-workspace">
       <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">主 App 手机模拟器</span></div><div class="top-actions"><span class="sandbox-pill"><i class="dot"></i>本地仿真 · 无真实扣款</span><button class="text-button" data-action="reset">重置会话</button></div></header>
@@ -1795,24 +1779,18 @@
     if(focus) setTimeout(()=>$(focus)?.focus({preventScroll:true}),30);
   }
   /* 返回键盘形态：从主 App 回来一律落在「键盘常驻」的底座上 —— 收起态只属于宿主会话里的一次收起动作 */
-  function returnKeyboard() { abortVoiceHold();dismissKbEditor();dismissFreeChat(); state.appLegal=false; state.kbCollapsed=false; state.partnerPanel=false; state.settingsPanel=false; state.photoPanel=false; state.photoBack=''; dismissChatPanel(); state.appView='keyboard'; state.appScreen=null; state.modal=null; state.modalData={}; state.appGate=''; state.kbGuidePage=''; render(); }
-  /* —— 主 App 的启动闸门（进入 / 切入主 App 时都要过一遍）——
-     顺序固定：**先网络、后状态检查链**。① 发一次仿真网络请求（api()，走 /mock/net/check 路径 ——
-     只是把「检查联网状态」也当成一次本地仿真，请求期间整页停在「正在检查网络…」）：
-     「设备权限 › 网络访问」关闭时请求按网络不可用失败，整页换成网络不可用 + 重试；
-     ② 网络通着再按状态检查链走一遍（见 appEntryGuards）：键盘权限 → 完全访问权限 → 登录状态，
-     哪一环没过就停在对应的引导上，都通过才落首页。
-     引导页 / 闸门页都算「主 App 自己的整页」，落在 appScreen='kb-guide' 上（无底部 Tab）。 */
-  async function appEntryCheck() {
-    state.appView='app'; state.appScreen='home'; state.modal='home'; state.appGate='checking'; state.kbGuidePage='';
-    render();
-    try { await api('/mock/net/check',{},{response:{ok:true,check:'network',simulated:true}}); }
-    catch (_) { state.appGate='nonet'; render(); return; }
-    state.appGate='';
+  function returnKeyboard() { abortVoiceHold();dismissKbEditor();dismissFreeChat(); state.appLegal=false; state.kbCollapsed=false; state.partnerPanel=false; state.settingsPanel=false; state.photoPanel=false; state.photoBack=''; dismissChatPanel(); state.appView='keyboard'; state.appScreen=null; state.modal=null; state.modalData={}; state.kbGuidePage=''; render(); }
+  /* —— 主 App 的进入检查（进入 / 切入主 App 时都要过一遍）——
+     2026-09-28 按需求去掉「正在检查网络…」整页（连同那圈转动画）—— 进入主 App 不再先发仿真
+     网络请求查联网状态，直接按状态检查链（见 appEntryGuards）走一遍：键盘权限 → 完全访问权限 →
+     登录状态，哪一环没过就停在对应的引导上，都通过才落首页。
+     引导页算「主 App 自己的整页」，落在 appScreen='kb-guide' 上（无底部 Tab）。 */
+  function appEntryCheck() {
+    state.appView='app'; state.appScreen='home'; state.modal='home'; state.kbGuidePage='';
     if(appEntryGuards())return;
     render();
   }
-  /* —— 主 App 的状态检查链（网络检查通过后按序跑一遍）——
+  /* —— 主 App 的状态检查链（进入主 App / 引导完成等时机按序跑一遍）——
      顺序（2026-09-28 按需求定）：① **键盘权限**（permissions.kbEnabled —— 键盘没启用就整页进
      「开启键盘」引导流程，kbGuidePage='guide'）→ ② **键盘完全访问权限**（iOS / 鸿蒙且未开时
      弹出「键盘完全访问引导页」，它浮在主 App 上；Android 系统上该权限默认开启，跳过这一环）→
@@ -2542,8 +2520,7 @@
       Object.keys(state.formCache).filter(k=>k.startsWith('feedback:')).forEach(k=>delete state.formCache[k]);
       return openAppScreen('feedback',{type:'举报'});
     }
-    /* —— 主 App 启动闸门与「开启键盘」引导（appEntryCheck / appKbGuideScreen 那条链路）—— */
-  if(name==='app-gate-retry')return appEntryCheck();
+    /* —— 「开启键盘」引导（appKbGuideScreen 那条链路）—— */
   if(name==='kb-guide-settings')return openGuideSettings();
   /* 安卓引导第二步「切换到LoveCo输入法」：与第一步同一个落点 —— 进模拟设置页，
      在里面把「默认输入法」行切到 LoveCo（见 switchGuideIme） */
@@ -2557,9 +2534,8 @@
   if(name==='surface'){
       if(arg===state.appView)return;
       state.docPage=null;
-      /* 切到主 App：落首页；未登录不再落登录页（整页已删），进形态后弹键盘同款的登录覆盖层 */
-      /* 切到主 App：不再直接落首页 —— 先过启动闸门（网络检查 → 键盘检查，见 appEntryCheck），
-         键盘未开启会整页进「开启键盘」引导；登录层等闸门都过了才弹 */
+      /* 切到主 App：不再直接落首页 —— 先按状态检查链过一遍（见 appEntryCheck），
+         键盘未开启会整页进「开启键盘」引导；登录层等前面都过了才弹 */
       if(arg==='app'){appEntryCheck();return;}
       return returnKeyboard();
     }
@@ -3055,13 +3031,13 @@
          登出（关掉开关）落回首页，并按主 App 的状态检查链重查一遍（先完全访问、后登录，见 appEntryGuards 的
          后两环）；重新打开则收起这层登录层、页面原地重渲染（需要登录的子页自己会再拦），
          不借机插权限引导（那不是这次动作的后果）。
-         引导流程 / 启动闸门期间不插层（那时还没走到这几环）。 */
+         引导流程期间不插层（那时还没走到这几环）。 */
       if(state.appView==='app'){
         state.modalData={};
         closeKbLogin();
         if(!state.loggedIn){
           state.appScreen='home';state.modal='home';
-          if(state.appGate||state.appScreen==='kb-guide'){render();return;}
+          if(state.appScreen==='kb-guide'){render();return;}
           if(checkKbEntry())return;
           render();return;
         }
@@ -3086,8 +3062,8 @@
       closeKbLogin();closeKbFullAccess();
       if(state.permissions.kbEnabled&&state.appView==='keyboard'&&!state.kbCollapsed&&checkKbEntry())return;
       /* 主 App 形态同理（同一节控件两形态共用）：键盘刚被启用 = 主 App 的状态检查链刚过第一环，
-         接着把后两环补完（完全访问 → 登录，见 appEntryGuards）；引导流程 / 启动闸门期间不插层 */
-      if(state.permissions.kbEnabled&&state.appView==='app'&&!state.appGate&&state.appScreen!=='kb-guide'){if(appEntryGuards())return;}
+         接着把后两环补完（完全访问 → 登录，见 appEntryGuards）；引导流程期间不插层 */
+      if(state.permissions.kbEnabled&&state.appView==='app'&&state.appScreen!=='kb-guide'){if(appEntryGuards())return;}
       render();
     });
     $('#perm-kb-full')?.addEventListener('change',e=>{
@@ -3097,8 +3073,8 @@
       if(state.appView==='keyboard'&&!state.kbCollapsed){closeKbLogin();closeKbFullAccess();if(checkKbEntry())return;}
       /* 主 App 形态（左栏「设备权限」两形态共用）：同样是「先权限、后登录」的一次重查 ——
          关掉即弹完全访问引导层（铺满主 App 正文区），重新打开则收起引导层、接着看登录状态；
-         引导流程 / 启动闸门期间不插层（那时还没走到这一环，见 appEntryGuards） */
-      if(state.appView==='app'&&!state.appGate&&state.appScreen!=='kb-guide'){closeKbLogin();closeKbFullAccess();if(checkKbEntry())return;}
+         引导流程期间不插层（那时还没走到这一环，见 appEntryGuards） */
+      if(state.appView==='app'&&state.appScreen!=='kb-guide'){closeKbLogin();closeKbFullAccess();if(checkKbEntry())return;}
       render();
     });
     /* 原「键盘设置」页的深色外观开关（#dark）随该页于 2026-09-26 删除：state.dark 与 .dark 皮肤
@@ -3140,9 +3116,8 @@
     /* Esc：主 App 协议覆盖层 / 键盘协议正文页 / 完全访问引导层 / 键盘内登录层压在最上层（后两层互斥），
        先关它们；其次聊天分析面板（生成中=取消本次生成），再轮到各覆盖层 */
     if(e.key==='Escape'){if(state.paymentBusy)return;
-      /* 主 App 的启动闸门 /「开启键盘」引导是流程整页：Esc 不提供出口（网络不可用页有「重试」，
-         引导流程只能走自己的返回 / 完成动作） */
-      if(state.appView==='app'&&(state.appGate||state.appScreen==='kb-guide'))return;
+      /* 主 App 的「开启键盘」引导是流程整页：Esc 不提供出口（引导流程只能走自己的返回 / 完成动作） */
+      if(state.appView==='app'&&state.appScreen==='kb-guide')return;
       if(state.appLegal){state.appLegal=false;render();return;}if(state.kbLegal){closeKbLegal();render();return;}if(state.kbLogin){closeKbLogin();render();return;}if(state.kbFullAccess){closeKbFullAccess();render();return;}if(state.kbPaywall){closeKbPaywall();render();return;}if(state.modal)closeModal();else if(state.chatPanel)closeChatAnalysis();else if(state.scanPanel)finishScan();else if(state.photoPanel)closePhotoPanel();else if(state.settingsPanel){state.settingsPanel=false;render();}else if(state.kbEditor){closeKbEditor();render();}else if(state.partnerPanel){state.partnerPanel=false;render();}else if(state.freePicker){closeFreePicker();}else if(state.freeChat){closeFreeChat();}else if(state.pending)cancelAI();return;}
     if(e.key==='Tab'&&state.modal){
       const nodes=[...document.querySelectorAll('.sheet button:not(:disabled),.sheet input,.sheet textarea,.sheet select,.sheet a[href]')].filter(n=>n.offsetParent!==null);
