@@ -2226,13 +2226,13 @@ html[data-view="device"] .sheet-footer {
    按钮颗数按平台分叉：鸿蒙 / iOS 一颗（「启用LoveCo输入法」）；**安卓两颗**（2026-09-27 起）——
    「第一步 启用LoveCo输入法」＋「第二步 切换到LoveCo输入法」。两颗同款黑胶囊，但状态互斥：
    轮到哪一步哪一颗才亮（kg-breathe 呼吸 + 黑底），没轮到的那颗走 :disabled ——
-   置灰、不呼吸、不可点（第一步做完就轮到第二步，两步都完成即离开引导页） */
+   置灰、不呼吸、不可点（第一步做完就轮到第二步，两步都完成即离开引导页）。
+   **安卓第二步（键盘已启用）没有演示卡与说明**（2026-09-28 需求去掉视频框，见 appGuideHome）：
+   那一步页面上只剩两颗按钮，操作提示在键盘切换悬浮窗的弹框里（.ie-hint）。
+   原第二步的空占位卡规则（.kb-guide-video-empty）随之删除。 */
 .kb-guide-page { min-height: 100%; background: #5B68F5; color: #fff; padding: 22px 16px; display: flex; flex-direction: column; justify-content: center; }
 .kb-guide-video-card { border-radius: 20px; overflow: hidden; background: #fff; box-shadow: 0 12px 32px rgba(16, 16, 84, 0.28); }
 .kb-guide-video-card video { display: block; width: 100%; }
-/* 第二步的演示卡：素材还没给，先摆一张同比例的空占位（不改动页面高度，见 appGuideHome）——
-   aspect-ratio 取现有演示片（1280×912）的比值，卡内一行浅灰小字说明这是占位 */
-.kb-guide-video-empty { aspect-ratio: 1280 / 912; display: flex; align-items: center; justify-content: center; color: #A6A6B2; font-size: 12px; letter-spacing: 0.4px; }
 .kb-guide-caption { margin: 15px 6px 20px; font-size: 12.5px; font-weight: 600; letter-spacing: 0.4px; text-align: center; }
 .kb-guide-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 54px; padding: 0 22px; border-radius: 27px; border: 0; font-size: 15px; font-weight: 600; cursor: pointer; }
 .kb-guide-btn svg { width: 16px; height: 16px; }
@@ -2376,13 +2376,16 @@ html[data-view="device"] .sheet-footer {
 /* ---- 键盘切换悬浮窗（2026-09-28，安卓引导第二步的落点）----
    仿真安卓系统「点键盘上的切换输入法按钮」弹出的输入法选择器（设计截图那一张）：
    屏幕底部一张白色抽屉 + 一层半透明遮罩，抽屉固定浅色（不跟随引导页的紫蓝皮肤）。
-   抽屉内按输入法分组：灰色组名 + 语言行（整宽按钮，高 60px、圆角 16px、17px 字）；
+   抽屉内自上而下：**顶部一行提示**（深色小字「选择 LoveCo 输入法」—— 2026-09-28 需求：
+   引导第二步不再放演示视频卡与卡下说明，那句指路话挪进这一层）+ 按输入法分组：
+   灰色组名 + 语言行（整宽按钮，高 60px、圆角 16px、17px 字）；
    当前输入法那一行铺淡紫底 + 右侧深色对勾（截图里选中的是 LoveCo）。
    遮罩与抽屉是**兄弟节点**（不是父子）：所有 [data-action] 各自挂 click 监听，
    嵌套会让一次点击同时触发内外两个动作。层级 19：压在各覆盖层（完全访问 18）之上。 */
 .ie-layer { position: absolute; inset: 0; z-index: 19; display: flex; flex-direction: column; justify-content: flex-end; }
 .ie-scrim { position: absolute; inset: 0; background: rgba(12, 10, 26, 0.16); }
 .ie-sheet { position: relative; background: #fff; color: #191919; border-radius: 22px 22px 0 0; padding: 6px 12px 22px; box-shadow: 0 -8px 26px rgba(20, 16, 40, 0.2); animation: picker-up 0.28s cubic-bezier(.32, .72, 0, 1) both; }
+.ie-hint { margin: 14px 8px 0; font-size: 13.5px; font-weight: 600; color: #191919; }
 .ie-group { margin: 12px 8px 5px; font-size: 12.5px; color: #8C8C92; }
 .ie-row { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 60px; padding: 0 18px; border: 0; border-radius: 16px; background: none; color: #191919; font-size: 17px; text-align: left; cursor: pointer; }
 .ie-row.on { background: #EBDFF9; font-weight: 600; }
@@ -2467,3 +2470,54 @@ html[data-view="device"] .sheet-footer {
 .kbsw-picons { display: flex; gap: 10px; margin: 8px 8px 0; padding-top: 8px; border-top: 1px solid #E7E7EB; color: #6B6B75; }
 .kbsw-picons span { display: flex; }
 .kbsw-picons svg { width: 16px; height: 16px; fill: none; stroke: currentColor; }
+/* ---- 键盘使用引导（骨架在 styles.css，组件见 components/shared/kb-usage-guide.js）----
+   整层固定深色 —— 演的就是宿主会话那一屏（微信深色场景），不跟随键盘的浅色 / 深色外观：
+   底色与文字取宿主会话那套 --wx-* 变量（定义在 .phone.host-wechat 上，聊天页与键盘也都
+   直接用它们自己的皮肤类，这里只补演示层自己的几块）。 */
+.kb-usage-guide { background: var(--wx-bg); color: var(--wx-received-ink); }
+.gx-body { background: var(--wx-bg); }
+.gx-chat { background: var(--wx-bg); }
+.gx-field-text { color: var(--wx-received-ink); }
+/* 键盘高度：按步骤展开（kb 那步从 0 长到常规高）/ 拉高到面板高（scan / stream / pick）/
+   回落（send 从面板高收回常规高）。动画从「上一态的兑现高度」出发、用 px 变量插值
+   （--gx-kb-panel-h 由 app.js 实测写入），且每一步都是新 DOM —— 动画正好随步骤切换重播。 */
+.kb-usage-guide[data-step="kb"] .gx-kb { height: var(--lc-keyboard-height); animation: gx-kb-up .34s cubic-bezier(.32, .72, .33, 1); }
+.kb-usage-guide[data-step="thumb"] .gx-kb { height: var(--lc-keyboard-height); }
+.kb-usage-guide[data-step="scan"] .gx-kb,
+.kb-usage-guide[data-step="stream"] .gx-kb,
+.kb-usage-guide[data-step="pick"] .gx-kb { height: var(--gx-kb-panel-h, 520px); }
+.kb-usage-guide[data-step="send"] .gx-kb { height: var(--lc-keyboard-height); animation: gx-kb-drop .34s cubic-bezier(.32, .72, .33, 1); }
+.kb-usage-guide[data-step="win"] .gx-kb { height: var(--lc-keyboard-height); }
+@keyframes gx-kb-up { from { height: 0; } }
+@keyframes gx-kb-drop { from { height: var(--gx-kb-panel-h, 520px); } }
+/* 键盘区域里的两块整页层（扫描过渡 / 聊天分析面板）：复用真面板的皮肤，滑入也同一套 */
+.kb-usage-guide .kb-scan, .kb-usage-guide .kb-chat-analysis { animation: gx-sheet-in .34s cubic-bezier(.32, .72, .33, 1); }
+@keyframes gx-sheet-in { from { transform: translateY(100%); } }
+/* 截图白闪：亮起后快速淡出（与「模拟截屏」的 .shot-flash 同一种观感） */
+.gx-flash { animation: gx-flash-out .42s ease-out both; }
+@keyframes gx-flash-out { from { opacity: .92; } to { opacity: 0; } }
+/* 高亮框：框外的半透明黑由 box-shadow 铺满整层（聚光灯，框内透出下层内容），
+   框缘一圈淡紫呼吸描边 */
+.gx-spot { box-shadow: 0 0 0 200vmax rgba(0, 0, 0, .62); }
+.gx-spot:after { box-shadow: 0 0 18px rgba(92, 124, 240, .55); animation: gx-spot-breath 1.5s ease-in-out infinite; }
+@keyframes gx-spot-breath { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+/* 「高亮移到发送键」那一步：高亮框从上方滑入落位（其余步都是就地出现） */
+.kb-usage-guide[data-step="send"] .gx-spot { animation: gx-spot-in .42s cubic-bezier(.3, 1.2, .4, 1); }
+@keyframes gx-spot-in { from { transform: translateY(-140px); opacity: 0; } }
+/* 提示块：蓝色笔刷（四个角的圆角各不相同 + 轻旋转做手绘感）白字加粗，整块轻浮动；
+   提示块与高亮框同一条动作（点提示也能推进） */
+.gx-tip-face { filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .45)); }
+.gx-tip-text { color: #fff; background: linear-gradient(135deg, #4C7DF0, #3355E8); border-radius: 16px 20px 15px 19px / 19px 15px 20px 16px; box-shadow: 0 8px 22px rgba(50, 85, 232, .45); animation: gx-tip-bob 1.6s ease-in-out infinite; }
+@keyframes gx-tip-bob { 0%, 100% { transform: rotate(-2deg) translateY(0); } 50% { transform: rotate(-2deg) translateY(-5px); } }
+/* 庆祝层（win）：键盘与聊天被压暗，彩带从上往下飘、「哇！你好棒呀」弹入、胶囊按钮浮起 */
+.gx-win { background: rgba(10, 10, 14, .55); }
+.gx-win-title { color: #fff; text-shadow: 0 4px 18px rgba(0, 0, 0, .55); animation: gx-win-pop .5s cubic-bezier(.2, 1.4, .4, 1) both; }
+@keyframes gx-win-pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.gx-win-btn { color: #fff; background: linear-gradient(135deg, #6C8CF5, #4457E8); box-shadow: 0 12px 30px rgba(60, 90, 240, .45); animation: gx-win-rise .5s ease-out .12s both; }
+@keyframes gx-win-rise { from { transform: translateY(16px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.gx-confetti i { opacity: .95; animation: gx-fall var(--dur, 2.6s) linear var(--delay, 0s) infinite; }
+.gx-confetti i:nth-child(3n+1) { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+@keyframes gx-fall { to { transform: translateY(115vh) rotate(var(--rot, 180deg)); } }
+/* 打字机光标：正在输出的那一段末尾，淡紫竖条闪烁 */
+.gx-typing:after { background: #8F7BF2; animation: gx-caret 1s steps(1) infinite; }
+@keyframes gx-caret { 50% { opacity: 0; } }
