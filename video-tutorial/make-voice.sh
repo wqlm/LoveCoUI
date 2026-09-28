@@ -25,7 +25,7 @@ SAY_RATE="${SAY_RATE:-205}"                    # say 语速（词/分钟）
 FFMPEG="${FFMPEG:-ffmpeg}"
 
 TEXTS=(
-  "先开启 LoveCo 功能"
+  "先开启 LoveCo 键盘"
   "再打开完整体验模式"
   "完成后返回 LoveCo App"
 )

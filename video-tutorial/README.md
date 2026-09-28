@@ -17,6 +17,7 @@
 | `render-cli.sh` | 零 Node 依赖备用方案，只用 Chrome 命令行 `?t=` 定位 |
 | `probe-cursor.mjs` | 光标平滑度探针：逐帧量单帧位移峰值 / 点击命中偏差 |
 | `shot2x.mjs` | 以 `deviceScaleFactor=2` 截某一块区域（= 成片里的真实观感），调图标/配色时用 |
+| `trace-hand.py` | 把一张手势/图标 PNG 矢量化成 SVG path（potrace），用户直接给图时用 |
 | `make-voice.sh` | 生成配音：**edge-tts（微软神经网络语音，默认）**，离线时回落 macOS `say` |
 | `out/` | 最终 MP4：`loveco-tutorial-2x.mp4` |
 
@@ -68,7 +69,7 @@ macOS 的 `say` 是**拼接式共振峰合成**，音调没有起伏，中文听
 ```bash
 pip install edge-tts
 edge-tts --list-voices | grep zh-CN     # XiaoxiaoNeural / YunjianNeural / YunxiNeural …
-edge-tts --voice zh-CN-XiaoxiaoNeural --text "先开启 LoveCo 功能" --write-media /tmp/a.mp3
+edge-tts --voice zh-CN-XiaoxiaoNeural --text "先开启 LoveCo 键盘" --write-media /tmp/a.mp3
 afplay /tmp/a.mp3
 ```
 
@@ -83,9 +84,12 @@ afplay /tmp/a.mp3
 
 ## 光标（手势）怎么做的
 
-- 图标：**一条闭合路径画整只手**（食指竖起 + 三处指节隆起 + 拇指），
-  热区/视觉上是一个整体。别用「多个子形状 + 同色描边 + 填充」去拼——
-  相邻形状的描边会互相盖住，小尺寸下必然糊成一坨（这是第一版的翻车原因）。
+- 图标：**描边风格手势**，由参考图矢量化而来 —— `trace-hand.py`（potrace）把 PNG 描成
+  一条 `fill-rule="evenodd"` 的 path（4.5KB），`viewBox` 沿用原图 `0 0 512 512`。
+  墨迹包围盒 `x 92.8..431.8 / y 26.8..485.0`、指尖顶点 `(191.9, 26.8)`；
+  显示 68×68（缩放 0.1328）→ `#cursor` 的 `transform-origin` 和 `TIMELINE.hotspot` 都是 `25.5, 3.6`。
+- 换图流程见下方「改图标 / 调细节怎么验证」。要点：**别硬画也别去猜它属于哪个图标库**，
+  用户给图就描图 —— 见 `trace-hand.py` 的用法说明。
 - 定位：`#cursor` 只用 `translate3d()` 移动，不再改 `left/top` —— 走合成层、保留小数坐标，
   避免逐帧取整带来的抖动。
 - 热点：`TIMELINE.hotspot` = 指尖在光标框里的位置，同时用作 `transform-origin`，
@@ -104,6 +108,17 @@ node probe-cursor.mjs
 ```
 
 ## 改图标 / 调细节怎么验证
+
+**用户直接给图（"换成这个"）→ 矢量化，别手画**
+
+```bash
+python trace-hand.py <参考图.png>          # pip install potracer pillow numpy
+# 墨迹包围盒: x 92.8..431.8   y 26.8..485.0   (339.0 x 458.2)
+# 指尖(热点): (191.9, 26.8)   viewBox: 0 0 512 512
+```
+
+输出的两个数字直接决定 `#cursor` 的尺寸、`transform-origin` 和 `TIMELINE.hotspot`。
+描出来的 path 和原图基本像素级一致，比找图标库 / 手画都快且准。
 
 **别靠脑补，也别在 1x 下看**——成片是 2x 渲染的，1x 看着还行的小图标在 1280 宽下可能糊。
 用 `shot2x.mjs` 直接截成片尺寸的局部，一轮就能判断：
@@ -141,14 +156,14 @@ NODE_MODULES=… CHROME=… node shot2x.mjs \
 
 | 段 | 时间 | 字幕 / 配音 |
 |---|---|---|
-| 1 | 0.06 – 1.69 | 先开启 LoveCo 功能 |
+| 1 | 0.06 – 1.69 | 先开启 LoveCo 键盘 |
 | 2 | 2.06 – 3.93 | 再打开完整体验模式 |
 | 3 | 4.30 – 6.20 | 完成后返回 LoveCo App |
 
 改 `TEXTS` 后 `make-voice.sh` 会自己量时长并校验是否超出 `SLOTS`；要手动量：
 
 ```bash
-edge-tts --voice zh-CN-XiaoxiaoNeural --text "先开启 LoveCo 功能" --write-media /tmp/l1.mp3
+edge-tts --voice zh-CN-XiaoxiaoNeural --text "先开启 LoveCo 键盘" --write-media /tmp/l1.mp3
 afinfo /tmp/l1.mp3 | grep duration
 ```
 
