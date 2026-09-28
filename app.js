@@ -225,6 +225,14 @@
        且键盘已启用（真实设备上 App 也只能在回到前台时才知道键盘开了，见 guideBack）——
        选一行即切换当前输入法（permissions.ime）并收起本层。页面内存、不持久化。 */
     kbImeSwitch:false,
+    /* 「切换到 LoveCo 键盘」页（kbGuidePage='switch'，2026-09-28 按设计截图补入）：
+       iOS / 鸿蒙引导的**第二步** —— 键盘已启用、但当前键盘还不是 LoveCo 时，主 App 落这一页
+       教用户长按地球把键盘切过来（安卓的第二步是键盘切换悬浮窗，不走这一页）。
+       这一页底下那块「当前正在使用的键盘」直接读 permissions.ime（system = 系统英文键盘 /
+       loveco = LoveCo 键盘）—— 与左栏「设备权限 › 当前输入法」同一个状态，不另存一份；
+       kbSwitchPicker 是长按地球弹出的**键盘选择器**（更多键盘设置… / LoveCo / 英文键盘）的开关。
+       页面内存、不持久化；换页 / 完成引导 / 跳页面列表都会收起。 */
+    kbSwitchPicker:false,
     /* 会员开通覆盖层（kb-paywall 组件，主 App 与键盘形态共用同一层）：kbPaywall 是这层覆盖层的
        开关，kbPlan 是它选中的档位（默认永久会员）。商品只有一张表（PLANS，见下）——
        原「键盘内 / 主 App 各一套商品、靠 planSource 分流」的做法已随主 App 会员页删除作废。 */
@@ -536,13 +544,18 @@
        当前输入法，见 appGuideHome / guideStepState；第二步 2026-09-28 起有自己的落点：
        键盘切换悬浮窗 kb-guide-ime-switch）；两页模拟系统设置按端分叉（2026-09-28 起
        —— iOS 有自己的一版：设置页 kb-guide-settings-ios、键盘权限页 kb-guide-detail-ios）。 */
-    {id:'kb-guide',name:'开启键盘 · 引导页(鸿蒙)',route:'/kb-guide?platform=harmony',trigger:'进入主 App：按**状态检查链**走（键盘权限 → 键盘完全访问 → 登录状态，见 appEntryGuards），第一环没过（左栏「设备权限 › 开启键盘」关闭）时整页进这条引导；本列表点入（切到鸿蒙，并现场把「开启键盘」置成关、完全访问一并复位（摆成一台还没启用键盘的新设备），不落库）',desc:'紫蓝色整页（无底部 Tab 栏），**全页元素整体上下居中**（不挤在顶部；内容比屏高时自然从头排、可滚动），自上而下：① 中央白色大圆角卡内嵌**演示动画视频**（循环播、**带声音** —— 素材自带音轨，只是浏览器禁止「有声音的自动播放」，所以先静音起播、拿到用户手势（页面上点过任何一处即算）随即开声音，见 app.js 的 wireGuideVideos；鸿蒙版素材 assets/Enable LoveCo Keyboard HarmonyOS.mp4，画面即「在输入法管理中启用 LoveCo」的操作演示）；② 卡下一行白色小字说明「在「输入法」管理中，启用LoveCo输入法」（不写「第1步」）；③ 黑色胶囊主按钮「启用LoveCo输入法 →」—— 整颗**持续放大缩小、一闪一闪**地引导点击（kg-breathe：1.6s 一个来回，scale 1 ↔ 1.045 配深蓝呼吸投影），点它进模拟鸿蒙设置页。鸿蒙引导页只有这一颗按钮（原「切换到LoveCo输入法」幽灵按钮已按需求删除；安卓版是**两步两颗按钮**的另一套形态，见 kb-guide-android）：完成引导改由「从系统设置返回 App」触发 —— 在设置里打开「启用LoveCo」后，点左下角视频悬浮窗**或设置页左上角的返回箭头**才完成引导回首页（两处是同一处「回到 App」校验；原左栏「模拟 › 返回主 App」按钮已按需求删除 —— 2026-09-28 需求：模拟设置页 / 详情页里的开关只改设备状态，主 App 感知不到权限变化 —— 不弹完全访问引导层、也不完成引导，回到 App 那一刻才重新校验，见 guideBack / guidePipBack）',note:'整页落在 appScreen=kb-guide 上，正文与状态栏连成一片紫蓝（状态栏文字转白）；Esc 不提供出口，只能走页面自身的按钮与返回。完成引导（点悬浮窗 / 设置页左上角返回箭头）后接着跑状态检查链的后两环 —— 键盘完全访问 → 登录状态，没过就停在对应引导层上（见 finishGuide / appEntryGuards）'},
-    {id:'kb-guide-android',name:'开启键盘 · 引导页(安卓)',route:'/kb-guide?platform=android',trigger:'进入主 App：按状态检查链走（键盘权限 → 键盘完全访问 → 登录状态，见 appEntryGuards），第一环没过（键盘未开启）时整页进这条引导；本列表点入（切到 Android，并现场把「开启键盘」置成关、完全访问一并复位、当前输入法复位成系统默认（摆成一台还没启用键盘的新设备），不落库）',desc:'与「开启键盘 · 引导页(鸿蒙)」共用同一条渲染链路 appGuideHome（拆条是为了分头补各端差异），但安卓是**两颗按钮的两步形态**（2026-09-27 起；2026-09-28 起第二步有了自己的落点）：紫蓝整页、白圆角大卡循环播演示动画、元素整体上下居中。演示卡**按步骤两段**：第一步（键盘未启用）播 GUIDE_VIDEOS 里那一支（安卓版素材未提供，回落鸿蒙那支）、说明写「在「输入法」管理中，启用LoveCo输入法」；**第二步（键盘已启用）换成第二段视频**「在键盘上切换到LoveCo输入法」的操作演示 —— 素材设计还没给，按需求**留空占位**（同比例的空白卡，卡内一行灰字「第二步演示视频 · 素材待补」；素材到位后往 GUIDE_VIDEOS2 加键即可），说明改「在键盘上切换到LoveCo输入法」。按钮自上而下：① 黑胶囊「**第一步 启用LoveCo输入法 →**」；② 同款黑胶囊「**第二步 切换到LoveCo输入法 →**」。两颗**状态互斥、只有轮到的那颗亮**（kg-breathe 持续放大缩小、一闪一闪；没轮到的那颗置灰、不可点、不跳动，见 .kb-guide-btn:disabled）：① 键盘未启用（左栏「设备权限 › 开启键盘」关闭）时第一步亮、第二步灰 —— 点第一步进模拟安卓设置页（kb-guide-settings-android）启用键盘；② **键盘已启用但「当前输入法」还不是 LoveCo 时**（安卓系统不允许 App 直接切输入法，得由用户自己走这一步）第一步置灰、第二步亮 —— 点第二步弹出**键盘切换悬浮窗**（kb-guide-ime-switch，在系统输入法选择器里选 LoveCo）；③ 两步都完成 → 引导页没有可做的了，等「回到 App」那一刻完成引导、回主 App 首页（判定见 guideStepState / guideSatisfied；完成的两条路径：退回设置页后点左上角返回箭头，或切输入法那一步在键盘切换悬浮窗里选完 LoveCo 当场完成，见 guideBack / pickGuideIme；首页前还会接着跑状态检查链的后两环：登录；**安卓没有「键盘完全访问」这个权限**（系统侧默认就给到），键盘一启用即视同连它一起有 —— 这一环在安卓下直接通过，见 syncFullAccess / fullAccessGranted）。**从模拟设置页退回引导页那一刻会按当前键盘状态切到第二步**（2026-09-28 需求：真实设备上 App 也只能在自己回到前台时才得知键盘已开）：键盘已启用就换第二段视频并**自动弹出键盘切换悬浮窗**（当前输入法已是 LoveCo 就不弹，没什么可切的）；引导流程里的操作不会当场完成引导（模拟设置页只改设备状态，App 感知不到）。**安卓引导页与它的模拟设置页都没有视频悬浮窗**（2026-09-28 需求：进模拟设置页不启动悬浮窗），出口是设置页左上角那枚返回箭头（离开系统设置即回到 App：键盘已启用就换第二步、并自动弹出键盘切换悬浮窗，见 guideBack）。平台外观随运行平台（Android 无平台底栏、状态栏圆点挖孔）；模拟设置页已按端分叉（2026-09-28 起 iOS 见 kb-guide-settings-ios、安卓见 kb-guide-settings-android），键盘权限页同样按端分叉（iOS 版见 kb-guide-detail-ios，安卓仍与鸿蒙共用 kb-guide-detail）',note:'「当前输入法」在左栏「设备权限」里也能手动切（系统默认 / LoveCo，默认系统默认）—— 选 LoveCo 会顺带把「开启键盘」打开；反向关掉「开启键盘」则当前输入法复位成系统默认。两段演示素材都还缺安卓版：第一步回落鸿蒙那支（GUIDE_VIDEOS）、第二步留空占位（GUIDE_VIDEOS2）；素材补齐后各加一个 android 键。'},
-    {id:'kb-guide-ios',name:'开启键盘 · 引导页(ios)',route:'/kb-guide?platform=ios',trigger:'进入主 App：按状态检查链走（键盘权限 → 键盘完全访问 → 登录状态，见 appEntryGuards），第一环没过（键盘未开启）时整页进这条引导；本列表点入（切到 iOS，并现场把「开启键盘」置成关、完全访问一并复位（摆成一台还没启用键盘的新设备），不落库）',desc:'与「开启键盘 · 引导页(鸿蒙)」**同一形态**（拆成三端条目是为了分头补各端差异，共用同一条渲染链路 appGuideHome）：紫蓝整页、白圆角大卡循环播演示动画、一行说明「在「输入法」管理中，启用LoveCo输入法」、唯一黑胶囊主按钮（kg-breathe 呼吸动画；iOS 一步完成，**安卓版是两步两颗按钮**，见 kb-guide-android）、元素整体上下居中。**iOS 差异**：演示动画素材按平台取 —— iOS 用自己的录屏 `assets/Enable LoveCo Keyboard IOS.mp4`（2026-09-28 起，此前素材未提供、回落到鸿蒙那支；引导页大卡与模拟设置页 / 详情页左下角的悬浮窗同一支，见 GUIDE_VIDEOS 的 ios 键）；**模拟设置页已按设计图补入 iOS 版**（`kb-guide-settings-ios` —— iOS 按 App 分组、没有「输入法管理」列表那一套，点「键盘」行进 iOS 版键盘权限页；此前这一页暂共用鸿蒙样式），**键盘权限页也已按设计图补入 iOS 版**（`kb-guide-detail-ios`「系统-键盘权限 (ios)」—— 导航条「‹ LoveCo 键盘 / 键盘」+ 一张卡两行开关：「LoveCo 键盘」「允许完全访问」，此前与鸿蒙共用一页）；完成引导同鸿蒙 —— 在设置里打开「启用LoveCo」后，点悬浮窗或设置页左上角的返回箭头才回首页（系统设置里的操作主 App 感知不到，见 guideBack / guidePipBack）；平台外观随运行平台（状态栏药丸挖孔 / 灵动岛、键盘底栏是地球 + 语音输入）',note:'演示素材已就位（GUIDE_VIDEOS.ios）；两页模拟系统设置都已按端分叉（2026-09-28 起 iOS 走 kb-guide-settings-ios / kb-guide-detail-ios —— appKbGuideScreen 里按 state.platform 选页）'},
-    {id:'kb-guide-settings',name:'系统-键盘设置(鸿蒙)',route:'引导页 ›「启用LoveCo输入法」（模拟系统设置）',trigger:'鸿蒙引导页点「启用LoveCo输入法」；本列表点入',desc:'模拟鸿蒙系统「输入法」设置页的**深色整页**（2026-09-28 改名「系统-键盘设置(鸿蒙)」，与 iOS / 安卓版分家 —— iOS 是另一套结构、另有一条 kb-guide-settings-ios，安卓另有一版小米风格浅色「设置」页 kb-guide-settings-android，本页只服务鸿蒙引导）：顶部圆形返回钮 + 大标题「输入法」；「输入法管理」灰色小标题；第一张深色卡片「默认输入法 | 小艺输入法 ▾」——**这一行可点**（LoveCo 已启用后点它在「小艺输入法」与「LoveCo」之间来回切，见 switchGuideIme —— 这是「切换当前输入法」在鸿蒙这一版的落点（**安卓**那版不存在这一步 —— 切换当前输入法的落点是**键盘切换悬浮窗**，见 kb-guide-ime-switch）；LoveCo 还没启用时整行不可点、压暗 —— 真实系统里未启用的输入法也选不了），右侧值随当前输入法变化；第二张卡片是输入法列表 —— **小艺输入法**（蓝色勾选圈 + 折角箭头，已启用）与 **LoveCo**（空心圈，右侧「未启用 ›」，启用后改「已启用」）。设计稿里其它几个第三方输入法按需求不渲染（除小艺外全部删掉，只留 LoveCo）。**左下角悬浮窗**（画中画）：同一支演示视频缩成小窗**只播一次、不循环**（2026-09-28 需求，播完停在末帧；**带声音**，与引导页大卡同一套处理，见 wireGuideVideos），「启用LoveCo」打开后浮现绿色对勾与「完成后返回LoveCo App」小字 —— 点它（或从系统设置「回到 App」：设置页左上角的返回箭头，两处同一套校验）＝ 从系统设置**返回 LoveCo App**：重新校验（安卓要求键盘已启用**且**当前输入法已切成 LoveCo，见 guideSatisfied），都通过就关闭引导页（完成引导，进主 App 首页 —— 首页前还会接着跑状态检查链的后两环：完全访问权限 → 登录状态，没过就停在对应引导层上）；只启用了键盘、还没切输入法就退回引导页 —— 这时第一步已灰、第二步亮着等点击。点 LoveCo 行进它的详情页（鸿蒙 / 安卓共用这一条落点）',note:'返回箭头只是系统设置内的逐级导航（详情 → 设置 → 引导页），**不完成引导、也不弹任何层**（2026-09-28 需求：主 App 感知不到系统设置里的变化）—— 两步做完后退回引导页按钮会置灰（安卓会切到第二步），由设置页左上角返回箭头 / 悬浮窗收尾 —— 回到 App 那一刻才校验；「默认输入法」行的切换本身同样不结束引导'},
-    {id:'kb-guide-detail',name:'系统-键盘权限 (鸿蒙)',route:'模拟设置 › LoveCo 行（模拟系统设置）',trigger:'模拟鸿蒙设置页点「LoveCo」行；本列表点入（切到鸿蒙）',desc:'LoveCo 输入法在系统设置里的详情页（深色整页；**这一版只服务鸿蒙 / 安卓引导** —— iOS 有自己的一版，见 kb-guide-detail-ios，两版的页名与第二颗开关名不同）：顶部圆形返回钮 + 大标题「LoveCo」，下方一张深色卡片放两个开关行 —— ①「启用LoveCo」：**默认关**，蓝色鸿蒙样式开关，打开即键盘启用（与左栏「开启键盘」是同一个开关 permissions.kbEnabled）—— **只改设备状态**（2026-09-28 需求）：这一页是模拟的系统页面，主 App 感知不到权限变化，开关打开 **不弹完全访问引导层、也不完成引导**，只在本页就地生效（第二个开关显现、悬浮窗浮出对勾）；②「完整体验模式」：**第一个开关打开之后才显现**（默认关，显现带淡入）—— 鸿蒙系统里「完整体验模式」就是**完全访问这个权限的名字**（iOS 那版同一颗开关叫「允许完全访问」，见 kb-guide-detail-ios），所以它直接绑 `permissions.keyboard`：**与左栏「设备权限 › 键盘完全访问」是同一个开关**，开 / 关两处同步（2026-09-28 需求；此前另存在 kbGuideFull 里、左栏那颗开关不跟着动），**关掉第一个开关时它随行一起收回、权限复位成关**（2026-09-28 修复），也仍是**只改设备状态**（不弹完全访问引导层、不完成引导）。左下角同一颗视频悬浮窗：启用后浮现绿色对勾与「完成后返回LoveCo App」，点它（或从系统设置「回到 App」：设置页左上角的返回箭头，两处同一套校验）＝ 返回 LoveCo App 并重新校验权限（安卓要求当前输入法也已切到 LoveCo）—— 通过就关闭引导页（完成引导，回主 App 首页 —— 首页前还会接着跑状态检查链的后两环：完全访问权限 → 登录状态，没过就停在对应引导层上；在详情页把「完整体验模式」打开后再返回，完全访问这一环就已是开的）；详情页的返回箭头逐级退回模拟设置页（纯导航、不触发校验），**设置页左上角那枚返回箭头才是「回到 App」**（那一刻重新校验：条件齐了当场完成引导，见 guideBack）',note:'「启用LoveCo」关掉即回到未启用态（第二个开关随之隐藏、悬浮窗对勾消失），同时把「当前输入法」复位成系统默认（未启用的键盘不可能当当前输入法）、**完全访问（permissions.keyboard）也一并复位成关** —— 完全访问是键盘的权限，键盘没启用就不该开着，左栏「设备权限 › 键盘完全访问」同步变关（2026-09-28 修复；左栏那颗「开启键盘」同一套联动，见 toggleGuideEnable）；返回箭头回模拟设置页（鸿蒙那一版）；「App 回前台」的出口是悬浮窗 / 退回设置页后点左上角返回箭头（同一套校验，见 guidePipBack / guideBack）'},
+    {id:'kb-guide',name:'开启键盘 · 引导页(鸿蒙)',route:'/kb-guide?platform=harmony',trigger:'进入主 App：按**状态检查链**走（键盘权限 → 键盘完全访问 → 登录状态，见 appEntryGuards），第一环没过（左栏「设备权限 › 开启键盘」关闭）时整页进这条引导；本列表点入（切到鸿蒙，并现场把「开启键盘」置成关、完全访问一并复位（摆成一台还没启用键盘的新设备），不落库）',desc:'紫蓝色整页（无底部 Tab 栏），**全页元素整体上下居中**（不挤在顶部；内容比屏高时自然从头排、可滚动），自上而下：① 中央白色大圆角卡内嵌**演示动画视频**（循环播、**带声音** —— 素材自带音轨，只是浏览器禁止「有声音的自动播放」，所以先静音起播、拿到用户手势（页面上点过任何一处即算）随即开声音，见 app.js 的 wireGuideVideos；鸿蒙版素材 assets/Enable LoveCo Keyboard HarmonyOS.mp4，画面即「在输入法管理中启用 LoveCo」的操作演示）；② 卡下一行白色小字说明「在「输入法」管理中，启用LoveCo输入法」（不写「第1步」）；③ 黑色胶囊主按钮「启用LoveCo输入法 →」—— 整颗**持续放大缩小、一闪一闪**地引导点击（kg-breathe：1.6s 一个来回，scale 1 ↔ 1.045 配深蓝呼吸投影），点它进模拟鸿蒙设置页。鸿蒙引导页只有这一颗按钮（原「切换到LoveCo输入法」幽灵按钮已按需求删除；安卓版是**两步两颗按钮**的另一套形态，见 kb-guide-android）：完成引导改由「从系统设置返回 App」触发 —— 在设置里打开「启用LoveCo」后，点左下角视频悬浮窗**或设置页左上角的返回箭头**才做「回到 App」那一刻的校验：键盘已启用的话，iOS / 鸿蒙落到**第二步整页「切换到 LoveCo 键盘」**（kb-guide-switch / kb-guide-switch-loveco 两条），长按地球切到 LoveCo 再点「完成」才算引导完成、回首页（两处是同一处「回到 App」校验；原左栏「模拟 › 返回主 App」按钮已按需求删除 —— 2026-09-28 需求：模拟设置页 / 详情页里的开关只改设备状态，主 App 感知不到权限变化 —— 不弹完全访问引导层、也不完成引导，回到 App 那一刻才重新校验，见 guideBack / guidePipBack）',note:'整页落在 appScreen=kb-guide 上，正文与状态栏连成一片紫蓝（状态栏文字转白）；Esc 不提供出口，只能走页面自身的按钮与返回。完成引导（第二步页面上点「完成」，见 kb-guide-switch）后接着跑状态检查链的后两环 —— 键盘完全访问 → 登录状态，没过就停在对应引导层上（见 finishGuide / appEntryGuards）'},
+    {id:'kb-guide-android',name:'开启键盘 · 引导页(安卓)',route:'/kb-guide?platform=android',trigger:'进入主 App：按状态检查链走（键盘权限 → 键盘完全访问 → 登录状态，见 appEntryGuards），第一环没过（键盘未开启）时整页进这条引导；本列表点入（切到 Android，并现场把「开启键盘」置成关、完全访问一并复位、当前输入法复位成系统默认（摆成一台还没启用键盘的新设备），不落库）',desc:'与「开启键盘 · 引导页(鸿蒙)」共用同一条渲染链路 appGuideHome（拆条是为了分头补各端差异），但安卓是**两颗按钮的两步形态**（2026-09-27 起；2026-09-28 起第二步有了自己的落点）：紫蓝整页、白圆角大卡循环播演示动画、元素整体上下居中。演示卡**按步骤两段**：第一步（键盘未启用）播 GUIDE_VIDEOS 里那一支（安卓版素材未提供，回落鸿蒙那支）、说明写「在「输入法」管理中，启用LoveCo输入法」；**第二步（键盘已启用）换成第二段视频**「在键盘上切换到LoveCo输入法」的操作演示 —— 素材设计还没给，按需求**留空占位**（同比例的空白卡，卡内一行灰字「第二步演示视频 · 素材待补」；素材到位后往 GUIDE_VIDEOS2 加键即可），说明改「在键盘上切换到LoveCo输入法」。按钮自上而下：① 黑胶囊「**第一步 启用LoveCo输入法 →**」；② 同款黑胶囊「**第二步 切换到LoveCo输入法 →**」。两颗**状态互斥、只有轮到的那颗亮**（kg-breathe 持续放大缩小、一闪一闪；没轮到的那颗置灰、不可点、不跳动，见 .kb-guide-btn:disabled）：① 键盘未启用（左栏「设备权限 › 开启键盘」关闭）时第一步亮、第二步灰 —— 点第一步进模拟安卓设置页（kb-guide-settings-android）启用键盘；② **键盘已启用但「当前输入法」还不是 LoveCo 时**（安卓系统不允许 App 直接切输入法，得由用户自己走这一步）第一步置灰、第二步亮 —— 点第二步弹出**键盘切换悬浮窗**（kb-guide-ime-switch，在系统输入法选择器里选 LoveCo）；③ 两步都完成 → 引导页没有可做的了，等「回到 App」那一刻完成引导、回主 App 首页（安卓的两步都在这张引导页 / 悬浮窗上 —— 它没有 iOS / 鸿蒙那种第二步整页，见 kb-guide-switch；判定见 guideStepState / guideSatisfied；完成的两条路径：退回设置页后点左上角返回箭头，或切输入法那一步在键盘切换悬浮窗里选完 LoveCo 当场完成，见 guideBack / pickGuideIme；首页前还会接着跑状态检查链的后两环：登录；**安卓没有「键盘完全访问」这个权限**（系统侧默认就给到），键盘一启用即视同连它一起有 —— 这一环在安卓下直接通过，见 syncFullAccess / fullAccessGranted）。**从模拟设置页退回引导页那一刻会按当前键盘状态切到第二步**（2026-09-28 需求：真实设备上 App 也只能在自己回到前台时才得知键盘已开）：键盘已启用就换第二段视频并**自动弹出键盘切换悬浮窗**（当前输入法已是 LoveCo 就不弹，没什么可切的）；引导流程里的操作不会当场完成引导（模拟设置页只改设备状态，App 感知不到）。**安卓引导页与它的模拟设置页都没有视频悬浮窗**（2026-09-28 需求：进模拟设置页不启动悬浮窗），出口是设置页左上角那枚返回箭头（离开系统设置即回到 App：键盘已启用就换第二步、并自动弹出键盘切换悬浮窗，见 guideBack）。平台外观随运行平台（Android 无平台底栏、状态栏圆点挖孔）；模拟设置页已按端分叉（2026-09-28 起 iOS 见 kb-guide-settings-ios、安卓见 kb-guide-settings-android），键盘权限页同样按端分叉（iOS 版见 kb-guide-detail-ios，安卓仍与鸿蒙共用 kb-guide-detail）',note:'「当前输入法」在左栏「设备权限」里也能手动切（系统默认 / LoveCo，默认系统默认）—— 选 LoveCo 会顺带把「开启键盘」打开；反向关掉「开启键盘」则当前输入法复位成系统默认。两段演示素材都还缺安卓版：第一步回落鸿蒙那支（GUIDE_VIDEOS）、第二步留空占位（GUIDE_VIDEOS2）；素材补齐后各加一个 android 键。'},
+    {id:'kb-guide-ios',name:'开启键盘 · 引导页(ios)',route:'/kb-guide?platform=ios',trigger:'进入主 App：按状态检查链走（键盘权限 → 键盘完全访问 → 登录状态，见 appEntryGuards），第一环没过（键盘未开启）时整页进这条引导；本列表点入（切到 iOS，并现场把「开启键盘」置成关、完全访问一并复位（摆成一台还没启用键盘的新设备），不落库）',desc:'与「开启键盘 · 引导页(鸿蒙)」**同一形态**（拆成三端条目是为了分头补各端差异，共用同一条渲染链路 appGuideHome）：紫蓝整页、白圆角大卡循环播演示动画、一行说明「在「输入法」管理中，启用LoveCo输入法」、唯一黑胶囊主按钮（kg-breathe 呼吸动画；iOS 一步完成，**安卓版是两步两颗按钮**，见 kb-guide-android）、元素整体上下居中。**iOS 差异**：演示动画素材按平台取 —— iOS 用自己的录屏 `assets/Enable LoveCo Keyboard IOS.mp4`（2026-09-28 起，此前素材未提供、回落到鸿蒙那支；引导页大卡与模拟设置页 / 详情页左下角的悬浮窗同一支，见 GUIDE_VIDEOS 的 ios 键）；**模拟设置页已按设计图补入 iOS 版**（`kb-guide-settings-ios` —— iOS 按 App 分组、没有「输入法管理」列表那一套，点「键盘」行进 iOS 版键盘权限页；此前这一页暂共用鸿蒙样式），**键盘权限页也已按设计图补入 iOS 版**（`kb-guide-detail-ios`「系统-键盘权限 (ios)」—— 导航条「‹ LoveCo 键盘 / 键盘」+ 一张卡两行开关：「LoveCo 键盘」「允许完全访问」，此前与鸿蒙共用一页）；完成引导同鸿蒙 —— 在设置里打开「启用LoveCo」后，点悬浮窗或设置页左上角的返回箭头才做「回到 App」那一刻的校验：键盘已启用就落到**第二步整页「切换到 LoveCo 键盘」**（kb-guide-switch，长按地球切到 LoveCo 再点「完成」才回首页；此前「系统侧启用即完成」的判定已作废，见 guideBack / guidePipBack）；平台外观随运行平台（状态栏药丸挖孔 / 灵动岛、键盘底栏是地球 + 语音输入）',note:'演示素材已就位（GUIDE_VIDEOS.ios）；两页模拟系统设置都已按端分叉（2026-09-28 起 iOS 走 kb-guide-settings-ios / kb-guide-detail-ios —— appKbGuideScreen 里按 state.platform 选页）'},
+    /* 「切换到 LoveCo 键盘」页（2026-09-28 按设计截图补入）：iOS / 鸿蒙引导的**第二步**，
+       两条 = 同一页（appGuideSwitch）的两种形态（底下那块键盘是系统英文键盘还是 LoveCo 键盘）。
+       与「中文键盘 / 英文键盘」那类条目一样，同 UI 的不同状态各占一条，便于静态对照。 */
+    {id:'kb-guide-switch',name:'切换到 LoveCo 键盘',route:'/kb-guide?step=switch（iOS / 鸿蒙共用）',trigger:'iOS / 鸿蒙引导流程的**第二步**：在模拟设置页里启用键盘后「回到 App」（设置页左上角返回箭头 / 左下角悬浮窗）—— 键盘已启用、但当前键盘还不是 LoveCo（`permissions.ime` 不等于 loveco）时，主 App 整页落到这一页（安卓不走这一页，它的第二步是「键盘切换悬浮窗」）；或从本页弹出的键盘选择器点「更多键盘设置…」进设置页后再按返回；本列表点入＝现场摆成那一刻（键盘已启用 + 当前键盘系统默认 + 页面默认形态，不落库）',desc:'**整页白底**（状态栏一起转白，`.guide-white`），自上而下三段：① **循环播放的演示动画** —— 素材还没给，按需求先用**占位卡**占位（输入框以上的整块余高，圆角 14px 浅灰卡 + 居中的播放图形 / 「演示视频 · 素材待补」/ 一行小字说明；素材到位后换 `<video autoplay muted loop>`，位置尺寸不变）；② **LoveCo 页面的输入框** —— 整宽 38px 高、圆角 10px、白底 + 1px 浅灰描边 + 一层淡投影，占位文案「输入消息…」，**进来就是激活态**（渲染后焦点直接交给它、光标在框里闪，不用先点一下；点页面上任何一处也会把焦点还回来，始终看着「正等着输入」）；③ **当前正在使用的键盘**（高 = `--lc-keyboard-height`，与真实键盘同高 —— 换键盘时页面不跳）：默认是**系统英文键盘**（1:1 照设计图用 CSS 画：顶部候选词行 i / the / i\'m（白底 + 两条竖分隔线）→ qwerty 三排（白键 + 灰色 ⇧ / ⌫，第二排左右各内缩一截）→「123 / space / done」（done 是蓝底白字）→ 底行「地球 + 提示胶囊 + 麦克风」）。地球**长按 350ms** 弹出**键盘选择器**（短按也给同一个出口，宽容处理 —— 真机上短按是切下一个键盘）；提示胶囊是紫底白字的 **「长按 🌐 切换至LoveCo键盘」**（圆角 8px、带 1.6s 呼吸动画，指着地球）。**键盘选择器**（设计截图 2）：白色圆角面板（宽 208px、圆角 14px、带整页半透明遮罩、从下往上弹出）贴在键盘底行上方左侧，自上而下「更多键盘设置…」/ 分隔线 / **LoveCo** / **英文键盘**（当前正在用的那套右侧打勾）；设计截图里的「中文9键」「中文手写」已按需求删除、只留 LoveCo，另补一行「英文键盘」（样式即第一张图的系统英文键盘）；面板底部按截图保留两枚装饰小图形（切换键盘 / 键盘设置，无动作）。点任意一行 = 在系统里把当前键盘切过去（落到 `permissions.ime`，与左栏「设备权限 › 当前输入法」同一个状态）：选 **LoveCo** 后下方那块整块换成 **LoveCo 键盘**（直接渲染项目里的真键盘 —— 菜单栏 + 键区 + 平台底栏，底座与真实键盘完全一致），提示胶囊随之消失、底栏中间浮出黑底白字的**「完成」胶囊**（26px 高、引导页主按钮同款 + 呼吸动画）；点它 = 引导完成（回首页并接着跑状态检查链后两环：完全访问 → 登录，见 finishGuide）。选回**英文键盘**即回到系统键盘 + 提示胶囊。「更多键盘设置…」= 去模拟系统设置页（按运行平台那一版，见 appKbGuideScreen），从那儿按返回箭头退回时回到本页。',note:'**iOS / 鸿蒙共用同一套渲染**（2026-09-28 需求「该页面 iOS、鸿蒙共用」）—— 只有状态栏（药丸 / 圆点挖孔）与切到 LoveCo 后那块键盘的底栏（iOS = 地球 + 语音输入；鸿蒙 = 地球 + 小艺装饰标识）按端不同；安卓的第二步是键盘切换悬浮窗（kb-guide-ime-switch），不走这一页。引导完成判定三端统一：**键盘已启用 + 当前键盘已切到 LoveCo**（`guideSatisfied`）—— 此前 iOS / 鸿蒙「系统侧启用即完成」的判定已按这次需求作废，第二步页面上的「完成」是这两个端的收尾动作（安卓在悬浮窗里选完 LoveCo 即当场完成）。输入框与两块键盘都是**只读演示**：系统英文键盘的键位是纯外观（不接输入法逻辑），LoveCo 键盘预览关掉了键区与菜单栏的指针事件（只有底栏那颗地球仍可点开选择器）。演示视频素材还没给，按需求先用占位卡（同「安卓引导第二步」的空占位做法）。'},
+    {id:'kb-guide-switch-loveco',name:'切换到 LoveCo 键盘 · 已切到 LoveCo',route:'/kb-guide?step=switch（iOS / 鸿蒙共用 · 已切换）',trigger:'本列表点入（现场摆成「在选择器里选了 LoveCo」之后那一刻，不落库）；真实链路里在同一页选完 LoveCo 也是这一形态',desc:'同一页（appGuideSwitch）的**已切换形态**：底下那块键盘从系统英文键盘换成 **LoveCo 键盘**（真键盘当预览 —— 菜单栏 + 键区 + 平台底栏，键区与菜单栏不可点、底栏地球仍能再打开键盘选择器换回去，高度与真实键盘一致 250px / 矮窗口 210px，页面不跳），地球旁的提示胶囊消失、键盘底栏中间浮出黑底白字的**「完成」胶囊**（26px 高、圆角胶囊、带箭头图形与 1.6s 呼吸动画）；点它即引导完成（回首页并接着跑状态检查链后两环）。其余两段（演示视频占位卡 / 默认激活的输入框）与默认形态完全一致；再长按地球选回「英文键盘」即回到默认形态（提示胶囊重新出现、完成胶囊收起）。',note:'与「切换到 LoveCo 键盘」是同一页的两种形态，只差 `permissions.ime`（`system` / `loveco`）—— 选择器里那一行的对勾也跟着走（已切到 LoveCo 时勾在 LoveCo 那行）。'},
+    {id:'kb-guide-settings',name:'系统-键盘设置(鸿蒙)',route:'引导页 ›「启用LoveCo输入法」（模拟系统设置）',trigger:'鸿蒙引导页点「启用LoveCo输入法」；本列表点入',desc:'模拟鸿蒙系统「输入法」设置页的**深色整页**（2026-09-28 改名「系统-键盘设置(鸿蒙)」，与 iOS / 安卓版分家 —— iOS 是另一套结构、另有一条 kb-guide-settings-ios，安卓另有一版小米风格浅色「设置」页 kb-guide-settings-android，本页只服务鸿蒙引导）：顶部圆形返回钮 + 大标题「输入法」；「输入法管理」灰色小标题；第一张深色卡片「默认输入法 | 小艺输入法 ▾」——**这一行可点**（LoveCo 已启用后点它在「小艺输入法」与「LoveCo」之间来回切，见 switchGuideIme —— 这是「切换当前输入法」在鸿蒙这一版的落点（**安卓**那版不存在这一步 —— 切换当前输入法的落点是**键盘切换悬浮窗**，见 kb-guide-ime-switch）；LoveCo 还没启用时整行不可点、压暗 —— 真实系统里未启用的输入法也选不了），右侧值随当前输入法变化；第二张卡片是输入法列表 —— **小艺输入法**（蓝色勾选圈 + 折角箭头，已启用）与 **LoveCo**（空心圈，右侧「未启用 ›」，启用后改「已启用」）。设计稿里其它几个第三方输入法按需求不渲染（除小艺外全部删掉，只留 LoveCo）。**左下角悬浮窗**（画中画）：同一支演示视频缩成小窗**只播一次、不循环**（2026-09-28 需求，播完停在末帧；**带声音**，与引导页大卡同一套处理，见 wireGuideVideos），「启用LoveCo」打开后浮现绿色对勾与「完成后返回LoveCo App」小字 —— 点它（或从系统设置「回到 App」：设置页左上角的返回箭头，两处同一套校验）＝ 从系统设置**返回 LoveCo App**：重新校验（键盘已启用**且**当前键盘已切成 LoveCo，见 guideSatisfied），都通过就关闭引导页（完成引导，进主 App 首页 —— 首页前还会接着跑状态检查链的后两环：完全访问权限 → 登录状态，没过就停在对应引导层上）；只启用了键盘、还没切键盘就落到**第二步整页「切换到 LoveCo 键盘」**（2026-09-28 起 —— 鸿蒙 / iOS 共用那一页，长按地球把键盘切过来再点「完成」，见 kb-guide-switch）。点 LoveCo 行进它的详情页（鸿蒙 / 安卓共用这一条落点）',note:'返回箭头只是系统设置内的逐级导航（详情 → 设置 → 引导页），**不完成引导、也不弹任何层**（2026-09-28 需求：主 App 感知不到系统设置里的变化）—— 键盘启用后由设置页左上角返回箭头 / 悬浮窗收尾 —— 回到 App 那一刻才校验（第二步落在「切换到 LoveCo 键盘」整页上）；「默认输入法」行的切换本身同样不结束引导（选成 LoveCo 后回到 App 就直接完成引导，不再经第二步页）'},
+    {id:'kb-guide-detail',name:'系统-键盘权限 (鸿蒙)',route:'模拟设置 › LoveCo 行（模拟系统设置）',trigger:'模拟鸿蒙设置页点「LoveCo」行；本列表点入（切到鸿蒙）',desc:'LoveCo 输入法在系统设置里的详情页（深色整页；**这一版只服务鸿蒙 / 安卓引导** —— iOS 有自己的一版，见 kb-guide-detail-ios，两版的页名与第二颗开关名不同）：顶部圆形返回钮 + 大标题「LoveCo」，下方一张深色卡片放两个开关行 —— ①「启用LoveCo」：**默认关**，蓝色鸿蒙样式开关，打开即键盘启用（与左栏「开启键盘」是同一个开关 permissions.kbEnabled）—— **只改设备状态**（2026-09-28 需求）：这一页是模拟的系统页面，主 App 感知不到权限变化，开关打开 **不弹完全访问引导层、也不完成引导**，只在本页就地生效（第二个开关显现、悬浮窗浮出对勾）；②「完整体验模式」：**第一个开关打开之后才显现**（默认关，显现带淡入）—— 鸿蒙系统里「完整体验模式」就是**完全访问这个权限的名字**（iOS 那版同一颗开关叫「允许完全访问」，见 kb-guide-detail-ios），所以它直接绑 `permissions.keyboard`：**与左栏「设备权限 › 键盘完全访问」是同一个开关**，开 / 关两处同步（2026-09-28 需求；此前另存在 kbGuideFull 里、左栏那颗开关不跟着动），**关掉第一个开关时它随行一起收回、权限复位成关**（2026-09-28 修复），也仍是**只改设备状态**（不弹完全访问引导层、不完成引导）。左下角同一颗视频悬浮窗：启用后浮现绿色对勾与「完成后返回LoveCo App」，点它（或从系统设置「回到 App」：设置页左上角的返回箭头，两处同一套校验）＝ 返回 LoveCo App 并重新校验权限（键盘已启用**且**当前键盘已切成 LoveCo）—— 通过就关闭引导页（完成引导，回主 App 首页 —— 首页前还会接着跑状态检查链的后两环：完全访问权限 → 登录状态，没过就停在对应引导层上；在详情页把「完整体验模式」打开后再返回，完全访问这一环就已是开的）；键盘已启用但还没切键盘则落到**第二步整页「切换到 LoveCo 键盘」**（2026-09-28 起，见 kb-guide-switch）；详情页的返回箭头逐级退回模拟设置页（纯导航、不触发校验），**设置页左上角那枚返回箭头才是「回到 App」**（那一刻重新校验：条件齐了当场完成引导，见 guideBack）',note:'「启用LoveCo」关掉即回到未启用态（第二个开关随之隐藏、悬浮窗对勾消失），同时把「当前输入法」复位成系统默认（未启用的键盘不可能当当前输入法）、**完全访问（permissions.keyboard）也一并复位成关** —— 完全访问是键盘的权限，键盘没启用就不该开着，左栏「设备权限 › 键盘完全访问」同步变关（2026-09-28 修复；左栏那颗「开启键盘」同一套联动，见 toggleGuideEnable）；返回箭头回模拟设置页（鸿蒙那一版）；「App 回前台」的出口是悬浮窗 / 退回设置页后点左上角返回箭头（同一套校验，见 guidePipBack / guideBack）'},
     {id:'kb-guide-detail-ios',name:'系统-键盘权限 (ios)',route:'模拟 iOS 设置页 ›「键盘」行（模拟系统设置）',trigger:'模拟 iOS 设置页点「键盘」行；本列表点入（切到 iOS）',desc:'LoveCo 键盘在 iOS 系统设置里的权限页（深色整页，2026-09-28 按设计图补入；与鸿蒙那一版（`kb-guide-detail`）是**同一件事的两套外观**）：顶部导航条 —— 左侧蓝色「‹ LoveCo 键盘」（那五个字是**上一页的页名**，回 iOS 设置页、纯导航不完成引导）＋ 居中标题「**键盘**」；导航条下方（间隔 26px）一张圆角卡片两行 —— ①「**LoveCo 键盘**」＋**绿色 iOS 开关**（50×30 绿底白钮，关着时深灰底）＝ 键盘启用，与左栏「开启键盘」同一个开关 `permissions.kbEnabled`：**默认关**，打开即键盘启用，**只改设备状态**（这一页是模拟的系统页面，主 App 感知不到权限变化 —— 不弹完全访问引导层、也不完成引导，只在本页就地生效：第二行显现、悬浮窗浮出对勾）；② 一枚键盘图形（灰底白键盘，同设置页那排小图标）＋「**允许完全访问**」＋同款开关 ＝ 完全访问权限，与左栏「设备权限 › 键盘完全访问」同一个开关 `permissions.keyboard`（开 / 关两处同步）；**iOS 系统里这颗权限就叫「允许完全访问」**（鸿蒙那版叫「完整体验模式」），它**只在第一颗开关打开后显现**（默认关），且随第一颗开关**一起收回并复位成关**（2026-09-28 修复：完全访问是键盘的权限，关掉「LoveCo 键盘」后左栏「键盘完全访问」同步变关，重开键盘时它以关的状态重新显现）；卡内的分隔线在这版里只缩进 16px（与卡片内容左间距齐，见设计图 —— 设置页那几张是缩到图标右侧的 57px）。左下角同一颗视频悬浮窗：启用后浮现绿色对勾与「完成后返回LoveCo App」，点它（或从系统设置「回到 App」：设置页左上角的返回箭头，两处同一套校验）＝ 返回 LoveCo App 并重新校验权限（见 guidePipBack / guideBack）—— 通过就关闭引导页（完成引导，回主 App 首页 —— 首页前还会接着跑状态检查链的后两环：完全访问 → 登录，没过就停在对应引导层上）；本页的返回箭头退回 iOS 设置页（纯导航、不触发校验），设置页那枚返回箭头才是「回到 App」（这一刻重新校验）',note:'iOS 那页与鸿蒙页的差异：页名（导航条「‹ LoveCo 键盘 / 键盘」对「返回钮 + 大标题 LoveCo」）、第二颗开关名（允许完全访问 / 完整体验模式）与开关配色（绿 50×30 / 蓝 46×26）；两版共用同一套状态与判定（permissions.kbEnabled / permissions.keyboard、只改设备状态、返回纯导航），页内交互动作也同一批（kb-guide-enable / kb-guide-full / kb-guide-back / kb-guide-pip）；两版的第一颗开关关掉时第二颗（完全访问）也**一并复位成关**（2026-09-28 修复：此前关了键盘开关、左栏「键盘完全访问」仍是开的），重开键盘时第二颗以关的状态重新显现'},
-    {id:'kb-guide-settings-ios',name:'系统-键盘设置(ios)',route:'引导页（?platform=ios）›「启用LoveCo输入法」（模拟系统设置）',trigger:'iOS 引导页点「启用LoveCo输入法」；本列表点入（切到 iOS）',desc:'模拟 iOS 设置里**按 App 分组的「LoveCo 键盘」页**（深色整页，2026-09-28 按设计图补入）：顶部一条导航条 —— 左侧蓝色「‹ App」返回（回引导页；纯导航、不完成引导），居中标题「LoveCo 键盘」；正文两组圆角卡片（#1C1C1E、行高约 44px、分隔线自图标右侧起）：① **允许“LoveCo 键盘”访问** —— 照片（白底彩色风车图标，右侧值「私密访问」）/ Siri（深底彩色光球）/ 搜索（灰底白放大镜）/ 通知（红底白铃铛，副标题「关」）/ 无线数据（绿底白信号弧，副标题「无线局域网与蜂窝网络」）/ **键盘**（灰底白键盘图形）六行，其中**只有「键盘」行可点** —— 点它进 **iOS 版键盘权限页**（`kb-guide-detail-ios`：两行开关 ——「LoveCo 键盘」+「允许完全访问」，与鸿蒙那条链路的落点对应）；页脚说明也正是让人去点「键盘」；② **首选语言** —— 语言（蓝底白地球）|「简体中文」。卡下压一段灰色页脚说明（「LoveCo 键盘」设置 / ⭐️ 如果此页面没有显示「键盘」/ ❶ 上滑关闭设置应用后，再重新打开设置进入这个界面 / ❷ 进入后，点击「键盘」，打开「LoveCo」和「允许完全访问开关」/ 由于系统限制，未打开允许完全访问时，键盘部分功能将受到影响 / 🚫 开启完全访问权限仅用于键盘请求输出内容 / 我们严格遵循《LoveCo隐私协议》，不会收集您的个人信息）。**按需求不渲染设计图里的「从其他 App 粘贴」分组**（连同那张「… | 询问 ›」卡片一并删掉）；设计图里的 lovekey 字样一律改 LoveCo。**左下角同一颗视频悬浮窗**（画中画，iOS 下播 iOS 素材）：键盘启用后浮出绿勾与「完成后返回LoveCo App」，点它（或从系统设置「回到 App」：设置页左上角的返回箭头，两处同一套校验）＝ 从系统设置**返回 LoveCo App** 并重新校验（安卓要求当前输入法也已切到 LoveCo，见 guideSatisfied），通过就关闭引导页、完成引导回首页',note:'iOS 的键盘设置页与鸿蒙不是同一套结构（iOS 按 App 分组、没有「输入法管理」列表），所以按端分叉渲染 —— 本页只在 iOS 平台出现（appKbGuideScreen 里按 state.platform 选页，鸿蒙走 kb-guide-settings、安卓走 kb-guide-settings-android）；详情页已按设计图补入 iOS 版（kb-guide-detail-ios）'},
+    {id:'kb-guide-settings-ios',name:'系统-键盘设置(ios)',route:'引导页（?platform=ios）›「启用LoveCo输入法」（模拟系统设置）',trigger:'iOS 引导页点「启用LoveCo输入法」；本列表点入（切到 iOS）',desc:'模拟 iOS 设置里**按 App 分组的「LoveCo 键盘」页**（深色整页，2026-09-28 按设计图补入）：顶部一条导航条 —— 左侧蓝色「‹ App」返回（回引导页；纯导航、不完成引导），居中标题「LoveCo 键盘」；正文两组圆角卡片（#1C1C1E、行高约 44px、分隔线自图标右侧起）：① **允许“LoveCo 键盘”访问** —— 照片（白底彩色风车图标，右侧值「私密访问」）/ Siri（深底彩色光球）/ 搜索（灰底白放大镜）/ 通知（红底白铃铛，副标题「关」）/ 无线数据（绿底白信号弧，副标题「无线局域网与蜂窝网络」）/ **键盘**（灰底白键盘图形）六行，其中**只有「键盘」行可点** —— 点它进 **iOS 版键盘权限页**（`kb-guide-detail-ios`：两行开关 ——「LoveCo 键盘」+「允许完全访问」，与鸿蒙那条链路的落点对应）；页脚说明也正是让人去点「键盘」；② **首选语言** —— 语言（蓝底白地球）|「简体中文」。卡下压一段灰色页脚说明（「LoveCo 键盘」设置 / ⭐️ 如果此页面没有显示「键盘」/ ❶ 上滑关闭设置应用后，再重新打开设置进入这个界面 / ❷ 进入后，点击「键盘」，打开「LoveCo」和「允许完全访问开关」/ 由于系统限制，未打开允许完全访问时，键盘部分功能将受到影响 / 🚫 开启完全访问权限仅用于键盘请求输出内容 / 我们严格遵循《LoveCo隐私协议》，不会收集您的个人信息）。**按需求不渲染设计图里的「从其他 App 粘贴」分组**（连同那张「… | 询问 ›」卡片一并删掉）；设计图里的 lovekey 字样一律改 LoveCo。**左下角同一颗视频悬浮窗**（画中画，iOS 下播 iOS 素材）：键盘启用后浮出绿勾与「完成后返回LoveCo App」，点它（或从系统设置「回到 App」：设置页左上角的返回箭头，两处同一套校验）＝ 从系统设置**返回 LoveCo App** 并重新校验（键盘已启用**且**当前键盘已切成 LoveCo，见 guideSatisfied），通过就关闭引导页、完成引导回首页；键盘已启用但还没切键盘则落到**第二步整页「切换到 LoveCo 键盘」**（2026-09-28 起 —— iOS / 鸿蒙共用那一页，长按地球把键盘切过来再点「完成」，见 kb-guide-switch），即「‹ App」返回键在键盘开好之后的那一下也是这一步的入口',note:'iOS 的键盘设置页与鸿蒙不是同一套结构（iOS 按 App 分组、没有「输入法管理」列表），所以按端分叉渲染 —— 本页只在 iOS 平台出现（appKbGuideScreen 里按 state.platform 选页，鸿蒙走 kb-guide-settings、安卓走 kb-guide-settings-android）；详情页已按设计图补入 iOS 版（kb-guide-detail-ios）'},
     {id:'kb-guide-settings-android',name:'系统-键盘设置(安卓)',route:'引导页（?platform=android）›「第一步 启用LoveCo输入法」（模拟系统设置）',trigger:'安卓引导页点「第一步 启用LoveCo输入法」；本列表点入（切到 Android）',desc:'模拟安卓（小米 HyperOS 风格）系统「设置 › 输入法」页的**浅色整页**（2026-09-28 按设计截图补入，与鸿蒙 / iOS 两版结构都不同；只服务安卓引导）：浅灰底（#F2F2F6，状态栏连着一起转浅色）+ 白色圆角卡片 + 两段灰色分组标题，顶部左上返回箭头（回引导页，纯导航、不完成引导 —— **退回引导页那一刻才按键盘状态切到第二步**：键盘已启用就换第二段视频并弹出键盘切换悬浮窗，见 kb-guide-android / kb-guide-ime-switch）+ 下方大号加粗标题「设置」。分组 ①「**官方输入法**」：只留一行**讯飞输入法**（副标题「中文（中国）」、行首蓝色圆形 iFLY 标、右侧开关开着）—— 设计截图里的「搜狗输入法小米版」按需求删除、原「小米定制版输入法」分组改名「官方输入法」而来；这一行是静态展示，开关不参与任何状态。分组 ②「**其他输入法**」：只放一行 **LoveCo 输入法**（副标题「中文（中国）」、行首一枚 LoveCo 图标 `assets/brand/LoveCo_128_128.png`、右侧开关**默认关闭**）—— 截图里 LoveCo / Lovekey键盘 / 灵焰恋爱大师 / ToDesk 四行全部删除后只留这一行。这颗开关就是 `permissions.kbEnabled`（与左栏「设备权限 › 开启键盘」、详情页「启用LoveCo」是同一个开关）：打开即键盘启用、关掉即停用（当前输入法随之复位成系统默认、完全访问一并复位）—— **安卓没有「键盘完全访问」这个权限**（系统侧默认就给到），打开键盘时 `permissions.keyboard` 一并置开（见 syncFullAccess）。**本页不启动视频悬浮窗**（2026-09-28 需求）：出口只有顶部那枚返回箭头（离开系统设置 = 回到 App：键盘已启用就换第二步、并自动弹出键盘切换悬浮窗，见 guideBack）；「切换到 LoveCo 输入法」（引导第二步）的落点也不在这一页（是退回引导页后自动弹出的**键盘切换悬浮窗**，见 kb-guide-ime-switch）—— 本页只负责「启用」',note:'三端设置页现已分家：鸿蒙 = 深色「输入法」页（appGuideSettings）、iOS = 深色「LoveCo 键盘」页（appGuideSettingsIos）、安卓 = 本页浅色「设置」页（appGuideSettingsAndroid，appKbGuideScreen 里按 state.platform 选页）；整页皮肤连着状态栏一起换浅色（renderApp 挂 .guide-light，样式见 theme.css 的 .mi-* 一组）。安卓下一步（切换到 LoveCo 输入法）的落点是键盘切换悬浮窗（kb-guide-ime-switch）—— 从本页返回引导页时按键盘状态自动弹出'},
     {id:'kb-guide-ime-switch',name:'键盘切换悬浮窗(安卓)',route:'安卓引导页 ›「第二步 切换到LoveCo输入法」；从「系统-键盘设置(安卓)」退回引导页时自动弹出（模拟系统输入法选择器）',trigger:'① 安卓引导页点「第二步 切换到LoveCo输入法」；② 从「系统-键盘设置(安卓)」按返回箭头退回引导页、且键盘已启用、当前输入法还不是 LoveCo（自动弹出，2026-09-28 需求）；本列表点入（切到 Android，摆成第二步那一刻：键盘已启用 + 当前输入法系统默认 + 悬浮窗开着）',desc:'仿真安卓系统「点键盘上的切换输入法按钮」弹出的**输入法选择器**（2026-09-28 按设计截图补入）：屏幕底部一张白色抽屉（圆角顶、浅紫选中行、带一层半透明遮罩，见 theme.css 的 .ie-* 一组），自上而下按输入法分组 —— 灰字组名 + 该输入法的语言行：①「**LoveCo**」→ 一行「中文（中国）」；②「**讯飞输入法**」→ 一行「中文（中国）」；**只列这两个输入法**（设计截图里第三组「👉 Lovekey键盘」按需求去掉），当前输入法（`permissions.ime`）那一行铺淡紫底 + 右侧深色对勾（截图里选中的正是 LoveCo）。点任一行 = 在系统里把当前输入法切过去（选 LoveCo 即 `permissions.ime=loveco`）、**本层随即收起**，引导页第二步随之完成（两颗按钮都置灰）；点抽屉外的遮罩收起本层、不改任何状态。收起本层 = 回到 App：选完 LoveCo（引导最后一步）**当场完成引导**（与设置页返回箭头同一处校验，见 pickGuideIme / guideBack）；选回系统默认则留在引导页继续',note:'只有安卓引导流程会开它（`state.kbImeSwitch`）；鸿蒙 / iOS 没有这一层（鸿蒙在模拟设置页的「默认输入法」行里切，见 kb-guide-settings）—— 安卓系统不允许 App 直接切输入法，所以第二步的手感就是「用户在系统选择器里自己选」。真机上的选择器还列其它系统输入法，这里按需求只留 LoveCo 与讯飞输入法两个'},
   ];
@@ -796,6 +809,22 @@
       if(it.id==='kb-guide-settings-android'){state.platform='android';persist();state.kbFullAccess=false;state.kbLogin=false;state.kbGuidePage='settings';return openAppScreen('kb-guide');}
       if(it.id==='kb-guide-detail'){state.platform='harmony';persist();state.kbFullAccess=false;state.kbLogin=false;state.kbGuidePage='detail';return openAppScreen('kb-guide');}
       if(it.id==='kb-guide-detail-ios'){state.platform='ios';persist();state.kbFullAccess=false;state.kbLogin=false;state.kbGuidePage='detail';return openAppScreen('kb-guide');}
+      /* 「切换到 LoveCo 键盘」（iOS / 鸿蒙引导第二步，2026-09-28 按设计截图补入）静态查看：
+         摆成「键盘已启用、当前键盘还是系统键盘」那一刻（页面默认形态：系统英文键盘 + 长按地球提示），
+         第二条再切到「已切到 LoveCo」的形态（底下换成 LoveCo 键盘 + 完成胶囊）。
+         平台取当前这一端（该页 iOS / 鸿蒙共用，只有状态栏与 LoveCo 键盘的底栏按端不同）；
+         停在安卓时回到 iOS 那一版（这一页是 iOS / 鸿蒙的第二步，安卓走键盘切换悬浮窗）。
+         不走 openAppScreen（它会顺手收起悬浮窗 / 协议层，这里也顺手把引导流程的两层收起） */
+      if(it.id==='kb-guide-switch'||it.id==='kb-guide-switch-loveco'){
+        if(state.platform==='android')state.platform='ios';
+        persist();
+        state.kbFullAccess=false;state.kbLogin=false;state.kbImeSwitch=false;state.kbSwitchPicker=false;
+        state.permissions.kbEnabled=true;state.permissions.keyboard=true;
+        state.permissions.ime=it.id==='kb-guide-switch-loveco'?'loveco':'system';
+        state.language='zh';state.layer='letters';state.composition='';state.t9Path=0;state.typing=false;state.shift=false;
+        state.appScreen='kb-guide';state.modal='kb-guide';state.kbGuidePage='switch';
+        return render();
+      }
       /* 「键盘切换悬浮窗(安卓)」静态查看：摆成安卓引导页第二步那一刻 —— 键盘已启用（安卓下
          完全访问随之视为已开）、当前输入法还是系统默认（所以引导页亮着第二步、演示卡是第二段
          视频的占位），悬浮窗开着。不走 openAppScreen（它会顺手收起悬浮窗，见其注释） */
@@ -1008,14 +1037,19 @@
     const enabled = state.permissions.kbEnabled;
     return { android, step1:!enabled, step2:android && enabled && state.permissions.ime !== 'loveco' };
   }
-  /* 引导完成的条件：键盘已启用；安卓还要「系统当前输入法是 LoveCo」（鸿蒙 / iOS 系统侧启用即完成）。
+  /* 引导完成的条件（2026-09-28 起三端统一）：**键盘已启用 + 当前键盘已切到 LoveCo**。
+     第二步的落点按端分叉：安卓在引导页上弹「键盘切换悬浮窗」（pickGuideIme 选完即完成）；
+     iOS / 鸿蒙落到整页的「切换到 LoveCo 键盘」（kbGuidePage='switch'，见 appGuideSwitch）——
+     在那儿长按地球选完 LoveCo 再点「完成」才完成（此前 iOS / 鸿蒙「系统侧启用即完成」的
+     判定已按这次需求作废）。
      消费方（都是「回到 App 那一刻」的重新校验）：设置页左上角返回箭头（guideBack）、
-     悬浮窗「返回 App」（guidePipBack）、键盘切换悬浮窗里选完输入法（pickGuideIme）；
+     悬浮窗「返回 App」（guidePipBack）、键盘切换悬浮窗里选完输入法（pickGuideIme）、
+     第二步页面上的「完成」（kb-switch-done）；
      另有左栏两个仿真开关（「当前输入法」「开启键盘」）的收尾（见 finishGuideIfDone）。
      模拟设置页 / 详情页里的开关操作**不**消费它（2026-09-28 需求）：那两页是模拟的系统页面，
      主 App 感知不到权限变化 —— 只改设备状态，不完成引导（见 toggleGuideEnable / guideBack）。 */
   function guideSatisfied() {
-    return state.permissions.kbEnabled && (state.platform !== 'android' || state.permissions.ime === 'loveco');
+    return state.permissions.kbEnabled && state.permissions.ime === 'loveco';
   }
   /* 引导流程中若条件已满足就当场完成（离开引导页回主 App 首页）—— 各动作收尾统一走它：
      满足则完成并返回 true（已渲染，调用方直接 return）；不满足返回 false，调用方继续自己的 render。
@@ -1031,18 +1065,23 @@
        appGuideSettingsIos / 键盘权限页 appGuideDetailIos）；安卓的设置页是小米风格浅色「设置」页
        （appGuideSettingsAndroid，2026-09-28 按设计截图补入），详情页仍与鸿蒙共用；鸿蒙走
        「输入法」那一套（appGuideSettings / appGuideDetail）—— 各版的页名、开关名与开关样式
-       都不同（iOS「允许完全访问」绿开关 / 鸿蒙「完整体验模式」蓝开关 / 安卓列表开关即启用） */
+       都不同（iOS「允许完全访问」绿开关 / 鸿蒙「完整体验模式」蓝开关 / 安卓列表开关即启用）。
+       第三步「切换到 LoveCo 键盘」（kbGuidePage='switch'）iOS / 鸿蒙共用同一套渲染
+       （见 appGuideSwitch）—— 安卓的第二步是键盘切换悬浮窗，不走这一页。 */
     if(state.kbGuidePage==='settings')return state.platform==='ios' ? appGuideSettingsIos() : state.platform==='android' ? appGuideSettingsAndroid() : appGuideSettings();
     if(state.kbGuidePage==='detail')return state.platform==='ios' ? appGuideDetailIos() : appGuideDetail();
+    if(state.kbGuidePage==='switch')return appGuideSwitch();
     return appGuideHome();
   }
   /* 引导页（紫蓝底整页，元素**整体上下居中**，见 theme.css 的 .kb-guide-page）：
      中央白圆角大卡循环播演示视频 + 卡下一行说明 + 黑胶囊主按钮（**持续放大缩小、一闪一闪**
      地引导点击，动画见 theme.css 的 kg-breathe）—— 点它进模拟设置页。
      按钮布局**按平台分叉**（2026-09-27 起）：
-     - 鸿蒙 / iOS 一步：「启用LoveCo输入法」—— 系统侧启用即完成，
-       引导完成走「从系统设置返回 App」（打开「启用LoveCo」后点左下角悬浮窗，
-       或点设置页左上角返回箭头，见 guidePipBack / guideBack）；
+     - 鸿蒙 / iOS 一颗：「启用LoveCo输入法」—— 系统侧启用只是**第一步**，
+       第二步不在这一页：走「从系统设置返回 App」（打开「启用LoveCo」后点左下角悬浮窗，
+       或点设置页左上角返回箭头）时若键盘已启用，就落到**整页的「切换到 LoveCo 键盘」**
+       （kbGuidePage='switch'，见 appGuideSwitch）—— 那儿长按地球切到 LoveCo 再点「完成」
+       才算引导完成（见 guidePipBack / guideBack / kb-switch-done）；
      - **安卓两步**：安卓系统不允许 App 直接切换输入法，键盘启用后还要用户在系统里把当前输入法
        切成 LoveCo，所以下面多挂一颗「第二步 切换到LoveCo输入法」（同样的黑胶囊）。
        两颗按钮的可用 / 呼吸状态由「第一步」「第二步」完成情况决定（见 guideStepState）：
@@ -1113,6 +1152,132 @@
         ${row(!loveco,'中文（中国）','system')}
       </div>
     </div>`;
+  }
+  /* —— 「切换到 LoveCo 键盘」页（kbGuidePage='switch'，2026-09-28 按设计截图补入）——
+     iOS / 鸿蒙引导的**第二步**（安卓的第二步是键盘切换悬浮窗，不走这一页；两端的渲染**共用这一份**，
+     只有状态栏与切到 LoveCo 后那块键盘的底栏按端不同）。
+     整页白底，自上而下三段：
+     ① **循环播放的演示动画**（素材还没给，按需求先用占位卡占位 —— 位置 / 尺寸即素材到位后的位置）；
+     ② **LoveCo 页面的输入框**（进来就是**激活态**：渲染后由 renderApp 把焦点交给它，
+        光标在框里闪、不用先点一下；点页面上任何一处也会把焦点还回来，见 bindKbSwitchPage）；
+     ③ **当前正在使用的键盘**（高 = --lc-keyboard-height，与真实键盘同高，切换键盘时页面不跳）：
+        默认是**系统英文键盘**（1:1 照设计图用 CSS 画，见 kbSwitchSystemKeyboard），
+        切过去之后换成 **LoveCo 键盘**（直接渲染项目里的真键盘当预览，见 kbSwitchLovecoKeyboard）。
+     地球按钮**长按（350ms）**弹出键盘选择器（kbSwitchPickerSheet）—— 短按也给同一个出口（宽容处理）；
+     选完 LoveCo 后底栏中间浮出「完成」胶囊，点它即引导完成（回首页并接着跑状态检查链后两环）。
+     状态：permissions.ime 记「当前这一刻用的是哪套键盘」（与左栏「当前输入法」是同一个开关），
+     kbSwitchPicker 记选择器开着。 */
+  function appGuideSwitch() {
+    const ctx = uiContext();
+    const loveco = state.permissions.ime === 'loveco';
+    return `<div class="kbsw-page">
+      <div class="kbsw-video" aria-label="演示视频（循环播放）">
+        <div class="kbsw-video-card">
+          ${icon('VideoPlay')}
+          <strong>演示视频 · 素材待补</strong>
+          <span>上线后在此循环播放「长按地球切换键盘」的演示</span>
+        </div>
+      </div>
+      <div class="kbsw-input-row">
+        <input id="kb-switch-input" class="kbsw-input" type="text" placeholder="输入消息…" autocomplete="off" spellcheck="false" aria-label="LoveCo 页面的输入框">
+      </div>
+      <div class="kbsw-kb">
+        ${loveco ? kbSwitchLovecoKeyboard(ctx) : kbSwitchSystemKeyboard()}
+        ${loveco ? `<button class="kbsw-done" data-action="kb-switch-done"><span>完成</span><i aria-hidden="true">${icon('ArrowRight')}</i></button>` : ''}
+      </div>
+      ${state.kbSwitchPicker ? kbSwitchPickerSheet() : ''}
+    </div>`;
+  }
+  /* 系统英文键盘（设计截图 1:1）：候选词行（i / the / i'm）+ qwerty 三排（第二排左右内缩、
+     第三排首尾是 ⇧ / ⌫）+ 「123 / space / done」（done 蓝底白字）+ 底行「地球 + 提示胶囊 + 麦克风」。
+     键位是纯外观（span，不接输入法逻辑）—— 这一页演示的是「长按地球切键盘」，不是打字；
+     只有地球是可交互的（长按弹键盘选择器，见 bindKbSwitchPage，节点上不挂 data-action）。 */
+  function kbSwitchSystemKeyboard() {
+    const glyph = window.LoveCoSystemGlyphs;
+    const keys = (row) => [...row].map(c => `<span class="kbsw-key">${c}</span>`).join('');
+    return `<div class="kbsw-sys">
+      <div class="kbsw-suggest" aria-hidden="true"><span>i</span><span>the</span><span>i'm</span></div>
+      <div class="kbsw-row">${keys('qwertyuiop')}</div>
+      <div class="kbsw-row kbsw-inset">${keys('asdfghjkl')}</div>
+      <div class="kbsw-row"><span class="kbsw-key kbsw-func">${icon('ArrowUp')}</span>${keys('zxcvbnm')}<span class="kbsw-key kbsw-func">${icon('Back')}</span></div>
+      <div class="kbsw-row"><span class="kbsw-key kbsw-func kbsw-num">123</span><span class="kbsw-key kbsw-space">space</span><span class="kbsw-key kbsw-go">done</span></div>
+      <div class="kbsw-row kbsw-bottom">
+        <button class="kbsw-globe" title="长按切换键盘" aria-label="长按切换键盘">${glyph.globe}</button>
+        <span class="kbsw-hint">长按 <i aria-hidden="true">${glyph.globe}</i> 切换至LoveCo键盘</span>
+        <span class="kbsw-mic" aria-hidden="true">${glyph.voice}</span>
+      </div>
+    </div>`;
+  }
+  /* 已切到 LoveCo 键盘：直接把项目里的真键盘摆进来当**预览**（菜单栏 + 键区 + 平台底栏，
+     底栏会自动按运行平台出「地球 + 语音输入」/「地球 + 小艺」）。键区与菜单栏关掉指针事件
+     （.kbsw-loveco 那两条 CSS）—— 这一页不接输入法逻辑；底栏那颗地球仍在，点它再打开
+     键盘选择器（bindKbSwitchPage 里拦下它的布局切换动作，换成同一个选择器）。 */
+  function kbSwitchLovecoKeyboard(ctx) {
+    return `<div class="kbsw-loveco" aria-label="LoveCo 键盘（预览）">
+      <section class="keyboard">
+        ${LoveCoUI.render('kb-toolbar', ctx)}
+        <div class="kb-body">${LoveCoUI.render('kb-keys', ctx)}</div>
+        ${LoveCoUI.render('kb-navbar', ctx)}
+      </section>
+    </div>`;
+  }
+  /* 键盘选择器（长按地球弹出的那一张，设计截图 2）：白色圆角面板贴在键盘左上方、
+     带一层整页半透明遮罩，从下往上弹出。自上而下：「更多键盘设置…」/ 分隔线 /
+     两个键盘行（当前这一套右侧打勾）。设计截图里的「中文9键」「中文手写」按需求删除，
+     只留 LoveCo，另补一行**英文键盘**（样式即第一张图的系统英文键盘）；
+     面板底部按截图保留两枚装饰小图形（切换键盘 / 键盘设置），不给动作。 */
+  function kbSwitchPickerSheet() {
+    const glyph = window.LoveCoSystemGlyphs;
+    const loveco = state.permissions.ime === 'loveco';
+    const row = (label, id, on) => `<button class="kbsw-prow${on?' on':''}" data-action="kb-switch-pick:${id}" aria-pressed="${on}"><span>${label}</span>${on?`<i class="kbsw-check" aria-hidden="true">${icon('Check')}</i>`:''}</button>`;
+    return `<div class="kbsw-picker-layer">
+      <div class="kbsw-scrim" data-action="kb-switch-picker-close" aria-hidden="true"></div>
+      <div class="kbsw-picker" role="dialog" aria-modal="true" aria-label="切换键盘">
+        <button class="kbsw-prow kbsw-more" data-action="kb-switch-settings"><span>更多键盘设置…</span></button>
+        <div class="kbsw-sep" aria-hidden="true"></div>
+        ${row('LoveCo','loveco',loveco)}
+        ${row('英文键盘','system',!loveco)}
+        <div class="kbsw-picons" aria-hidden="true"><span>${glyph.globe}</span><span>${glyph.setKbd}</span></div>
+      </div>
+    </div>`;
+  }
+  /* 进入「切换到 LoveCo 键盘」这一页（引导流程的第二步、以及「更多键盘设置…」返回时都走它）：
+     先收起键盘选择器，并把底下那块 LoveCo 键盘预览复位成默认档（中文 26 键 / 字母层）——
+     它读的是键盘形态那套状态（state.language / layer / composition…），
+     带着别处的残留跳进来会长得不对。 */
+  function openKbSwitchPage() {
+    state.kbImeSwitch=false;
+    state.kbSwitchPicker=false;
+    state.language='zh';state.layer='letters';state.composition='';state.t9Path=0;state.typing=false;state.shift=false;
+    state.kbGuidePage='switch';
+    render();
+  }
+  /* 长按地球（或短按）：弹出键盘选择器 */
+  function openKbSwitchPicker() {
+    if(state.kbSwitchPicker)return;
+    state.kbSwitchPicker=true;render();
+  }
+  function closeKbSwitchPicker() {
+    if(!state.kbSwitchPicker)return;
+    state.kbSwitchPicker=false;render();
+  }
+  /* 在选择器里选一套键盘 = 在系统里把当前键盘切过去：落到 permissions.ime
+     （与左栏「设备权限 › 当前输入法」同一个状态）—— 下方那块键盘随之换成 LoveCo 键盘 /
+     系统英文键盘，提示胶囊与「完成」胶囊互换。选 LoveCo 必然已启用键盘，顺手补一句兜底。 */
+  function pickKbSwitch(id) {
+    const loveco = id==='loveco';
+    state.permissions.ime = loveco ? 'loveco' : 'system';
+    if(loveco) state.permissions.kbEnabled = true;
+    syncFullAccess();
+    state.kbSwitchPicker=false;
+    render();
+  }
+  /* 「更多键盘设置…」= 去模拟系统设置页（按运行平台那一版，见 appKbGuideScreen）——
+     从那儿按返回箭头退回时回到本页（guideBack 的第二步分支）。 */
+  function openKbSwitchSettings() {
+    state.kbSwitchPicker=false;
+    state.kbGuidePage='settings';
+    render();
   }
   /* 模拟鸿蒙「输入法」设置页（深色；2026-09-28 起这一版只服务鸿蒙引导 ——
      iOS 走 appGuideSettingsIos 那一套「LoveCo 键盘」页、安卓走 appGuideSettingsAndroid
@@ -1309,9 +1474,10 @@
       : ({home:'首页',account:'我的',profile:'个人资料',feedback:'反馈与建议','legal-list':'协议中心',partners:'聊天对象',simulator:'仿真控制台','kb-guide':'开启键盘','partner-edit':state.modalData&&state.modalData.id?'编辑聊天对象':'新增聊天对象'}[state.appScreen] || 'LoveCo');
     const content=appScreenContent();
     /* 引导流程的整页皮肤要连着状态栏一起换底色（引导页紫蓝、模拟设置 / 详情页黑、
-       安卓设置页浅色），给手机挂上对应 class，状态栏配色在 theme.css 里跟着走 */
+       安卓设置页浅色、切换到 LoveCo 键盘页白），给手机挂上对应 class，状态栏配色在 theme.css 里跟着走 */
     const guideCls = state.appScreen==='kb-guide'
       ? (state.kbGuidePage==='guide' ? ' guide-purple'
+        : state.kbGuidePage==='switch' ? ' guide-white'
         : (state.kbGuidePage==='settings' && state.platform==='android') ? ' guide-light' : ' guide-dark') : '';
     const scrollMemo = captureScrolls($('#app'));
     $('#app').innerHTML = `<div class="shell app-workspace">
@@ -1322,6 +1488,12 @@
     bind();
     /* 引导流程的演示动画：每次重建 DOM 后重新接一遍「拿到手势就开声音」（见 wireGuideVideos） */
     wireGuideVideos();
+    /* 「切换到 LoveCo 键盘」页的输入框**进来就是激活态**（2026-09-28 需求：不用先点一下才激活）——
+       渲染后把焦点直接交给它（光标在框里闪 = 激活态）；页面上点任何一处也把焦点还回来，
+       见 bindKbSwitchPage()（浮层与地球除外）。这一页只有这一个输入框，不会抢谁的焦点。 */
+    if (state.appScreen==='kb-guide' && state.kbGuidePage==='switch') {
+      $('#kb-switch-input')?.focus({preventScroll:true});
+    }
     document.querySelectorAll('.app-content input[id],.app-content textarea[id],.app-content select[id]').forEach(node=>{
       const cacheKey=state.modal+':'+(state.modalData.id||'')+':'+node.id;
       if(node.type==='checkbox'||node.id.startsWith('sim-'))return;
@@ -1975,13 +2147,15 @@
        键盘切换悬浮窗同理 —— 它挂在引导页上，换页不该跟着走 */
     state.appLegal=false;
     state.kbImeSwitch=false;
+    /* 键盘选择器（「切换到 LoveCo 键盘」页上的浮层）同理：换页不该跟着走 */
+    state.kbSwitchPicker=false;
     state.partnerPanel=false; state.settingsPanel=false; state.photoPanel=false; state.photoBack=''; dismissChatPanel();
     state.appView='app'; state.appScreen=screen; state.modal=screen; state.modalData=data; render();
     const focus = {feedback:'#feedback-text'}[screen];
     if(focus) setTimeout(()=>$(focus)?.focus({preventScroll:true}),30);
   }
   /* 返回键盘形态：从主 App 回来一律落在「键盘常驻」的底座上 —— 收起态只属于宿主会话里的一次收起动作 */
-  function returnKeyboard() { abortVoiceHold();dismissKbEditor();dismissFreeChat(); state.appLegal=false; state.kbCollapsed=false; state.partnerPanel=false; state.settingsPanel=false; state.photoPanel=false; state.photoBack=''; dismissChatPanel(); state.appView='keyboard'; state.appScreen=null; state.modal=null; state.modalData={}; state.kbGuidePage=''; state.kbImeSwitch=false; render(); }
+  function returnKeyboard() { abortVoiceHold();dismissKbEditor();dismissFreeChat(); state.appLegal=false; state.kbCollapsed=false; state.partnerPanel=false; state.settingsPanel=false; state.photoPanel=false; state.photoBack=''; dismissChatPanel(); state.appView='keyboard'; state.appScreen=null; state.modal=null; state.modalData={}; state.kbGuidePage=''; state.kbImeSwitch=false; state.kbSwitchPicker=false; render(); }
   /* —— 主 App 的进入检查（进入 / 切入主 App 时都要过一遍）——
      2026-09-28 按需求去掉「正在检查网络…」整页（连同那圈转动画）—— 进入主 App 不再先发仿真
      网络请求查联网状态，直接按状态检查链（见 appEntryGuards）走一遍：键盘权限 → 完全访问权限 →
@@ -2021,14 +2195,18 @@
      回到 App** —— 也就是「App 回到前台」那一刻：主 App 在这里重新校验一遍权限
      （2026-09-28 需求收尾：这枚返回箭头接管原左栏「模拟 › 返回主 App」按钮的校验职责，
      那枚按钮已按需求删除 —— 从系统页面回 App 的路径只剩这枚返回箭头与左下角悬浮窗）：
-     满足（键盘已启用；安卓还要当前输入法已切成 LoveCo，见 guideSatisfied）就完成引导回首页
-     （接着跑状态检查链后两环：完全访问 → 登录，见 finishGuide）；没满足就退回引导页接着做
-     —— 例外（2026-09-28 需求）：**退回引导页那一刻先检查一次键盘是否已启用**（真实设备上 App
-     回到前台也只能这时才知道），安卓下键盘已启用就切到第二步：引导页演示卡换成第二段视频，
-     并自动弹出键盘切换悬浮窗（当前输入法已是 LoveCo 就不弹了，没什么可切的）。 */
+     满足（键盘已启用 **且** 当前键盘已切成 LoveCo，见 guideSatisfied）就完成引导回首页
+     （接着跑状态检查链后两环：完全访问 → 登录，见 finishGuide）；没满足就落到该做的这一步
+     —— 例外（2026-09-28 需求）：**回到 App 那一刻先检查一次键盘是否已启用**
+     （真实设备上 App 回到前台也只能这时才知道），键盘已启用就切到第二步，落点按端分叉：
+     安卓在引导页上自动弹出键盘切换悬浮窗（当前输入法已是 LoveCo 就不弹了，没什么可切的）；
+     **iOS / 鸿蒙落到整页的「切换到 LoveCo 键盘」**（kbGuidePage='switch'，见 appGuideSwitch）——
+     两端系统里没有「当前输入法」这种东西，第二步的手感就是「长按键盘上的地球把键盘切过来」。
+     键盘还没启用则退回引导页接着做第一步。 */
   function guideBack() {
     if(state.kbGuidePage==='detail'){ state.kbGuidePage='settings'; return render(); }
     if(guideSatisfied()) return finishGuide();
+    if(state.platform!=='android' && state.permissions.kbEnabled) return openKbSwitchPage();
     state.kbGuidePage='guide';
     state.kbImeSwitch = state.platform==='android' && state.permissions.kbEnabled && state.permissions.ime!=='loveco';
     render();
@@ -2087,16 +2265,21 @@
      与第一个开关一样**只改设备状态**：不弹完全访问引导层、不完成引导（那发生在「回到 App」那一刻）。 */
   function toggleGuideFull() { state.permissions.keyboard=!state.permissions.keyboard; render(); }
   /* 悬浮窗（画中画）：点它 = 从系统设置**返回 LoveCo App** —— 这里重新校验一遍（guideSatisfied）：
-     键盘已启用（安卓还要当前输入法已切成 LoveCo）就直接关闭引导页、完成引导；
-     还差一步（安卓下键盘启用了但没切输入法）则退回引导页 —— 这时第一步已灰、
-     第二步高亮呼吸，接着做第二步。 */
-  function guidePipBack() { if(guideSatisfied()) return finishGuide(); state.kbGuidePage='guide'; render(); }
+     键盘已启用且当前键盘已切成 LoveCo 就直接关闭引导页、完成引导；
+     还差第二步（键盘启用了但键盘还没切过来）则按端落到第二步：安卓回引导页（那儿会亮着第二步
+     按钮，见 guideBack 的同一条判定）、iOS / 鸿蒙直接进「切换到 LoveCo 键盘」页。 */
+  function guidePipBack() {
+    if(guideSatisfied()) return finishGuide();
+    if(state.platform!=='android' && state.permissions.kbEnabled) return openKbSwitchPage();
+    state.kbGuidePage='guide'; render();
+  }
   /* 引导完成（从系统设置回到 App：设置页返回箭头 / 悬浮窗 / 切换悬浮窗选完输入法）：回主 App 首页 —— 引导只是过了状态检查链的第一环
      （键盘已启用），这里接着把后两环补完（完全访问权限 → 登录状态，见 appEntryGuards），
      都通过才真正停在首页上 */
   function finishGuide() {
     state.kbGuidePage='';
     state.kbImeSwitch=false;
+    state.kbSwitchPicker=false;
     state.appScreen='home'; state.modal='home'; state.modalData={};
     if(appEntryGuards())return;
     render();
@@ -2782,6 +2965,17 @@
   if(name==='kb-guide-ime-pick')return pickGuideIme(arg);
   if(name==='kb-guide-ime-close'){state.kbImeSwitch=false;return render();}
   if(name==='kb-guide-ime-switch')return switchGuideIme();
+  /* —— 「切换到 LoveCo 键盘」页（iOS / 鸿蒙引导第二步）的四个动作 ——
+     kb-switch-picker：弹出键盘选择器（长按 / 短按地球都由 bindKbSwitchPage 调它）；
+     kb-switch-picker-close：点遮罩收起（不改状态）；
+     kb-switch-pick:loveco / :system：在选择器里选一套键盘 = 在系统里把当前键盘切过去；
+     kb-switch-settings：去模拟系统设置页；kb-switch-done：完成引导（第二步的收尾，
+     只在条件已满足时生效 —— 见 guideSatisfied）。 */
+  if(name==='kb-switch-picker')return openKbSwitchPicker();
+  if(name==='kb-switch-picker-close')return closeKbSwitchPicker();
+  if(name==='kb-switch-pick')return pickKbSwitch(arg);
+  if(name==='kb-switch-settings')return openKbSwitchSettings();
+  if(name==='kb-switch-done'){if(!guideSatisfied())return render();return finishGuide();}
   if(name==='kb-guide-ime')return openGuideDetail();
   if(name==='kb-guide-back')return guideBack();
   if(name==='kb-guide-enable')return toggleGuideEnable();
@@ -3153,9 +3347,57 @@
       node.addEventListener('change',sync);
     });
   }
+  /* 「切换到 LoveCo 键盘」页（结构见 appGuideSwitch）的两处指针交互：
+     ① **地球**：长按 350ms 弹出键盘选择器（真机长按地球就是这个弹窗）；短按也给同一个出口
+        （宽容处理 —— 真机上短按是切下一个键盘，原型里给同一个出口，免得点了没反应）。
+        长按的定时器在 pointerup / 离开 / 取消时清掉；长按弹出后紧接着那次 click 丢弃（fired），
+        免得同一按弹两次（浮层打开时整页重渲染，节点已换，通常也收不到那次 click）。
+        节点上不挂 data-action（上面那轮通用绑定不接它），开关全在这里。
+     ② **输入框保持激活**：点页面上任何一处（键盘选择器那一层与地球除外）都把焦点还给
+        #kb-switch-input —— 这一页的输入框是「默认激活」的（见 renderApp 里的首帧聚焦），
+        点别处也不该让它看起来失活。LoveCo 键盘预览区的交互按需分流：
+        键区 / 菜单栏的指针事件被 CSS 关掉（那两块只是预览），底栏那颗地球与语音键在这里拦下 ——
+        地球换成同一个键盘选择器（不切中文布局），语音键不做事（预览里不接语音）。
+     bind() 在每个形态的每次渲染后都会调它；不在这一页时选择器查不到节点，整段空跑。 */
+  function bindKbSwitchPage() {
+    const globe = $('.kbsw-globe');
+    if (globe) {
+      let timer = null, fired = false;
+      const cancel = () => { clearTimeout(timer); timer = null; };
+      globe.addEventListener('pointerdown', (e) => {
+        if (e.button) return;
+        e.preventDefault();
+        fired = false;
+        timer = setTimeout(() => { timer = null; fired = true; openKbSwitchPicker(); }, 350);
+      });
+      ['pointerup','pointerleave','pointercancel'].forEach(ev => globe.addEventListener(ev, cancel));
+      globe.addEventListener('click', () => { if (fired) { fired = false; return; } openKbSwitchPicker(); });
+    }
+    /* LoveCo 键盘预览的底栏（真键盘组件）：地球拦成「打开键盘选择器」、语音键不带任何动作 ——
+       挂在预览根节点上按**捕获**阶段拦截，先于通用绑定在目标节点上的 click 处理器 */
+    const preview = $('.kbsw-loveco');
+    if (preview) {
+      preview.addEventListener('pointerdown', e => {
+        if (e.target.closest('.kb-sysbar [data-voice-hold]')) { e.preventDefault(); e.stopPropagation(); }
+      }, true);
+      preview.addEventListener('click', e => {
+        const key = e.target.closest('.kb-sysbar [data-action="switch-keyboard"]');
+        if (!key) return;
+        e.preventDefault(); e.stopPropagation();
+        openKbSwitchPicker();
+      }, true);
+    }
+    const page = $('.kbsw-page');
+    if (page) page.addEventListener('click', (e) => {
+      if (e.target.closest('.kbsw-picker-layer') || e.target.closest('.kbsw-globe')) return;
+      const input = $('#kb-switch-input');
+      if (input && document.activeElement !== input) input.focus({preventScroll:true});
+    });
+  }
   function bind() {
     document.querySelectorAll('[data-action]').forEach(node=>node.addEventListener('click',()=>action(node.dataset.action)));
     bindKbLoginInputs();
+    bindKbSwitchPage();
     /* 按住说话（语音入口全部改为 pointer 按住，不再有点击弹层）：
        pointerdown 即开始「录音」（遮罩由 render 输出），preventDefault 压掉文本选择 / 拖拽；
        后续 move / up 由 window 级监听接管（见 beginVoiceHold），按钮上不挂任何 click 动作。
@@ -3379,8 +3621,9 @@
     /* Esc：主 App 协议覆盖层 / 键盘协议正文页 / 完全访问引导层 / 键盘内登录层压在最上层（后两层互斥），
        先关它们；其次聊天分析面板（生成中=取消本次生成），再轮到各覆盖层 */
     if(e.key==='Escape'){if(state.paymentBusy)return;
-      /* 主 App 的「开启键盘」引导是流程整页：Esc 不提供出口（引导流程只能走自己的返回 / 完成动作） */
-      if(state.appView==='app'&&state.appScreen==='kb-guide')return;
+      /* 主 App 的「开启键盘」引导是流程整页：Esc 不提供出口（引导流程只能走自己的返回 / 完成动作）——
+         「切换到 LoveCo 键盘」页上的键盘选择器是这一页自己的浮层，Esc 先把这一层收掉 */
+      if(state.appView==='app'&&state.appScreen==='kb-guide'){if(state.kbSwitchPicker){state.kbSwitchPicker=false;render();}return;}
       if(state.appLegal){state.appLegal=false;render();return;}if(state.kbLegal){closeKbLegal();render();return;}if(state.kbLogin){closeKbLogin();render();return;}if(state.kbFullAccess){closeKbFullAccess();render();return;}if(state.kbPaywall){closeKbPaywall();render();return;}if(state.modal)closeModal();else if(state.chatPanel)closeChatAnalysis();else if(state.scanPanel)finishScan();else if(state.photoPanel)closePhotoPanel();else if(state.settingsPanel){state.settingsPanel=false;render();}else if(state.kbEditor){closeKbEditor();render();}else if(state.partnerPanel){state.partnerPanel=false;render();}else if(state.freePicker){closeFreePicker();}else if(state.freeChat){closeFreeChat();}else if(state.pending)cancelAI();return;}
     if(e.key==='Tab'&&state.modal){
       const nodes=[...document.querySelectorAll('.sheet button:not(:disabled),.sheet input,.sheet textarea,.sheet select,.sheet a[href]')].filter(n=>n.offsetParent!==null);

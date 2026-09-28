@@ -2276,7 +2276,8 @@ html[data-view="device"] .sheet-footer {
 .hz-switch.on i { left: 23px; }
 .hz-row-late { animation: kg-fadein 0.25s ease; }
 @keyframes kg-fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
-/* 左下角视频悬浮窗（画中画）：同一支演示视频缩成小窗循环播；启用后浮现绿色对勾与返回提示 */
+/* 左下角视频悬浮窗（画中画）：同一支演示视频缩成小窗**只播一次、不循环**（2026-09-28 需求，
+   播完停在末帧）；启用后浮现绿色对勾与返回提示 */
 .hz-pip { position: absolute; left: 12px; bottom: 18px; width: 118px; padding: 0; border: 0; border-radius: 14px; overflow: hidden; background: #F4F6F8; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5); }
 .hz-pip video { display: block; width: 100%; }
 .hz-pip.done { cursor: pointer; }
@@ -2388,3 +2389,78 @@ html[data-view="device"] .sheet-footer {
 .ie-row .ie-check { display: flex; }
 .ie-row .ie-check svg { width: 17px; height: 17px; }
 .ie-sep { height: 1px; margin: 10px 8px 0; background: #E7E7EB; }
+
+/* ---- 「切换到 LoveCo 键盘」页（2026-09-28，iOS / 鸿蒙「开启键盘」引导的第二步）----
+   整页白底（状态栏一起转白，`.guide-white` 由 renderApp 挂），自上而下三段：
+   ① 循环播放的演示动画（素材未到，先摆占位卡）；② LoveCo 页面的输入框（进来就是激活态）；
+   ③ **当前正在使用的键盘**（高 = --lc-keyboard-height —— 与真实键盘同高，换键盘时页面不跳）：
+      系统英文键盘（.kbsw-sys，1:1 照设计截图用 CSS 画）或 LoveCo 键盘（.kbsw-loveco，
+      直接把项目里的真键盘摆进来当预览）。
+   长按地球弹出的键盘选择器（.kbsw-picker）盖在整页之上（一层半透明遮罩）。
+   所有类名统一用 kbsw- 前缀（页面内部自成一体的皮肤，不进通用令牌体系）。 */
+.app-phone.guide-white { background: #FFFFFF; }
+.app-phone.guide-white > .statusbar { background: #FFFFFF; color: #191919; }
+.app-phone.guide-white .app-main { width: 100%; padding: 0; }
+.kbsw-page { position: relative; height: 100%; display: flex; flex-direction: column; background: #fff; color: #191919; }
+/* ① 演示视频：占满输入框以上的整块余高（占位卡与素材到位后的 video 同一块位置） */
+.kbsw-video { flex: 1 1 auto; min-height: 0; display: flex; padding: 12px 12px 8px; }
+.kbsw-video-card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; border: 1px solid #ECECF2; border-radius: 14px; background: #F4F4F8; color: #A0A0AC; text-align: center; }
+.kbsw-video-card svg { width: 26px; height: 26px; }
+.kbsw-video-card strong { font-size: 12.5px; font-weight: 600; color: #8A8A96; }
+.kbsw-video-card span { font-size: 10.5px; }
+/* ② LoveCo 页面的输入框：整宽、白底 + 浅灰描边 + 一层淡投影；进来由 app.js 聚焦（激活态） */
+.kbsw-input-row { flex: 0 0 auto; padding: 4px 12px 10px; }
+.kbsw-input { width: 100%; height: 38px; padding: 0 12px; border: 1px solid #E6E6EE; border-radius: 10px; background: #fff; color: #1B1B24; font-size: 14px; box-shadow: 0 1px 2px #2621320D; caret-color: #1B1B24; }
+.kbsw-input::placeholder { color: #B4B4BF; }
+.kbsw-input:focus { outline: none; border-color: #D9D9E4; }
+/* ③ 键盘区：与真实键盘同高（切换键盘时页面不跳），选择器与完成胶囊都定位在这一块里 */
+.kbsw-kb { position: relative; flex: 0 0 auto; height: var(--lc-keyboard-height); }
+/* 系统英文键盘：iOS 浅色外观（键盘底 #D3D6DD、白键、灰色功能键、done 蓝底白字），
+   自上而下候选词行 + qwerty 三排 + 123 / space / done + 地球 / 提示胶囊 / 麦克风 —— 五行等分键区 */
+.kbsw-sys { height: 100%; display: flex; flex-direction: column; padding: 0 3px 4px; background: #D3D6DD; }
+.kbsw-suggest { flex: 0 0 38px; display: flex; margin: 0 -3px; background: #fff; border-bottom: 1px solid #C7CAD2; }
+.kbsw-suggest span { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 15px; color: #17181D; }
+.kbsw-suggest span + span { border-left: 1px solid #D8DAE1; }
+.kbsw-row { flex: 1 1 0; min-height: 0; display: flex; gap: 6px; padding-top: 6px; }
+.kbsw-inset { padding-left: 17px; padding-right: 17px; }
+.kbsw-key { flex: 1 1 0; min-width: 0; display: flex; align-items: center; justify-content: center; border-radius: 5px; background: #fff; color: #17181D; font-size: 15px; box-shadow: 0 1px 0 #A9ADB7; }
+.kbsw-key svg { width: 17px; height: 17px; }
+.kbsw-func { flex: 1.5 1 0; background: #AEB3BD; color: #fff; box-shadow: 0 1px 0 #8E939D; }
+.kbsw-space { flex: 4.6 1 0; font-size: 14px; }
+.kbsw-go { flex: 1.6 1 0; background: #3D7BF7; color: #fff; box-shadow: 0 1px 0 #2F63CE; font-size: 14px; }
+/* 底行：地球（唯一可交互的键 —— 长按弹键盘选择器）+ 提示胶囊（指着地球，呼吸动画）+ 麦克风 */
+.kbsw-globe, .kbsw-mic { flex: 0 0 34px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: #4A4C55; }
+.kbsw-globe { cursor: pointer; border-radius: 7px; touch-action: none; }
+.kbsw-globe:hover { background: #C4C8D1; }
+.kbsw-globe svg, .kbsw-mic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; }
+.kbsw-hint { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; gap: 5px; margin: 0 8px; border-radius: 8px; background: linear-gradient(#8E88F2, #7B74E8); color: #fff; font-size: 12px; font-weight: 600; box-shadow: 0 2px 7px #6E66E640; animation: kbsw-breathe 1.6s ease-in-out infinite; }
+.kbsw-hint i, .kbsw-hint svg { display: flex; width: 14px; height: 14px; }
+.kbsw-hint svg { fill: none; stroke: currentColor; }
+@keyframes kbsw-breathe {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.035); }
+}
+/* LoveCo 键盘（已切换形态）：真键盘组件直接摆进来当预览 —— 高度沿用 --lc-keyboard-height；
+   键区与菜单栏只是「图片」（关掉指针事件），底栏那颗地球仍在（点它打开键盘选择器，见 bindKbSwitchPage） */
+.kbsw-loveco { height: 100%; }
+.kbsw-loveco .keyboard { height: 100%; }
+.kbsw-loveco .kb-toolbar, .kbsw-loveco .kb-body { pointer-events: none; }
+/* 完成胶囊（切到 LoveCo 后浮在键盘底栏中间）：引导页主按钮同款黑胶囊 + 呼吸动画 */
+.kbsw-done { position: absolute; left: 0; right: 0; bottom: 5px; margin: 0 auto; width: fit-content; display: flex; align-items: center; gap: 6px; min-height: 26px; padding: 0 16px; border: 0; border-radius: 999px; background: #0C0C10; color: #fff; font-size: 12.5px; font-weight: 600; cursor: pointer; box-shadow: 0 4px 12px #0C0C1040; animation: kbsw-breathe 1.6s ease-in-out infinite; }
+.kbsw-done svg { width: 13px; height: 13px; }
+/* 键盘选择器（长按地球弹出，设计截图 2）：整页一层半透明遮罩 + 白色圆角面板贴在键盘左上方
+   （面板底边落在键盘底行上沿：--lc-keyboard-height 减掉底行那一档 ≈ 46px），从下往上弹出 */
+.kbsw-picker-layer { position: absolute; inset: 0; z-index: 6; }
+.kbsw-scrim { position: absolute; inset: 0; background: rgba(12, 10, 26, 0.18); }
+.kbsw-picker { position: absolute; left: 8px; bottom: calc(var(--lc-keyboard-height) - 46px); width: 208px; padding: 6px 6px 8px; border-radius: 14px; background: #fff; color: #191919; box-shadow: 0 14px 34px rgba(20, 16, 40, 0.28); animation: picker-up 0.24s cubic-bezier(.32, .72, 0, 1) both; }
+.kbsw-prow { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; padding: 0 12px; border: 0; border-radius: 8px; background: none; color: #191919; font-size: 15px; text-align: left; cursor: pointer; }
+.kbsw-prow:hover { background: #F2F2F6; }
+.kbsw-prow.on { font-weight: 600; }
+.kbsw-prow .kbsw-check { display: flex; color: #191919; }
+.kbsw-prow .kbsw-check svg { width: 16px; height: 16px; }
+.kbsw-more { min-height: 42px; }
+.kbsw-sep { height: 1px; margin: 4px 8px; background: #E7E7EB; }
+/* 面板底部两枚装饰小图形（切换键盘 / 键盘设置，无动作）——按设计截图保留 */
+.kbsw-picons { display: flex; gap: 10px; margin: 8px 8px 0; padding-top: 8px; border-top: 1px solid #E7E7EB; color: #6B6B75; }
+.kbsw-picons span { display: flex; }
+.kbsw-picons svg { width: 16px; height: 16px; fill: none; stroke: currentColor; }
