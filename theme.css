@@ -2208,14 +2208,17 @@ html[data-view="device"] .sheet-footer {
   html[data-view="device"] .kb-partner-editor .pe-field select { min-height: 30px; padding: 4px 9px; font-size: 12px; border-radius: 7px; }
 }
 
-/* ---- 主 App「开启键盘」引导流程（2026-09-27，鸿蒙版；安卓 / iOS 待后续需求）----
-   三块整页（无底部 Tab）：引导页（紫蓝）/ 模拟鸿蒙设置页与 LoveCo 详情页（深色）。
-   整页皮肤连着状态栏一起换底色：手机根元素上的 .guide-purple / .guide-dark 由 renderApp 挂。 */
+/* ---- 主 App「开启键盘」引导流程（2026-09-27，鸿蒙版；安卓 / iOS 已按需求补入）----
+   整页（无底部 Tab）：引导页（紫蓝）/ 模拟系统设置页与详情页（鸿蒙 · iOS 深色、
+   安卓设置页浅色）。整页皮肤连着状态栏一起换底色：手机根元素上的
+   .guide-purple / .guide-dark / .guide-light 由 renderApp 挂。 */
 .app-phone.guide-purple { background: #5B68F5; }
 .app-phone.guide-dark { background: #0B0B0C; }
+.app-phone.guide-light { background: #F2F2F6; }
 .app-phone.guide-purple > .statusbar { background: #5B68F5; color: #fff; }
 .app-phone.guide-dark > .statusbar { background: #0B0B0C; color: #fff; }
-.app-phone.guide-purple .app-main, .app-phone.guide-dark .app-main { width: 100%; padding: 0; }
+.app-phone.guide-light > .statusbar { background: #F2F2F6; color: #191919; }
+.app-phone.guide-purple .app-main, .app-phone.guide-dark .app-main, .app-phone.guide-light .app-main { width: 100%; padding: 0; }
 
 /* 引导页（紫蓝整页）：白圆角大卡播演示动画 + 一行说明 + 黑胶囊按钮（一至两颗）。
    元素**整体上下居中**（2026-09-27 按其反馈调，此前挤在顶部、下面一大片留白）：
@@ -2333,3 +2336,34 @@ html[data-view="device"] .sheet-footer {
 .ios-set-note-line { display: flex; gap: 6px; }
 .ios-set-note-line + .ios-set-note-line { margin-top: -3px; }
 .ios-set-num { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; width: 15px; height: 15px; margin-top: 2.5px; border-radius: 50%; background: #E8E8ED; color: #1C1C1E; font-size: 10px; font-style: normal; font-weight: 700; }
+
+/* ---- 模拟安卓（小米 HyperOS 风格）系统「设置 › 输入法」页（2026-09-28，主 App「开启键盘」引导流程的安卓版设置页）----
+   与鸿蒙 / iOS 两版都不同：浅灰底（#F2F2F6）+ 白色圆角卡片 + 两段灰色分组标题。
+   分组 ①「官方输入法」只留「讯飞输入法」（静态展示，开关不参与任何状态）；
+   分组 ②「其他输入法」只放「LoveCo 输入法」—— 右侧开关默认关、即 permissions.kbEnabled
+   （按需求「暂不做切换」：开关只管启用，「切换到 LoveCo 输入法」的落点待后续需求）。
+   整页浅色，状态栏连着一起转浅（.app-phone.guide-light 由 renderApp 挂，见上方引导流程区块）。 */
+.mi-page { background: #F2F2F6; color: #191919; padding: 0 0 26px; }
+.mi-top { display: flex; flex-direction: column; gap: 2px; padding: 6px 8px 10px; }
+.mi-back { width: 40px; height: 40px; border: 0; border-radius: 50%; background: none; color: #191919; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.mi-back svg { width: 19px; height: 19px; }
+.mi-top h1 { font-size: 27px; font-weight: 700; padding: 0 12px; letter-spacing: 0.3px; }
+.mi-label { margin: 14px 20px 8px; font-size: 13px; color: #8C8C92; }
+.mi-card { margin: 0 10px; border-radius: 16px; background: #fff; overflow: hidden; }
+.mi-card + .mi-label { margin-top: 22px; }
+.mi-row { display: flex; align-items: center; gap: 12px; min-height: 62px; padding: 8px 14px; }
+.mi-ic { flex: 0 0 auto; width: 40px; height: 40px; }
+/* 讯飞：蓝底圆形 + 白色 iFLY 斜体字样（按截图那枚标画）；LoveCo：设计给的方形图标（自带蓝底） */
+.mi-ifly { display: flex; align-items: center; justify-content: center; border-radius: 50%; background: #1677FF; color: #fff; font-size: 10.5px; font-weight: 800; font-style: italic; letter-spacing: 0.2px; }
+.mi-app { display: block; border-radius: 12px; object-fit: cover; }
+.mi-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.mi-name { font-size: 16px; color: #191919; }
+.mi-sub { font-size: 12px; color: #9A9AA0; }
+/* MIUI 式开关（蓝底白钮，45×26）：.is-static 那颗（讯飞）不可点、是纯状态展示 */
+.mi-switch { position: relative; flex: 0 0 auto; margin-left: auto; width: 45px; height: 26px; padding: 0; border: 0; border-radius: 13px; background: #DCDCE0; cursor: pointer; transition: background 0.2s; }
+.mi-switch i { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18); transition: left 0.2s; }
+.mi-switch.on { background: #3482FF; }
+.mi-switch.on i { left: 22px; }
+.mi-switch.is-static { cursor: default; }
+/* 左下角视频悬浮窗落在浅色页上：投影比深色页淡一档 */
+.mi-page .hz-pip { box-shadow: 0 10px 26px rgba(38, 33, 50, 0.22); }
