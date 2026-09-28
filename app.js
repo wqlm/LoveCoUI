@@ -520,10 +520,10 @@
        按运行平台取（目前只有鸿蒙一支，其余端回落，见 app.js 的 GUIDE_VIDEOS）；
        鸿蒙 / iOS 是一步形态（一颗按钮），**安卓是两步形态**（两颗按钮 —— 键盘启用后再切换
        当前输入法，见 appGuideHome / guideStepState）；模拟设置页 / 详情页三端暂共用鸿蒙样式。 */
-    {id:'kb-guide',name:'开启键盘 · 引导页(鸿蒙)',route:'/kb-guide?platform=harmony',trigger:'进入主 App：启动闸门的网络检查通过后，检测到键盘未开启（左栏「设备权限 › 开启键盘」关闭）；本列表点入（切到鸿蒙，并现场把「开启键盘」置成关，不落库）',desc:'紫蓝色整页（无底部 Tab 栏），**全页元素整体上下居中**（不挤在顶部；内容比屏高时自然从头排、可滚动），自上而下：① 中央白色大圆角卡内嵌**演示动画视频**（自动静音循环轮播 —— 鸿蒙版素材 assets/Enable LoveCo Keyboard HarmonyOS.mp4，画面即「在输入法管理中启用 LoveCo」的操作演示）；② 卡下一行白色小字说明「在「输入法」管理中，启用LoveCo输入法」（不写「第1步」）；③ 黑色胶囊主按钮「启用LoveCo输入法 →」—— 整颗**持续放大缩小、一闪一闪**地引导点击（kg-breathe：1.6s 一个来回，scale 1 ↔ 1.045 配深蓝呼吸投影），点它进模拟鸿蒙设置页。鸿蒙引导页只有这一颗按钮（原「切换到LoveCo输入法」幽灵按钮已按需求删除；安卓版是**两步两颗按钮**的另一套形态，见 kb-guide-android）：完成引导改由「从系统设置返回 App」触发 —— 在设置里打开「启用LoveCo」后，点左下角视频悬浮窗即完成引导回首页',note:'整页落在 appScreen=kb-guide 上，正文与状态栏连成一片紫蓝（状态栏文字转白）；Esc 不提供出口，只能走页面自身的按钮与返回'},
+    {id:'kb-guide',name:'开启键盘 · 引导页(鸿蒙)',route:'/kb-guide?platform=harmony',trigger:'进入主 App：启动闸门的网络检查通过后，检测到键盘未开启（左栏「设备权限 › 开启键盘」关闭）；本列表点入（切到鸿蒙，并现场把「开启键盘」置成关，不落库）',desc:'紫蓝色整页（无底部 Tab 栏），**全页元素整体上下居中**（不挤在顶部；内容比屏高时自然从头排、可滚动），自上而下：① 中央白色大圆角卡内嵌**演示动画视频**（循环播、**带声音** —— 素材自带音轨，只是浏览器禁止「有声音的自动播放」，所以先静音起播、拿到用户手势（页面上点过任何一处即算）随即开声音，见 app.js 的 wireGuideVideos；鸿蒙版素材 assets/Enable LoveCo Keyboard HarmonyOS.mp4，画面即「在输入法管理中启用 LoveCo」的操作演示）；② 卡下一行白色小字说明「在「输入法」管理中，启用LoveCo输入法」（不写「第1步」）；③ 黑色胶囊主按钮「启用LoveCo输入法 →」—— 整颗**持续放大缩小、一闪一闪**地引导点击（kg-breathe：1.6s 一个来回，scale 1 ↔ 1.045 配深蓝呼吸投影），点它进模拟鸿蒙设置页。鸿蒙引导页只有这一颗按钮（原「切换到LoveCo输入法」幽灵按钮已按需求删除；安卓版是**两步两颗按钮**的另一套形态，见 kb-guide-android）：完成引导改由「从系统设置返回 App」触发 —— 在设置里打开「启用LoveCo」后，点左下角视频悬浮窗即完成引导回首页',note:'整页落在 appScreen=kb-guide 上，正文与状态栏连成一片紫蓝（状态栏文字转白）；Esc 不提供出口，只能走页面自身的按钮与返回'},
     {id:'kb-guide-android',name:'开启键盘 · 引导页(安卓)',route:'/kb-guide?platform=android',trigger:'进入主 App：启动闸门的网络检查通过后，检测到键盘未开启；本列表点入（切到 Android，并现场把「开启键盘」置成关、当前输入法复位成系统默认，不落库）',desc:'与「开启键盘 · 引导页(鸿蒙)」共用同一条渲染链路 appGuideHome（拆条是为了分头补各端差异），但安卓是**两颗按钮的两步形态**（2026-09-27 起）：紫蓝整页、白圆角大卡循环播演示动画（安卓素材未提供前回落鸿蒙那支，GUIDE_VIDEOS 里还没有 android 键）、一行说明「在「输入法」管理中，启用LoveCo输入法」、元素整体上下居中。按钮自上而下：① 黑胶囊「**第一步 启用LoveCo输入法 →**」；② 同款黑胶囊「**第二步 切换到LoveCo输入法 →**」。两颗**状态互斥、只有轮到的那颗亮**（kg-breathe 持续放大缩小、一闪一闪；没轮到的那颗置灰、不可点、不跳动，见 .kb-guide-btn:disabled）：键盘未启用（左栏「设备权限 › 开启键盘」关闭）时第一步亮、第二步灰 —— 点第一步进模拟设置页启用键盘；**键盘已启用但「当前输入法」还不是 LoveCo 时**（安卓系统不允许 App 直接切输入法，得由用户自己走这一步），第一步置灰、第二步亮 —— 点第二步同样进模拟设置页，把「默认输入法」行切成 LoveCo；两步都完成即离开引导页、直接回主 App 首页（判定见 guideStepState / guideSatisfied）。平台外观随运行平台（Android 无平台底栏、状态栏圆点挖孔）；模拟设置页 / 详情页三端暂共用鸿蒙样式',note:'「当前输入法」在左栏「设备权限」里也能手动切（系统默认 / LoveCo，默认系统默认）—— 选 LoveCo 会顺带把「开启键盘」打开；反向关掉「开启键盘」则当前输入法复位成系统默认。素材补齐后往 GUIDE_VIDEOS 加 android 键；系统设置页要按端分叉时（安卓设置页外观与鸿蒙不同），再走 platform 分支'},
     {id:'kb-guide-ios',name:'开启键盘 · 引导页(ios)',route:'/kb-guide?platform=ios',trigger:'进入主 App：启动闸门的网络检查通过后，检测到键盘未开启；本列表点入（切到 iOS，并现场把「开启键盘」置成关，不落库）',desc:'与「开启键盘 · 引导页(鸿蒙)」**同一形态**（拆成三端条目是为了分头补各端差异，共用同一条渲染链路 appGuideHome）：紫蓝整页、白圆角大卡循环播演示动画、一行说明「在「输入法」管理中，启用LoveCo输入法」、唯一黑胶囊主按钮（kg-breathe 呼吸动画；iOS 一步完成，**安卓版是两步两颗按钮**，见 kb-guide-android）、元素整体上下居中。**iOS 差异（待补）**：演示动画素材按平台取 —— iOS 素材未提供前**回落到鸿蒙那支**（GUIDE_VIDEOS 里还没有 ios 键）；模拟设置页 / 详情页三端暂共用鸿蒙样式；平台外观随运行平台（状态栏药丸挖孔 / 灵动岛、键盘底栏是地球 + 语音输入）',note:'素材补齐后往 GUIDE_VIDEOS 加 ios 键；系统设置页要按端分叉时（iOS 设置页外观与鸿蒙不同），再走 platform 分支'},
-    {id:'kb-guide-settings',name:'开启键盘 · 模拟鸿蒙设置（输入法）',route:'引导页 ›「第一步 启用LoveCo输入法」/「第二步 切换到LoveCo输入法」（模拟系统设置）',trigger:'引导页点任一步按钮（第一步、第二步同一个落点）；本列表点入',desc:'模拟鸿蒙系统「输入法」设置页的**深色整页**：顶部圆形返回钮 + 大标题「输入法」；「输入法管理」灰色小标题；第一张深色卡片「默认输入法 | 小艺输入法 ▾」——**这一行可点**（LoveCo 已启用后点它在「小艺输入法」与「LoveCo」之间来回切，= 安卓引导第二步在系统里的落点，见 switchGuideIme；LoveCo 还没启用时整行不可点、压暗 —— 真实系统里未启用的输入法也选不了），右侧值随当前输入法变化；第二张卡片是输入法列表 —— **小艺输入法**（蓝色勾选圈 + 折角箭头，已启用）与 **LoveCo**（空心圈，右侧「未启用 ›」，启用后改「已启用」）。设计稿里其它几个第三方输入法按需求不渲染（除小艺外全部删掉，只留 LoveCo）。**左下角悬浮窗**（画中画）：同一支演示视频缩成小窗循环播放，「启用LoveCo」打开后浮现绿色对勾与「完成后返回LoveCo App」小字 —— 点它 = 从系统设置**返回 LoveCo App**：重新校验（安卓要求键盘已启用**且**当前输入法已切成 LoveCo，见 guideSatisfied），都通过就关闭引导页（完成引导，进主 App 首页）；安卓下只启用了键盘、还没切输入法就退回引导页 —— 这时第一步已灰、第二步亮着等点击。点 LoveCo 行进它的详情页',note:'返回箭头回引导页（若两步已齐则直接完成引导、回首页，不停在「两颗按钮都灰」的死状态）；「默认输入法」行的切换本身不结束引导 —— 完成仍在点悬浮窗 / 返回箭头那一刻校验'},
+    {id:'kb-guide-settings',name:'开启键盘 · 模拟鸿蒙设置（输入法）',route:'引导页 ›「第一步 启用LoveCo输入法」/「第二步 切换到LoveCo输入法」（模拟系统设置）',trigger:'引导页点任一步按钮（第一步、第二步同一个落点）；本列表点入',desc:'模拟鸿蒙系统「输入法」设置页的**深色整页**：顶部圆形返回钮 + 大标题「输入法」；「输入法管理」灰色小标题；第一张深色卡片「默认输入法 | 小艺输入法 ▾」——**这一行可点**（LoveCo 已启用后点它在「小艺输入法」与「LoveCo」之间来回切，= 安卓引导第二步在系统里的落点，见 switchGuideIme；LoveCo 还没启用时整行不可点、压暗 —— 真实系统里未启用的输入法也选不了），右侧值随当前输入法变化；第二张卡片是输入法列表 —— **小艺输入法**（蓝色勾选圈 + 折角箭头，已启用）与 **LoveCo**（空心圈，右侧「未启用 ›」，启用后改「已启用」）。设计稿里其它几个第三方输入法按需求不渲染（除小艺外全部删掉，只留 LoveCo）。**左下角悬浮窗**（画中画）：同一支演示视频缩成小窗循环播放（**带声音**，与引导页大卡同一套处理，见 wireGuideVideos），「启用LoveCo」打开后浮现绿色对勾与「完成后返回LoveCo App」小字 —— 点它 = 从系统设置**返回 LoveCo App**：重新校验（安卓要求键盘已启用**且**当前输入法已切成 LoveCo，见 guideSatisfied），都通过就关闭引导页（完成引导，进主 App 首页）；安卓下只启用了键盘、还没切输入法就退回引导页 —— 这时第一步已灰、第二步亮着等点击。点 LoveCo 行进它的详情页',note:'返回箭头回引导页（若两步已齐则直接完成引导、回首页，不停在「两颗按钮都灰」的死状态）；「默认输入法」行的切换本身不结束引导 —— 完成仍在点悬浮窗 / 返回箭头那一刻校验'},
     {id:'kb-guide-detail',name:'开启键盘 · LoveCo 详情（双开关）',route:'模拟设置 › LoveCo 行（模拟系统设置）',trigger:'模拟鸿蒙设置页点「LoveCo」行；本列表点入',desc:'LoveCo 输入法在系统设置里的详情页（深色整页）：顶部圆形返回钮 + 大标题「LoveCo」，下方一张深色卡片放两个开关行 —— ①「启用LoveCo」：**默认关**，蓝色鸿蒙样式开关，打开即键盘启用（与左栏「开启键盘」是同一个开关 permissions.kbEnabled）；②「完整体验模式」：**第一个开关打开之后才显现**（默认关，显现带淡入）。左下角同一颗视频悬浮窗：启用后浮现绿色对勾与「完成后返回LoveCo App」，点它 = 返回 LoveCo App 并重新校验权限（安卓要求当前输入法也已切到 LoveCo）—— 通过就关闭引导页（完成引导，回主 App 首页）；走返回箭头则逐级退回模拟设置页 / 引导页',note:'「启用LoveCo」关掉即回到未启用态（第二个开关随之隐藏、悬浮窗对勾消失），同时把「当前输入法」复位成系统默认（未启用的键盘不可能当当前输入法）；返回箭头回模拟设置页'},
   ];
   function pageCatalog() { return state.appView==='app' ? APP_PAGES : KB_PAGES; }
@@ -928,6 +928,32 @@
      同一支视频在引导页中央大卡与设置页 / 详情页左下角的悬浮窗（画中画）里循环播。 */
   const GUIDE_VIDEOS = { harmony: 'assets/Enable LoveCo Keyboard HarmonyOS.mp4' };
   function guideVideo() { return GUIDE_VIDEOS[state.platform] || GUIDE_VIDEOS.harmony; }
+  /* 演示动画**带声音**播（素材自带音轨：立体声 44.1kHz，见 README 文件结构）。
+     但浏览器不允许「有声音的自动播放」—— 标签上直接去掉 muted 的话画面根本不播（更糟），
+     所以 video 标签仍是 autoplay muted：先按静音起播保证画面在动，拿到用户手势后再摘掉静音。
+     手势不用特意去点视频：页面上点过任何一处（页面列表、按钮、左栏开关…）就算数
+     （Chrome 等按 navigator.userActivation.hasBeenActive 判定「与这个域名交互过」）；
+     全程没被点过（例如直接开带 screen=kb-guide 的链接）就先静音循环，等首次点击 / 按键补上
+     （guideSoundArmed 只挂一次全局监听）。被浏览器拦住时 unmuteGuideVideos 会自动退回静音。
+     innerHTML 重建会把 video 节点整个换掉，所以每次 renderApp 后都要重新接一遍。 */
+  let guideSoundArmed = false;
+  function guideVideoNodes() { return [...document.querySelectorAll('.kb-guide-video-card video, .hz-pip video')]; }
+  function unmuteGuideVideos() {
+    guideVideoNodes().forEach(v => {
+      if (!v.muted) { v.play().catch(() => {}); return; }
+      v.muted = false;
+      /* 仍被拦（没有用户手势）：退回静音接着播，别把画面停住 */
+      v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
+    });
+  }
+  function wireGuideVideos() {
+    if (!guideVideoNodes().length) return;
+    /* 拿不到 userActivation（老浏览器）时当作「已交互」直接试一次，被拦会自动退回静音 */
+    if (navigator.userActivation ? navigator.userActivation.hasBeenActive : true) unmuteGuideVideos();
+    if (guideSoundArmed) return;
+    guideSoundArmed = true;
+    ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, unmuteGuideVideos, { once: true, capture: true }));
+  }
   /* 安卓两步引导的状态（appGuideHome 的两颗按钮共用）：
      step1 = 第一步「启用LoveCo输入法」还可点（键盘未启用）；step2 = 第二步「切换到LoveCo输入法」
      还可点（安卓专属：键盘已启用、但系统当前输入法还不是 LoveCo）。为 false 的那一颗置灰、
@@ -1096,6 +1122,8 @@
         <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbLogin?LoveCoUI.render('kb-login', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}</div>${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${state.appLegal?legalSheet('app-legal-close'):''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div><button class="icon-btn" title="仿真设置" aria-label="仿真设置" data-action="simulator">${icon('Monitor')}</button><button class="icon-btn" title="重置会话" aria-label="重置会话" data-action="reset">${icon('RefreshLeft')}</button></div></section><aside class="rail right-rail">${pageListSection()}<div class="rail-section"><div class="eyebrow">APP STATE</div><div class="kv"><span>App形态</span><strong>主 App 模式</strong></div><div class="kv"><span>当前页面</span><strong>${esc(title)}</strong></div><div class="kv"><span>运行平台</span><strong>${platformName()}</strong></div><button class="row-button" data-action="simulator">${icon('Monitor')}仿真控制台<span class="end">${icon('ArrowRight')}</span></button></div></aside></main>
     </div>`;
     bind();
+    /* 引导流程的演示动画：每次重建 DOM 后重新接一遍「拿到手势就开声音」（见 wireGuideVideos） */
+    wireGuideVideos();
     document.querySelectorAll('.app-content input[id],.app-content textarea[id],.app-content select[id]').forEach(node=>{
       const cacheKey=state.modal+':'+(state.modalData.id||'')+':'+node.id;
       if(node.type==='checkbox'||node.id.startsWith('sim-'))return;
