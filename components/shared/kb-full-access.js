@@ -1,19 +1,24 @@
-/* 键盘完全访问引导页 —— 键盘区域内的整页覆盖层。三端共用。
-   触发：键盘被唤起时的**第一道检查**（app.js 的 checkKbEntry：先看完全访问权限、再看登录状态）——
+/* 键盘完全访问引导页 —— 键盘区域内的整页覆盖层（键盘形态）/ 铺满正文区的一层（主 App 形态）。三端共用。
+   触发（键盘形态）：键盘被唤起时的**第一道检查**（app.js 的 checkKbEntry：先看完全访问权限、再看登录状态）——
    键盘侧没有「完全访问」权限时，从下往上弹出、盖住菜单栏 / 键区 / 底栏（键盘高度不额外变化，
    就是常规键盘那一块）；权限开了才轮到登录检查（见 kb-login）。权限名按平台取叫法：
    iOS「允许完全访问」（系统设置里的开关名）、鸿蒙「完整访问」；Android 系统上该权限默认开启，
    因此这一层不会出现（app.js 的 needsFullAccess）。
+   触发（主 App 形态，2026-09-28 起）：主 App 的状态检查链（appEntryGuards：键盘权限 → 完全访问 →
+   登录状态）走到第二环且权限未开时弹出 —— 渲染在 .app-shell 里、铺满整个正文区（含底部 Tab 栏），
+   不渲染键盘底栏（kb-navbar），元素尺度按主 App 放大一档（theme.css 的 .app-phone .kb-full-access）。
+   出口（两种形态相同）：「去开启」= 仿真「去系统设置开启完全访问」后接着做登录检查
+   （data-action="kb-full-access-open"）；右上角叉号 = 关掉这一层、回到原页面 / 键盘页
+   （data-action="kb-full-access-close"，权限仍未开 —— 键盘收起后下次唤起、或再次进入主 App 时会再弹一次）。
    形态：面板自上而下 —— 浅色顶条（**只有右上角一个叉号**，没有文字，底色与主体一致）→
    标题「开启[允许完全访问]，AI 帮你回复」（在引导图上方、居中）→ 白色卡片里的两张引导图 →
-   蓝色「去开启」按钮 → 平台底栏（kb-navbar）。样式见 theme.css 的 .kb-full-access 一组规则。
+   蓝色「去开启」按钮 → 键盘形态再往下接平台底栏（kb-navbar，主 App 形态不渲染）。
+   样式见 theme.css 的 .kb-full-access 一组规则。
    引导动画：两张设置操作引导图在卡片里交叉淡入淡出、无限轮播（纯 CSS 动画，约 3 秒一张，不用 JS 定时器）：
      ① 系统设置的键盘入口 —— 设置列表（Siri / 搜索 / 通知 / 无线数据 / 键盘），红色箭头指「键盘」这一行；
      ② 键盘详情页的权限开关 —— 「LoveCo 键盘」开着、权限开关关着，红箭头指这颗开关。
    设计图里的两张图是系统设置截图，这里按截图结构用 CSS 画（不引位图，窄机上也清晰）。
-   出口：「去开启」= 仿真「去系统设置开启完全访问」（把权限置成已开启）后接着做登录检查
-   （data-action="kb-full-access-open"）；右上角叉号 = 关掉这一层、回到键盘页
-   （data-action="kb-full-access-close"，权限仍未开 —— 收起键盘后下次唤起会再弹一次）；Esc 与它同一条出口。 */
+   Esc 与右上角叉号同一条出口。 */
 LoveCoUI.define('shared', 'kb-full-access', (ctx) => {
   const { esc, icon, ib, state } = ctx;
   const glyph = window.LoveCoSystemGlyphs;
@@ -59,6 +64,6 @@ LoveCoUI.define('shared', 'kb-full-access', (ctx) => {
       </div>
       <button type="button" class="kfa-primary" data-action="kb-full-access-open">去开启</button>
     </div>
-    ${LoveCoUI.render('kb-navbar', ctx)}
+    ${state.appView === 'keyboard' ? LoveCoUI.render('kb-navbar', ctx) : ''}
   </div>`;
 });

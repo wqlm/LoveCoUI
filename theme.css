@@ -1603,6 +1603,22 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .app-phone .kb-login.sms .kbl-primary { margin: 16px 0 0; }
 .app-phone .kb-login.sms .kbl-consent { margin: 10px 0 0; }
 .app-phone .kb-paywall .pw-body { padding: 32px 20px 18px; }
+/* 完全访问引导层在主 App 里的适配（2026-09-28 起：主 App 的状态检查链也会弹出这一层）：
+   同一层铺满整个正文区（.app-shell，含底部 Tab 栏）；键盘形态那套紧凑尺寸是按 250px 的一条
+   横带排的，整屏里会显得过小 —— 元素整体放大一档（与 .kb-login 的主 App 适配同一路思路）；
+   键盘底栏不渲染（组件按形态去掉，见 kb-full-access.js），主体整块在顶条与底边之间居中。 */
+.app-phone .kb-full-access .kfa-body { padding: 0 22px 18px; }
+.app-phone .kb-full-access .kfa-title { margin-bottom: 12px; font-size: 15px; }
+.app-phone .kb-full-access .kfa-shot { width: 240px; padding: 12px 0; border-radius: 14px; }
+.app-phone .kb-full-access .kfa-screen { width: 152px; height: 96px; }
+.app-phone .kb-full-access .kfa-row { height: 17px; font-size: 8.5px; }
+.app-phone .kb-full-access .kfa-ico { width: 10px; height: 10px; }
+.app-phone .kb-full-access .kfa-nav { height: 16px; font-size: 8.5px; }
+.app-phone .kb-full-access .kfa-card .kfa-row { height: 16px; font-size: 8.5px; }
+.app-phone .kb-full-access .kfa-note { font-size: 7px; }
+.app-phone .kb-full-access .kfa-toggle { width: 18px; height: 11px; }
+.app-phone .kb-full-access .kfa-toggle:after { width: 9px; height: 9px; margin-top: -4.5px; }
+.app-phone .kb-full-access .kfa-primary { height: 38px; margin-top: 12px; font-size: 15px; border-radius: 12px; }
 /* 键盘完全访问引导页（kb-full-access 组件）：键盘区域内的整页覆盖层 —— 键盘被唤起时的第一道检查
    （app.js 的 checkKbEntry：先完全访问、后登录），没有权限就从下往上弹出这一层（复用选图面板的
    picker-up）。**面板就是常规键盘那一块**（不额外拉高键盘），自上而下：浅色顶条（**只有右上角一枚
