@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-page-node-id="OBgZiV7wEHj7mtZbAqeHeI">
+<head data-page-node-id="Sew5SXioeyEHQBQ871K2vn">
+<meta charset="utf-8" data-page-node-id="HjUP01RGZSQksOOcr8mHba">
+<title>LoveCo 教学视频 · HTML 版</title>
+<style>
+  :root{
+    --w: 640px;
+    --h: 456px;
+    --blue: #0a6cf5;
+    --green: #17a337;
+    --ink: #3a3a3a;
+    --muted: #b3b3b3;
+    --track: #e9e9ea;
+    --divider: #ededed;
+  }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+  html,body{ width:var(--w); height:var(--h); overflow:hidden; background:#edf1f0; }
+  body{
+    font-family:"PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  #stage{ position:relative; width:var(--w); height:var(--h);
+    background:linear-gradient(160deg,#eef2f1 0%,#f2f5f4 45%,#e7eef2 100%); }
+
+  /* ---------- 卡片 ---------- */
+  #card{
+    position:absolute; left:25px; top:112px; width:582px;
+    background:#fff; border-radius:22px;
+    box-shadow:0 1px 3px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.05);
+    overflow:hidden;
+    transition:none;
+  }
+  .row{ position:relative; height:89px; display:flex; align-items:center; padding:0 24px 0 21px; }
+  .row + .row::before{
+    content:''; position:absolute; left:40px; right:24px; top:0; height:1px; background:var(--divider);
+  }
+  .row .label{ font-size:20px; font-weight:500; color:#2f2f2f; letter-spacing:.2px; }
+
+  /* 第一幕：设置列表行（左侧有图标列，整体右移） */
+  #sceneList{ position:absolute; inset:0; }
+  #sceneList .row{ padding-left:28px; }
+  .icon-cell{ width:44px; display:flex; justify-content:center; flex:none; }
+  .check{ width:23px; height:23px; border-radius:50%; background:var(--blue);
+    display:flex; align-items:center; justify-content:center; }
+  .check svg{ width:13px; height:13px; }
+  .radio{ width:23px; height:23px; border-radius:50%; border:1.6px solid #d2d2d2; background:#fff; }
+  .ph{ width:150px; height:22px; border-radius:5px; background:#d9d9d9; }
+  .trail{ margin-left:auto; display:flex; align-items:center; gap:12px; color:var(--muted); font-size:17px; }
+  .chev{ width:7px; height:12px; display:block; flex:none; }
+
+  /* 第二幕：LoveCo 详情 */
+  #sceneDetail{ position:absolute; inset:0; }
+  .toggle{ margin-left:auto; width:58px; height:33px; border-radius:17px; background:var(--track);
+    position:relative; flex:none; }
+  .toggle .knob{ position:absolute; top:2px; left:2px; width:29px; height:29px; border-radius:50%;
+    background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.18); }
+
+  /* ---------- 光标 ---------- */
+  /* 用一条闭合轮廓画整只手：食指竖起 + 三处指节隆起 + 拇指。整只手只有一个形状，
+     不存在「多个子形状同色描边互相覆盖」的问题。 */
+  #cursor{ position:absolute; left:0; top:0; width:44px; height:55px;
+    transform-origin:20.2px 2.8px; z-index:20; will-change:transform; }
+  #cursor svg{ width:100%; height:100%; display:block;
+    filter:drop-shadow(0 3px 4px rgba(0,0,0,.28)); }
+
+  /* 点击波纹 */
+  #ripple{ position:absolute; width:76px; height:76px; margin:-38px 0 0 -38px; border-radius:50%;
+    background:rgba(10,108,245,.20); z-index:19; }
+
+  /* ---------- 完成对勾 ---------- */
+  #done{ position:absolute; left:316px; top:243px; width:97px; height:97px; margin:-48px 0 0 -48px;
+    border-radius:50%; background:#00911b; display:flex; align-items:center; justify-content:center;
+    z-index:15; }
+  #done svg{ width:52px; height:52px; }
+
+  /* ---------- 字幕 ---------- */
+  #subtitle{
+    position:absolute; left:0; right:0; bottom:14px; text-align:center;
+    font-size:20px; font-weight:600; letter-spacing:1px;
+    color:#fff;
+    -webkit-text-stroke:4px rgba(72,72,72,.9);
+    paint-order:stroke fill;
+    z-index:30;
+  }
+</style>
+</head>
+<body data-page-node-id="oW2hxkqFVcjwO1D2HaxuVg">
+<div id="stage" data-page-node-id="F2Mh4Ga1omfgTfeGNrAsTz">
+
+  <div id="card" data-page-node-id="9BkUeo37N2PYJGeptNYdg2">
+    <!-- 第一幕 -->
+    <div id="sceneList" data-page-node-id="ROtr9gdt4zrdqsj5Gc5pCL">
+      <div class="row" data-page-node-id="6PjP8PsaAFoDjtevfyGAH9">
+        <div class="icon-cell" data-page-node-id="nXj9HrBXNUnazWuskNTFsd"><div class="radio" data-page-node-id="yUDw3D4uxudFJ0ZFYXm6pr"></div></div>
+        <div class="label" data-page-node-id="ST9xZS9GrUxHIeMKcVoOAR">LoveCo</div>
+        <div class="trail" data-page-node-id="vzEgCl2AWabA1pVJoFqyNO"><span data-page-node-id="XoXUHWSJoJJ8sVScLnCGaT">未启用</span>
+          <svg class="chev" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#c3c7cb" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+      <div class="row" data-page-node-id="e8HglDkkqlb64XuqQynghl">
+        <div class="icon-cell" data-page-node-id="loUxaiheO0ZbNIcDazLojB"><div class="check" data-page-node-id="0EFSEmkaVEPXx8fLTVBXRB">
+          <svg viewBox="0 0 24 24" fill="none" data-page-node-id="miPJwR6VR9bXjDhvr8tOgG"><path d="M4 12.5l5 5L20 6.5"
+            stroke="#fff" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="AtP0vnpkGoqEDALcIeSwAH"/></svg>
+        </div></div>
+        <div class="ph" data-page-node-id="sFoCuRSXqgQu1cE7P9dB9N"></div>
+        <div class="trail" data-page-node-id="7FqK8OVLOe9HJaMgZYiWFV">
+          <svg class="chev" viewBox="0 0 7 12" fill="none"><path d="M1 1l5 5-5 5" stroke="#c3c7cb" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- 第二幕 -->
+    <div id="sceneDetail" data-page-node-id="iKuCPpdCzmNYAQtsE6LfKL">
+      <div class="row" data-page-node-id="JDjHPoVa9ThkpJVydrL6WE">
+        <div class="label" data-page-node-id="r2yEnzmxwZQKKoutyiskIh">启用LoveCo</div>
+        <div class="toggle" id="tg1" data-page-node-id="IlRmXa3SbjDC3Q5ncu4nNk"><div class="knob" data-page-node-id="wEcFKjmkC5ic9EFBHPlwdZ"></div></div>
+      </div>
+      <div class="row" id="row2" data-page-node-id="Aaf1l8utxMU4TimiiL3p75">
+        <div class="label" data-page-node-id="tsLwDOJYSQYvDVWNCpfZ7B">完整体验模式</div>
+        <div class="toggle" id="tg2" data-page-node-id="CSDv3EF1DKdFyirNEQhet5"><div class="knob" data-page-node-id="ZRHbtPw0p1xIy4FC7FcuNt"></div></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="ripple" data-page-node-id="Sorafkz7jX8mfgwfjKG1rv"></div>
+
+  <div id="done" data-page-node-id="TnArmHQ4egPpODHdrFVEgc">
+    <svg viewBox="0 0 24 24" fill="none" data-page-node-id="6NlTQYtXDIMiKzbYKSg0tu"><path d="M4 12.5l5 5L20 6.5"
+      stroke="#fff" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round" data-page-node-id="BaGWc1yA7VRmeovDn52GNz"/></svg>
+  </div>
+
+  <div id="cursor" data-page-node-id="b9rP1rVc9UmOsBK40wnVo9">
+    <!-- 单手轮廓：食指竖起(fingertip 在 viewBox 的 22,3) + 指节隆起 + 拇指
+         热点 = 指尖 = 22,3；显示尺寸 44x55（缩放 0.9167）=> 热点 20.17,2.75 -->
+    <svg viewBox="0 0 48 60" fill="none" data-page-node-id="sERyz19NUtA3e3fK8vG6fx">
+      <path fill="#242424" d="M17 27 L17 8 A5 5 0 0 1 27 8 L27 23
+        A4.2 4.2 0 0 1 35.4 23 A4.2 4.2 0 0 1 43.8 25.5
+        C 46.6 27.2 47.6 30.2 47.6 34 L47.6 39
+        C 47.6 49.5 39.6 58 29.5 58 L22.5 58
+        C 15.5 58 11 54.2 10 48.8
+        C 7.2 45.6 5 42.4 5 38.6
+        C 5 34.2 9 31.2 13.2 32.6
+        C 14.8 33.2 16 34.2 16.6 35.6 Z" data-page-node-id="AtP0vnpkGoqEDALcIeSwAH"/>
+    </svg>
+  </div>
+
+  <div id="subtitle" data-page-node-id="7OaJETdVtwzrTFBaXFALQX"></div>
+</div>
+
+<script>
+/* =======================================================================
+   时间轴定义 —— 改文案只动 script 数组；改时长只动 duration
+   所有时间单位：秒
+   ======================================================================= */
+const TIMELINE = {
+  width: 640,
+  height: 456,
+  fps: 30,
+  duration: 6.5,
+  script: [
+    { from: 0.00, to: 2.00, text: "先开启 LoveCo 功能" },
+    { from: 2.00, to: 4.25, text: "再打开完整体验模式" },
+    { from: 4.25, to: 6.50, text: "完成后返回 LoveCo App" },
+  ],
+  // 关键事件（与配音时间轴对齐）
+  events: {
+    enterDetail:  1.62,   // 进入 LoveCo 详情页
+    tapToggle1:   1.98,   // 点击「启用LoveCo」
+    toggle1On:    2.16,
+    addRow2:      2.20,   // 「完整体验模式」出现
+    tapToggle2:   2.90,   // 点击「完整体验模式」
+    toggle2On:    3.05,
+    cursorOut:    3.35,
+    doneIn:       5.35,   // 对勾弹出
+    doneFull:     5.75,
+  },
+  /* 光标热点（相对 #cursor 左上角）：指尖触碰点，transform-origin 与此一致，
+     这样点击时的 scale 缩放不会让指尖偏移 */
+  hotspot: [20.17, 2.75],
+  /* 光标轨迹关键帧：[时刻, 目标]
+     目标可以是绝对坐标 {x,y}，也可以是元素锚点 {el, fx, fy}（fx/fy 是该元素包围盒内的比例位置）。
+     锚点每帧实时求解 —— 卡片在缩放/展开时，指尖会跟着目标一起走，不会脱靶。
+     相邻关键帧目标相同 = 原地停顿（让点击动作发生在静止之后，观感更稳）。 */
+  cursor: [
+    [0.00, { x: 566, y: 322 }],                                   // 从卡片下方偏右入场
+    [1.25, { el: '#sceneList .row:first-child', fx: 0.86, fy: 0.50 }], // 移到 LoveCo 行右侧
+    [1.62, { el: '#sceneList .row:first-child', fx: 0.86, fy: 0.50 }], // 停顿，等待翻页
+    [1.98, { el: '#tg1', fx: 0.5, fy: 0.5 }],                     // 跟随 morph 落到开关 1，正好压在点击点上
+    [2.25, { el: '#tg1', fx: 0.5, fy: 0.5 }],                     // 停顿
+    [2.85, { el: '#tg2', fx: 0.5, fy: 0.5 }],                     // 下滑到开关 2
+    [3.45, { el: '#tg2', fx: 0.5, fy: 0.5 }],                     // 停顿（2.90 点击）
+  ],
+};
+
+const $ = (s) => document.querySelector(s);
+const clamp01 = (v) => Math.min(1, Math.max(0, v));
+const ease = (t) => t < .5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2;      // easeInOutQuad
+// smootherstep：起点/终点的速度和加速度都为 0 —— 段落之间没有“顿一下”的硬转折
+const smoother = (t) => t*t*t*(t*(6*t-15)+10);
+const backOut = (t) => 1 + 2.2*Math.pow(t-1,3) + 1.2*Math.pow(t-1,2);
+const lerp = (a,b,p) => a + (b-a)*p;
+
+/* 把锚点解析成舞台坐标 */
+function resolveTarget(a){
+  if (a.el){
+    const r = $(a.el).getBoundingClientRect();
+    return [r.left + r.width*a.fx, r.top + r.height*a.fy];
+  }
+  return [a.x, a.y];
+}
+
+function sampleCursor(t){
+  const k = TIMELINE.cursor;
+  if (t <= k[0][0]) return resolveTarget(k[0][1]);
+  for (let i=1;i<k.length;i++){
+    if (t <= k[i][0]){
+      const [t0,a0] = k[i-1], [t1,a1] = k[i];
+      const [x0,y0] = resolveTarget(a0), [x1,y1] = resolveTarget(a1);
+      const p = t1===t0 ? 1 : smoother(clamp01((t-t0)/(t1-t0)));
+      return [lerp(x0,x1,p), lerp(y0,y1,p)];
+    }
+  }
+  return resolveTarget(k[k.length-1][1]);
+}
+
+/* 核心：给定时刻 t，把画面渲染成该时刻应有的样子（纯函数，无动画状态） */
+window.__seek = function(t){
+  const E = TIMELINE.events;
+
+  /* --- 字幕 --- */
+  const seg = TIMELINE.script.find(s => t >= s.from && t < s.to);
+  const sub = $('#subtitle');
+  sub.textContent = seg ? seg.text : '';
+  // 每句开头 0.18s 轻微淡入；句首时刻即已完全可见，避免第 0 帧空白
+  sub.style.opacity = seg ? clamp01((t - seg.from)/0.18 + 1) : 0;
+
+  /* --- 卡片：位置 / 高度 / 内容 ---
+     178(列表两行) -> 89(详情单行) -> 178(展开两行) */
+  const toDetail = clamp01((t - E.enterDetail)/0.30);
+  const p = ease(toDetail);
+  const r2 = clamp01((t - E.addRow2)/0.25);
+  const card = $('#card');
+  card.style.top = lerp(112, 97, p) + 'px';
+  card.style.height = (p < 1 ? lerp(178, 89, p) : lerp(89, 178, ease(r2))) + 'px';
+
+  $('#sceneList').style.opacity   = 1 - p;
+  $('#sceneList').style.visibility = p >= 1 ? 'hidden' : 'visible';
+  $('#sceneDetail').style.opacity = p;
+  $('#sceneDetail').style.visibility = p <= 0 ? 'hidden' : 'visible';
+
+  // 第二行「完整体验模式」在点到「启用」之后才出现
+  $('#row2').style.height = (r2*89) + 'px';
+  $('#row2').style.overflow = 'hidden';
+
+  /* --- 开关 --- */
+  const setToggle = (el, on)=>{
+    el.style.background = on ? '#0a6cf5' : '#e9e9ea';
+    el.querySelector('.knob').style.left = on ? '27px' : '2px';
+    el.querySelector('.knob').style.transition = 'none';
+  };
+  setToggle($('#tg1'), t >= E.toggle1On);
+  setToggle($('#tg2'), t >= E.toggle2On);
+
+  /* --- 点击波纹（位置直接读开关中心，卡片怎么动都不会偏） --- */
+  const ripples = [
+    { at: E.tapToggle1, el: '#tg1' },
+    { at: E.tapToggle2, el: '#tg2' },
+  ];
+  const rp = $('#ripple');
+  const active = ripples.filter(r => t >= r.at && t < r.at + 0.42)
+                        .sort((a,b)=> b.at - a.at)[0];
+  if (active){
+    const [rx, ry] = resolveTarget({ el: active.el, fx: .5, fy: .5 });
+    const q = clamp01((t - active.at)/0.42);
+    rp.style.display = 'block';
+    rp.style.left = rx + 'px';
+    rp.style.top  = ry + 'px';
+    rp.style.opacity = (1-q) * 0.9;
+    rp.style.transform = `scale(${lerp(0.35,1.25,q)})`;
+  } else rp.style.display = 'none';
+
+  /* --- 光标 --- */
+  const [cx, cy] = sampleCursor(t);
+  const cout = clamp01((t - E.cursorOut)/0.30);
+  const cur = $('#cursor');
+  // translate3d + 小数坐标：走合成层，避免取整导致的逐帧抖动
+  cur.style.transform = `translate3d(${(cx - TIMELINE.hotspot[0]).toFixed(3)}px, ${(cy - TIMELINE.hotspot[1]).toFixed(3)}px, 0)`;
+  cur.style.opacity = 1 - cout;
+  // 点击瞬间轻微下压
+  let press = 0;
+  ripples.forEach(r => { if (t>=r.at && t<r.at+0.14) press = 1 - (t-r.at)/0.14; });
+  cur.style.transform += ` scale(${1 - press*0.12})`;
+
+  /* --- 完成对勾 --- */
+  const d = clamp01((t - E.doneIn)/(E.doneFull - E.doneIn));
+  const done = $('#done');
+  if (t < E.doneIn){ done.style.display = 'none'; }
+  else {
+    done.style.display = 'flex';
+    done.style.opacity = clamp01(d*2.2);
+    done.style.transform = `scale(${backOut(d)})`;
+  }
+};
+
+/* 浏览器里直接打开时可实时预览；
+   带 ?render=1 进入渲染模式（不跑实时动画，只用 __seek 定位）；
+   带 ?t=1.23 直接定位到某一时刻（可配合 Chrome --headless --screenshot 使用） */
+window.addEventListener('load', ()=>{
+  document.fonts.ready.then(()=>{
+    const q = new URLSearchParams(location.search);
+    if (q.has('t')) { window.__seek(parseFloat(q.get('t'))); return; }
+    if (window.__renderMode || q.has('render')) return;
+    const start = performance.now();
+    (function loop(){
+      const t = ((performance.now() - start)/1000) % TIMELINE.duration;
+      window.__seek(t);
+      requestAnimationFrame(loop);
+    })();
+  });
+});
+</script>
+</body>
+</html>

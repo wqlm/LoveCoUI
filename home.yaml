@@ -1,0 +1,83 @@
+- main [ref=e4]:
+  - generic [ref=e6]:
+    - generic [ref=e7]:
+      - generic [ref=e8]: 14:32
+      - generic [ref=e10]: 5G
+    - generic [ref=e17]:
+      - button "切换聊天对象" [ref=e18] [cursor=pointer]
+      - generic [ref=e21]: 林间
+      - button "会话菜单" [ref=e22] [cursor=pointer]
+    - generic [ref=e26]:
+      - generic [ref=e27]: 9月23日 星期三 20:14
+      - generic [ref=e28]:
+        - img "林间的头像" [ref=e30]
+        - generic [ref=e31]: 终于下班了，今天真的好漫长。
+      - generic [ref=e32]:
+        - generic [ref=e33]: 辛苦啦，今天过得怎么样？
+        - img "小周的头像" [ref=e35]
+      - generic [ref=e36]:
+        - img "林间的头像" [ref=e38]
+        - generic [ref=e39]: 今天有点累，感觉什么都没做好。
+      - generic [ref=e40]: 9月24日 星期四 09:07
+      - generic [ref=e41]:
+        - generic [ref=e42]: 那你早点休息，我也赶紧把活干完撤了。
+        - img "小周的头像" [ref=e44]
+    - generic [ref=e45]:
+      - button "语音消息" [ref=e46] [cursor=pointer]
+      - generic [ref=e52]:
+        - textbox "聊天输入框" [ref=e53]
+        - button "语音输入转写" [ref=e54] [cursor=pointer]
+      - button "表情" [ref=e58] [cursor=pointer]
+      - button "更多" [ref=e64] [cursor=pointer]
+    - region "LoveCo 模拟键盘" [ref=e68]:
+      - generic [ref=e69]:
+        - button "聊天对象管理：林间" [ref=e70] [cursor=pointer]:
+          - img "林间的头像" [ref=e72]
+          - generic [ref=e73]: 林间
+        - button "自由模式" [ref=e74] [cursor=pointer]
+        - generic [ref=e75]:
+          - button "选择聊天截图" [ref=e76] [cursor=pointer]
+          - button "键盘设置" [ref=e81] [cursor=pointer]
+      - generic [ref=e86]:
+        - generic [ref=e87]:
+          - button "Q" [ref=e88] [cursor=pointer]
+          - button "W" [ref=e89] [cursor=pointer]
+          - button "E" [ref=e90] [cursor=pointer]
+          - button "R" [ref=e91] [cursor=pointer]
+          - button "T" [ref=e92] [cursor=pointer]
+          - button "Y" [ref=e93] [cursor=pointer]
+          - button "U" [ref=e94] [cursor=pointer]
+          - button "I" [ref=e95] [cursor=pointer]
+          - button "O" [ref=e96] [cursor=pointer]
+          - button "P" [ref=e97] [cursor=pointer]
+        - generic [ref=e98]:
+          - button "A" [ref=e99] [cursor=pointer]
+          - button "S" [ref=e100] [cursor=pointer]
+          - button "D" [ref=e101] [cursor=pointer]
+          - button "F" [ref=e102] [cursor=pointer]
+          - button "G" [ref=e103] [cursor=pointer]
+          - button "H" [ref=e104] [cursor=pointer]
+          - button "J" [ref=e105] [cursor=pointer]
+          - button "K" [ref=e106] [cursor=pointer]
+          - button "L" [ref=e107] [cursor=pointer]
+        - generic [ref=e108]:
+          - button "切换大小写" [ref=e109] [cursor=pointer]
+          - button "Z" [ref=e113] [cursor=pointer]
+          - button "X" [ref=e114] [cursor=pointer]
+          - button "C" [ref=e115] [cursor=pointer]
+          - button "V" [ref=e116] [cursor=pointer]
+          - button "B" [ref=e117] [cursor=pointer]
+          - button "N" [ref=e118] [cursor=pointer]
+          - button "M" [ref=e119] [cursor=pointer]
+          - button "退格" [ref=e120] [cursor=pointer]
+        - generic [ref=e125]:
+          - button "numbers" [ref=e126] [cursor=pointer]: "123"
+          - button "，" [ref=e127] [cursor=pointer]
+          - button "Space" [ref=e128] [cursor=pointer]: 空格
+          - button "切换到英文键盘（26 键）" [ref=e129] [cursor=pointer]:
+            - generic [ref=e130]: 中
+            - generic [ref=e131]: 英
+          - button "Enter" [ref=e132] [cursor=pointer]: 发送
+      - generic "iOS 键盘底栏" [ref=e133]:
+        - button "切换输入法" [ref=e134] [cursor=pointer]
+        - button "语音输入" [ref=e138] [cursor=pointer]

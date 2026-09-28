@@ -1,0 +1,2273 @@
+@import url("styles.css") layer(base);
+
+/* Layout and colors are independent of platform selection. */
+html {
+  font-family: "PingFang SC", "Microsoft YaHei", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: var(--lc-text);
+  background: var(--lc-canvas);
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+button, input, select, textarea { font-family: inherit; color: inherit; }
+button { touch-action: manipulation; }
+input, textarea, select { border-color: var(--lc-border); }
+button:focus-visible, a:focus-visible { outline-color: var(--lc-accent); }
+input:focus, textarea:focus, select:focus { outline-color: var(--lc-accent); }
+svg { width: var(--lc-icon-size); height: var(--lc-icon-size); }
+small, .muted, .brand-tag, .sandbox-pill, .device-top,
+.eyebrow, .ai-footnote,
+.kv, .control-line, .char-count,
+.field, .sheet-list-item p,
+.legal-text, .device-caption, .mobile-testbar,
+.switch-label, .page-group, .page-detail .kv span { color: var(--lc-muted); }
+a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
+.topbar { background: var(--lc-surface); border-color: var(--lc-border); height: 68px; }
+.brand-tag, .rail-section,
+.kb-toolbar, .sheet-header, .sheet-footer, .sheet-list-item { border-color: var(--lc-border); }
+.brand-name { color: #282632; font-size: 25px; font-weight: 750; }
+.brand-tag { font-size: 12px; }
+.workspace { padding-top: 24px; grid-template-columns: 228px minmax(335px, 1fr) 270px; gap: 36px; }
+.rail h2 { font-size: 18px; font-weight: 650; }
+.rail-heading { margin-top: 12px; }
+.segmented { background: #EBEBF1; }
+.segmented button.active { color: var(--lc-accent-strong); background: var(--lc-surface); box-shadow: 0 1px 3px #2622360D; }
+/* App形态 / 运行平台 / 页面列表三组切换器：前两组在左栏与手机工具条各出现一次，页面列表只在左栏。 */
+.switcher + .switcher { margin-top: 10px; }
+.switcher .switch-label { display: block; margin-bottom: 5px; font-size: 11px; }
+/* 页面列表：按当前 App形态列出全部页面 / 组件形态，点击跳转手机页面并在下方展示详情；组名可折叠 */
+.page-group:hover { color: var(--lc-text); }
+.page-group .page-group-count { background: var(--lc-canvas); }
+.page-item { color: var(--lc-text); }
+.page-item:hover { background: var(--lc-accent-soft); color: var(--lc-accent-strong); }
+.page-item.active { background: var(--lc-accent-soft); color: var(--lc-accent-strong); font-weight: 600; }
+.page-detail { border-color: var(--lc-border); background: var(--lc-surface); }
+.page-detail .kv { border-color: var(--lc-border); }
+.page-detail .kv strong { color: var(--lc-text); }
+.page-detail-note { background: var(--lc-yellow-soft); color: var(--lc-yellow); }
+.testbar-switchers { display: flex; align-items: center; gap: 8px; min-width: 0; }
+.dot { background: var(--lc-success); }
+.metric strong { color: var(--lc-text); }
+.status-tag { background: var(--lc-accent-soft); color: var(--lc-accent-strong); }
+.icon-btn.danger { color: var(--lc-danger); }
+.icon-btn:hover { background: var(--lc-accent-soft); }
+.kv strong { color: var(--lc-text); }
+.control-line select { background: var(--lc-surface); color: var(--lc-text); border-color: var(--lc-border); }
+.switch { background: var(--lc-key-function); margin: 0; }
+.switch:checked { background: var(--lc-accent); }
+.avatar { background: var(--lc-yellow-soft); color: var(--lc-yellow); }
+.avatar.coral { background: var(--lc-pink-soft); color: var(--lc-pink); }
+.avatar.blue { background: var(--lc-blue-soft); color: var(--lc-blue); }
+/* 「不选择」占位头像（core/kit.js 的 noneAvatar）：虚线空槽 + 中性用户图标，
+   表示没有具体聊天对象 —— 与真实对象头像（插画 / 首字彩块）明确区分；取令牌色，深色外观自动跟随 */
+.avatar.none { background: var(--lc-canvas); border: 1.5px dashed var(--lc-border); color: var(--lc-muted); }
+.avatar.none svg { width: 16px; height: 16px; }
+.avatar { border-radius: 8px; }
+.metric:first-child strong { color: var(--lc-mint); }
+.metric + .metric { padding-left: 18px; border-left: 1px solid var(--lc-border); }
+.left-rail .row-button > span:first-child { color: var(--lc-muted); }
+.phone {
+  width: 335px; border: 7px solid #292A32; border-radius: 42px;
+  background: var(--lc-canvas); color: var(--lc-text);
+  height: clamp(690px, calc(100dvh - 145px), 874px);
+  /* 键盘模式下有内容区（AI 结果 / 生成中 / 报错）时，整块键盘的高度 = 手机屏幕的三分之二 */
+  --lc-keyboard-panel-height: 66.667%;
+  /* 键盘底部导航栏（kb-sysbar）高度：键盘选择器面板按它把「立即分析」抬到底栏之上 */
+  --lc-sysbar-height: 34px;
+  /* 问AI 页（kb-free-chat）提问输入行的基准高度：这一页的键盘总高 = 键盘总高 + 本值
+     + 输入区实际涨出来的高度（--lc-free-extra：缩略图行 / 快捷栏 / 输入框长到两三行的部分，
+     由 app.js 的 paintFreeInputGrowth 实测；标题栏顶替菜单栏、与它同高，不额外占高；
+     见 .keyboard.free-chat），键区高度因此与平时完全一致，切进 / 切出这一页键区不跳。 */
+  --lc-free-row-height: 44px;
+  /* 键区自身的底部留白（kb-body 的 padding-bottom）；窄屏 / 矮屏断点会改写它。
+     Android 不渲染底栏时按「底栏高度 + 本值」留白，见下方 Android 那条规则。 */
+  --lc-keys-gap: 8px;
+  box-shadow: 0 20px 50px #3632461A, 0 0 0 1px #C7C7D1;
+}
+/* 手机屏幕内的滚动条一律不显示：真机（iOS / Android）的滚动条是滚动时才浮现的覆盖式细条，
+   桌面浏览器会在手机壳里常驻一条竖条，与真机观感不符（截图 / 录屏时尤其明显）。
+   scrollbar-width 不继承（scrollbar-color 才继承），所以用 `.phone *` 显式覆盖全部滚动容器
+   （聊天区、键区内容区、聊天对象列表、键盘设置页等）；
+   WebKit / Blink 另需伪元素规则，覆盖到后代。
+   只是不画滚动条，滚动（滚轮 / 触摸 / 键区操作）与惯性滚动都不受影响。 */
+.phone, .phone * { scrollbar-width: none; }
+.phone::-webkit-scrollbar, .phone ::-webkit-scrollbar { width: 0; height: 0; display: none; }
+.device-top { width: 335px; }
+.statusbar { background: var(--lc-canvas); color: var(--lc-text); }
+/* 挖孔形态由平台状态栏组件输出：鸿蒙 / Android 为圆点（punch-hole），iOS 为灵动岛药丸（island 基础尺寸） */
+.statusbar .island { background: #292A32; }
+.statusbar .island.punch-hole { width: 9px; height: 9px; top: 11px; }
+.statusbar .status-icons svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; }
+/* ---- 宿主 App（微信）会话界面：骨架（结构 / 尺寸 / 间距） ----
+   数值全部按设计截图 1:1（截图宽 498px → 手机屏 321px，比例 0.6446，下面都是换算后的手机内像素）。
+   这一块整体写在 theme.css 而不是 styles.css：基础层是 @import 进来的 layer(base)，
+   无分层里的元素级规则（`svg{width:var(--lc-icon-size)}`、`.avatar{border-radius:8px}` 等）
+   会无视优先级压过基础层 —— 骨架放进去会被改尺寸、改圆角。 */
+.wx-header { height: 36px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 0 8px 0 6px; }
+.wx-title { flex: 1; min-width: 0; text-align: center; font-size: 14px; font-weight: 600; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+/* 程序化滚动一律瞬时：平滑滚动会把重渲染后的位置恢复变成一段动画，看起来就是「回弹」 */
+.wx-chat { flex: 1; min-height: 60px; display: flex; flex-direction: column; overflow: auto; padding: 10px; }
+.wx-time { text-align: center; font-size: 11.5px; line-height: 12px; margin-top: 23px; }
+.wx-msg { display: flex; align-items: flex-start; gap: 10px; margin-top: 15px; }
+.wx-time + .wx-msg { margin-top: 17px; }
+.wx-chat .avatar { flex: 0 0 34px; width: 34px; height: 34px; font-size: 13px; border-radius: 3px; }
+.wx-msg.mine { justify-content: flex-end; }
+.wx-bubble { position: relative; max-width: 74%; padding: 8px 11px; border-radius: 3px; font-size: 14px; line-height: 17px; overflow-wrap: anywhere; }
+/* 气泡小尾巴：贴住自己的那一侧，竖直居中于第一行文字（截图取样：外凸 4.5px、高 8.4px） */
+.wx-bubble:after { content: ""; position: absolute; top: 12px; width: 0; height: 0; border-top: 4.2px solid transparent; border-bottom: 4.2px solid transparent; }
+.wx-msg.mine .wx-bubble:after { right: -4.5px; border-left: 4.5px solid transparent; }
+.wx-msg:not(.mine) .wx-bubble:after { left: -4.5px; border-right: 4.5px solid transparent; }
+.wx-composer { display: flex; align-items: center; gap: 10px; padding: 6px 9px 7px; flex-shrink: 0; }
+/* 键盘收起后让位的那块（host-app 在消息区与输入栏之间输出）：高度 = 常规键盘高、背景沿用会话底色 ——
+   消息区不吃这段高度（.wx-chat 的 flex:1 仍按「键盘在屏」的高度收），底部对齐的消息列因此停在原位不下移，
+   只有输入栏被顶到屏幕底边。它是宿主 App 自己的区域（键盘撤走后露出来），与键盘高度令牌联动
+   （device 视图 / 矮屏改写 --lc-keyboard-height 时它跟着变）。 */
+.wx-kb-space { flex: 0 0 var(--lc-keyboard-height); background: var(--wx-bg); }
+.wx-circle { flex: 0 0 22px; width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: transparent; cursor: pointer; }
+/* 圆形图形画布 24 画到 24.8px：圆环外径正好 22px（截图为 34px×0.6446） */
+.wx-circle svg { width: 24.8px; height: 24.8px; }
+.wx-field { height: 33px; border-radius: 4px; }
+.wx-field > textarea { flex: 1; width: 100%; min-width: 0; height: 33px; padding: 7px 30px 7px 11px; border: 0; background: transparent; font-size: 14px; line-height: 19px; resize: none; overflow-y: auto; }
+.wx-field-mic { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: flex; align-items: center; padding: 0; border: 0; background: transparent; cursor: pointer; }
+.wx-field-mic svg { width: 20px; height: 20px; }
+.wx-send { flex: 0 0 auto; height: 28px; padding: 0 12px; border: 0; border-radius: 3px; font-size: 14px; cursor: pointer; }
+/* 消息少时整列贴着输入栏（截图里最后一条就压在输入栏上方），内容变多照常从头滚 */
+.wx-chat > :first-child { margin-top: auto; }
+/* ---- 宿主 App（微信）深色外观 ----
+   配色取自设计截图（注释里是截图取样值），与 LoveCo 的浅色 / 深色主题无关：
+   宿主 App 自己就是深色的，键盘不接管它的配色。 */
+.phone.host-wechat {
+  --wx-bg: #111111;           /* 状态栏 / 会话头部 / 消息区底色 */
+  --wx-bar: #1C1C1C;          /* 底部输入栏 */
+  --wx-field: #2C2C2C;        /* 输入框底、对方气泡 */
+  --wx-divider: #171717;      /* 头部下缘细线（截图里只比底色亮一点点） */
+  --wx-bubble: #28B561;       /* 本方气泡 */
+  --wx-bubble-ink: #000000;   /* 本方气泡文字（绿底黑字） */
+  --wx-time: #595959;         /* 时间行 */
+  --wx-title: #CFCFCF;        /* 会话标题 */
+  --wx-ink: #D1D1D1;          /* 输入栏圆钮线条 */
+  --wx-ink-dim: #969696;      /* 输入框内麦克风（比圆钮暗一档） */
+  --wx-status: #FFFFFF;       /* 状态栏文字与图标 */
+  --wx-received-ink: #E6E6E6; /* 对方气泡文字（截图里没有对方消息，按微信深色取值） */
+}
+/* 状态栏属于手机、不属于宿主 App，但截图里它与微信头部同色连成一片，故键盘模式下一起转深色 */
+.phone.host-wechat .statusbar { background: var(--wx-bg); color: var(--wx-status); }
+.phone.host-wechat .statusbar .island { background: #000000; }
+.wx-header { background: var(--wx-bg); border-bottom: 1px solid var(--wx-divider); }
+.wx-title { color: var(--wx-title); }
+.wx-chat { background: var(--wx-bg); }
+.wx-time { color: var(--wx-time); }
+/* 截图里的头像是照片；没有照片时的字母兜底按深色底浅字走，不再是 LoveCo 的彩色块 */
+.wx-chat .avatar { background: var(--wx-field); color: var(--wx-ink); overflow: hidden; }
+.wx-chat .avatar img { width: 100%; height: 100%; object-fit: cover; }
+.wx-bubble { background: var(--wx-bubble); color: var(--wx-bubble-ink); }
+.wx-msg.mine .wx-bubble:after { border-left-color: var(--wx-bubble); }
+.wx-msg:not(.mine) .wx-bubble { background: var(--wx-field); color: var(--wx-received-ink); }
+.wx-msg:not(.mine) .wx-bubble:after { border-right-color: var(--wx-field); }
+.wx-composer { background: var(--wx-bar); }
+.wx-circle { color: var(--wx-ink); }
+/* 基础层有全局 svg{fill:currentColor}，这几组是描边图形，改回描边（与 .kb-sysbar 同理） */
+.wx-circle svg, .wx-field-mic svg { fill: none; stroke: currentColor; }
+.wx-field { background: var(--wx-field); }
+.wx-field > textarea { color: var(--wx-received-ink); caret-color: var(--wx-bubble); }
+.wx-field-mic { color: var(--wx-ink-dim); }
+.wx-send { background: var(--wx-bubble); color: #FFFFFF; }
+/* 键盘：菜单栏下面是键区（kb-keys），键区之上不再有内容区。
+   默认常驻（高度 = --lc-keyboard-height）；点宿主聊天区域收起时整块不渲染
+   （见 app.js 的 state.kbCollapsed）—— 手机里只剩会话 + 贴底的输入栏，这里不做收起动画。 */
+.keyboard { height: var(--lc-keyboard-height); background: var(--lc-keyboard); color: var(--lc-text); border-color: var(--lc-border); }
+/* 键盘选择器 / 聊天分析面板等整页覆盖层（with-picker）弹出时，
+   整块键盘拉高到手机屏幕的三分之二 */
+.keyboard.with-picker { height: var(--lc-keyboard-panel-height); }
+.keyboard .kb-body { display: flex; flex-direction: column; gap: 8px; }
+.keyboard .keys { flex: 1; min-height: 0; }
+/* 新增 / 编辑聊天对象面板打开时（kb-partner-editor）：上半让给表单面板，下半保持常规键盘，整体贴底 ——
+   键盘菜单栏照常占位，但**只留最右侧的「键盘设置」入口**（对象切换与相册不属于编辑场景，
+   见下面两条隐藏规则）；键区、底栏与平时的键盘一致（键区仍是常规高度）。
+   键区打字时顶部条照旧换成候选词栏，两者同为 --lc-toolbar-height，高度不跳。
+   上半的表单面板按「键盘总高 − 常规键盘高」定高，正好落在让出来的位置（见下方 .kb-partner-editor）。 */
+.keyboard:has(.kb-partner-editor) { justify-content: flex-end; }
+.keyboard:has(.kb-partner-editor) .kb-body {
+  flex: 0 0 auto;
+  height: calc(var(--lc-keyboard-height) - var(--lc-toolbar-height));
+}
+.keyboard:has(.kb-partner-editor) .kb-body:has(+ .kb-sysbar) {
+  height: calc(var(--lc-keyboard-height) - var(--lc-toolbar-height) - var(--lc-sysbar-height));
+}
+/* 菜单栏只留设置按钮：聊天对象入口与相册入口在编辑面板下不出现
+   （.kb-toolbar-end 自带 margin-left:auto，剩下的设置图标照旧靠右）；
+   「待分析截图」缩略图（[data-action="pending-shot"] 取代相册图标）同属相册入口，一并让位 */
+.keyboard:has(.kb-partner-editor) .kb-toolbar:not(.candidate-bar) [data-action="partner-manager"],
+.keyboard:has(.kb-partner-editor) .kb-toolbar:not(.candidate-bar) [data-action="photo-picker"],
+.keyboard:has(.kb-partner-editor) .kb-toolbar:not(.candidate-bar) [data-action="pending-shot"],
+.keyboard:has(.kb-partner-editor) .kb-toolbar:not(.candidate-bar) [data-action="free-chat"] { display: none; }
+/* 编辑面板打开时点设置：面板保留在上半，设置页只覆盖下半键盘区域（菜单栏 + 键区 + 底栏），
+   与面板上下分区、互不重叠 —— 在新增 / 修改页面里切键盘形态时上方区域不消失。
+   高度取常规键盘高，与面板的「键盘总高 − 常规键盘高」正好拼满整块键盘（两种视图都适用：
+   device 视图下 --lc-keyboard-height 已降级为 210px）。 */
+.keyboard:has(.kb-partner-editor) .kb-settings {
+  top: auto;
+  height: var(--lc-keyboard-height);
+}
+/* 下半只有 250px（device 视图 210px）：压缩标题与卡片留白，保证两张布局卡完整可见 */
+.keyboard:has(.kb-partner-editor) .kb-settings .settings-top { height: 38px; }
+.keyboard:has(.kb-partner-editor) .kb-settings .settings-body { padding: 8px 20px 6px; }
+.keyboard:has(.kb-partner-editor) .kb-settings .layout-cards { padding: 30px 8px; }
+.keyboard .key-row { flex: 1; min-height: 0; }
+.keyboard .key { height: auto; min-height: 0; }
+.kb-toolbar { height: var(--lc-toolbar-height); padding: 0 8px; gap: 2px; border-bottom: 0; }
+.kb-toolbar .icon-btn { width: 28px; height: 32px; }
+/* 菜单栏左侧：用户图标 + 当前聊天对象昵称（未选对象时是灰色「未选择」） */
+.kb-user { max-width: 132px; height: 30px; padding: 0 6px; color: var(--lc-text); border-radius: var(--lc-key-radius); }
+.kb-user:hover { background: var(--lc-accent-soft); color: var(--lc-accent-strong); }
+.kb-user svg { width: 17px; height: 17px; }
+.kb-user-name { font-size: var(--lc-label-font); }
+.kb-user-name.empty { color: var(--lc-subtle); }
+/* 菜单栏右侧：相册与键盘设置，常驻在最右侧 */
+.kb-toolbar-end { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+/* 「待分析截图」：键盘不在屏时截的图，等键盘被唤起、三关都过了才由相册图标换成它的缩略图
+   （app.js 的 pendingShotItem / kb-toolbar 的 album 分支）。缩略图是一张**方形真位图** ——
+   core/kit.js 的 shotThumb 用 canvas 把这张聊天截图画成方形后导出 data URL（app.js 的
+   shotThumbImage 缓存），不再是 DOM 拼的 3:4 卡片：那套卡片缩到图标档后气泡文字会从卡片里
+   溢出来。方形与旁边两枚图标同宽（28×28，各就各位）；
+   整枚图标「一闪一闪」地放大缩小（1.1s 一个来回、scale 1 → 1.12 + 淡紫呼吸光环）引导点击：
+   点了直接进「AI 分析」过渡页，不再经过选图面板。 */
+.kb-toolbar .icon-btn.kb-shot-thumb {
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 6px;
+  animation: kb-shot-pulse 1.1s ease-in-out infinite;
+}
+.kb-shot-thumb img { display: block; width: 100%; height: 100%; object-fit: cover; }
+@keyframes kb-shot-pulse {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 #7E68F066; }
+  50% { transform: scale(1.12); box-shadow: 0 0 0 3px #7E68F033; }
+}
+/* ---- 问AI 页（kb-free-chat 组件）：菜单栏相册（图片）图标左侧的气泡按钮进入的「与 AI 对话」页面 ----
+   键盘顶部换成「问AI」标题栏 +（选中过图片时）缩略图行 + 快捷栏 + 提问输入行
+   （见 components/shared/kb-free-chat.js），键区照常在下：
+     ① 标题栏 —— **顶替菜单栏**（同为 --lc-toolbar-height，打字时换成的候选词栏也在这一行），不额外占高；
+     ②③ 缩略图行 / 快捷栏与 ④ 输入行（多行时自动长高、最多三行）涨出来的实际高度由 app.js 的
+         paintFreeInputGrowth 实测后记进 --lc-free-extra —— 整块键盘按它往上长，键区高度始终不变，
+         切进 / 切出这一页键区不跳（布局 / 层 / 中英也继承进来时的状态）。
+   图片选择器展开时键区被 .free-picker 网格盖住（kb-photo-picker 的内嵌形态，见下方那一组规则）；
+   AI 分析面板 / 聊天分析面板这类 with-picker 覆盖层打开时仍按三分之二屏算（键区被面板盖住，
+   与平时打开这些面板时一致）—— 面板铺满整个键盘区域。 */
+.keyboard.free-chat {
+  height: calc(var(--lc-keyboard-height) + var(--lc-free-row-height) + var(--lc-free-extra, 0px));
+}
+.keyboard.free-chat.with-picker { height: var(--lc-keyboard-panel-height); }
+.kb-free-chat {
+  flex-shrink: 0;
+  background: color-mix(in srgb, var(--lc-keyboard) 86%, var(--lc-surface));
+}
+/* 候选词栏在问AI 页里顶替的是标题栏（打字时换掉那一行），不再是键盘与键区之间的分隔，
+   去掉菜单栏那枚小横条 */
+.kb-free-chat .kb-toolbar:after { display: none; }
+.free-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: var(--lc-toolbar-height);
+  padding: 0 6px 0 12px;
+  border-bottom: 1px solid var(--lc-border);
+}
+.free-title strong {
+  flex: 1;
+  min-width: 0;
+  font-size: 15px;
+  font-weight: 650;
+  color: var(--lc-text);
+}
+.free-title .icon-btn { width: 30px; height: 32px; }
+/* 提问输入行：聊天对象头像（32px）+ 白底圆角输入框 + 右端按钮（图片 / 发送，30px），
+   整行**至少** --lc-free-row-height 高（一行文字时正好这么高），三者在**底部对齐** ——
+   输入框长到两三行时头像与按钮跟着贴底，不再浮在行中间。
+   输入框是自适应高度的 textarea（JS 按内容设高、最多三行，再多框内滚动，见 paintFreeInputGrowth）；
+   外面套 .input-wrap、里面压着 .compose-mirror：给未确认的那段拼音画下划线
+   （结构在 kb-free-chat.js，画线在 app.js 的 paintComposeMirror）。 */
+.free-input-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  min-height: var(--lc-free-row-height);
+  padding: 5px 6px 5px 8px;
+}
+.free-partner { display: flex; flex-shrink: 0; color: var(--lc-muted); }
+/* 这一页的头像是**圆形**（按设计图；键盘其它地方的对象头像仍是圆角方块） */
+.free-partner .avatar { flex: 0 0 32px; width: 32px; height: 32px; font-size: 12px; border-radius: 50%; }
+.free-input {
+  flex: 1;
+  min-width: 0;
+  height: 34px;
+  padding: 7px 10px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--lc-surface);
+  color: var(--lc-text);
+  font-size: 13px;
+  line-height: 18px;
+  resize: none;
+  overflow-y: auto;
+}
+.free-input::placeholder { color: var(--lc-subtle); }
+/* 打开这一页就把光标交给它（见 app.js 的 render），不画聚焦框 —— 与设计图的默认样式一致 */
+.free-input:focus { outline: none; }
+.free-photo { width: 30px; height: 30px; color: var(--lc-muted); }
+/* 输入行右端的语音输入按钮（按住说话）：与左边那枚「图片」按钮同尺寸 / 同色（30px 见方、灰图形，
+   按下态的反馈由整块语音遮罩给出，按钮自己不变样），图形是 system-glyphs 的 voice（同键盘底栏那枚）。
+   [data-voice-hold] 那条通用规则已给它 touch-action:none 与禁长按选择 / 系统手势。 */
+.free-voice { width: 30px; height: 30px; color: var(--lc-muted); }
+.free-voice svg { width: 20px; height: 20px; }
+/* 输入行右端按钮的一枚两态：图片选择器收起时是上面这枚「图片」按钮；
+   展开且已选图时换成这枚蓝色圆形「发送」（按住说话那枚遮罩之外，它是这一页唯一可见的发送出口 ——
+   键区被网格盖住，右下角那颗蓝键点不到）。
+   30px 正圆 + 一枚白色**箭头**（图形在组件里内联，见 kb-free-chat.js 的 SEND_ARROW），
+   圆下一层同色淡影把它从输入行里托起来；按下缩一下当反馈。 */
+.free-send {
+  display: flex;
+  flex: 0 0 30px;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--lc-accent);
+  color: #FFF;
+  box-shadow: 0 2px 6px color-mix(in srgb, var(--lc-accent) 34%, transparent);
+  transition: transform .12s ease, filter .12s ease;
+}
+.free-send:active { transform: scale(.9); filter: brightness(.94); }
+.free-send-arrow { width: 17px; height: 17px; }
+/* 深色外观下底色是浅紫：白色箭头对比不足，改用深色（与键盘的蓝键同一套处理） */
+.dark .free-send { color: #232130; box-shadow: 0 2px 6px #0000004D; }
+/* 已选图片的缩略图行（最多 3 张，在快捷栏上方）：点整张缩略图移出（左上角压着那枚 X 是提示，
+   与图片选择器网格里选中态读的是同一份 state.selectedPhotos）；未满 3 张时跟一枚「+」继续挑。
+   图仍由 core/kit.js 的 shot() 现场画（与网格里那张同源），缩到 46px 后只留几条气泡。
+   下边框 = 与下面快捷栏之间的分隔线（整行铺满，不内缩） */
+.free-thumbs { display: flex; gap: 8px; padding: 7px 8px; border-bottom: 1px solid var(--lc-border); }
+.free-thumb {
+  position: relative;
+  flex: 0 0 46px;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid var(--lc-border);
+  border-radius: 8px;
+  background: #141417;
+}
+.free-thumb .shot-chat { gap: 4px; padding: 5px 4px; }
+.free-thumb .shot-avatar,
+.free-thumb .shot-time { display: none; }
+.free-thumb .shot-bubble { max-width: 100%; padding: 2px 3px; font-size: 5px; }
+.free-thumb img { width: 100%; height: 100%; object-fit: cover; }
+.free-thumb-x {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 15px;
+  height: 15px;
+  border-radius: 50%;
+  background: #000000B3;
+  color: #FFF;
+}
+.free-thumb-x svg { width: 9px; height: 9px; }
+.free-thumb-add {
+  display: flex;
+  flex: 0 0 46px;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--lc-border);
+  border-radius: 8px;
+  background: var(--lc-surface);
+  color: var(--lc-muted);
+}
+.free-thumb-add svg { width: 16px; height: 16px; }
+/* 快捷栏：一行预设问题（帮我回 / 这样回复如何 / 我最后一轮回复的如何，见 app.js 的 FREE_SHORTCUTS），
+   **点一下立即发送**（不再有选中态，见 app.js 的 pickFreeShortcut）—— 点哪条决定结果结构。
+   窄机上三条放不下，行内**横向滚动**：可左右滑，滚动条不出现在设计里（隐藏），
+   末尾留 8px 内边距，滑到头最后一条不贴边；下边框 = 与提问输入行之间的分隔线 */
+.free-chips {
+  display: flex;
+  gap: 8px;
+  padding: 7px 8px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--lc-border);
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.free-chips::-webkit-scrollbar { display: none; }
+.free-chip {
+  flex: 0 0 auto;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--lc-border);
+  border-radius: 8px;
+  background: var(--lc-surface);
+  color: var(--lc-text);
+  font-size: 12px;
+  white-space: nowrap;
+  user-select: none;
+}
+.free-chip:active { border-color: var(--lc-accent); background: var(--lc-accent-soft); color: var(--lc-accent-strong); }
+/* ---- 问AI 页里的图片选择器（kb-photo-picker 的内嵌形态）----
+   点输入行右端的图片按钮 / 缩略图行的「+」展开：输入行**下方**的整块键区（键体 + 平台底栏）
+   换成三列聊天截图网格，从底部往上滑出、盖住键区，超出后网格内滚动。
+   与整页的「选择聊天截图」共用同一套卡片画法与选中态（.shot-card / .shot-badge，
+   这两条规则读的 --picker-* 变量在这里就地给一份）：区别只在**底纹** —— 整页那张是深色覆盖层，
+   这里是键盘内的一块区域，取键盘色（浅色外观下是浅底 + 深色聊天截图卡）。
+   权限两档引导照旧生效（有限访问只放出授权的那张；完全没开换成一行引导 +「去开启权限」）。 */
+.free-picker {
+  --picker-card: #17171A;
+  --picker-badge: #3D6BF5;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 8px 8px 10px;
+  background: color-mix(in srgb, var(--lc-keyboard) 92%, var(--lc-surface));
+  border-top: 1px solid var(--lc-border);
+}
+.free-picker.entering { animation: picker-up .28s cubic-bezier(.32, .72, 0, 1) both; }
+.free-picker .picker-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.free-picker-guide { display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 24px 10px; }
+.free-picker-guide p { font-size: 12px; color: var(--lc-muted); }
+.free-picker-btn {
+  height: 28px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--lc-accent);
+  color: #FFF;
+  font-size: 12px;
+}
+.dark .free-picker-btn { color: #232130; }
+.kb-body { padding: 4px var(--lc-keyboard-padding) var(--lc-keys-gap); overscroll-behavior: contain; }
+/* Android 不渲染键盘底部菜单栏（components/android/kb-navbar.js 是空实现），键区下补一条与菜单栏
+   等高的留白（= 底栏高度 + 键区留白），三端键区到屏幕底边的距离因此一致（iOS / 鸿蒙是「底栏 + 键区留白」）。 */
+.phone[data-platform="android"] .keyboard .kb-body { padding-bottom: calc(var(--lc-sysbar-height) + var(--lc-keys-gap)); }
+/* 底部控制条（系统手势条 / home indicator）已整体删除：组件、脚本、样式与底部占位一并移除，
+   手机内容（键盘 / app-nav）直接铺到屏幕底边。原实现见「需求记录」2026-09-25 一条。 */
+.primary { background: var(--lc-accent); color: #FFF; border-color: transparent; min-height: 40px; border-radius: var(--lc-key-radius); font-size: 13px; }
+.primary:hover { background: var(--lc-accent-strong); }
+.secondary { background: var(--lc-surface); color: var(--lc-text); border-color: var(--lc-border); min-height: 40px; }
+.ai-footnote { font-size: 10px; margin-top: 5px; }
+/* 未确认的组合串在输入框里的下划线（见 .compose-mirror）：字母是 textarea 自己画的，
+   这一层只画线，所以不取文字色而取强调色，和候选词栏的首选词一致。 */
+.compose-mirror .composing { text-decoration-color: var(--lc-accent); text-decoration-thickness: 2px; text-underline-offset: 2px; }
+.candidates button:first-child { color: var(--lc-accent-strong); }
+/* ---- 键区：五种键盘（26 键中文 / 26 键英文 / 中文九宫格 / 数字 / 符号）共用外壳，矩阵在 kb-keys.js ----
+   比例取自设计图：键间距约为键宽的 1/8、圆角约为键宽的 1/5 —— 335px 机型上 10 列时分到
+   键宽约 30px、间距 4px、圆角 6px，字母键高约 34px（近正方形，与真机一致）。 */
+.keys { gap: 4px; }
+.key-row { gap: 4px; }
+/* 26 键第二行两端缩进半颗键（A S D F G H J K L），用百分比跟随键区宽度 */
+.key-row.row-inset { padding: 0 4.6%; }
+.key { background: var(--lc-surface); color: var(--lc-text); height: var(--lc-letter-key-height); border-radius: var(--lc-key-radius); font-size: 16px; box-shadow: 0 1px 0 #BBBDC9; }
+.key:active { background: var(--lc-accent-soft); }
+.key.func { background: var(--lc-key-function); color: var(--lc-text); font-size: 12px; white-space: nowrap; }
+.key.accent { background: var(--lc-accent); color: #FFF; font-size: 14px; white-space: nowrap; }
+.key.space { color: var(--lc-muted); font-size: 12px; white-space: nowrap; }
+/* 中/英切换键：两个字都画在键上，当前语言那个更大、取强调色，另一个变灰 —— 一眼看出当前是哪种键盘。
+   英文只有 26 键这一种布局，中文才有 26 键与九宫格（布局归属见 core/ime.js 的 layout()）。 */
+.keyboard .key.lang-key { gap: 3px; }
+.keyboard .key.lang-key .lang-opt { font-size: 10px; line-height: 1; color: var(--lc-subtle); }
+.keyboard .key.lang-key .lang-opt.active { font-size: 15px; font-weight: 650; color: var(--lc-accent-strong); }
+
+/* 九宫格骨架（中文九宫格与数字键盘共用）：左列是标点 / 符号列，占五颗键（跨四行，所以比中间的键矮一档）；
+   中间 3×3 是字母块或数字；右列自上而下是 ⌫ / 换行（数字层是空格）/ 发送，发送占最下两行；
+   底行（123 空格 中英 / 返回 0 .）横跨中间三列。整块被拉伸填满键区（四行等分），
+   与 26 键的键区高度完全一致 —— 切布局、切层时键盘高度都不跳。 */
+.keys.t9-layout { flex: 1 1 auto; min-height: 0; }
+.t9-grid {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 0.85fr 1fr 1fr 1fr 0.85fr;
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+.t9-punct {
+  grid-area: 1 / 1 / 5 / 2;
+  display: grid;
+  grid-template-rows: repeat(5, minmax(0, 1fr));
+  gap: 4px;
+}
+.t9-blocks {
+  grid-area: 1 / 2 / 4 / 5;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-rows: repeat(3, minmax(0, 1fr));
+  gap: 4px;
+}
+.t9-bottom { grid-area: 4 / 2 / 5 / 5; display: flex; gap: 4px; }
+.t9-back { grid-area: 1 / 5 / 2 / 6; }
+.t9-mid { grid-area: 2 / 5 / 3 / 6; }
+.t9-send { grid-area: 3 / 5 / 5 / 6; }
+
+/* 九宫格打字中：左列标点键换成拼音组合列 —— 顶部是第一个候选词（点击直接上屏），
+   下面是当前数字串推出的拼音字母组合（ke / le / j …），可上下滑动，点一条即切换
+   （组合由 core/ime.js 的 t9Paths 计算，切换动作 t9-path 在 app.js）。 */
+/* 九宫格打字中`@#`键位换成「分词」键：两个汉字，字号比字母小一档 */
+.key.t9-seg { font-size: 11px; white-space: nowrap; }
+.t9-paths {
+  grid-area: 1 / 1 / 5 / 2;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 4px;
+  min-height: 0;
+}
+.t9-path-cand {
+  background: var(--lc-surface);
+  color: var(--lc-accent-strong);
+  font-weight: 650;
+  font-size: 14px;
+  height: var(--lc-t9-key-height);
+  border-radius: var(--lc-key-radius);
+  box-shadow: 0 1px 0 #BBBDC9;
+}
+.t9-path-list {
+  min-height: 0;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  scrollbar-width: none;
+}
+.t9-path-list::-webkit-scrollbar { display: none; }
+.t9-path {
+  flex: 0 0 auto;
+  min-height: var(--lc-t9-key-height);
+  background: var(--lc-surface);
+  color: var(--lc-text);
+  font-size: 14px;
+  border-radius: var(--lc-key-radius);
+  box-shadow: 0 1px 0 #BBBDC9;
+}
+.t9-path.active { background: var(--lc-accent-soft); color: var(--lc-accent-strong); font-weight: 650; }
+.t9-path:active, .t9-path-cand:active { background: var(--lc-accent-soft); }
+
+/* 符号键盘：左列是四个分类标签（常用 / 中文 / 英文 / 表情），右侧是 4×4 符号面板。
+   符号面板不是一颗颗键帽，而是一整块用 1px 网格线分隔的面板（圆角裁切），与设计图一致；
+   底行与 26 键完全相同。 */
+.keys.sym-layout .sym-grid {
+  flex: 4 1 0;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 0.85fr repeat(4, minmax(0, 1fr));
+  grid-template-rows: repeat(4, minmax(0, 1fr));
+  border: 1px solid var(--lc-border);
+  border-radius: var(--lc-key-radius);
+  overflow: hidden;
+  background: var(--lc-surface);
+}
+.keys.sym-layout .keyboard-bottom-row { flex: 1 1 0; min-height: 0; }
+/* 分类列占第一列、跨四行；符号区占其余四列（面板本身是 5 列 × 4 行的网格，
+   两个子块都必须显式定位，否则会被自动塞进第 1 行第 1、2 格） */
+.sym-cats { grid-column: 1; grid-row: 1 / 5; display: grid; grid-template-rows: repeat(4, minmax(0, 1fr)); }
+.sym-keys { grid-column: 2 / 6; grid-row: 1 / 5; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(4, minmax(0, 1fr)); }
+.keyboard .sym-grid .sym-cat,
+.keyboard .sym-grid .sym-key {
+  height: auto;
+  border-radius: 0;
+  box-shadow: none;
+  background: transparent;
+  border-right: 1px solid var(--lc-border);
+  border-bottom: 1px solid var(--lc-border);
+}
+.keyboard .sym-grid .sym-key { font-size: 15px; }
+.keyboard .sym-grid .sym-cat { font-size: 13px; color: var(--lc-muted); }
+.keyboard .sym-grid .sym-cat.active { background: var(--lc-key-function); color: var(--lc-accent-strong); font-weight: 600; }
+.keyboard .sym-cats .sym-cat:nth-child(4),
+.keyboard .sym-keys .sym-key:nth-child(n+13) { border-bottom: 0; }
+.keyboard .sym-keys .sym-key:nth-child(4n) { border-right: 0; }
+
+.modal-backdrop { background: #22213159; }
+.sheet { background: var(--lc-surface); color: var(--lc-text); border-radius: 16px 16px 0 0; box-shadow: 0 -8px 30px #26213212; }
+.sheet-handle { background: var(--lc-border); }
+.sheet-content { padding: 16px; overflow-wrap: anywhere; }
+.sheet-footer { padding: 12px 16px 18px; }
+.sheet .row-button { min-height: 44px; font-size: 13px; }
+.sheet .field input, .sheet .field select, .sheet .field textarea { font-size: 16px; line-height: 22px; background: var(--lc-canvas); color: var(--lc-text); border-color: var(--lc-border); }
+.hint-banner { background: var(--lc-canvas); color: var(--lc-muted); border-radius: 6px; }
+/* 「模拟截屏」的整屏白闪：真机按下系统截屏键的即时反馈（app.js 置 state.shotFlash，
+   约 0.35s 后摘掉标记重渲染）—— 盖在手机屏幕最上层但不吃点击（pointer-events:none），
+   z-index 30：高于键盘区域内的各层覆盖层（16）与手机内弹层遮罩（20），低于按住说话遮罩（40）。 */
+.shot-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  background: #FFF;
+  animation: shot-flash-out .35s ease-out both;
+}
+@keyframes shot-flash-out {
+  from { opacity: .9; }
+  to { opacity: 0; }
+}
+/* 按住说话遮罩（皮肤，骨架在 styles.css）：**高度跟着键盘区域走**（与 .keyboard 同高、同贴底），
+   遮罩层自己走「底部 1 → 顶部 0」的渐隐 —— 背景色渐变负责压暗、mask 让毛玻璃一起淡出，
+   上缘与聊天分析面板的内容自然融合，不再整屏压黑。固定深色（截图即深色场景），
+   不跟随键盘的浅色 / 深色外观；按住态（发送态）是**蓝色**背景（与波浪条同族，
+   深色底 + 毛玻璃，渐变结构与取消态一致），上滑进入取消态 = 遮罩泛红 + 波浪条变红，
+   颜色过渡 0.18s。波浪条取截图的蓝（#5F7FF0）与红（#F06A6A）；
+   z-index 40：高于聊天分析面板（16），仅次于手机内的弹层（遮罩在 DOM 后面）。
+
+   三条高度换算（骨架那条 height 是干净键盘页的值）：键盘被面板 / 选择器 / 编辑面板撑到
+   三分之二时用 --lc-keyboard-panel-height；问AI 页 = 键盘总高 + 输入行 + 输入区涨出来的部分
+   （--lc-free-extra 由 paintFreeInputGrowth 写在 .phone 上，与 .keyboard.free-chat 读同一份值，
+   所以两者永远一样高）；键盘收起（不渲染 .keyboard）或「键盘未开启」时落回干净键盘页那条。 */
+.voice-rec {
+  z-index: 40;
+  touch-action: none;
+}
+.phone:has(.keyboard.with-picker) .voice-rec { height: var(--lc-keyboard-panel-height); }
+.phone:has(.keyboard.free-chat:not(.with-picker)) .voice-rec { height: calc(var(--lc-keyboard-height) + var(--lc-free-row-height) + var(--lc-free-extra, 0px)); }
+.voice-rec-scrim {
+  background: linear-gradient(to top, rgba(34, 48, 140, .9), rgba(34, 48, 140, .74) 34%, rgba(34, 48, 140, .32) 72%, rgba(34, 48, 140, 0));
+  -webkit-backdrop-filter: blur(26px) saturate(1.15);
+  backdrop-filter: blur(26px) saturate(1.15);
+  -webkit-mask-image: linear-gradient(to top, #000 0%, #000 62%, transparent 100%);
+  mask-image: linear-gradient(to top, #000 0%, #000 62%, transparent 100%);
+  transition: background .18s ease;
+}
+.voice-rec.cancel .voice-rec-scrim {
+  background: linear-gradient(to top, rgba(66, 15, 15, .9), rgba(66, 15, 15, .74) 34%, rgba(66, 15, 15, .32) 72%, rgba(66, 15, 15, 0));
+}
+/* 提示词：灰色常规字重（不加粗、不做发光高亮），只靠字距保持可读性 */
+.voice-rec-tip { letter-spacing: .5px; color: #AEB4C4; }
+.voice-rec-wave i { background: #5F7FF0; box-shadow: 0 0 6px #5F7FF055; transition: background .18s ease, box-shadow .18s ease; }
+.voice-rec.cancel .voice-rec-wave i { background: #F06A6A; box-shadow: 0 0 6px #F06A6A55; }
+/* 按住说话的入口按钮：禁掉长按选择 / 系统触摸手势，按住上滑才不会被浏览器当成滚动或选择 */
+[data-voice-hold] { touch-action: none; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.light-button { background: var(--lc-accent-soft); color: var(--lc-accent-strong); }
+.device-caption span { background: #AAA9B7; }
+.dark .primary, .dark .key.accent { color: #232130; }
+
+/* Interaction polish: keep the workbook order, but give each state a clear visual rhythm. */
+.phone {
+  background:
+    linear-gradient(180deg, color-mix(in srgb, var(--lc-canvas) 92%, var(--lc-accent-soft)) 0 92px, var(--lc-canvas) 220px);
+}
+/* 入场动画只给真正新到的消息（.fresh，app.js 推送时打标记、播完即清）：
+   整页重渲染会重建 DOM，若每条消息都带动画，选图等任何一次交互都会让聊天页弹一下 */
+.wx-msg.fresh {
+  animation: message-in .18s ease-out both;
+}
+.wx-circle:active,
+.wx-field-mic:active {
+  opacity: .55;
+}
+.keyboard {
+  border-top: 0;
+  box-shadow: 0 -5px 18px #292a3510;
+}
+.kb-toolbar {
+  background: color-mix(in srgb, var(--lc-keyboard) 86%, var(--lc-surface));
+}
+.kb-toolbar:after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: -1px;
+  width: 38px;
+  height: 3px;
+  transform: translateX(-50%);
+  border-radius: 3px;
+  background: var(--lc-border);
+}
+.kb-toolbar {
+  position: relative;
+}
+/* 候选词栏：打字时顶替菜单栏位置。候选词独占一行（未确认的字母在输入框里，见 .compose-mirror），
+   右列是返回菜单栏的出口 */
+.kb-toolbar.candidate-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0 2px;
+  padding: 0 5px 0 7px;
+}
+.kb-toolbar.candidate-bar .candidates {
+  grid-area: 1 / 1;
+  height: 20px;
+  margin: 0;
+  padding: 0;
+  border-bottom: 0;
+}
+.kb-toolbar.candidate-bar .candidate-exit {
+  grid-area: 1 / 2;
+}
+/* 键盘区域内的整页覆盖层：聊天对象管理页（左侧用户按钮切入）与键盘设置页（最右侧设置图标切入）。
+   定位在 .keyboard 内（而不是像弹层那样从状态栏铺到底），因此覆盖键盘区域
+   （含顶部菜单栏 / 候选词栏、按键区、底部导航栏），但保留宿主 App 的输入栏可用。 */
+.partner-manager,
+.kb-settings {
+  position: absolute;
+  inset: 0;
+  z-index: 15;
+  display: flex;
+  flex-direction: column;
+  background: var(--lc-keyboard);
+  color: var(--lc-text);
+}
+/* 入场动画只挂在 .entering 上：打开页面那一次渲染才播放。
+   页面上任何仿真请求（如删除对象的 DELETE）都会整页重建 DOM，
+   动画写在基础选择器上会跟着重放 —— 看起来整个页面闪一下。 */
+.partner-manager.entering,
+.kb-settings.entering { animation: panelin .16s ease-out; }
+@keyframes panelin {
+  from { opacity: .5; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+.partner-manager .panel-top {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: var(--lc-toolbar-height);
+  flex-shrink: 0;
+  padding: 0 8px;
+  border-bottom: 1px solid var(--lc-border);
+  background: color-mix(in srgb, var(--lc-keyboard) 86%, var(--lc-surface));
+}
+.panel-heading {
+  flex: 1;
+  min-width: 0;
+}
+.panel-heading strong {
+  display: block;
+  font-size: 13px;
+}
+.panel-heading small {
+  display: block;
+  margin-top: 1px;
+  font-size: 10px;
+  color: var(--lc-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.panel-new {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  flex-shrink: 0;
+  height: 28px;
+  padding: 0 9px;
+  border-radius: var(--lc-key-radius);
+  background: var(--lc-accent-soft);
+  color: var(--lc-accent-strong);
+  font-size: 11px;
+  font-weight: 600;
+}
+.panel-new svg {
+  width: 13px;
+  height: 13px;
+}
+.panel-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px var(--lc-keyboard-padding) 8px;
+}
+/* min-height 取对象行的自然行高（51px = 名称 + 关系阶段两行文字），
+   「不选择」行只有一行文字，不加下限会比其余行矮 7px —— 头像与文字整体不齐。 */
+.partner-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 51px;
+  width: 100%;
+  padding: 6px 6px 6px 8px;
+  margin-bottom: 5px;
+  text-align: left;
+  border: 1px solid transparent;
+  border-radius: var(--lc-key-radius);
+  background: var(--lc-surface);
+}
+.partner-row.selected {
+  border-color: var(--lc-accent);
+}
+/* 删除收起动画：点删除后整行上移淡出，高度与下边距同步收到 0 —— 下方行跟着顶上去，总长 0.5s。
+   --row-h 由 app.js deletePartner 在重建 DOM 前实测（box-sizing:border-box，含内边距边框）；
+   边框转透明避免收完后残留细线；动画期间行不可再点，收完 forwards 保持塌缩直到成功回调移除该行。
+   行高下限（min-height）会让 height 收不到 0，塌缩前先撤掉。 */
+.partner-row.removing {
+  overflow: hidden;
+  border-color: transparent;
+  pointer-events: none;
+  min-height: 0;
+  animation: row-collapse .5s ease-out forwards;
+}
+@keyframes row-collapse {
+  from { height: var(--row-h, 52px); margin-bottom: 5px; opacity: 1; transform: translateY(0); }
+  /* border-box 下 height:0 会被上下 padding + 边框撑出 ~14px 残留，三者必须一起收到 0 */
+  to { height: 0; padding-block: 0; border-block-width: 0; margin-bottom: 0; opacity: 0; transform: translateY(-8px); }
+}
+.partner-row .avatar {
+  flex: 0 0 30px;
+  width: 30px;
+  height: 30px;
+  font-size: 11px;
+}
+.partner-pick {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+  /* 清掉 button 的 UA 默认内边距（1px 6px）——否则行头像比「不选择」行右移 6px、与下面的行不齐 */
+  padding: 0;
+  text-align: left;
+}
+.partner-row .person-meta strong {
+  font-size: 12px;
+}
+.partner-row .person-meta small {
+  margin-top: 2px;
+  font-size: 10px;
+  color: var(--lc-muted);
+}
+/* 聊天对象行的滑动操作区（结构见 partner-manager / partners 弹层，手势在 app.js 的 bind()）：
+   编辑 / 删除默认停在行外右侧，左滑时滑入、盖在行内容（.row-slide）之上 —— 行内容固定不动，
+   头像与名称始终可见（键盘面板窄：若让内容整行左移，30px 头像会被 92px 按钮组推出可视区，
+   滑开后只剩两个按钮）。
+   按钮绝对定位占满整行的 padding box，而 .row-slide 只有内容高 —— 条目文字变矮后
+   （只剩名称 + 关系阶段）按钮上下两端会从滑动层外露出残影，所以未滑开时干脆不画：
+   visibility 跟 .revealed 走，拖动过程由 app.js 按当前位移同步 transform / class。
+   选中态只靠 .partner-row.selected 边框表达（键盘形态的管理页），不画 ✅。
+   操作按钮重设计：40px 圆角方块 —— 编辑取强调色、删除取危险色。 */
+.swipe-row {
+  position: relative;
+  overflow: hidden;
+}
+.row-actions {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-right: inherit;
+  z-index: 2;
+  visibility: hidden;
+  /* 收起位：整组退到行外右侧（比自身宽度多退一个 padding-right，保证完全被 overflow 裁掉） */
+  transform: translateX(calc(100% + 6px));
+  transition: transform .18s ease;
+}
+.swipe-row.revealed .row-actions {
+  visibility: visible;
+  transform: none;
+}
+/* 按钮组左缘的渐隐遮罩：主 App 对象行的备注文字较长，滑开时文字尾部会伸到按钮下 ——
+   硬边遮挡看起来像文字被切断，加一段 24px 的底色渐变（跟随按钮组一起移动）过渡掉。 */
+.row-actions::before {
+  content: "";
+  position: absolute;
+  right: 100%;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  background: linear-gradient(90deg, transparent, var(--lc-surface));
+  pointer-events: none;
+}
+.row-action {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  border: 0;
+  padding: 0;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.row-action svg {
+  width: 17px;
+  height: 17px;
+}
+.row-action.edit {
+  background: var(--lc-accent-soft);
+  color: var(--lc-accent-strong);
+}
+.row-action.del {
+  background: var(--lc-pink-soft);
+  color: var(--lc-danger);
+}
+/* 行内容层：固定不动（滑动由 .row-actions 自己滑入完成），只在视觉上垫在按钮之下 */
+.row-slide {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+  background: var(--lc-surface);
+  border-radius: inherit;
+  touch-action: pan-y;
+}
+.sheet-list-item .row-slide {
+  gap: 11px;
+}
+/* 空态文案只做**水平居中**：键盘区域横向很宽，靠左贴边排会显得没着落。
+   不做垂直居中 —— 文案紧跟在「不选择」行下面（上方留 24px 间距），剩余空白一律沉在下方。 */
+.panel-empty {
+  padding: 24px 16px;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--lc-muted);
+}
+/* 键盘设置页（kb-settings 组件）：键盘区域内的整页覆盖层，按设计图排布——
+   圆形返回按钮 + 居中标题 + 一张布局选择卡片（九宫格拼音 / 全键盘拼音），
+   卡片是页面上唯一的内容块，其余留白。 */
+.kb-settings .settings-top {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  height: 44px;
+  padding: 0 12px;
+}
+.kb-settings .settings-top h2 {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--lc-text);
+}
+.settings-back {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--lc-key-function);
+  color: var(--lc-text);
+}
+.settings-back svg {
+  width: 13px;
+  height: 13px;
+}
+.kb-settings .settings-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 12px 26px 8px;
+}
+.layout-cards {
+  display: flex;
+  padding: 48px 8px;
+  border-radius: 16px;
+  background: var(--lc-surface);
+}
+.layout-choice {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  color: var(--lc-muted);
+}
+.layout-choice.active {
+  color: var(--lc-accent-strong);
+}
+.layout-choice-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+}
+/* 图形宽度由 viewBox 比例决定：九宫格是方形，全键盘更宽 */
+.layout-choice-icon svg {
+  width: auto;
+  height: 20px;
+}
+.layout-choice strong {
+  font-size: 12px;
+  font-weight: 550;
+}
+/* 键盘选择器 ·「选择聊天截图（最多3张）」（kb-photo-picker 组件）：键盘区域内的整页覆盖层，
+   按设计图 1:1 复刻 —— 左上标题 + 副标题、右上 X、三列聊天截图网格、右下角「立即分析」渐变按钮，
+   底部沿用平台底栏（kb-navbar）。入口是菜单栏的相册图标（data-action="photo-picker"）：
+   键盘整块拉高到手机屏幕的三分之二（.keyboard.with-picker），面板从下往上滑入、铺满键盘区域，
+   并一直铺到屏幕底边（bottom:0，键盘拉高后这里就是手机屏幕底边），与设计图一致。
+   面板本身固定深色（设计图即深色场景）：不跟随键盘的浅色 / 深色外观切换。
+   相册访问权限不是「完整访问」时，同一块壳换成两种引导形态（引导条 / 引导页，见下方
+   .picker-perm 与 .picker-guide 一组规则）：面板与弹出方式都不变，只换内容。 */
+.kb-photo-picker {
+  --picker-bg: #0F0F12;
+  --picker-ink: #FFFFFF;
+  --picker-sub: #9A9AA0;
+  --picker-card: #17171A;
+  --picker-badge: #3D6BF5;
+  /* 权限引导（有限访问的引导条底纹 / 两颗引导按钮的实色） */
+  --picker-banner: #1A1A20;
+  --picker-accent: #7E68F0;
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 16;
+  display: flex;
+  flex-direction: column;
+  background: var(--picker-bg);
+  color: var(--picker-ink);
+}
+/* 从下往上弹出：只在面板新弹出的那次渲染播放（app.js 置一次性标记 pickerEnter → .entering），
+   之后选图等操作的重渲染会重建 DOM，不带 .entering 就不再重放弹出动画 */
+.kb-photo-picker.entering { animation: picker-up .3s cubic-bezier(.32, .72, 0, 1) both; }
+@keyframes picker-up {
+  from { transform: translateY(100%); }
+}
+.kb-photo-picker .picker-top {
+  position: relative;
+  flex-shrink: 0;
+  padding: 20px 46px 12px 15px;
+}
+.kb-photo-picker .picker-top h2 {
+  font-size: 16px;
+  font-weight: 650;
+  color: var(--picker-ink);
+}
+.kb-photo-picker .picker-top p {
+  margin-top: 6px;
+  font-size: 11px;
+  color: var(--picker-sub);
+}
+.kb-photo-picker .picker-close {
+  position: absolute;
+  top: 12px;
+  right: 8px;
+  width: 34px;
+  height: 34px;
+  color: var(--picker-sub);
+}
+/* 面板内是固定深色：关闭按钮 / 底栏按钮的悬停反馈不能用浅色外观的强调底色 */
+.kb-photo-picker .picker-close:hover { background: #FFFFFF1A; color: #FFF; }
+.kb-photo-picker .picker-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 2px 14px 18px;
+}
+.kb-photo-picker .picker-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+/* 单张截图：深色聊天截图（3:4），选中时右上角出现蓝色序号 */
+.shot-card {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  overflow: hidden;
+  border-radius: 6px;
+  background: var(--picker-card);
+}
+/* 头像模式的磁贴改成正方形：候选是 320×320 方图（与确定后裁出的头像同规格），
+   3:4 竖卡会把两侧裁掉、脸被放得过大 */
+.kb-photo-picker.avatar-mode .shot-card { aspect-ratio: 1 / 1; }
+.shot-card img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.shot-chat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
+  padding: 9px 7px;
+  background: #141417;
+}
+.shot-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+.shot-line.out { justify-content: flex-end; }
+.shot-avatar {
+  flex: 0 0 14px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #35353B;
+}
+.shot-bubble {
+  max-width: 74%;
+  padding: 3px 6px;
+  border-radius: 5px;
+  background: #2A2A2F;
+  color: #DDDDE3;
+  font-size: 6px;
+  line-height: 1.6;
+}
+.shot-line.out .shot-bubble { background: #E4576F; color: #FFF; }
+.shot-time {
+  margin-top: auto;
+  text-align: center;
+  font-size: 5px;
+  color: #6E6E76;
+}
+.shot-badge {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: grid;
+  place-items: center;
+  min-width: 19px;
+  height: 19px;
+  padding: 0 5px;
+  border-radius: 10px;
+  background: var(--picker-badge);
+  color: #FFF;
+  font-size: 11px;
+  font-weight: 650;
+}
+/* 右下角的「立即分析」：悬浮在网格之上、底栏之上 */
+.kb-photo-picker .picker-analyze {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 34px;
+  padding: 0 16px;
+  border-radius: 17px;
+  background: linear-gradient(105deg, #5340CE 0%, #7E68F0 55%, #A99BFF 100%);
+  color: #FFF;
+  font-size: 14px;
+  font-weight: 600;
+  box-shadow: 0 6px 18px #5340CE59;
+}
+.kb-photo-picker .picker-analyze svg { width: 16px; height: 16px; }
+.kb-photo-picker .picker-analyze:disabled { opacity: .45; }
+/* 按钮右上角的已选数量角标：photo: 动作每次都整页重渲染，选 / 取消选图即时同步 */
+.kb-photo-picker .analyze-count {
+  position: absolute;
+  top: -7px;
+  right: -3px;
+  display: grid;
+  place-items: center;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  background: #2C2C2E;
+  color: #FFF;
+  font-size: 11px;
+  font-weight: 650;
+  box-shadow: 0 0 0 2px var(--picker-bg);
+}
+/* 面板里有平台底栏时（iOS / 鸿蒙），按钮再抬一条底栏高度 */
+.kb-photo-picker:has(.kb-sysbar) .picker-analyze {
+  bottom: calc(var(--lc-sysbar-height) + 14px);
+}
+/* 相册权限的两种引导形态（只在聊天截图模式下出现，判定见 kb-photo-picker.js）：
+   ① 有限访问 = 网格照常（只有授权过的那张可读），标题栏下面多一条整宽引导条：
+      左侧文案 + 右侧「开启权限」胶囊（底纹比面板深色略浅一档，与网格拉开层次）。
+      这一条整体比标题栏小一档（文案 11px、胶囊 22px 高，整条 28px 高），
+      按设计图的比例收过尺寸；
+   ② 完全没开 = 整个面板换成权限引导页（.guide-mode）：标题栏保留（副标题收起），
+      标题栏与底栏之间的整块区域居中放一行标题 + 一行副文案 + 一颗「去开启权限」胶囊，
+      没有网格、也没有右下角「立即分析」。 */
+.kb-photo-picker .picker-perm {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-shrink: 0;
+  min-height: 28px;
+  padding: 3px 12px 3px 13px;
+  background: var(--picker-banner);
+  color: var(--picker-ink);
+  font-size: 11px;
+}
+/* 文案万一折行：中文按「词语」断行（keep-all），折行点落在顿逗号之后，而不是两个汉字中间 */
+.kb-photo-picker .picker-perm > span {
+  min-width: 0;
+  word-break: keep-all;
+}
+.kb-photo-picker .picker-perm-btn {
+  flex: 0 0 auto;
+  height: 22px;
+  padding: 0 11px;
+  border-radius: 11px;
+  background: var(--picker-accent);
+  color: #FFF;
+  font-size: 10px;
+}
+.kb-photo-picker .picker-perm-btn:hover { background: #9280F5; }
+/* 引导页形态：内容区不再滚动，整块交给居中的引导块 */
+.kb-photo-picker.guide-mode .picker-body {
+  display: flex;
+  overflow: hidden;
+  padding: 0;
+}
+.kb-photo-picker .picker-guide {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 0 24px 18px;
+  text-align: center;
+}
+.kb-photo-picker .picker-guide-title {
+  color: var(--picker-ink);
+  font-size: 15px;
+}
+/* 副文案收一档到 11px（与引导条那条 11px 同级）：文案加长后仍能在工作台窄机（约 335px 宽）
+   上一行放下，不会末尾「～」孤到第二行 */
+.kb-photo-picker .picker-guide-sub {
+  margin-top: 10px;
+  color: var(--picker-sub);
+  font-size: 11px;
+}
+.kb-photo-picker .picker-guide-btn {
+  margin-top: 30px;
+  height: 34px;
+  padding: 0 28px;
+  border-radius: 17px;
+  background: var(--picker-accent);
+  color: #FFF;
+  font-size: 15px;
+}
+.kb-photo-picker .picker-guide-btn:hover { background: #9280F5; }
+/* 面板底部的底栏：透明底色直接露出面板深色（与面板背景同一底色），高度就是一条底栏 */
+.kb-photo-picker .kb-sysbar {
+  flex: 0 0 var(--lc-sysbar-height);
+  align-items: flex-start;
+  padding: 2px 24px 0;
+  background: transparent;
+  color: #D5D5DB;
+}
+.kb-photo-picker .kb-sysbar .sys-key:hover { background: #FFFFFF1A; color: #FFF; }
+/* 新增 / 编辑聊天对象面板（kb-partner-editor 组件）：皮肤直接复用选图面板（根节点同挂 .kb-photo-picker）——
+   页面分上下两部分：**上半是表单面板、下半是键盘**（模拟系统键盘弹起把表单顶上去）。
+   键盘整块仍拉高到手机屏幕的三分之二（.keyboard.with-picker），面板只占上半
+   （键盘总高 − 常规键盘高 250px）；下半（默认收起菜单栏的键盘）
+   由上面 .keyboard:has(.kb-partner-editor) 一组规则保持贴底。
+   面板内表单是横向一行：**头像在左**（「上传头像」虚线圆槽 + 小字提示），
+   **备注名 / 关系阶段两行在右**（左标签 + 右控件），整行在剩余空间里垂直居中。
+   标题栏压到一行（此处覆盖 .picker-top 的共用 padding，不动选图面板），没有说明文案。
+   没有底部「确定」—— 表单一有变化即静默保存（逻辑见 app.js），编辑态也没有「删除这个对象」。 */
+.kb-partner-editor {
+  bottom: auto;
+  height: calc(100% - var(--lc-keyboard-height));
+}
+.kb-partner-editor .picker-top { padding: 7px 46px 1px 15px; }
+.kb-partner-editor .pe-body {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+  padding: 0 16px;
+}
+.kb-partner-editor .pe-avatar {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+}
+.kb-partner-editor .pe-avatar-ph,
+.kb-partner-editor .pe-avatar-img {
+  display: grid;
+  place-items: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  overflow: hidden;
+}
+.kb-partner-editor .pe-avatar-ph {
+  background: var(--picker-card);
+  border: 1.5px dashed #4A4A52;
+  color: var(--picker-sub);
+}
+.kb-partner-editor .pe-avatar-ph svg { width: 22px; height: 22px; }
+.kb-partner-editor .pe-avatar:hover .pe-avatar-ph { border-color: #7E68F0; color: #C9BFFF; }
+.kb-partner-editor .pe-avatar-img { border: 1.5px solid #FFFFFF33; }
+.kb-partner-editor .pe-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
+.kb-partner-editor .pe-avatar-label { font-size: 11px; color: var(--picker-sub); }
+.kb-partner-editor .pe-fields { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.kb-partner-editor .pe-field { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--picker-sub); }
+.kb-partner-editor .pe-field > span { flex: 0 0 52px; }
+.kb-partner-editor .pe-field input,
+.kb-partner-editor .pe-field select {
+  flex: 1;
+  min-width: 0;
+  min-height: 38px;
+  padding: 8px 12px;
+  border: 1px solid #2C2C32;
+  border-radius: 9px;
+  background: var(--picker-card);
+  color: var(--picker-ink);
+  font-size: 13px;
+}
+.kb-partner-editor .pe-field input::placeholder { color: #6E6E76; }
+/* 键盘内登录层（kb-login 组件）：未登录时键盘一被唤起就从下往上弹出的登录页 —— 键盘区域内的整页
+   覆盖层：**高度与键盘保持一致**（就是 .keyboard 的常规高度 --lc-keyboard-height = 250px；
+   矮窗口 210px），不额外把整块键盘拉高到三分之二屏（键盘选择器 / 分析面板那套 with-picker 不适用），
+   菜单栏 / 键区 / 底栏一并盖住。层级最高（z-index 18，压在选图 / 分析 / 编辑面板之上），
+   弹出时机见 app.js 的 checkKbLogin()。
+   皮肤**固定浅色**（设计图即浅色场景，与选图 / 分析面板的固定深色同理）：顶部一层淡粉紫渐变
+   向下渐隐到白，不跟随键盘的浅色 / 深色外观；两种形态（one-tap 本机号一键登录 / sms 手机号验证登录）
+   共用同一块底与同一个右上角 X，靠根节点的 .one-tap / .sms 区分内部结构 —— 一键登录的 X 坐在顶部一条
+   键盘菜单栏那么高的「顶条」里（.kbl-bar，把本机号及其下内容整体往下顶），手机号登录的 X 仍是悬浮在
+   标题行右侧的绝对定位按钮。
+   尺寸按「一条键盘那么高的横带」重排（设计图里的宽留白在这块高度里装不下）：按钮 / 输入框都取
+   够得上触控的紧凑档，剩余空白交给 flex 吸收 —— 一键登录的协议行与短信形态的「登录」按钮
+   分别沉到各自的最下方。
+   键盘内协议正文页（kb-legal）与登录层共用同一块底与同一套 --kbl-* 令牌（选择器并列在下面），
+   两层的顶条 / X / 配色由此天然一致；正文页自己的一组规则在下面单独一段。 */
+.kb-login,
+.kb-legal {
+  --kbl-ink: #22222B;
+  --kbl-sub: #8A8B95;
+  --kbl-field: #F4F4F7;
+  --kbl-placeholder: #A9ABB4;
+  --kbl-accent: #5766F2;
+  --kbl-accent-strong: #4553E4;
+  --kbl-accent-mute: #AEB3F4;
+  position: absolute;
+  inset: 0;
+  z-index: 18;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #F8E6F0 0%, #FCF5FA 30%, #FFFFFF 56%);
+  color: var(--kbl-ink);
+}
+/* 与选图面板同一套「从下往上弹出」：只在登录层新弹出的那次渲染播放（app.js 置一次性标记 pickerEnter） */
+.kb-login.entering,
+.kb-legal.entering { animation: picker-up .3s cubic-bezier(.32, .72, 0, 1) both; }
+.kb-login .kbl-close { position: absolute; top: 7px; right: 7px; width: 26px; height: 26px; border-radius: 50%; color: var(--kbl-ink); }
+.kb-login .kbl-close:hover { background: #22222B0F; }
+.kb-login .kbl-close svg { width: 15px; height: 15px; }
+/* 登录层主体：竖向排布、内容超出可滚（更矮的窗口里两张表单都够得着） */
+.kb-login .kbl-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  padding: 0 20px 10px;
+}
+.kb-login .kbl-primary {
+  flex-shrink: 0;
+  width: 100%;
+  height: 42px;
+  margin-top: 10px;
+  border-radius: 999px;
+  background: var(--kbl-accent);
+  color: #FFF;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: 0 6px 14px #5766F22E;
+}
+.kb-login .kbl-primary:hover { background: var(--kbl-accent-strong); }
+.kb-login .kbl-primary:disabled { background: var(--kbl-accent-mute); box-shadow: none; }
+/* —— 一键登录形态：X 顶条 → 本机号 → 主按钮 → 「手机号登录」入口 → 协议行（沉底） —— */
+/* X 顶条：**独占键盘菜单栏那么高的一行**（--lc-toolbar-height，常规 40px / 矮窗口 27px），X 靠右；
+   顶条把下面的本机号 / 主按钮 / 入口 / 协议行整体往下顶一行 —— 这里 X 是常规排布（不再是绝对定位的
+   悬浮按钮），所以下面几块跟着下移，本机号自己不再留上边距（顶条已经给了这段留白） */
+.kb-login.one-tap .kbl-bar { flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; height: var(--lc-toolbar-height); }
+.kb-login.one-tap .kbl-bar .kbl-close { position: static; }
+.kb-login .kbl-hero { flex-shrink: 0; text-align: center; }
+.kb-login .kbl-hero strong { font-size: 24px; font-weight: 750; letter-spacing: .5px; font-variant-numeric: tabular-nums; }
+.kb-login .kbl-methods { flex-shrink: 0; display: flex; justify-content: center; gap: 26px; margin-top: 12px; }
+/* 入口按钮宽度跟着文字走（「手机号登录」比「手机」长，写死宽度会换行） */
+.kb-login .kbl-method { display: flex; flex-direction: column; align-items: center; gap: 4px; padding: 0 2px; }
+/* 图标方块：浅灰底 + 深色图形（core/kit.js 的 icon() 输出的是 span 包 svg，取第一个 span 当方块）——
+   浅灰底只当图形的衬底，收小到 38px 见方（图形本身仍是全局 18px，不再跟着一起放大） */
+.kb-login .kbl-method > span:first-child { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 11px; background: var(--kbl-field); color: var(--kbl-ink); }
+.kb-login .kbl-method:hover > span:first-child { background: #ECECF2; }
+.kb-login .kbl-method > span:last-child { font-size: 10.5px; color: var(--kbl-sub); white-space: nowrap; }
+.kb-login .kbl-consent { display: flex; align-items: flex-start; gap: 7px; margin: auto 0 0; padding-top: 8px; font-size: 10.5px; line-height: 1.5; color: var(--kbl-sub); }
+.kb-login .kbl-consent b,
+.kb-login .kbl-consent .kbl-legal-link { color: var(--kbl-ink); font-weight: 600; }
+/* 协议名是同一层里可点的文字按钮（点开键盘内协议正文页 kb-legal）：外观与原先的加粗文字完全一致，
+   只多一记悬停下划线当可点提示；点它不切换勾选（label 对交互元素后代不转发激活行为） */
+.kb-login .kbl-consent .kbl-legal-link { padding: 0; border: 0; background: none; font: inherit; font-weight: 600; line-height: inherit; cursor: pointer; }
+.kb-login .kbl-consent .kbl-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+.kb-login .kbl-consent input {
+  appearance: none;
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+  margin: 1px 0 0;
+  border: 1.5px solid #C4C6CF;
+  border-radius: 50%;
+  background: #FFF;
+}
+.kb-login .kbl-consent input:checked { border-color: var(--kbl-accent); background: var(--kbl-accent); }
+.kb-login .kbl-consent input:checked:after { content: "✓"; display: block; color: #FFF; font-size: 10px; line-height: 12px; text-align: center; font-weight: 700; }
+/* 协议行抖动：未勾选协议就点「本机号一键登录」时的一次提示 —— 类由 app.js 的 shakeKbConsent()
+   就地加上（不重渲染），动画播完由 animationend 摘掉，连点也能重放（先摘类 + 强制重排） */
+.kb-login .kbl-consent.shake { animation: kbl-shake .42s cubic-bezier(.36, .07, .19, .97) both; }
+@keyframes kbl-shake {
+  10%, 90% { transform: translateX(-1.5px); }
+  20%, 80% { transform: translateX(3px); }
+  30%, 50%, 70% { transform: translateX(-5px); }
+  40%, 60% { transform: translateX(5px); }
+}
+/* —— 手机号登录形态：小字页名 → 两张胶囊输入框 → 「登录」按钮 → 协议勾选行（沉底） —— */
+/* 页名下面留出比原先多一截的空白（11px → 21px）：两张输入框整体往下挪一点，
+   剩下的纵向余量照旧由「登录」按钮上方的 flex 吸收 */
+.kb-login.sms .kbl-title { flex-shrink: 0; margin: 5px 0 21px; padding-right: 26px; font-size: 15px; font-weight: 600; }
+.kb-login .kbl-field { position: relative; display: flex; align-items: center; flex-shrink: 0; margin-bottom: 10px; }
+/* 输入框放大一档（40 × 14px 字 → 46 × 15px），左右内边距一起放宽，胶囊看起来更饱满 */
+.kb-login .kbl-field input { width: 100%; height: 46px; padding: 0 20px; border: 0; border-radius: 999px; background: var(--kbl-field); color: var(--kbl-ink); font-size: 15px; }
+.kb-login .kbl-field input::placeholder { color: var(--kbl-placeholder); }
+/* 验证码框右侧给「获取验证码」白胶囊留位（按钮同步长大，留位跟着加宽），文字不会被压到按钮下面 */
+.kb-login .kbl-code input { padding-right: 104px; }
+.kb-login .kbl-send {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 34px;
+  padding: 0 13px;
+  border-radius: 999px;
+  background: #FFF;
+  color: var(--kbl-accent);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 1px 3px #22222B14;
+}
+.kb-login .kbl-send:disabled { color: var(--kbl-sub); box-shadow: none; }
+/* 「登录」按钮压到登录层底部（上方留白由 flex 吸收，与设计图的排布一致）；按钮下面接同一条协议勾选行 */
+.kb-login.sms .kbl-primary { margin: auto 0 0; }
+.kb-login.sms .kbl-consent { margin: 7px 0 0; padding-top: 0; }
+/* —— 登录成功形态：整条键盘只有居中的对勾 + 「登录成功」（约 1 秒后由 app.js 收起回键盘） —— */
+.kb-login.done { align-items: center; justify-content: center; }
+.kb-login .kbl-done { display: flex; flex-direction: column; align-items: center; gap: 7px; color: var(--kbl-accent); animation: kbl-done-in .28s ease both; }
+.kb-login .kbl-done svg { width: 32px; height: 32px; }
+.kb-login .kbl-done strong { font-size: 15px; font-weight: 600; color: var(--kbl-ink); }
+@keyframes kbl-done-in { from { opacity: 0; transform: scale(.94); } }
+/* 极矮窗口（device 视图 <520px 高，键盘只有 210px）：再收紧一档，两张表单都不用滚动 */
+@media (max-height: 519px) {
+  .kb-login .kbl-body { padding: 0 16px 7px; }
+  /* 矮窗口里顶条跟着键盘菜单栏一起收窄（--lc-toolbar-height: 27px），本机号继续紧贴顶条 */
+  .kb-login .kbl-hero strong { font-size: 21px; }
+  .kb-login .kbl-primary { height: 36px; margin-top: 7px; font-size: 14px; }
+  .kb-login .kbl-methods { margin-top: 8px; }
+  .kb-login .kbl-method > span:first-child { width: 33px; height: 33px; border-radius: 10px; }
+  .kb-login .kbl-method > span:last-child { font-size: 10px; }
+  .kb-login .kbl-consent { padding-top: 5px; font-size: 10px; }
+  /* 与常规档同两处调整的收紧版：页名下多留 12px（7px → 13px）、输入框 41 × 14px 字 */
+  .kb-login.sms .kbl-title { margin: 1px 0 13px; font-size: 13px; }
+  .kb-login .kbl-field { margin-bottom: 8px; }
+  .kb-login .kbl-field input { height: 41px; font-size: 14px; }
+  .kb-login .kbl-code input { padding-right: 98px; }
+  .kb-login .kbl-send { height: 31px; font-size: 12px; }
+  .kb-login.sms .kbl-consent { margin-top: 5px; }
+}
+/* 键盘内协议正文页（kb-legal 组件）：登录层协议行里点协议名打开 —— 复用主 App「协议中心」的
+   同一份正文快照（legal-data.js），只是**缩到键盘这一条高度里**滚动浏览（仍是键盘那一块、
+   不拉高键盘，压在登录层之上）。结构：顶条（键盘菜单栏那么高 --lc-toolbar-height：常规 40 / 矮窗口 27px；
+   左边一行小字协议名、超长省略，右边 X）→ 正文区（flex:1 + overflow-y:auto，在键盘高度内滚完全文）。
+   皮肤与登录层同一套 --kbl-* 令牌（固定浅色，不跟随键盘的浅色 / 深色外观）。 */
+.kb-legal .kbl-bar { flex-shrink: 0; display: flex; align-items: center; gap: 6px; height: var(--lc-toolbar-height); padding: 0 7px 0 16px; }
+.kb-legal .kbl-bar-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 600; }
+.kb-legal .kbl-close { position: static; width: 26px; height: 26px; border-radius: 50%; color: var(--kbl-ink); }
+.kb-legal .kbl-close:hover { background: #22222B0F; }
+.kb-legal .kbl-close svg { width: 15px; height: 15px; }
+.kb-legal .kbl-legal-body { flex: 1; min-height: 0; overflow-y: auto; padding: 2px 16px 12px; }
+/* 正文：与主 App 协议正文同一份文本（分段靠 pre-wrap），缩到键盘高度里读得下 —— 小一号字号、
+   松一点行高；颜色取深灰，不抢顶条里协议名的黑 */
+.kb-legal .kbl-legal-text { white-space: pre-wrap; overflow-wrap: anywhere; font-size: 11.5px; line-height: 1.8; color: #4C4D57; }
+@media (max-height: 519px) {
+  .kb-legal .kbl-bar { padding-left: 14px; }
+  .kb-legal .kbl-bar-title { font-size: 12px; }
+  .kb-legal .kbl-legal-body { padding: 1px 14px 9px; }
+  .kb-legal .kbl-legal-text { font-size: 10.5px; line-height: 1.75; }
+}
+/* 键盘内会员付费引导（kb-paywall 组件）：键盘区域内的整页覆盖层 —— 额度不足时发起生成被拦下，
+   就地铺满**整个键盘区域**（菜单栏 / 键区 / 底栏一并盖住；**面板就是常规键盘那一块**，不额外拉高
+   键盘：250px，矮窗口 210px），从下往上滑入（复用选图面板的 picker-up）。层级 17：压在各覆盖层
+   （15 / 16）之上，但让键盘内登录层与协议正文页（18）能压在它上面。
+   自上而下：右上角圆形 X → 两行居中标题「成为LoveCo会员，/ 无限次使用AI功能～」→ 三档商品卡
+   （横向等分并排，白底浅灰描边、选中的那张浅紫底 + 紫描边）→ 整宽蓝色胶囊「立即解锁」
+   （右上角悬一枚红色小标，文案随档位变：永久「一次性买断」/ 周「畅享 7 天」/ 季度「畅享 90 天」）
+   → **协议行与续订说明沉在按钮下方**（设计图的小心机：整块内容高过这一层，默认停在顶部时协议与
+   说明都在可视区外，把这一层往上滚一段才看得见）→ 平台底栏（kb-navbar，Android 不渲染）。
+   皮肤固定浅色（与登录层 / 完全访问引导层同理，不跟随键盘的浅色 / 深色外观）：顶部一层淡紫渐变
+   向下渐隐到白。设计图里标题上方的两块徽章与卡片上的「告白季特惠」标签不呈现。 */
+.kb-paywall {
+  --pw-ink: #1F2030;
+  --pw-sub: #8A8B95;
+  --pw-faint: #A6A6B2;
+  --pw-card: #FFFFFF;
+  --pw-line: #E7E5F4;
+  --pw-accent: #7A6BF2;
+  --pw-accent-soft: #F2EFFF;
+  --pw-cta: #3F66F1;
+  --pw-cta-strong: #3560E8;
+  --pw-tag: #EE3F4E;
+  position: absolute;
+  inset: 0;
+  z-index: 17;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(180deg, #F1ECFE 0%, #F8F6FF 34%, #FFFFFF 62%);
+  color: var(--pw-ink);
+}
+.kb-paywall.entering { animation: picker-up .3s cubic-bezier(.32, .72, 0, 1) both; }
+/* 右上角关闭：只收起这一层回键盘（额度仍是 0，再发起生成还会弹） */
+.kb-paywall .pw-close { width: 26px; height: 26px; border-radius: 50%; color: var(--pw-ink); }
+.kb-paywall .pw-close:hover { background: #22222B0F; }
+.kb-paywall .pw-close svg { width: 15px; height: 15px; }
+/* 主体是**这一层唯一的滚动容器**（flex:1 + overflow-y:auto，见 styles.css）：标题 / 三档卡 /
+   「立即解锁」/ 协议行 / 续订说明自上而下排成一列，整列高过可视区 —— 首屏只看到卡与按钮，
+   协议与说明要往上滚一段才露出来（设计图的小心机）；矮窗口另有收紧档。 */
+.kb-paywall .pw-body { padding: 18px 16px 12px; }
+.kb-paywall .pw-title { margin: 0 0 10px; font-size: 15.5px; font-weight: 700; line-height: 1.4; letter-spacing: .2px; }
+.kb-paywall .pw-plans { gap: 8px; }
+.kb-paywall .pw-plan { padding: 6px 2px 7px; background: var(--pw-card); border-color: var(--pw-line); }
+.kb-paywall .pw-plan:hover { border-color: #D9D5F2; }
+/* 选中的那张：浅紫底 + 紫描边（描边用 inset 阴影补 1px，避免换边框宽度引起的位移） */
+.kb-paywall .pw-plan.active { background: var(--pw-accent-soft); border-color: var(--pw-accent); box-shadow: inset 0 0 0 1px var(--pw-accent); }
+.kb-paywall .pw-plan-name { font-size: 12px; line-height: 1.3; color: var(--pw-sub); }
+.kb-paywall .pw-plan-price { margin-top: 2px; font-size: 19px; font-weight: 750; line-height: 1.2; letter-spacing: .2px; }
+.kb-paywall .pw-plan-price i { margin-right: 1px; font-size: 12px; font-weight: 650; }
+.kb-paywall .pw-plan-origin { margin-top: 1px; font-size: 10.5px; line-height: 1.3; color: var(--pw-faint); text-decoration: line-through; }
+/* 协议行（在「立即解锁」**下方**，设计图里这一行要滚动才看得到）：水平居中的纯文字行，
+   不带勾选框（已按需求去掉，购买不再前置勾选） */
+.kb-paywall .pw-consent { justify-content: center; margin: 9px 0 0; font-size: 10px; line-height: 1.45; color: var(--pw-sub); }
+.kb-paywall .pw-consent .pw-legal-link { color: var(--pw-ink); }
+.kb-paywall .pw-consent .pw-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+/* 自动续订说明（照设计图 1:1，只在 iOS 渲染；永久会员那一档整段不出现）：
+   浅灰小字、两端对齐，压在协议行下面 —— 同样在首屏之外，要滚动才看得到 */
+.kb-paywall .pw-note { margin: 13px 0 0; font-size: 10px; line-height: 1.75; color: var(--pw-faint); text-align: justify; }
+/* 主按钮：整宽蓝色胶囊（在滚动列内），红色小标悬在右上角、文案随档位变 */
+.kb-paywall .pw-cta {
+  width: 100%;
+  height: 38px;
+  margin: 30px 0 0;
+  background: var(--pw-cta);
+  color: #FFF;
+  font-size: 15px;
+  font-weight: 650;
+  box-shadow: 0 6px 16px #3F66F13D;
+}
+.kb-paywall .pw-cta:hover { background: var(--pw-cta-strong); }
+.kb-paywall .pw-cta:disabled { background: #B9C4F0; box-shadow: none; }
+.kb-paywall .pw-cta-tag { right: 10px; top: -8px; height: 16px; padding: 0 5px; background: var(--pw-tag); color: #FFF; font-size: 9px; line-height: 16px; font-weight: 600; }
+/* 极矮窗口（device 视图 <520px 高，键盘只有 210px）：整条再收紧一档，三档卡与按钮都够得着 */
+@media (max-height: 519px) {
+  .kb-paywall .pw-body { padding: 12px 14px 10px; }
+  .kb-paywall .pw-title { margin-bottom: 7px; font-size: 14px; }
+  .kb-paywall .pw-plan { padding: 5px 2px 6px; }
+  .kb-paywall .pw-plan-name { font-size: 11px; }
+  .kb-paywall .pw-plan-price { font-size: 17px; }
+  .kb-paywall .pw-plan-price i { font-size: 11px; }
+  .kb-paywall .pw-plan-origin { font-size: 10px; }
+  .kb-paywall .pw-consent { margin-top: 7px; }
+  .kb-paywall .pw-note { margin-top: 11px; }
+  .kb-paywall .pw-cta { height: 35px; margin-top: 24px; font-size: 14px; }
+  .kb-paywall .pw-cta-tag { top: -7px; height: 15px; line-height: 15px; }
+}
+/* —— 登录层 / 会员开通层 / 键盘内协议正文页在主 App 里的适配 ——
+   同一套结构在键盘形态里按「一条键盘那么高的横带」紧凑排布（见上面的 .kb-login / .kb-paywall /
+   .kb-legal 规则），主 App 里铺满整个正文区（.app-shell，含底部 Tab 栏）会显得元素全挤在顶部 ——
+   把主内容组（本机号 + 按钮 / 表单、商品卡）整体压到中部，协议行仍沉底，付费层给右上角 X 留出余量。 */
+.app-phone .kb-login .kbl-body { padding: 0 22px 16px; }
+.app-phone .kb-login.one-tap .kbl-hero { margin-top: auto; }
+.app-phone .kb-login.sms .kbl-body { justify-content: center; }
+.app-phone .kb-login.sms .kbl-title { margin: 0 0 20px; }
+.app-phone .kb-login.sms .kbl-primary { margin: 16px 0 0; }
+.app-phone .kb-login.sms .kbl-consent { margin: 10px 0 0; }
+.app-phone .kb-paywall .pw-body { padding: 32px 20px 18px; }
+/* 键盘完全访问引导页（kb-full-access 组件）：键盘区域内的整页覆盖层 —— 键盘被唤起时的第一道检查
+   （app.js 的 checkKbEntry：先完全访问、后登录），没有权限就从下往上弹出这一层（复用选图面板的
+   picker-up）。**面板就是常规键盘那一块**（不额外拉高键盘），自上而下：浅色顶条（**只有右上角一枚
+   叉号**，没有文字，底色与主体完全一致、没有分割线）→ 标题（在引导图上方、居中）→ 白色卡片
+   （两张设置操作引导图轮播）→ 蓝色「去开启」按钮 → 平台底栏（kb-navbar）。
+   配色固定（与登录层同理，不跟随键盘的浅色 / 深色外观）：整块浅灰白 #F7F7F9，卡片纯白。
+   引导动画（纯 CSS，不用 JS 定时器）：卡片里两张设置操作引导图交叉淡入淡出、无限轮播
+   （kfa-turn-a / kfa-turn-b，一轮 6s、每张各占半轮，位移方向一上一下）；
+   红箭头（kfa-point / kfa-point-b）对着目标行 / 目标开关轻轻点动。 */
+.kb-full-access {
+  --kfa-bg: #F7F7F9;
+  --kfa-ink: #1C1C1E;
+  --kfa-sub: #8E8E93;
+  --kfa-accent: #3E6DF3;
+  --kfa-accent-strong: #3461E0;
+  --kfa-point: #F03B3B;
+  background: var(--kfa-bg);
+  color: var(--kfa-ink);
+}
+.kb-full-access.entering { animation: picker-up .3s cubic-bezier(.32, .72, 0, 1) both; }
+/* —— 顶条：与主体同色、一个字都不显示，只有右上角一枚圆形叉号（= 收起键盘看聊天）——
+   高度取键盘菜单栏那一档（--lc-toolbar-height），正好压在原来菜单栏的位置上 */
+.kb-full-access .kfa-head { flex-shrink: 0; height: var(--lc-toolbar-height); padding: 0 7px; background: var(--kfa-bg); }
+.kb-full-access .kfa-close { width: 26px; height: 26px; border-radius: 50%; color: var(--kfa-sub); }
+.kb-full-access .kfa-close:hover { background: #22222B0F; color: var(--kfa-ink); }
+.kb-full-access .kfa-close svg { width: 14px; height: 14px; }
+/* —— 主体：标题（在引导图上方居中）+ 引导图卡片 + 「去开启」，整块在顶条与底栏之间居中 —— */
+.kb-full-access .kfa-body { padding: 0 16px 6px; }
+.kb-full-access .kfa-title { flex-shrink: 0; margin-bottom: 6px; font-size: 13px; font-weight: 600; text-align: center; }
+/* 轮播层铺满整条（宽度百分比才有参照），卡片定宽 + 小屏自适应 */
+.kb-full-access .kfa-slide { width: 100%; }
+.kb-full-access .kfa-shot {
+  width: 206px;
+  max-width: 100%;
+  padding: 9px 0;
+  border-radius: 12px;
+  background: #FFF;
+  box-shadow: 0 3px 12px #00000010;
+}
+/* 卡片里的小截图：浅灰底 + 居中的设置界面片段（宽高固定，两张图在同一个框里换） */
+.kb-full-access .kfa-screen {
+  width: 132px;
+  height: 84px;
+  padding: 4px 6px;
+  border-radius: 8px;
+  background: #F2F2F7;
+}
+.kb-full-access .kfa-row { height: 15px; gap: 5px; padding: 0 3px; border-radius: 4px; font-size: 7.5px; }
+.kb-full-access .kfa-row.hl { background: #E3E3E9; font-weight: 600; }
+.kb-full-access .kfa-ico { width: 9px; height: 9px; border-radius: 2.5px; background: #C7C7CC; }
+.kb-full-access .kfa-ico.i-siri { background: linear-gradient(150deg, #F5699E, #8E63E8); }
+.kb-full-access .kfa-ico.i-notif { background: #FF3B30; }
+.kb-full-access .kfa-ico.i-cell { background: #34C759; }
+.kb-full-access .kfa-ico.i-kb { background: #D8D8DD; }
+/* 列表行尾的「>」：两段 1px 描边折角（截图里系统列表的样子） */
+.kb-full-access .kfa-chev { width: 3.5px; height: 3.5px; margin-right: 2px; border-right: 1px solid #C1C1C6; border-bottom: 1px solid #C1C1C6; transform: rotate(-45deg); }
+/* 第二张图：键盘详情页 —— 页名行 + 白卡（键盘开关开着 / 权限开关关着）+ 灰字说明 */
+.kb-full-access .kfa-nav { gap: 4px; height: 14px; font-size: 7.5px; font-weight: 600; }
+.kb-full-access .kfa-back { width: 4.5px; height: 4.5px; border-left: 1.2px solid #3C6FF5; border-bottom: 1.2px solid #3C6FF5; transform: rotate(45deg); }
+.kb-full-access .kfa-card { margin-top: 4px; padding: 0 5px; border-radius: 6px; background: #FFF; }
+.kb-full-access .kfa-card .kfa-row { height: 14px; font-size: 7.5px; }
+.kb-full-access .kfa-card .kfa-row + .kfa-row { border-top: 1px solid #EFEFF2; }
+.kb-full-access .kfa-note { margin-top: 4px; padding: 0 1px; font-size: 6px; line-height: 1.45; color: var(--kfa-sub); }
+/* 开关：胶囊 + 白色圆点（开=绿色、圆点在右；关=灰色、圆点在左），与截图一致 */
+.kb-full-access .kfa-toggle { width: 16px; height: 10px; background: #E5E5EA; }
+.kb-full-access .kfa-toggle:after { left: 1px; width: 8px; height: 8px; margin-top: -4px; background: #FFF; box-shadow: 0 1px 2px #00000026; }
+.kb-full-access .kfa-toggle.on { background: #34C759; }
+.kb-full-access .kfa-toggle.on:after { left: auto; right: 1px; }
+/* 红色指示箭头：第一张图指向设置列表的「键盘」行，第二张图旋转 90° 指向权限开关 */
+.kb-full-access .kfa-arrow { color: var(--kfa-point); }
+.kb-full-access .kfa-arrow.a1 { left: 72%; top: 74%; width: 28px; height: 28px; animation: kfa-point 1.3s ease-in-out infinite; }
+.kb-full-access .kfa-arrow.a2 { left: 62%; top: 54%; width: 26px; height: 26px; animation: kfa-point-b 1.3s ease-in-out infinite; }
+@keyframes kfa-point {
+  0%, 100% { transform: translate(0, 0); }
+  50% { transform: translate(-2.5px, -2.5px); }
+}
+/* 旋转过的箭头（第二张图）：位移跟着箭头自身的方向走，看起来是「往目标点一下」 */
+@keyframes kfa-point-b {
+  0%, 100% { transform: rotate(90deg) translate(0, 0); }
+  50% { transform: rotate(90deg) translate(-2.5px, -2.5px); }
+}
+/* 轮播：两张图交叉淡入淡出（一轮 6s，每张各占半轮），位移一上一下，读起来是「播下一页」 */
+.kb-full-access .kfa-slide.step-1 { animation: kfa-turn-a 6s cubic-bezier(.4, 0, .2, 1) infinite; }
+.kb-full-access .kfa-slide.step-2 { animation: kfa-turn-b 6s cubic-bezier(.4, 0, .2, 1) infinite; }
+@keyframes kfa-turn-a {
+  0%, 3% { opacity: 0; transform: translateY(10px); }
+  9%, 45% { opacity: 1; transform: none; }
+  51%, 100% { opacity: 0; transform: translateY(-10px); }
+}
+@keyframes kfa-turn-b {
+  0%, 51% { opacity: 0; transform: translateY(10px); }
+  57%, 93% { opacity: 1; transform: none; }
+  99%, 100% { opacity: 0; transform: translateY(-10px); }
+}
+/* 底栏（kb-navbar）：浅色引导层上把图标压深一档（键盘底栏默认那套灰绿在纯白底上太淡） */
+.kb-full-access .kb-sysbar { color: #3C3C43; }
+/* 「去开启」= 仿真去系统设置开启完全访问（置成已开启后接着做登录检查） */
+.kb-full-access .kfa-primary {
+  flex-shrink: 0;
+  margin-top: 7px;
+  height: 34px;
+  padding: 0 20px;
+  background: var(--kfa-accent);
+  color: #FFF;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: 0 5px 12px #3E6DF32E;
+}
+.kb-full-access .kfa-primary:hover { background: var(--kfa-accent-strong); }
+/* 极矮窗口（device 视图 <520px 高）：键盘只有 210px，标题 / 卡片 / 按钮各收一档，
+   五行的列表与整块卡片仍然完整可见 */
+@media (max-height: 519px) {
+  .kb-full-access .kfa-title { margin-bottom: 5px; font-size: 12px; }
+  .kb-full-access .kfa-shot { width: 186px; padding: 7px 0; }
+  .kb-full-access .kfa-screen { width: 122px; height: 72px; }
+  .kb-full-access .kfa-row { height: 13px; font-size: 7px; }
+  .kb-full-access .kfa-nav { height: 12px; font-size: 7px; }
+  .kb-full-access .kfa-card .kfa-row { height: 12.5px; font-size: 7px; }
+  .kb-full-access .kfa-note { font-size: 5.5px; }
+  .kb-full-access .kfa-primary { height: 30px; font-size: 12.5px; }
+}
+/* 聊天分析面板（kb-chat-analysis 组件）：键盘区域内的整页覆盖层，与选图面板同一块皮肤 ——
+   键盘整块拉高到手机屏幕的三分之二（.keyboard.with-picker）、面板从下往上滑入并铺满键盘区域、
+   一直铺到手机屏幕底边；固定深色外观（设计图即深色场景），不跟随键盘的浅色 / 深色开关。
+   三个阶段（app.js 的 state.chatPhase 驱动）：
+     loading  四张骨架占位卡（呼吸动画，错开半拍，卡间留白）；简报与 AI 回复都不在加载态出现；
+     stream   按页面自上而下的顺序逐段打字（简报 → AI 回复 → 回复思路 → 建议卡，见组件头注释）——
+              打字帧由 app.js 的 paintStream() 直接改 DOM，入场动画只写在 .fresh / .enter 作用域里，
+              段落挂载的那次渲染才播，不被重渲染重置；
+     done     标题旁淡入「内容由AI生成」，底部浮出三颗悬浮按钮
+              （麦克风 / 重新生成 / 发送 —— 发送按宿主输入框有无内容亮起或置灰）。 */
+.kb-chat-analysis {
+  --ca-ink: #F4F3F9;
+  --ca-sub: #8E8D9C;
+  --ca-card: #17171B;
+  --ca-brief: #2C2A44;
+  --ca-brief-ink: #EDECF8;
+  --ca-brief-text: #C8C6DC;
+  --ca-accent: #C9BAF2;
+  background: #050506;
+  color: var(--ca-ink);
+  box-shadow: 0 -12px 32px #00000073;
+}
+.kb-chat-analysis .ca-top h2 { color: var(--ca-ink); }
+.kb-chat-analysis .ca-spark { color: #8F7BF2; }
+.kb-chat-analysis .ca-sub { color: var(--ca-sub); }
+.kb-chat-analysis.fresh .ca-sub { animation: ca-fade .45s ease both; }
+.kb-chat-analysis .ca-close { background: #26252D; color: #C6C5D2; border: 0; }
+.kb-chat-analysis .ca-close:hover { background: #33323D; color: #FFF; }
+.kb-chat-analysis .ca-brief { background: var(--ca-brief); }
+.kb-chat-analysis.entering .ca-brief,
+.kb-chat-analysis.entering .ca-skel { animation: ca-fade .4s ease both; }
+.kb-chat-analysis.entering .ca-skel { animation-delay: var(--skel-delay, 0s); }
+.kb-chat-analysis .ca-brief-grid { color: var(--ca-brief-ink); }
+.kb-chat-analysis .ca-brief-text { color: var(--ca-brief-text); }
+.kb-chat-analysis .ca-card { background: var(--ca-card); }
+.kb-chat-analysis.fresh .ca-card.enter { animation: ca-card-in .3s ease both; }
+.kb-chat-analysis .ca-card-title { color: var(--ca-sub); }
+.kb-chat-analysis .ca-card-reply { color: var(--ca-ink); }
+/* AI 回复卡与回复思路卡：同样是深色卡 —— 回复正文用主字色，思路卡整体弱一档
+   （灰字小标题 + 淡紫灰正文，读起来是给回复做补充说明） */
+.kb-chat-analysis .ca-answer { background: var(--ca-card); }
+.kb-chat-analysis .ca-answer-text { color: var(--ca-ink); }
+.kb-chat-analysis .ca-think { background: var(--ca-card); }
+.kb-chat-analysis .ca-think-title { color: var(--ca-sub); }
+.kb-chat-analysis .ca-think-text { color: var(--ca-brief-text); }
+.kb-chat-analysis.fresh .ca-answer.enter,
+.kb-chat-analysis.fresh .ca-think.enter { animation: ca-card-in .3s ease both; }
+/* AI 通用回复（语音追问）形态：AI 回复 / 回复思路并进简报卡 —— 卡内 markdown 区块的配色。
+   章节标题与 AI 回复正文用近白（正文主体），回复思路正文与引用块弱一档（淡紫灰），
+   加粗转纯白；分隔线与引用竖线都是低透明度的白，压在紫底上只做淡淡的分节 */
+.kb-chat-analysis .ca-brief-block .ca-md h4 { color: var(--ca-brief-ink); }
+.kb-chat-analysis .ca-brief-block .ca-md strong { color: #FFFFFF; }
+.kb-chat-analysis .ca-brief-block .ca-md hr { border-top-color: rgba(255,255,255,.1); }
+.kb-chat-analysis .ca-brief-block .ca-md blockquote { border-left-color: rgba(255,255,255,.24); }
+.kb-chat-analysis .ca-brief-block .ca-md blockquote p { color: var(--ca-brief-text); }
+.kb-chat-analysis .ca-brief-block .ca-answer-text { color: var(--ca-brief-ink); }
+.kb-chat-analysis .ca-brief-block .ca-think-text { color: var(--ca-brief-text); }
+.kb-chat-analysis.fresh .ca-brief-block.enter { animation: ca-card-in .3s ease both; }
+/* 输出完成整卡可点；点中的思路卡高亮：淡紫描边 + 微紫底（不位移，用内描边避免布局抖动） */
+.kb-chat-analysis .ca-card[data-action] { cursor: pointer; transition: background .15s ease; }
+.kb-chat-analysis .ca-card[data-action]:hover { background: #1C1C22; }
+.kb-chat-analysis .ca-card[data-action]:active { background: #222230; }
+.kb-chat-analysis .ca-card.picked {
+  background: #221E38;
+  box-shadow: inset 0 0 0 1.5px #8F7BF2;
+}
+/* 打字机光标：淡紫竖条，输出完成的那次渲染不再输出它 */
+.kb-chat-analysis .ca-cursor {
+  background: var(--ca-accent);
+  animation: ca-blink .9s steps(2, start) infinite;
+}
+/* 加载态骨架：与思路卡同底色，呼吸动画 */
+.kb-chat-analysis .ca-skel { background: var(--ca-card); }
+.kb-chat-analysis .ca-skel-bar,
+.kb-chat-analysis .ca-skel-dot { background: #2B2B33; animation: ca-pulse 1.5s ease-in-out infinite; }
+/* 输出完成：底部浮出三个悬浮按钮（淡紫胶囊），落在面板底边上。
+   「发送」按宿主输入框有无内容亮起 / 置灰 —— 置灰态换成深灰底 + 灰字（与右上关闭钮同色系），
+   同时摘掉 hover / 按下反馈，看起来就是一颗点不动的按钮 */
+.kb-chat-analysis .ca-dock-btn { background: var(--ca-accent); color: #191331; border: 0; }
+.kb-chat-analysis.fresh .ca-dock { animation: ca-dock-in .34s ease both; }
+.kb-chat-analysis .ca-dock-btn:not([disabled]):hover { background: #D9CDF8; }
+.kb-chat-analysis .ca-dock-btn:not([disabled]):active { transform: translateY(1px); }
+.kb-chat-analysis .ca-dock-btn[disabled] { background: #26252D; color: #6E6C7E; }
+/* 安全拦截态：面板不收起、内容区只剩一组居中提示 —— 盾形图标取面板的淡紫强调色
+   （与标题旁的星光同色系），文案近白；切入时单独淡入上浮一小段（面板本就从下滑入时跟着 .entering 只做淡入） */
+.kb-chat-analysis .ca-blocked-icon { color: #8F7BF2; }
+.kb-chat-analysis .ca-blocked-text { color: var(--ca-ink); }
+.kb-chat-analysis.fresh .ca-blocked { animation: ca-card-in .3s ease both; }
+.kb-chat-analysis.entering .ca-blocked { animation: ca-fade .4s ease both; }
+@keyframes ca-fade { from { opacity: 0; } }
+@keyframes ca-blink { 50% { opacity: 0; } }
+@keyframes ca-pulse { 0%, 100% { opacity: 1; } 50% { opacity: .4; } }
+@keyframes ca-card-in { from { opacity: 0; transform: translateY(8px); } }
+@keyframes ca-dock-in { from { opacity: 0; transform: translateY(10px); } }
+/* 「AI 分析」过渡动画页（kb-scan 组件）：皮肤直接复用选图面板（组件根节点同时挂 .kb-photo-picker），
+   布局为：顶部居中「正在分析中…」，中央取景框（四角）包着深蓝文档图标，
+   一条白色辉光横线在图标上上下往返扫描 —— 动画与过渡等长（1 秒，app.js 的 SCAN_MS），
+   播完由 finishScan() 原地切到聊天分析面板。
+   过渡期间请求触发的整页重渲染（DOM 重建）靠根元素上的 --scan-elapsed（已运行毫秒）
+   把扫描线拨回原进度，不跳回起点重扫。面板底色比选图面板浅一档（按设计图），不带平台底栏。 */
+.kb-scan {
+  background: #1B1B1D;
+  align-items: center;
+}
+.kb-scan .scan-title {
+  flex-shrink: 0;
+  width: 100%;
+  margin: 30px 0 0;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 600;
+  color: #FFF;
+}
+/* 取景框 + 文档图标 + 扫描线：在标题之外的剩余空间里水平垂直居中 */
+.kb-scan .scan-stage {
+  position: relative;
+  flex: 0 0 auto;
+  width: 96px;
+  height: 96px;
+  margin: auto;
+}
+/* 四个取景角：淡紫 L 形，指向中心的圆角 */
+.kb-scan .scan-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2.5px solid #8F7BF2;
+}
+.kb-scan .scan-corner.tl { left: 0; top: 0; border-right: 0; border-bottom: 0; border-radius: 5px 0 0 0; }
+.kb-scan .scan-corner.tr { right: 0; top: 0; border-left: 0; border-bottom: 0; border-radius: 0 5px 0 0; }
+.kb-scan .scan-corner.bl { left: 0; bottom: 0; border-right: 0; border-top: 0; border-radius: 0 0 0 5px; }
+.kb-scan .scan-corner.br { right: 0; bottom: 0; border-left: 0; border-top: 0; border-radius: 0 0 5px 0; }
+/* 文档图标：深蓝圆角卡 + 三条浅蓝紫横线（模拟正文） */
+.kb-scan .scan-doc {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 60px;
+  height: 70px;
+  transform: translate(-50%, -50%);
+  border-radius: 9px;
+  background: #3E3F7F;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 7px;
+  padding: 0 11px;
+}
+.kb-scan .scan-doc i {
+  height: 3px;
+  border-radius: 2px;
+  background: #ABADF0;
+}
+.kb-scan .scan-doc i:nth-child(1) { width: 100%; }
+.kb-scan .scan-doc i:nth-child(2) { width: 68%; opacity: .72; }
+.kb-scan .scan-doc i:nth-child(3) { width: 84%; opacity: .72; }
+/* 扫描线：白色带辉光，在文档图标的高度内上下往返（一个来回 = 1 秒 = 过渡时长）；
+   重渲染后靠负的 animation-delay 接着播，不会跳回顶部 */
+.kb-scan .scan-line {
+  position: absolute;
+  left: 50%;
+  top: 13px;
+  width: 82px;
+  height: 2.5px;
+  margin-left: -41px;
+  border-radius: 2px;
+  background: #FFF;
+  box-shadow: 0 0 10px #FFFFFFB3, 0 0 3px #FFF;
+  animation: scan-sweep-y 1s ease-in-out infinite;
+  animation-delay: calc(-1 * var(--scan-elapsed, 0ms));
+}
+@keyframes scan-sweep-y {
+  0%, 100% { top: 13px; }
+  50% { top: 81px; }
+}
+.keyboard .kb-body {
+  padding-top: 7px;
+  overflow: hidden;
+}
+.keyboard .candidates {
+  padding: 0 3px;
+  border-bottom: 1px solid var(--lc-border);
+}
+.keyboard .key {
+  box-shadow: 0 2px 0 #bbbdc966, 0 3px 7px #292a3508;
+}
+.keyboard .key.func {
+  box-shadow: 0 2px 0 color-mix(in srgb, var(--lc-key-function) 76%, #9294a0);
+}
+.kb-sysbar {
+  flex: 0 0 var(--lc-sysbar-height, 34px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+  /* 透明底色：键盘内直接露出键盘底色，选择器面板内露出面板深色，无需按场景单独改色 */
+  background: transparent;
+  color: var(--lc-muted);
+}
+.kb-sysbar .sys-key {
+  width: 36px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  color: var(--lc-muted);
+}
+.kb-sysbar .sys-key:hover {
+  background: var(--lc-accent-soft);
+  color: var(--lc-accent-strong);
+}
+.kb-sysbar svg {
+  width: 21px;
+  height: 21px;
+  /* 基础层有全局 svg{fill:currentColor}，此处把底栏图标改回描边风格 */
+  fill: none;
+  stroke: currentColor;
+}
+/* 小艺：底栏右侧的装饰标识，图形比 tab 键略大一档；不可点 —— 关掉指针事件，
+   既不进 hover 态也不触发任何排队的点击处理，视觉上与可点键一致但点了没反应 */
+.kb-sysbar .xiaoyi-key {
+  pointer-events: none;
+}
+.kb-sysbar .xiaoyi-key svg {
+  width: 22px;
+  height: 22px;
+}
+.device-caption {
+  margin-top: 8px;
+  opacity: .8;
+}
+@keyframes message-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .primary, .key { transition: background-color .15s, border-color .15s, box-shadow .15s; }
+}
+@media (max-width: 359px) {
+  .kb-body { padding-top: 1px; --lc-keys-gap: 2px; }
+  /* 窄屏下菜单栏只剩「用户 + 昵称 + 相册 / 设置」，收窄即可，不需要隐藏入口 */
+  .kb-toolbar .icon-btn { width: 22px; }
+  /* 「待分析截图」的方形缩略图跟着收窄一档：宽高一起改 —— 它的基准规则是两段类名，
+     只在上面的 `.kb-toolbar .icon-btn` 里收窄宽度改不到它（会变成 28×22 的长方形） */
+  .kb-toolbar .icon-btn.kb-shot-thumb { width: 22px; height: 22px; }
+  .kb-user { max-width: 84px; padding: 0 3px; }
+  .kb-user-name { font-size: 10px; }
+}
+@media (max-width: 430px) {
+  .keyboard .kb-body { padding-top: 1px; --lc-keys-gap: 1px; }
+  /* 问AI 页：窄屏收紧标题与输入行 */
+  .free-title { padding-left: 10px; }
+  .free-input-row { gap: 6px; padding: 0 5px 0 7px; }
+  .free-input { font-size: 12px; }
+  .keyboard .candidates { height: 18px; margin-bottom: 1px; }
+  .keyboard .candidates button { font-size: 11px; padding: 1px 5px; min-width: 26px; }
+  .keyboard .keys { gap: 2px; }
+  .keyboard .key-row { gap: 2px; }
+  .keyboard .keys.t9-layout .t9-grid,
+  .keyboard .keys.t9-layout .t9-punct,
+  .keyboard .keys.t9-layout .t9-blocks,
+  .keyboard .keys.t9-layout .t9-bottom { gap: 2px; }
+  /* 按键高度由键区拉伸决定（五种键盘都填满同一块键区），这里只收紧字号与行高 */
+  .keyboard .key { line-height: 20px; font-size: 14px; }
+  .keyboard .key.func { font-size: 9px; }
+  .keyboard .key.lang-key .lang-opt { font-size: 9px; }
+  .keyboard .key.lang-key .lang-opt.active { font-size: 13px; }
+  .keyboard .key.accent, .keyboard .key.space { font-size: 10px; }
+  .keyboard .sym-grid .sym-key { font-size: 13px; }
+  .keyboard .sym-grid .sym-cat { font-size: 11px; }
+  /* 键盘选择器面板：窄屏收紧标题与网格 */
+  .kb-photo-picker .picker-top { padding: 16px 42px 10px 12px; }
+  .kb-photo-picker .picker-top h2 { font-size: 15px; }
+  .kb-photo-picker .picker-body { padding: 2px 10px 16px; }
+  .kb-photo-picker .picker-grid { gap: 8px; }
+  /* 权限引导（引导条 / 引导页）：窄屏收紧字号与留白 */
+  .kb-photo-picker .picker-perm { min-height: 26px; padding: 2px 9px 2px 11px; font-size: 10px; }
+  .kb-photo-picker .picker-perm-btn { height: 20px; padding: 0 9px; font-size: 9px; }
+  .kb-photo-picker .picker-guide-title { font-size: 14px; }
+  .kb-photo-picker .picker-guide-btn { margin-top: 24px; font-size: 14px; }
+}
+@media (min-height: 520px) {
+  .keyboard .kb-body { padding-top: 2px; --lc-keys-gap: 3px; }
+  .keyboard .candidates { height: 22px; margin-bottom: 2px; }
+  .keyboard .candidates button { font-size: 12px; padding: 1px 7px; min-width: 30px; }
+  .keyboard .keys { gap: 2px; }
+  .keyboard .key-row { gap: 3px; }
+  .keyboard .key { font-size: 15px; }
+  .keyboard .key.func { font-size: 10px; }
+  .keyboard .key.accent, .keyboard .key.space { font-size: 11px; }
+}
+
+@media (max-width: 1130px) {
+  .workspace { grid-template-columns: 180px minmax(335px, 1fr) 220px; gap: 20px; }
+  .phone, .device-top { width: 335px; }
+}
+@media (max-width: 960px) {
+  .workspace { grid-template-columns: minmax(335px, 1fr) 220px; max-width: 740px; }
+}
+@media (max-width: 640px) {
+  body { background: var(--lc-canvas); }
+  .topbar { height: 54px; padding: 0 12px; }
+  .brand-name { font-size: 20px; }
+  .workspace { display: block; padding: 10px 8px; max-width: 496px; }
+  .phone { width: 100%; height: calc(100dvh - 139px); min-height: 540px; max-height: 874px; border-width: 4px; border-radius: 30px; }
+  .device-top { width: 100%; }
+  .kb-toolbar { padding: 0 6px; }
+  .mobile-testbar { gap: 6px; }
+  .mobile-testbar .segmented button { padding: 5px 8px; }
+}
+/* Device mode removes the demo shell; safe-area belongs to the host, not keys. */
+html[data-view="device"] body { margin: 0; overflow: hidden; }
+html[data-view="device"] .topbar,
+html[data-view="device"] .rail,
+html[data-view="device"] .device-top,
+html[data-view="device"] .device-caption,
+html[data-view="device"] .page-detail,
+html[data-view="device"] .mobile-testbar { display: none; }
+html[data-view="device"] .workspace { display: block; max-width: none; padding: 0; margin: 0; }
+html[data-view="device"] .phone {
+  width: 100%; max-width: none; height: 100vh; height: 100dvh;
+  min-height: 520px; max-height: none; border: 0; border-radius: 0; box-shadow: none;
+  padding-top: var(--host-safe-top, env(safe-area-inset-top, 0px));
+  padding-left: var(--host-safe-left, env(safe-area-inset-left, 0px));
+  padding-right: var(--host-safe-right, env(safe-area-inset-right, 0px));
+}
+html[data-view="device"] .wx-chat { min-height: 0; }
+
+/* Main LoveCo app surface. Account and membership flows leave the keyboard
+   context while remaining in the same local file prototype. */
+.app-shell { min-height: 100dvh; background: var(--lc-canvas); color: var(--lc-text); display: flex; flex-direction: column; }
+.app-phone { display: flex; flex-direction: column; overflow: hidden; }
+.app-phone > .statusbar { flex: 0 0 28px; }
+/* .app-shell 兼作主 App 内覆盖层（登录层 / 会员开通层 / 键盘内协议正文页）的定位祖先：
+   三层的挂点在 Tab 栏之后，`inset:0` 相对这里 → 覆盖正文 + 底部 Tab 栏、不盖顶部状态栏
+   （与键盘形态里三层只覆盖键盘区域、不盖宿主 App 的语义一致）。 */
+.app-phone > .app-shell { position: relative; min-height: 0; height: 0; flex: 1 1 auto; overflow: hidden; }
+/* 主 App 顶部**没有导航栏**：状态栏（28px）之下直接是正文，所以正文自己留一点上边距 */
+.app-phone .app-main { width: calc(100% - 20px); min-height: 0; flex: 1 1 auto; padding: 10px 0 14px; overflow: auto; }
+.app-phone .app-content > .sheet { border-radius: 10px; box-shadow: 0 4px 16px #2621320D; }
+.app-phone .app-content > .sheet .sheet-content { padding: 12px; }
+/* 子页的卡片标题行就是这一页的页名（顶部没有导航栏，页名只能由正文自己给） */
+.app-phone .app-content > .sheet .sheet-header { padding: 16px 12px 10px; }
+.app-phone .app-content > .sheet .sheet-header h2 { font-size: 18px; }
+.app-phone .app-content > .sheet .sheet-footer { padding: 10px 12px 12px; }
+.app-phone .app-nav { position: static; inset: auto; z-index: auto; flex: 0 0 56px; width: 100%; height: 56px; gap: 0; padding: 5px 6px max(5px, env(safe-area-inset-bottom)); backdrop-filter: none; }
+.app-phone .app-nav button { min-width: 0; flex: 1; flex-direction: column; font-size: 10px; gap: 2px; border-radius: 10px; }
+.app-phone .app-nav svg { width: 19px; height: 19px; }
+.app-main { width: min(680px, calc(100% - 32px)); margin: 0 auto; flex: 1; padding: 30px 0 96px; }
+.app-content { width: 100%; }
+.app-content > .sheet { position: static; width: 100%; max-height: none; border-radius: 14px; box-shadow: 0 8px 30px #26213212; overflow: hidden; }
+.app-content > .sheet .sheet-header { padding-top: 20px; }
+.app-content > .sheet .sheet-header .icon-btn { display: none; }
+.app-content > .sheet .sheet-handle { display: none; }
+/* 底部 Tab 栏：首页 / 对象 / 我的（图形见 components/shared/system-glyphs.js 的 home / users / user），
+   选中项整块取强调色（与设计图一致），未选中是灰字；手机内是 flex 尾部固定高度（见 .app-phone .app-nav） */
+.app-nav { position: fixed; z-index: 4; bottom: 0; left: 0; right: 0; height: 68px; display: flex; justify-content: center; gap: 8px; padding: 8px 16px max(8px, env(safe-area-inset-bottom)); background: color-mix(in srgb, var(--lc-surface) 94%, transparent); border-top: 1px solid var(--lc-border); backdrop-filter: blur(14px); }
+.app-nav button { min-width: 112px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; color: var(--lc-muted); background: transparent; }
+.app-nav button.active, .app-nav button:hover { color: var(--lc-accent-strong); background: var(--lc-accent-soft); }
+@media (max-width: 640px) {
+  .app-main { width: calc(100% - 20px); padding-top: 18px; }
+  .app-nav button { min-width: 0; flex: 1; font-size: 12px; }
+}
+/* —— 主 App 底部 Tab 三页（首页 / 对象 / 我的）与对象编辑页的皮肤 ——
+   排版是「浅灰画布 + 白色圆角卡片 + 灰色分组标题」：卡片里一行 = .app-row（右端统一折角箭头，
+   相邻行之间一条细分隔线）；会员横幅两态共用一套尺寸，只换底色（未开通 = 强调紫蓝，
+   已开通 = 会员金橙），横幅与「L+」小方块用同一套会员色。 */
+.app-hello { padding: 2px 2px 13px; }
+.app-hello .hello-text strong { font-size: 21px; font-weight: 650; }
+.app-hello .hello-text small { margin-top: 3px; font-size: 11px; color: var(--lc-muted); }
+.app-hello.as-button { padding: 2px 2px 9px; border-radius: 12px; }
+.app-hello.as-button:hover { background: var(--lc-accent-soft); }
+.app-hello > .chev { color: var(--lc-subtle); }
+.app-hello > .chev svg { width: 15px; height: 15px; }
+.member-line { font-size: 11px; color: var(--lc-yellow); }
+.member-line b { font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 5px; background: var(--lc-yellow-soft); }
+.member-banner { margin-bottom: 16px; padding: 14px 16px; border-radius: 14px; background: linear-gradient(115deg, #6577F0, #4C5CE6); color: #fff; }
+.member-banner.is-member { background: linear-gradient(115deg, #F7B544, #EE9520); }
+.member-banner .mb-text strong { font-size: 16px; font-weight: 650; }
+/* 横幅内的副文案必须是白字：通用 small 规则把它压成灰字（--lc-muted），在蓝 / 橙底上读不出来 */
+.member-banner .mb-text small { margin-top: 2px; font-size: 10.5px; color: rgba(255, 255, 255, .9); }
+.member-banner .mb-cta { padding: 7px 15px; border-radius: 999px; background: #fff; font-size: 12px; font-weight: 600; color: #4C5CE6; }
+.member-banner.is-member .mb-cta { color: #E8901A; }
+.app-section + .app-section { margin-top: 16px; }
+.app-section-title { padding: 0 2px 7px; font-size: 11px; color: var(--lc-muted); }
+.app-card { background: var(--lc-surface); border-radius: 14px; box-shadow: 0 1px 2px #2621320A; }
+.app-card-list { padding: 0 14px; }
+/* 对象行的整行点击区（骨架见 styles.css 的 .partner-open）：行内边距挪到按钮上，
+   按下时整行高亮 —— 这一页点行是进该对象的编辑页（详情），不再改当前上下文，
+   所以行上也不画头像描边的选中态。 */
+.app-card-list .sheet-list-item { padding: 0; }
+.partner-open:active { background: var(--lc-accent-soft); }
+.app-card > .app-row:not(:first-child) { border-top: 1px solid var(--lc-border); }
+.app-row { min-height: 47px; padding: 12px 14px; font-size: 13.5px; }
+.app-row:hover { background: var(--lc-accent-soft); }
+.app-row .chev { color: var(--lc-subtle); }
+.app-row .chev svg { width: 13px; height: 13px; }
+.app-row-end { font-size: 11.5px; color: var(--lc-subtle); }
+.app-page-head { padding: 2px 2px 7px; }
+.app-page-head h2 { font-size: 20px; font-weight: 650; }
+.app-page-head .text-button { padding: 4px 0; font-size: 12px; color: var(--lc-accent-strong); }
+.app-page-head .text-button svg { width: 14px; height: 14px; }
+/* 对象编辑页页头右侧的「退出」X（其余页头的入口是文字按钮，只有这一页给图标钮）：
+   比通用 .icon-btn 收小一档，取灰字色，hover 才出淡紫底 */
+.app-page-head .icon-btn { width: 28px; height: 28px; color: var(--lc-muted); }
+.app-page-head .icon-btn svg { width: 16px; height: 16px; }
+.app-note { margin-top: 3px; font-size: 10.5px; line-height: 1.6; color: var(--lc-subtle); }
+.app-empty { padding: 16px 4px; font-size: 11.5px; text-align: center; }
+/* 危险色文字按钮的通用样式：两条业务入口都已按需求删除 —— 对象编辑页的「删除这个对象」
+   （删除对象只走列表左滑）与「我的」的注销入口（.app-quit 已删）。规则本身保留备用，
+   勿因为它暂时没有使用者就把入口补回来。 */
+.text-button.danger-text { color: var(--lc-danger); }
+.app-page-foot { padding-top: 16px; }
+.editor-avatar-button { padding: 2px 0 4px; font-size: 11.5px; color: var(--lc-muted); }
+.editor-avatar-button .avatar { width: 56px; height: 56px; font-size: 18px; }
+html[data-view="device"] .sheet-footer {
+  padding-bottom: max(18px, var(--host-safe-bottom, env(safe-area-inset-bottom, 0px)));
+}
+@media (max-height: 519px) {
+  html[data-view="device"] .phone { min-height: 0; --lc-keyboard-height: 210px; --lc-toolbar-height: 27px; --lc-letter-key-height: 22px; --lc-t9-key-height: 18px; --lc-sysbar-height: 24px; --lc-free-row-height: 38px; }
+  /* 问AI 页在极矮窗口（device 视图）里跟着收一档：标题栏随 --lc-toolbar-height 变矮，输入框再收 4px
+     （多行长高的上限由 app.js 按实时行高 / 内边距算，这里不用再写一份）；
+     缩略图 / 快捷栏 / 「+」与里面的小 X 同步收一档，免得把键区挤没 */
+  html[data-view="device"] .free-title strong { font-size: 13px; }
+  html[data-view="device"] .free-input { height: 30px; padding: 5px 9px; font-size: 12px; }
+  html[data-view="device"] .free-thumbs { gap: 6px; padding: 6px 6px 0; }
+  html[data-view="device"] .free-thumb,
+  html[data-view="device"] .free-thumb-add { flex-basis: 40px; width: 40px; height: 40px; }
+  html[data-view="device"] .free-thumb-x { width: 13px; height: 13px; }
+  html[data-view="device"] .free-thumb-x svg { width: 8px; height: 8px; }
+  html[data-view="device"] .free-chip { height: 26px; font-size: 11px; }
+  html[data-view="device"] .free-picker { padding: 6px 6px 8px; }
+  html[data-view="device"] .statusbar, html[data-view="device"] .wx-header { display: none; }
+  html[data-view="device"] .wx-chat { min-height: 0; padding: 0 12px; }
+  html[data-view="device"] .wx-composer { padding-top: 3px; padding-bottom: 3px; }
+  html[data-view="device"] .kb-sysbar { padding: 0 8px; }
+  html[data-view="device"] .kb-sysbar .sys-key { width: 30px; height: 22px; }
+  html[data-view="device"] .kb-sysbar svg { width: 15px; height: 15px; }
+  html[data-view="device"] .keyboard .kb-body { padding: 1px 4px var(--lc-keys-gap); --lc-keys-gap: 2px; overflow: hidden; }
+  html[data-view="device"] .keyboard .candidates { height: 20px; margin-bottom: 1px; }
+  html[data-view="device"] .keyboard .candidates button { font-size: 11px; padding: 1px 6px; min-width: 28px; }
+  html[data-view="device"] .keyboard .keys { gap: 2px; }
+  html[data-view="device"] .keyboard .key-row { gap: 2px; }
+  /* 只钉 26 键行内的键高；九宫格 / 符号面板由网格行高决定，不参与 */
+  html[data-view="device"] .keyboard .key-row .key { height: 17px; min-height: 0; line-height: 17px; }
+  html[data-view="device"] .keyboard .key.lang-key .lang-opt { font-size: 8px; }
+  html[data-view="device"] .keyboard .key.lang-key .lang-opt.active { font-size: 11px; }
+  html[data-view="device"] .keyboard .t9-grid,
+  html[data-view="device"] .keyboard .t9-punct,
+  html[data-view="device"] .keyboard .t9-blocks,
+  html[data-view="device"] .keyboard .t9-bottom { gap: 2px; }
+  html[data-view="device"] .modal-backdrop { inset: 0; }
+  /* 极矮窗口（device 视图演示）：键盘拉高后上半只剩 ~115px，编辑器表单控件收紧一档 */
+  html[data-view="device"] .kb-partner-editor .picker-top { padding: 5px 40px 0 12px; }
+  html[data-view="device"] .kb-partner-editor .picker-top h2 { font-size: 13px; }
+  html[data-view="device"] .kb-partner-editor .pe-body { gap: 10px; padding: 0 12px; }
+  html[data-view="device"] .kb-partner-editor .pe-avatar { gap: 3px; }
+  html[data-view="device"] .kb-partner-editor .pe-avatar-ph,
+  html[data-view="device"] .kb-partner-editor .pe-avatar-img { width: 40px; height: 40px; }
+  html[data-view="device"] .kb-partner-editor .pe-avatar-ph svg { width: 16px; height: 16px; }
+  html[data-view="device"] .kb-partner-editor .pe-avatar-label { font-size: 9px; }
+  html[data-view="device"] .kb-partner-editor .pe-fields { gap: 6px; }
+  html[data-view="device"] .kb-partner-editor .pe-field { gap: 6px; font-size: 10px; }
+  html[data-view="device"] .kb-partner-editor .pe-field > span { flex: 0 0 42px; }
+  html[data-view="device"] .kb-partner-editor .pe-field input,
+  html[data-view="device"] .kb-partner-editor .pe-field select { min-height: 30px; padding: 4px 9px; font-size: 12px; border-radius: 7px; }
+}
+
+/* ---- 主 App「开启键盘」引导流程（2026-09-27，鸿蒙版；安卓 / iOS 待后续需求）----
+   三块整页（无底部 Tab）：引导页（紫蓝）/ 模拟鸿蒙设置页与 LoveCo 详情页（深色），
+   外加启动闸门的两块提示页（检查中 / 网络不可用，用主 App 常规浅色皮肤）。
+   整页皮肤连着状态栏一起换底色：手机根元素上的 .guide-purple / .guide-dark 由 renderApp 挂。 */
+.app-phone.guide-purple { background: #5B68F5; }
+.app-phone.guide-dark { background: #0B0B0C; }
+.app-phone.guide-purple > .statusbar { background: #5B68F5; color: #fff; }
+.app-phone.guide-dark > .statusbar { background: #0B0B0C; color: #fff; }
+.app-phone.guide-purple .app-main, .app-phone.guide-dark .app-main { width: 100%; padding: 0; }
+
+/* 启动闸门：检查中（转圈）/ 网络不可用（图标 + 重试），居中排版 */
+.app-gate { min-height: 64vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px; text-align: center; }
+.app-gate-spinner { width: 28px; height: 28px; border-radius: 50%; border: 3px solid var(--lc-accent-soft); border-top-color: var(--lc-accent-strong); animation: kg-spin 0.9s linear infinite; }
+@keyframes kg-spin { to { transform: rotate(360deg); } }
+.app-gate-icon svg { width: 42px; height: 42px; color: var(--lc-muted); }
+.app-gate-title { margin-top: 10px; font-size: 15px; font-weight: 600; }
+.app-gate-hint { font-size: 12px; color: var(--lc-muted); }
+.app-gate-retry { margin-top: 18px; min-height: 38px; padding: 0 30px; border-radius: 19px; border: 0; background: var(--lc-accent-strong); color: #fff; font-size: 13.5px; font-weight: 600; cursor: pointer; }
+
+/* 引导页（紫蓝整页）：白圆角大卡播演示动画 + 一行说明 + 黑胶囊按钮（一至两颗）。
+   元素**整体上下居中**（2026-09-27 按其反馈调，此前挤在顶部、下面一大片留白）：
+   内容比屏高时 min-height 容器随内容长高、居中自然失效 —— 照旧从顶部排且 app-main 可滚动。
+   按钮颗数按平台分叉：鸿蒙 / iOS 一颗（「启用LoveCo输入法」）；**安卓两颗**（2026-09-27 起）——
+   「第一步 启用LoveCo输入法」＋「第二步 切换到LoveCo输入法」。两颗同款黑胶囊，但状态互斥：
+   轮到哪一步哪一颗才亮（kg-breathe 呼吸 + 黑底），没轮到的那颗走 :disabled ——
+   置灰、不呼吸、不可点（第一步做完就轮到第二步，两步都完成即离开引导页） */
+.kb-guide-page { min-height: 100%; background: #5B68F5; color: #fff; padding: 22px 16px; display: flex; flex-direction: column; justify-content: center; }
+.kb-guide-video-card { border-radius: 20px; overflow: hidden; background: #fff; box-shadow: 0 12px 32px rgba(16, 16, 84, 0.28); }
+.kb-guide-video-card video { display: block; width: 100%; }
+.kb-guide-caption { margin: 15px 6px 20px; font-size: 12.5px; font-weight: 600; letter-spacing: 0.4px; text-align: center; }
+.kb-guide-btn { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 54px; padding: 0 22px; border-radius: 27px; border: 0; font-size: 15px; font-weight: 600; cursor: pointer; }
+.kb-guide-btn svg { width: 16px; height: 16px; }
+.kb-guide-btn + .kb-guide-btn { margin-top: 10px; }
+/* 主按钮：整颗持续放大缩小（scale 1 ↔ 1.045 + 深蓝投影），一闪一闪地引导点击 */
+.kb-guide-btn.primary { background: #0C0C10; color: #fff; animation: kg-breathe 1.6s ease-in-out infinite; }
+/* 还没轮到的那一步：置灰、不可点、不跳动（放在 .primary 之后才盖得住动画与底色） */
+.kb-guide-btn:disabled { background: rgba(12, 12, 16, 0.34); color: rgba(255, 255, 255, 0.6); animation: none; cursor: default; }
+@keyframes kg-breathe {
+  0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(16, 16, 84, 0); }
+  50% { transform: scale(1.045); box-shadow: 0 10px 24px 0 rgba(16, 16, 84, 0.38); }
+}
+
+/* 模拟鸿蒙设置页 / LoveCo 详情页（深色整页）：返回 + 大标题 + 深色圆角卡片 + 左下角视频悬浮窗 */
+.hz-page { position: relative; min-height: 100%; background: #0B0B0C; color: #F2F2F5; padding: 14px 14px 22px; display: flex; flex-direction: column; }
+.hz-top { display: flex; align-items: center; gap: 12px; padding: 4px 2px 18px; }
+.hz-back { width: 34px; height: 34px; border-radius: 50%; border: 0; background: #1F1F23; color: #fff; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.hz-back svg { width: 15px; height: 15px; }
+.hz-top h1 { font-size: 20px; font-weight: 700; }
+.hz-label { margin: 0 8px 8px; font-size: 12.5px; color: #8E8E96; }
+.hz-card { background: #1B1B1F; border-radius: 16px; margin: 0 0 14px; overflow: hidden; }
+.hz-card .hz-row + .hz-row { border-top: 1px solid rgba(255, 255, 255, 0.06); }
+.hz-row { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 55px; padding: 0 16px; text-align: left; }
+.hz-row.as-button { border: 0; background: none; color: inherit; font: inherit; cursor: pointer; }
+/* 不可点的行（「默认输入法」在 LoveCo 还没启用时）：整行压暗、光标不变化 */
+.hz-row.as-button:disabled { opacity: 0.55; cursor: default; }
+.hz-name { font-size: 15px; color: #F2F2F5; }
+.hz-value { margin-left: auto; display: flex; align-items: center; gap: 7px; font-size: 14px; color: #B9B9C0; }
+.hz-caret { width: 0; height: 0; border-left: 5px solid transparent; border-right: 5px solid transparent; border-top: 6px solid #B9B9C0; }
+.hz-radio { flex: 0 0 auto; width: 20px; height: 20px; border-radius: 50%; border: 1.5px solid #4A4A52; display: flex; align-items: center; justify-content: center; color: #fff; }
+.hz-radio.on { background: #3D6DEB; border-color: #3D6DEB; }
+.hz-radio svg { width: 11px; height: 11px; }
+.hz-row .chev { margin-left: auto; color: #55555D; }
+.hz-row .chev svg { width: 13px; height: 13px; }
+.hz-status { margin-left: auto; font-size: 13px; color: #8A8A92; }
+.hz-row.as-button .chev { margin-left: 0; }
+/* 鸿蒙样式开关：第二个开关（完整体验模式）只在第一个打开后显现（淡入上浮） */
+.hz-switch { position: relative; flex: 0 0 auto; margin-left: auto; width: 46px; height: 26px; border-radius: 13px; border: 0; background: #3A3A41; cursor: pointer; transition: background 0.2s; }
+.hz-switch i { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%; background: #fff; transition: left 0.2s; }
+.hz-switch.on { background: #3D6DEB; }
+.hz-switch.on i { left: 23px; }
+.hz-row-late { animation: kg-fadein 0.25s ease; }
+@keyframes kg-fadein { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; } }
+/* 左下角视频悬浮窗（画中画）：同一支演示视频缩成小窗循环播；启用后浮现绿色对勾与返回提示 */
+.hz-pip { position: absolute; left: 12px; bottom: 18px; width: 118px; padding: 0; border: 0; border-radius: 14px; overflow: hidden; background: #F4F6F8; box-shadow: 0 10px 26px rgba(0, 0, 0, 0.5); }
+.hz-pip video { display: block; width: 100%; }
+.hz-pip.done { cursor: pointer; }
+.hz-pip .hz-pip-check { position: absolute; left: 50%; bottom: 17px; transform: translateX(-50%); width: 21px; height: 21px; border-radius: 50%; background: #34C759; color: #fff; display: flex; align-items: center; justify-content: center; }
+.hz-pip .hz-pip-check svg { width: 11px; height: 11px; }
+.hz-pip .hz-pip-caption { position: absolute; left: 0; right: 0; bottom: 3px; font-size: 8px; color: #6B7280; text-align: center; }

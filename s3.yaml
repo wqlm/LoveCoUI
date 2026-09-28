@@ -1,0 +1,247 @@
+- generic [ref=e1610]:
+  - banner [ref=e1611]:
+    - generic [ref=e1612]:
+      - img "LoveCo" [ref=e1613]
+      - generic [ref=e1614]: LoveCo
+      - generic [ref=e1615]: 键盘交互实验室
+    - generic [ref=e1616]:
+      - generic [ref=e1617]: 本地仿真 · 无真实扣款
+      - button "重置会话" [ref=e1619] [cursor=pointer]
+  - main [ref=e1620]:
+    - complementary [ref=e1621]:
+      - generic [ref=e1622]:
+        - generic [ref=e1623]: WORKSPACE / 01
+        - generic [ref=e1624]:
+          - heading "会话工作台" [level=2] [ref=e1625]
+          - button "新增聊天对象" [ref=e1626] [cursor=pointer]
+        - generic [ref=e1630]:
+          - generic [ref=e1631]: 设备形态
+          - group "设备形态" [ref=e1632]:
+            - button "主 App" [ref=e1633] [cursor=pointer]
+            - button "键盘" [pressed] [ref=e1634] [cursor=pointer]
+        - generic [ref=e1635]:
+          - generic [ref=e1636]: 运行平台
+          - generic [ref=e1637]:
+            - button "鸿蒙" [pressed] [ref=e1638] [cursor=pointer]
+            - button "Android" [ref=e1639] [cursor=pointer]
+            - button "iOS" [ref=e1640] [cursor=pointer]
+        - paragraph [ref=e1641]: 键盘模式：在聊天类宿主 App 中唤起 LoveCo 键盘的形态。切到「主 App」查看 LoveCo 自己的界面。
+      - generic [ref=e1642]:
+        - generic [ref=e1643]: 聊天对象
+        - generic [ref=e1644]:
+          - button [pressed] [ref=e1645]:
+            - button "打开 林间 的对象管理" [ref=e1646] [cursor=pointer]:
+              - img "林间的头像" [ref=e1648]
+              - generic [ref=e1649]:
+                - strong [ref=e1650]: 林间
+                - generic [ref=e1651]: 暧昧期
+          - button [ref=e1656]:
+            - button "打开 陈一 的对象管理" [ref=e1657] [cursor=pointer]:
+              - img "陈一的头像" [ref=e1659]
+              - generic [ref=e1660]:
+                - strong [ref=e1661]: 陈一
+                - generic [ref=e1662]: 朋友
+          - button [ref=e1663]:
+            - button "打开 小满 的对象管理" [ref=e1664] [cursor=pointer]:
+              - img "小满的头像" [ref=e1666]
+              - generic [ref=e1667]:
+                - strong [ref=e1668]: 小满
+                - generic [ref=e1669]: 同事
+        - generic [ref=e1670]:
+          - generic [ref=e1671]: 会话模式
+          - strong [ref=e1672]: 输入键盘
+        - generic [ref=e1673]:
+          - generic [ref=e1674]: 表达风格
+          - strong [ref=e1675]: 自然
+        - button "对象记忆" [ref=e1676] [cursor=pointer]
+      - generic [ref=e1685]:
+        - generic [ref=e1686]: 账户与权益
+        - generic [ref=e1687]:
+          - generic [ref=e1688]:
+            - strong [ref=e1689]: "27"
+            - text: 可用积分
+          - generic [ref=e1690]:
+            - strong [ref=e1691]: "01"
+            - text: 本次 AI 生成
+        - button "小周" [ref=e1692] [cursor=pointer]
+        - button "会员与积分" [ref=e1700] [cursor=pointer]
+      - generic [ref=e1710]:
+        - button "模拟聊天截图" [ref=e1711] [cursor=pointer]
+        - button "反馈与建议" [ref=e1720] [cursor=pointer]
+        - button "协议中心" [ref=e1729] [cursor=pointer]
+      - generic [ref=e1737]: INTERACTION BUILD · 2026.09仿真交互，不代表原生端验收结果
+    - generic [ref=e1738]:
+      - generic [ref=e1739]:
+        - generic [ref=e1740]: HarmonyOS · 键盘模式 · 宿主 App 内
+        - generic [ref=e1744]: 已登录
+      - generic [ref=e1746]:
+        - generic [ref=e1747]:
+          - generic [ref=e1748]: 14:32
+          - generic [ref=e1750]: 5G
+        - generic [ref=e1757]:
+          - button "切换聊天对象" [ref=e1758] [cursor=pointer]
+          - generic [ref=e1761]: 林间
+          - button "会话菜单" [ref=e1762] [cursor=pointer]
+        - generic [ref=e1766]:
+          - generic [ref=e1767]: 9月23日 星期三 20:14
+          - generic [ref=e1768]:
+            - img "林间的头像" [ref=e1770]
+            - generic [ref=e1771]: 终于下班了，今天真的好漫长。
+          - generic [ref=e1772]:
+            - generic [ref=e1773]: 辛苦啦，今天过得怎么样？
+            - generic [ref=e1774]: 小
+          - generic [ref=e1775]:
+            - img "林间的头像" [ref=e1777]
+            - generic [ref=e1778]: 今天有点累，感觉什么都没做好。
+          - generic [ref=e1779]: 9月24日 星期四 09:07
+          - generic [ref=e1780]:
+            - generic [ref=e1781]: 那你早点休息，我也赶紧把活干完撤了。
+            - generic [ref=e1782]: 小
+        - generic [ref=e1783]:
+          - button "语音消息" [ref=e1784] [cursor=pointer]
+          - generic [ref=e1790]:
+            - textbox "聊天输入框" [ref=e1791]
+            - button "语音输入转写" [ref=e1792] [cursor=pointer]
+          - button "表情" [ref=e1796] [cursor=pointer]
+          - button "更多" [ref=e1802] [cursor=pointer]
+        - region "LoveCo 模拟键盘" [ref=e1806]:
+          - generic [ref=e1807]:
+            - button "聊天对象管理：林间" [ref=e1808] [cursor=pointer]:
+              - generic [ref=e1812]: 林间
+            - button "重新生成" [ref=e1813] [cursor=pointer]
+            - button "AI 语音输入" [ref=e1817] [cursor=pointer]
+            - generic [ref=e1821]:
+              - button "选择聊天截图" [ref=e1822] [cursor=pointer]
+              - button "键盘设置" [ref=e1827] [cursor=pointer]
+              - button "返回键盘" [ref=e1831] [cursor=pointer]
+          - generic [ref=e1836]:
+            - generic [ref=e1837]:
+              - button "Q" [ref=e1838] [cursor=pointer]
+              - button "W" [ref=e1839] [cursor=pointer]
+              - button "E" [ref=e1840] [cursor=pointer]
+              - button "R" [ref=e1841] [cursor=pointer]
+              - button "T" [ref=e1842] [cursor=pointer]
+              - button "Y" [ref=e1843] [cursor=pointer]
+              - button "U" [ref=e1844] [cursor=pointer]
+              - button "I" [ref=e1845] [cursor=pointer]
+              - button "O" [ref=e1846] [cursor=pointer]
+              - button "P" [ref=e1847] [cursor=pointer]
+            - generic [ref=e1848]:
+              - button "A" [ref=e1849] [cursor=pointer]
+              - button "S" [ref=e1850] [cursor=pointer]
+              - button "D" [ref=e1851] [cursor=pointer]
+              - button "F" [ref=e1852] [cursor=pointer]
+              - button "G" [ref=e1853] [cursor=pointer]
+              - button "H" [ref=e1854] [cursor=pointer]
+              - button "J" [ref=e1855] [cursor=pointer]
+              - button "K" [ref=e1856] [cursor=pointer]
+              - button "L" [ref=e1857] [cursor=pointer]
+            - generic [ref=e1858]:
+              - button "切换大小写" [ref=e1859] [cursor=pointer]
+              - button "Z" [ref=e1863] [cursor=pointer]
+              - button "X" [ref=e1864] [cursor=pointer]
+              - button "C" [ref=e1865] [cursor=pointer]
+              - button "V" [ref=e1866] [cursor=pointer]
+              - button "B" [ref=e1867] [cursor=pointer]
+              - button "N" [ref=e1868] [cursor=pointer]
+              - button "M" [ref=e1869] [cursor=pointer]
+              - button "退格" [ref=e1870] [cursor=pointer]
+            - generic [ref=e1875]:
+              - button "numbers" [ref=e1876] [cursor=pointer]: "123"
+              - button "，" [ref=e1877] [cursor=pointer]
+              - button "Space" [ref=e1878] [cursor=pointer]: 空格
+              - button "切换到英文键盘（26 键）" [ref=e1879] [cursor=pointer]:
+                - generic [ref=e1880]: 中
+                - generic [ref=e1881]: 英
+              - button "Enter" [ref=e1882] [cursor=pointer]: 发送
+          - generic "HarmonyOS 键盘底栏" [ref=e1883]:
+            - button "切换输入法" [ref=e1884] [cursor=pointer]
+            - button "小艺" [ref=e1888] [cursor=pointer]
+          - dialog "聊天分析" [ref=e1892]:
+            - generic [ref=e1893]:
+              - heading "聊天分析" [level=2] [ref=e1898]
+              - generic [ref=e1899]: 内容由AI生成
+              - button "关闭聊天分析" [ref=e1900] [cursor=pointer]
+            - generic [ref=e1904]:
+              - generic [ref=e1905]:
+                - generic [ref=e1906]:
+                  - generic [ref=e1907]: 关系阶段：暧昧期
+                  - generic [ref=e1908]: 聊天氛围：冷淡陌生
+                - paragraph [ref=e1914]: 对方对你开场白冷淡不回应，心理处于无感或观察阶段。继续追问会暴露需求感，被定义为骚扰。
+              - button [ref=e1915] [cursor=pointer]:
+                - paragraph [ref=e1916]: "[思路1] 体面收尾：主动切断尴尬局面，建立强者姿态。"
+                - paragraph [ref=e1917]: 忙你的吧。
+              - button [ref=e1918] [cursor=pointer]:
+                - paragraph [ref=e1919]: "[思路2] 幽默调侃：用自恋合理化对方的沉默。"
+                - paragraph [ref=e1920]: 看来是被美貌震撼到了，没关系。
+              - button [ref=e1921] [cursor=pointer]:
+                - paragraph [ref=e1922]: "[思路3] 留白收场：不解释、不追问，把开口的主动权留给对方。"
+                - paragraph [ref=e1923]: 先这样，我去做点别的，想聊了叫我。
+            - generic [ref=e1924]:
+              - button "语音输入" [ref=e1925] [cursor=pointer]
+              - button "重新生成" [ref=e1929] [cursor=pointer]
+              - button "发送" [ref=e1930] [cursor=pointer]
+      - generic [ref=e1931]: LoveCocom.gasairea.lovecoKEYBOARD · HOST APP
+    - complementary [ref=e1934]:
+      - generic [ref=e1935]:
+        - generic [ref=e1936]: SANDBOX
+        - generic [ref=e1937]:
+          - heading "请求与状态" [level=2] [ref=e1938]
+          - generic [ref=e1939]: MOCK API
+        - generic [ref=e1940]:
+          - generic [ref=e1941]: 请求延迟
+          - slider "仿真请求延迟" [ref=e1942]: "900"
+        - generic [ref=e1943]:
+          - generic [ref=e1944]: 响应时长
+          - strong [ref=e1945]: 0.8 s
+        - generic [ref=e1946]:
+          - generic [ref=e1947]: 请求结果
+          - combobox "请求结果" [ref=e1948]:
+            - option "正常响应" [selected]
+            - option "服务异常 · 503"
+            - option "请求超时"
+            - option "安全拦截"
+        - generic [ref=e1949]:
+          - generic [ref=e1950]: 登录状态
+          - checkbox "登录状态" [checked] [ref=e1951] [cursor=pointer]
+        - generic [ref=e1952]:
+          - generic [ref=e1953]: 网络可用
+          - checkbox "网络可用" [checked] [ref=e1954] [cursor=pointer]
+        - button "模拟额度耗尽" [ref=e1955] [cursor=pointer]
+      - generic [ref=e1956]:
+        - generic [ref=e1957]:
+          - heading "请求记录" [level=3] [ref=e1958]
+          - button "清空请求记录" [ref=e1959] [cursor=pointer]
+        - generic [ref=e1963]:
+          - button "POST /v1/ai/generate 200 11:45:14 855 ms" [ref=e1964] [cursor=pointer]:
+            - generic [ref=e1965]:
+              - generic [ref=e1966]: POST
+              - generic [ref=e1967]: /v1/ai/generate
+              - generic [ref=e1968]: "200"
+            - generic [ref=e1969]:
+              - generic [ref=e1970]: 11:45:14
+              - generic [ref=e1971]: 855 ms
+          - button "POST /v1/uploads/complete 200 11:45:13 860 ms" [ref=e1972] [cursor=pointer]:
+            - generic [ref=e1973]:
+              - generic [ref=e1974]: POST
+              - generic [ref=e1975]: /v1/uploads/complete
+              - generic [ref=e1976]: "200"
+            - generic [ref=e1977]:
+              - generic [ref=e1978]: 11:45:13
+              - generic [ref=e1979]: 860 ms
+      - generic [ref=e1980]:
+        - generic [ref=e1981]:
+          - heading "设备权限" [level=3] [ref=e1982]
+          - button "设置设备权限" [ref=e1983] [cursor=pointer]
+        - generic [ref=e1987]:
+          - generic [ref=e1988]: 网络访问
+          - strong [ref=e1989]: 正常
+        - generic [ref=e1990]:
+          - generic [ref=e1991]: 键盘完全访问
+          - strong [ref=e1992]: 已开启
+        - generic [ref=e1993]:
+          - generic [ref=e1994]: 相册
+          - strong [ref=e1995]: 完整访问
+        - button "模拟收到新消息" [ref=e1996] [cursor=pointer]
+        - button "模拟新截图" [ref=e2005] [cursor=pointer]
+      - generic [ref=e2014]: 最近截图只提示，不自动上传；支付使用本地仿真。
