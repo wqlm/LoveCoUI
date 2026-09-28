@@ -2428,12 +2428,15 @@ html[data-view="device"] .sheet-footer {
 .kbsw-func { flex: 1.5 1 0; background: #AEB3BD; color: #fff; box-shadow: 0 1px 0 #8E939D; }
 .kbsw-space { flex: 4.6 1 0; font-size: 14px; }
 .kbsw-go { flex: 1.6 1 0; background: #3D7BF7; color: #fff; box-shadow: 0 1px 0 #2F63CE; font-size: 14px; }
-/* 底行：地球（唯一可交互的键 —— 长按弹键盘选择器）+ 提示胶囊（指着地球，呼吸动画）+ 麦克风 */
+/* 底行：地球（唯一可交互的键 —— 长按弹键盘选择器）+ 提示气泡（尾巴指着地球，静态不闪）+ 麦克风 */
 .kbsw-globe, .kbsw-mic { flex: 0 0 34px; display: flex; align-items: center; justify-content: center; padding: 0; border: 0; background: none; color: #4A4C55; }
 .kbsw-globe { cursor: pointer; border-radius: 7px; touch-action: none; }
 .kbsw-globe:hover { background: #C4C8D1; }
 .kbsw-globe svg, .kbsw-mic svg { width: 22px; height: 22px; fill: none; stroke: currentColor; }
-.kbsw-hint { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; gap: 5px; margin: 0 8px; border-radius: 8px; background: linear-gradient(#8E88F2, #7B74E8); color: #fff; font-size: 12px; font-weight: 600; box-shadow: 0 2px 7px #6E66E640; animation: kbsw-breathe 1.6s ease-in-out infinite; }
+/* 提示**对话气泡**（2026-09-28 按设计截图改）：蓝紫底白字，圆角 12px；左侧中间一枚三角形小尾巴
+   指着地球（::before 的 border 三角形，颜色与气泡底一致）；**不再一闪一闪**（去掉原来的呼吸动画） */
+.kbsw-hint { position: relative; flex: 1 1 auto; display: flex; align-items: center; justify-content: center; gap: 5px; margin: 0 8px 0 6px; border-radius: 12px; background: #5867F0; color: #fff; font-size: 12px; font-weight: 600; box-shadow: 0 2px 7px #4B57D933; }
+.kbsw-hint::before { content: ''; position: absolute; left: -5px; top: 50%; margin-top: -6px; border: 6px solid transparent; border-left: 0; border-right-color: #5867F0; }
 .kbsw-hint i, .kbsw-hint svg { display: flex; width: 14px; height: 14px; }
 .kbsw-hint svg { fill: none; stroke: currentColor; }
 @keyframes kbsw-breathe {
