@@ -1628,13 +1628,15 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .app-phone.guide-purchase .app-main { width: 100%; padding: 0; }
 .app-phone.guide-purchase > .statusbar { background: #5B93F7; color: #FFF; }
 /* Hero：两行标题 + 三条权益清单（整块在 Hero 内居中，富余高度变成上下留白）——
-   2026-09-29 按反馈放宽：标题 14/26px、清单行距 9px、下边距 26px（原 13.5/23px、7px、6px 看着挤） */
-.pu-hero { padding: 20px 20px 26px; }
+   2026-09-29 按反馈放宽：标题 14/24px、清单行距 9px、下边距 26px（原 13.5/23px、7px、6px 看着挤）。
+   左右内边距收到 18px、大标题只放到 24px：这句「LoveCo会员「限时特惠」」在 24px 下宽 283px，
+   再大一档（25px 起 294px）在工作台视图那台 335px 宽的手机里就会折行、把「」拆开 */
+.pu-hero { padding: 20px 18px 26px; }
 .pu-close { width: 28px; height: 28px; border: 0; background: rgba(255, 255, 255, .9); color: var(--pu-hot); box-shadow: 0 2px 8px #1E5FD026; }
 .pu-close svg { width: 15px; height: 15px; }
 .pu-hero-title { margin: 6px 0 0; }
 .pu-hero-title span { font-size: 14px; font-weight: 650; color: #1D4086; letter-spacing: .3px; }
-.pu-hero-title strong { margin-top: 7px; font-size: 26px; font-weight: 800; color: #1449C8; letter-spacing: .3px; }
+.pu-hero-title strong { margin-top: 7px; font-size: 24px; font-weight: 800; color: #1449C8; letter-spacing: .3px; }
 .pu-feats { margin-top: 18px; }
 .pu-feats li { padding: 9px 0; font-size: 13.5px; line-height: 1.45; font-weight: 600; color: var(--pu-deep); }
 /* 白色主体：三档卡（选中那张蓝描边 + 顶部浮一枚蓝角标）→ 续订说明 → …（富余高度）… →
