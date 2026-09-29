@@ -1619,8 +1619,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    —— Hero 里的标题块上下居中（顶部不再挤）、主体里「支付方式行 + 立即解锁 + 协议行」这组
    用 auto 外边距钉在屏幕底部（下半屏不再空），档位卡 / 支付行 / 主按钮同步放大一档。
    同日三次需求：小标题改「解锁无限次AI使用」、权益清单四条、**支付方式行可切渠道**（安卓 / 鸿蒙
-   首选支付宝、点一下切微信支付 —— 那行现在是 <button>，按钮重置在 styles.css；微信标走品牌绿
-   #07C160）、《自动续费协议》按「首选渠道 + 周/季度档」条件显示（结构在 app.js，本段只管皮）。
+   首选支付宝、点一下切微信支付 —— 那行现在是 <button>，按钮重置在 styles.css）、《自动续费协议》
+   按「首选渠道 + 周/季度档」条件显示（结构在 app.js，本段只管皮）。
+   同日四次需求：微信标换**真素材** assets/微信支付.png（原先是品牌绿底 + 白「微」字自绘标），
+   会员态不再置灰主按钮、续订说明也不再按会员态换文案（那两条会员态分叉整体删除）。
    骨架（弹性列、居中、底钉、支付行按钮重置）在 styles.css 的 .pu-* 一组，本段只管配色与尺寸。 */
 .pu-page {
   --pu-ink: #1D4FA8;
@@ -1666,8 +1668,11 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu-pay[data-action]:hover { background: #F0F1F5; }
 .pu-pay-logo { width: 26px; height: 26px; background: #FFF; border: 1px solid #E4E4EA; color: #3C3C43; }
 .pu-pay-logo.ali { border: 0; background: #1677FF; color: #FFF; font-size: 13px; font-weight: 700; }
-/* 微信支付（2026-09-29 三次需求：安卓 / 鸿蒙那行点一下从支付宝切到微信）—— 微信品牌绿 */
-.pu-pay-logo.wx { border: 0; background: #07C160; color: #FFF; font-size: 13px; font-weight: 700; }
+/* 微信支付（2026-09-29 三次需求：安卓 / 鸿蒙那行点一下从支付宝切到微信）——
+   标走**真素材** assets/微信支付.png（200×200，绿底圆角方 + 白色气泡勾，2026-09-29 四次需求换的）；
+   素材自带圆角，故这里把 .pu-pay-logo 的圆形收成 7px 同款圆角（裁圆会切掉四个角） */
+.pu-pay-logo.wx { border: 0; background: none; border-radius: 7px; overflow: hidden; }
+.pu-pay-logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .pu-pay-name { font-size: 14px; font-weight: 600; color: #454B58; }
 .pu-pay-switch { width: 15px; height: 15px; color: #B9BFC9; }
 /* 「立即解锁」：整宽蓝色渐变胶囊（已是会员时置灰）；协议勾选行：圆形勾选框 + 两份协议名可点 */
