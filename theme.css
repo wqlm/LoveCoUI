@@ -1600,8 +1600,9 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   .kb-paywall .pw-cta { height: 35px; margin-top: 24px; font-size: 14px; }
   .kb-paywall .pw-cta-tag { top: -7px; height: 15px; line-height: 15px; }
 }
-/* —— 主 App · 商品购买页（appPurchasePage，2026-09-28 新增；2026-09-29 改蓝色整页）——
-   参考竞品（恋爱回复键盘）购买页布局的**蓝色浅色皮肤**（不跟随深色外观，与付费引导层同一条约定）。
+/* —— 主 App · 会员购买页（appPurchasePage，2026-09-28 新增时叫「商品购买页」；2026-09-29 改名 +
+   改蓝色整页）——参考竞品（恋爱回复键盘）购买页布局的**蓝色浅色皮肤**（不跟随深色外观，
+   与付费引导层同一条约定）。
    整页两段：蓝色渐变 Hero（X + 两行蓝标题 + 纯文字权益清单，平台专属角标与图标章已删）→ 白色主体
    （三档商品卡 + 续订说明 + 支付方式行 + 蓝色渐变胶囊「立即解锁」+ 协议勾选行）。
    2026-09-29 起整页铺满整个屏幕（上下左右无边距）：.app-main 由 .guide-purchase 清零边距
@@ -1611,7 +1612,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    Hero 仅 208px、正文到 y=520 结束、底下 332px 全空）：富余高度按 2:1 分给 Hero 与白色主体
    —— Hero 里的标题块上下居中（顶部不再挤）、主体里「支付方式行 + 立即解锁 + 协议行」这组
    用 auto 外边距钉在屏幕底部（下半屏不再空），档位卡 / 支付行 / 主按钮同步放大一档。
-   骨架（弹性列、居中、底钉）在 styles.css 的 .pu-* 一组，本段只管配色与尺寸。 */
+   同日三次需求：小标题改「解锁无限次AI使用」、权益清单四条、**支付方式行可切渠道**（安卓 / 鸿蒙
+   首选支付宝、点一下切微信支付 —— 那行现在是 <button>，按钮重置在 styles.css；微信标走品牌绿
+   #07C160）、《自动续费协议》按「首选渠道 + 周/季度档」条件显示（结构在 app.js，本段只管皮）。
+   骨架（弹性列、居中、底钉、支付行按钮重置）在 styles.css 的 .pu-* 一组，本段只管配色与尺寸。 */
 .pu-page {
   --pu-ink: #1D4FA8;
   --pu-deep: #2563C9;
@@ -1653,8 +1657,11 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 /* 续订说明：下面留 18px 的**最小**间距 —— 支付行再往上顶时要靠这段留白兜底（见 .pu-pay 的 auto） */
 .pu-cap { margin: 13px 4px 18px; font-size: 11px; line-height: 1.5; color: var(--pu-faint); }
 .pu-pay { gap: 11px; margin-top: auto; padding: 13px 14px; background: #F6F6F8; }
+.pu-pay[data-action]:hover { background: #F0F1F5; }
 .pu-pay-logo { width: 26px; height: 26px; background: #FFF; border: 1px solid #E4E4EA; color: #3C3C43; }
 .pu-pay-logo.ali { border: 0; background: #1677FF; color: #FFF; font-size: 13px; font-weight: 700; }
+/* 微信支付（2026-09-29 三次需求：安卓 / 鸿蒙那行点一下从支付宝切到微信）—— 微信品牌绿 */
+.pu-pay-logo.wx { border: 0; background: #07C160; color: #FFF; font-size: 13px; font-weight: 700; }
 .pu-pay-name { font-size: 14px; font-weight: 600; color: #454B58; }
 .pu-pay-switch { width: 15px; height: 15px; color: #B9BFC9; }
 /* 「立即解锁」：整宽蓝色渐变胶囊（已是会员时置灰）；协议勾选行：圆形勾选框 + 两份协议名可点 */

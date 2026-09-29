@@ -241,7 +241,8 @@ small{font-size:11px;color:#73847d}
 .kb-paywall .pw-legal-link{padding:0;border:0;background:none;font:inherit;font-weight:600;line-height:inherit;cursor:pointer}
 .kb-paywall .pw-cta{position:relative;flex-shrink:0;border:0;border-radius:999px}
 .kb-paywall .pw-cta-tag{position:absolute;border-radius:6px}
-/* 主 App · 商品购买页（appPurchasePage，2026-09-28 新增；2026-09-29 改蓝色、X 挪右上角）：
+/* 主 App · 会员购买页（appPurchasePage，2026-09-28 新增时叫「商品购买页」；2026-09-29 改名 +
+   改蓝色、X 挪右上角、重排纵向节奏、支付行改可点切换）：
    整页购买页的骨架 —— 蓝色渐变皮肤与配色在 theme.css 的 .pu-* 一组；商品与 kb-paywall
    共用 PLANS / state.kbPlan，样式独立（那边浅紫蓝、这边照参考截图走蓝色）。
    权益清单的图标章（.pu-feat-ico）、「平台专属」角标（.pu-hero-badge）与「新上线」小标
@@ -266,7 +267,10 @@ small{font-size:11px;color:#73847d}
 .pu-plan-price i{font-style:normal}
 .pu-plan-origin{text-decoration:line-through}
 .pu-cap{margin:0}
-.pu-pay{display:flex;align-items:center;border-radius:12px}
+/* 支付方式行：安卓 / 鸿蒙那一条是可点的 <button>（点一下切渠道），iOS 那条是纯展示的 <div> ——
+   同用一个类，这里的按钮重置对 div 无影响；可点的那条才给手型光标 */
+.pu-pay{display:flex;width:100%;align-items:center;border:0;border-radius:12px;font:inherit;color:inherit;text-align:left}
+.pu-pay[data-action]{cursor:pointer}
 .pu-pay-logo{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%}
 .pu-pay-logo svg{width:60%;height:60%}
 .pu-pay-name{flex:1}
