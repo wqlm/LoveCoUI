@@ -2689,7 +2689,7 @@ html[data-view="device"] .sheet-footer {
 .gx-tip-face { filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .45)); }
 .gx-tip-text { color: #fff; background: linear-gradient(135deg, #4C7DF0, #3355E8); border-radius: 16px 20px 15px 19px / 19px 15px 20px 16px; box-shadow: 0 8px 22px rgba(50, 85, 232, .45); animation: gx-tip-bob 1.6s ease-in-out infinite; }
 @keyframes gx-tip-bob { 0%, 100% { transform: rotate(-2deg) translateY(0); } 50% { transform: rotate(-2deg) translateY(-5px); } }
-/* 庆祝层（win）：键盘与聊天被压暗，彩带从上往下飘、「哇！你好棒呀」弹入、胶囊按钮浮起 */
+/* 庆祝层（win）：键盘与聊天被压暗，彩带从上往下飘、「Nice～」弹入、胶囊按钮浮起 */
 .gx-win { background: rgba(10, 10, 14, .55); }
 .gx-win-title { color: #fff; text-shadow: 0 4px 18px rgba(0, 0, 0, .55); animation: gx-win-pop .5s cubic-bezier(.2, 1.4, .4, 1) both; }
 @keyframes gx-win-pop { from { transform: scale(.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }

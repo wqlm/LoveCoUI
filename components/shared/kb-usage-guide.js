@@ -23,7 +23,7 @@
      pick      输出完面板底部浮出悬浮按钮条，遮罩高亮第一条回复（整卡）——「就用这句」
      send      面板**不收起**，遮罩改高亮面板底部那颗「发送」——「发送给 TA」
               （face 模式：整块提示左移，手指正好落在发送按钮的中轴线上）
-     win       回复进会话 + 庆祝层（「哇！你好棒呀」+ 彩带 + 「去使用吧」）—— 演完了，菜单栏
+     win       回复进会话 + 庆祝层（「Nice～」+ 彩带 + 「去使用」）—— 演完了，菜单栏
                相册位置**换回普通的图片图标**（不再是跳动的截图缩略图）
 
    聊天页与键盘都是本组件**自绘**的：聊天复用宿主会话的 .wx-* 骨架与皮肤，键盘的键区 /
@@ -179,13 +179,13 @@ LoveCoUI.define('shared', 'kb-usage-guide', (ctx) => {
       </div>`
     : '';
 
-  /* —— 庆祝层（win）：彩带 / 「哇！你好棒呀」/「去使用吧」（点它收场并跳主 App 首页） —— */
+  /* —— 庆祝层（win）：彩带 / 「Nice～」/「去使用」（点它收场并跳主 App 首页） —— */
   const confetti = Array.from({ length: 26 }, (_, i) => `<i style="--x:${(i * 37 + 11) % 100};--delay:${(((i * 13) % 10) / 10).toFixed(1)}s;--dur:${(2.3 + ((i * 7) % 10) / 10).toFixed(1)}s;--rot:${(i % 2 ? 1 : -1) * (140 + (i % 5) * 90)}deg;--c:${['#4C7DF0', '#F5A623', '#F06A6A', '#FFFFFF', '#6BCB77'][i % 5]}"></i>`).join('');
   const win = step === 'win'
     ? `<div class="gx-win">
         <div class="gx-confetti" aria-hidden="true">${confetti}</div>
-        <p class="gx-win-title">哇！你好棒呀</p>
-        <button type="button" class="gx-win-btn" data-action="gx-next:win">去使用吧</button>
+        <p class="gx-win-title">Nice～</p>
+        <button type="button" class="gx-win-btn" data-action="gx-next:win">去使用</button>
       </div>`
     : '';
 
