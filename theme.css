@@ -16,7 +16,7 @@ button:focus-visible, a:focus-visible { outline-color: var(--lc-accent); }
 input:focus, textarea:focus, select:focus { outline-color: var(--lc-accent); }
 svg { width: var(--lc-icon-size); height: var(--lc-icon-size); }
 small, .muted, .brand-tag, .sandbox-pill, .device-top,
-.eyebrow, .ai-footnote,
+.ai-footnote,
 .kv, .control-line, .char-count,
 .field, .sheet-list-item p,
 .legal-text, .device-caption, .mobile-testbar,

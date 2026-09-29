@@ -1923,10 +1923,10 @@
   }
   function renderApp() {
     const ctx = uiContext();
-    /* 「模拟」组在左栏与「仿真控制台」弹层两处同时渲染时靠前缀区分控件 id（与键盘形态同一套机制） */
+    /* 主 App 形态的「模拟」组只在左栏渲染一处（2026-09-29 起右栏「APP STATE」一节连同它的
+       「仿真控制台」入口一起删除）；键盘形态仍是左栏与「仿真控制台」弹层两处同时渲染、
+       靠前缀区分控件 id（同一套机制） */
     state.renderedControls=false;
-    const title = state.appScreen==='confirm' ? (state.modalData.title||'确认操作')
-      : ({home:'首页',account:'我的',purchase:'会员购买页',login:'手机号登录',profile:'个人资料',feedback:'反馈与建议','legal-list':'协议中心',partners:'聊天对象',simulator:'仿真控制台','kb-guide':'开启键盘',onboard:'资料设置','partner-edit':state.modalData&&state.modalData.id?'编辑聊天对象':'新增聊天对象'}[state.appScreen] || 'LoveCo');
     const content=appScreenContent();
     /* 引导流程的整页皮肤要连着状态栏一起换底色（引导页紫蓝、模拟设置 / 详情页黑、
        安卓设置页浅色、切换到 LoveCo 键盘页蓝），给手机挂上对应 class，状态栏配色在 theme.css 里跟着走 */
@@ -1944,7 +1944,7 @@
     $('#app').innerHTML = `<div class="shell app-workspace">
       <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">主 App 手机模拟器</span></div><div class="top-actions"><span class="sandbox-pill"><i class="dot"></i>本地仿真 · 无真实扣款</span><button class="text-button" data-action="reset">重置会话</button></div></header>
       <main class="workspace"><aside class="rail left-rail"><div class="rail-section"><div class="rail-heading"><h2>平台与app形态</h2></div>${deviceSwitchers()}</div>${permissionSection()}<div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}</div></aside>
-        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.kbGuideDemo?LoveCoUI.render('kb-usage-guide', ctx):''}${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${state.appLegal?legalSheet('app-legal-close'):''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div><button class="icon-btn" title="仿真设置" aria-label="仿真设置" data-action="simulator">${icon('Monitor')}</button><button class="icon-btn" title="重置会话" aria-label="重置会话" data-action="reset">${icon('RefreshLeft')}</button></div></section><aside class="rail right-rail">${pageListSection()}<div class="rail-section"><div class="eyebrow">APP STATE</div><div class="kv"><span>App形态</span><strong>主 App 模式</strong></div><div class="kv"><span>当前页面</span><strong>${esc(title)}</strong></div><div class="kv"><span>运行平台</span><strong>${platformName()}</strong></div><button class="row-button" data-action="simulator">${icon('Monitor')}仿真控制台<span class="end">${icon('ArrowRight')}</span></button></div></aside></main>
+        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.kbGuideDemo?LoveCoUI.render('kb-usage-guide', ctx):''}${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${state.appLegal?legalSheet('app-legal-close'):''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div><button class="icon-btn" title="重置会话" aria-label="重置会话" data-action="reset">${icon('RefreshLeft')}</button></div></section><aside class="rail right-rail">${pageListSection()}</aside></main>
     </div>`;
     bind();
     /* 引导流程的演示动画：每次重建 DOM 后重新接一遍「拿到手势就开声音」（见 wireGuideVideos） */
@@ -2152,7 +2152,8 @@
     /* 键盘使用引导（演示层）：高亮框贴合目标元素 + 打字机（不在引导里时空跑） */
     paintKbUsageGuide();
   }
-  /* 「模拟」组（两种 App形态的左栏都渲染；窄屏是「仿真控制台」弹层）的仿真开关：
+  /* 「模拟」组（两种 App形态的左栏都渲染；**键盘形态**窄屏是「仿真控制台」弹层 —— 主 App 形态的
+     右栏「APP STATE」与「仿真控制台」入口 2026-09-29 已按需求删除，那一形态只剩左栏这一处）的仿真开关：
      登录状态 / 模拟额度耗尽 / 模拟安全拦截（2026-09-27 起主 App 形态左栏也用这一节 —— 与「设备权限」同理，
      这些仿真都是「设备级」的，切到主 App 也能直接切登录态 / 额度 / 拦截，不必先回键盘形态）。
      「首次登录App」（2026-09-28 补，默认开）控制**这次登录算不算第一次**：开 = 登录成功后走
@@ -2179,7 +2180,7 @@
    <div class="control-line"><label for="mock-voice">语音指令</label><select id="mock-voice" title="按住聊天分析面板的麦克风时说的那句话，AI 按它重新生成（AI 通用回复）">${Object.entries(VOICE_QUERIES).map(([id,q])=>`<option value="${id}"${state.voiceQuery===id?' selected':''}>${q.label}</option>`).join('')}</select></div>`;
     return markup.replace(/(id|for)="(mock-login|mock-first-login|mock-credits|mock-block|mock-voice)"/g,(_,attribute,id)=>`${attribute}="${prefix+id}"${attribute==='id'?` data-control="${id}"`:''}`);
   }
-  /* 「模拟」组底部的「模拟截屏」（两种形态的左栏与「仿真控制台」弹层三处同名按钮，都走 sim-screenshot）：
+  /* 「模拟」组底部的「模拟截屏」（两种形态的左栏与**键盘形态**「仿真控制台」弹层里的同名按钮，都走 sim-screenshot）：
      它不是开关，而是「按一下发生一件事」的按钮 —— 一次系统截屏键的仿真，
      后果按键盘此刻是否激活分两条路（见 takeScreenshot）。
      右侧小字是待分析提示位的状态：有截图挂着（等键盘唤起 / 等三关通过）时标出来，
@@ -2547,6 +2548,8 @@
   }
   function renderModal() {
     const m = state.modal;
+    /* 「仿真控制台」弹层：入口只有键盘形态窄屏工具条的「仿真设置」按钮（主 App 形态的右栏
+       APP STATE 与其「仿真控制台」入口 2026-09-29 已按需求删除 —— 那一形态不再可达这一层） */
     if (m==='simulator') return sheet('仿真控制台',`<div class="hint-banner">所有接口在当前页面内模拟。不会发送短信、上传图片或发起真实交易。</div>${simControls()}<div class="button-pair"><button class="secondary" data-action="incoming">收到新消息</button><button class="secondary" data-action="sim-screenshot">模拟截屏</button></div><button class="text-button" data-action="reset">重置全部本地仿真数据</button>`);
     /* 说明：对象列表（partners）与对象新增 / 编辑（partner-edit）两个屏已归属「对象」Tab，
        一律由 appScreenContent 直接渲染整页（appPartnersPage / partnerEditor），不在这里出分支；
@@ -3210,9 +3213,10 @@
     state.shotFlash=performance.now();
     clearTimeout(state.shotFlashTimer);
     state.shotFlashTimer=setTimeout(()=>{state.shotFlashTimer=null;state.shotFlash=0;render();},350);
-    /* 仿真控制台弹层开着时先收起：截屏的后果都发生在手机里，别被弹层挡着
-       （主 App 形态下这张表就是「当前页面」本身，不动它 —— 截图照常落进相册，
-       回到键盘形态时提示位会按三关判定露脸） */
+    /* 仿真控制台弹层开着时先收起（只有键盘形态会开它 —— 弹层入口在键盘形态窄屏工具条的
+       「仿真设置」按钮上；主 App 形态的右栏 APP STATE 与仿真控制台入口 2026-09-29 已删除）：
+       截屏的后果都发生在手机里，别被弹层挡着。主 App 形态的 state.modal 是页面级子页，
+       不动它 —— 截图照常落进相册，回到键盘形态时提示位会按三关判定露脸 */
     if(state.modal&&state.appView==='keyboard'){state.modal=null;state.modalData={};}
     if(keyboardActive()){state.pendingShot='';return analyzePhotos([item]);}
     state.pendingShot=item.id;
@@ -4051,7 +4055,9 @@
     if(name==='reset')return openModal('confirm',{title:'重置本地仿真？',message:'将清除聊天对象、会话与本地仿真设置，恢复初始测试账户。真实项目数据不受影响。',label:'重置',action:'reset-confirm'});
     if(name==='reset-confirm'){cancelAI(true);abortVoiceHold();try{localStorage.removeItem(STORE);}catch(_){}location.reload();return;}
     /* 原「确认模拟订单 / 权益已到账 / 模拟订单 / 兑换积分 / 我的反馈 / 键盘设置」六个页面已删除，
-       各自的动作（checkout / pay / cancel-payment / redeem-submit / tickets）随之移除。 */
+       各自的动作（checkout / pay / cancel-payment / redeem-submit / tickets）随之移除。
+       simulator = 打开「仿真控制台」弹层：现在只有键盘形态（窄屏工具条的「仿真设置」按钮）会触发，
+       主 App 形态的入口（右栏 APP STATE 与窄屏工具条按钮）2026-09-29 已删除 —— 白名单保留给键盘形态。 */
     if(['simulator','profile','feedback','legal-list'].includes(name)){
       if(['profile','feedback'].includes(name)&&needLogin())return;
       if(appScreens.has(name))return openAppScreen(name);
@@ -4242,7 +4248,8 @@
     document.querySelectorAll('[data-control="mock-login"]').forEach(n=>n.addEventListener('change',e=>{
       if(state.paymentBusy){render();return;}
       cancelAI(true);state.accountEpoch++;state.loggedIn=e.target.checked;state.results=[];persist();
-      /* 主 App 形态（开关在主 App 左栏「模拟」组 /「仿真控制台」弹层里）：登录态变化后不该停在错位的页面上 ——
+      /* 主 App 形态（开关在主 App 左栏「模拟」组里 —— 右栏 APP STATE 与仿真控制台入口 2026-09-29 已删除）：
+         登录态变化后不该停在错位的页面上 ——
          登出（关掉开关）落回首页，并按主 App 的状态检查链重查一遍（先完全访问、后登录，见 appEntryGuards 的
          后两环）；重新打开则收起这层登录层、页面原地重渲染（需要登录的子页自己会再拦），
          不借机插权限引导（那不是这次动作的后果）。

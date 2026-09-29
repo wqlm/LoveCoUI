@@ -27,7 +27,6 @@ small{font-size:11px;color:#73847d}
 .dot{width:6px;height:6px;display:inline-block;border-radius:50%;background:#429677}
 .workspace{display:grid;grid-template-columns:240px minmax(335px,1fr) 278px;gap:32px;max-width:1360px;margin:auto;padding:26px 32px 20px}
 .rail{padding-top:7px;min-width:0}
-.eyebrow{font-size:10px;font-weight:700;letter-spacing:0;color:#8a9991;text-transform:uppercase}
 .rail-heading{display:flex;align-items:center;justify-content:space-between;margin:14px 0}
 .rail h2{font-size:19px}
 .rail-section{padding:20px 0;border-bottom:1px solid #d9e2dc}
