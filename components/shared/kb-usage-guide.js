@@ -3,9 +3,10 @@
    完整的使用过程演一遍（步骤由 app.js 的 state.kbGuideDemo 驱动，每一步只有高亮
    区域可点、点别处无反应，Esc 直接收场）：
 
-     shot      仿微信聊天页（**只留**对方那句要截的话，上面不留历史记录）+ 一枚提示
-               「点这里，模拟截屏」，手指朝右 —— 这一步**没有遮罩**
-     flash     整屏白闪一下（模拟截图动效）+ 左下角浮出「刚截的截图」缩略图，约半秒后滑走
+     shot      仿微信聊天页（**只留**对方那句要截的话，上面不留历史记录）：页面先干净亮相
+               半秒，随后遮罩淡入压暗、高亮那句话，提示「点击模拟截屏」（**无手势 emoji**）
+     flash     遮罩瞬间消失 + 整屏白闪一下（模拟截图动效）+ 左下角弹出一张**大的截图卡**
+               再缩成「刚截的截图」小缩略图，停约半拍后滑走（iOS 截屏动画的样子）
      composer  遮罩出现，高亮宿主输入栏 ——「点击输入框，唤出键盘」
      kb        键盘从屏幕底部弹上来（高度 0 → 常规键盘高，聊天区随之压缩）
      thumb     遮罩高亮菜单栏里那张刚截的缩略图（相册位置就地换成截图缩略图、持续跳动），
@@ -48,8 +49,9 @@ LoveCoUI.define('shared', 'kb-usage-guide', (ctx) => {
     return `<span class="gx-type${now ? ' gx-typing' : ''}" data-gx-type="${key}">${esc(full.slice(0, take))}</span>`;
   };
 
-  /* 各步的显隐：遮罩只在「停在某个目标上等点击」的五步出现（第一步是透明的 —— 只要那枚
-     提示，不压暗页面）；面板从 scan 那一步起一直在屏（scan / stream / pick / send 共用
+  /* 各步的显隐：遮罩在「停在某个目标上等点击」的五步出现（第一步延迟半秒才淡入 ——
+     页面先干净亮相，随后压暗、高亮框与提示一起进场，见 theme.css 的 [data-step="shot"]）；
+     面板从 scan 那一步起一直在屏（scan / stream / pick / send 共用
      同一块，只有 scan 那一次从底部滑入）；发送之后（win）会话里多了我发出的那条回复 */
   const MASK_STEPS = ['shot', 'composer', 'thumb', 'pick', 'send'];
   const SHEET_STEPS = ['scan', 'stream', 'pick', 'send'];
@@ -126,11 +128,11 @@ LoveCoUI.define('shared', 'kb-usage-guide', (ctx) => {
   /* —— 遮罩：全屏挡板（吃掉高亮区以外的点击）+ 高亮框 + 笔刷提示 ——
      高亮框的位置不在这里写死：app.js 渲染后实测目标元素（消息行 / 输入栏 / 缩略图 /
      回复卡 / 发送按钮）再贴合，屏幕高度、键盘状态变了也不会错位。
-     mode：默认 = 提示落在目标的上方或下方（手指换向）；flip = 手指挪到文字右端、朝右
-     （第一步要的手势）；left = 提示贴在目标**左侧**、垂直居中，手指在文字右端朝右指着
-     它（菜单栏那颗缩略图右边没地方，提示只能往左摆）。 */
+     mode：默认 = 提示落在目标的上方或下方（手指换向）；left = 提示贴在目标**左侧**、
+     垂直居中，手指在文字右端朝右指着它（菜单栏那颗缩略图右边没地方，提示只能往左摆）。
+     第一步（shot）不带手势 emoji —— 提示只有文字（2026-09-29 需求删掉手指）。 */
   const SPOT = {
-    shot: ["[data-gx='shot']", 4, '点这里，模拟截屏', 'flip'],
+    shot: ["[data-gx='shot']", 4, '点击模拟截屏'],
     composer: ['.gx-host .wx-composer', 6, '点击输入框，唤出键盘'],
     thumb: ["[data-gx='thumb']", 6, '点这里，AI 帮你分析', 'left'],
     pick: ["[data-gx='idea1']", 3, '点它，就用这句'],
@@ -140,7 +142,7 @@ LoveCoUI.define('shared', 'kb-usage-guide', (ctx) => {
     ? `<div class="gx-mask">
         <div class="gx-shield"></div>
         <div class="gx-spot" data-target="${SPOT[step][0]}" data-pad="${SPOT[step][1]}" data-mode="${SPOT[step][3] || ''}" data-action="gx-next:${step}"></div>
-        <div class="gx-tip${SPOT[step][3] === 'left' ? ' gx-tip-left' : SPOT[step][3] === 'flip' ? ' gx-tip-flip' : ''}" data-action="gx-next:${step}"><span class="gx-tip-face" aria-hidden="true">${SPOT[step][3] ? '👉' : '👇'}</span><span class="gx-tip-text">${esc(SPOT[step][2])}</span></div>
+        <div class="gx-tip${SPOT[step][3] === 'left' ? ' gx-tip-left' : ''}" data-action="gx-next:${step}">${step === 'shot' ? '' : `<span class="gx-tip-face" aria-hidden="true">${SPOT[step][3] ? '👉' : '👇'}</span>`}<span class="gx-tip-text">${esc(SPOT[step][2])}</span></div>
       </div>`
     : '';
 

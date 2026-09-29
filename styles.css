@@ -570,11 +570,11 @@ to{transform:translateY(0);opacity:1}
 .gx-shot-art.big .gsa-bar{height:9px;border-radius:3px}
 .gx-shot-art.big .gsa-msg{margin-left:14px;border-radius:4px}
 .gx-shot-art.big .gsa-msg:before{left:-12px;top:0;width:10px;height:10px}
-/* 截屏后浮出的缩略图（左下角）：从左滑入、停约半秒再滑走（动画在 theme.css） */
+/* 截屏动画的那张截图卡（左下角）：先放大成大卡再缩回小缩略图、停约半拍滑走
+   （缩放原点 left bottom，动画在 theme.css） */
 .gx-shot-pop{position:absolute;left:14px;bottom:16px;z-index:22;padding:4px;pointer-events:none}
-/* 提示的两种摆法（位置由 app.js 实测写入，这里只给变换与排布方式）：
-   flip = 手指挪到文字右端（朝右）；left = 整块贴到目标左侧、垂直居中 */
-.gx-tip-flip{flex-direction:row-reverse}
+/* 提示的摆法（位置由 app.js 实测写入，这里只给变换与排布方式）：
+   left = 整块贴到目标左侧、垂直居中（其余都是落在目标的上方或下方） */
 .gx-tip.gx-tip-left{transform:translate(-100%,-50%)}
 /* 面板里的「正在分析中」扫描区：复用 .kb-scan 的取景框皮肤，但它是面板内容区里的
    一块（跟着内容区居中），不再自己铺满键盘区域 */

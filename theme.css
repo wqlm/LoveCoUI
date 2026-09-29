@@ -2518,11 +2518,12 @@ html[data-view="device"] .sheet-footer {
 .app-phone.guide-white > .statusbar { background: #FFFFFF; color: #191919; }
 .app-phone.guide-white .app-main { width: 100%; padding: 0; }
 .kbsw-page { position: relative; height: 100%; display: flex; flex-direction: column; background: #fff; color: #191919; }
-/* ① 演示视频：占满输入框以上的整块余高（2026-09-29 素材到位 —— 原「素材待补」占位卡
-   连同它的居中样式一并删除，视频卡占同一块位置，圆角白卡 + 覆盖铺满的 video） */
-.kbsw-video { flex: 1 1 auto; min-height: 0; display: flex; padding: 12px 12px 8px; }
-.kbsw-video-card { flex: 1; border-radius: 14px; overflow: hidden; background: #F4F4F8; box-shadow: 0 12px 32px rgba(16, 16, 84, 0.28); }
-.kbsw-video-card video { display: block; width: 100%; height: 100%; object-fit: cover; }
+/* ① 演示视频：卡片高度按视频自身比例自适应（素材 1280×730 横版），在输入框以上的整块
+   余高内上下居中（2026-09-29 需求：此前卡片撑满余高 + object-fit:cover 把横版视频
+   裁切放大 —— 现改为高度随视频、上下居中；余高不够时 max-height 兜底防溢出） */
+.kbsw-video { flex: 1 1 auto; min-height: 0; display: flex; align-items: center; padding: 12px 12px 8px; }
+.kbsw-video-card { flex: 1; max-height: 100%; border-radius: 14px; overflow: hidden; background: #F4F4F8; box-shadow: 0 12px 32px rgba(16, 16, 84, 0.28); }
+.kbsw-video-card video { display: block; width: 100%; height: auto; max-height: 100%; object-fit: contain; }
 /* ② LoveCo 页面的输入框：整宽、白底 + 浅灰描边 + 一层淡投影；进来由 app.js 聚焦（激活态） */
 .kbsw-input-row { flex: 0 0 auto; padding: 4px 12px 10px; }
 .kbsw-input { width: 100%; height: 38px; padding: 0 12px; border: 1px solid #E6E6EE; border-radius: 10px; background: #fff; color: #1B1B24; font-size: 14px; box-shadow: 0 1px 2px #2621320D; caret-color: #1B1B24; }
@@ -2631,10 +2632,15 @@ html[data-view="device"] .sheet-footer {
 /* 截图白闪：亮起后快速淡出（与「模拟截屏」的 .shot-flash 同一种观感） */
 .gx-flash { animation: gx-flash-out .42s ease-out both; }
 @keyframes gx-flash-out { from { opacity: .92; } to { opacity: 0; } }
-/* 第一步不压暗页面（只要那枚提示）：高亮框透明、也不画描边 —— 但挡板照旧吃掉
-   高亮区以外的点击，所以这一步仍然只能点那句话 / 那枚提示 */
-.kb-usage-guide[data-step="shot"] .gx-spot { box-shadow: none; }
-.kb-usage-guide[data-step="shot"] .gx-spot:after { display: none; }
+/* 第一步（shot）：页面先干净亮相半秒，随后遮罩淡入 —— 压暗（聚光灯 box-shadow 从
+   全透明动画到半透明黑）、框缘描边与提示块同步淡入（2026-09-29 需求：
+   「页面出现半秒之后出现一个半透明的遮罩，点击模拟截屏处高亮」）。
+   描边只淡入一次、不接呼吸动画（两段动画叠 opacity 会互相打架）。 */
+.kb-usage-guide[data-step="shot"] .gx-spot { animation: gx-shot-dim .32s ease-out .5s both; }
+@keyframes gx-shot-dim { from { box-shadow: 0 0 0 200vmax rgba(0, 0, 0, 0); } }
+.kb-usage-guide[data-step="shot"] .gx-spot:after { animation: gx-fade-in .32s ease-out .5s both; }
+.kb-usage-guide[data-step="shot"] .gx-tip { animation: gx-fade-in .32s ease-out .5s both; }
+@keyframes gx-fade-in { from { opacity: 0; } }
 /* 高亮框：框外的半透明黑由 box-shadow 铺满整层（聚光灯，框内透出下层内容），
    框缘一圈淡紫呼吸描边 */
 .gx-spot { box-shadow: 0 0 0 200vmax rgba(0, 0, 0, .62); }
@@ -2668,15 +2674,17 @@ html[data-view="device"] .sheet-footer {
 .gx-shot-art .gsa-msg:before { background: #5A5D64; }
 .gx-shot-art .gsa-bar { background: #33353B; }
 .gx-shot-art.big { border-radius: 8px; }
-/* 截屏后左下角浮出的缩略图（iOS 截屏缩略图的样子）：白色圆角卡包着截图缩影，
-   从左滑入 → 停约半秒 → 向左上滑走（总时长与 app.js 里 flash 那一步的 900ms 对齐，
-   滑走后正好接上「高亮输入栏」那一步） */
-.gx-shot-pop { background: #fff; border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .45); animation: gx-shot-pop .9s cubic-bezier(.32, .72, .33, 1) both; }
+/* 截屏动画（2026-09-29 按演示录屏重做）：白闪之后左下角先弹出一张**大的截图卡**
+   （同一枚 .gx-shot-pop 以 left/bottom 为原点放大 2.4 倍，白边随比例变厚，像 iOS
+   截屏瞬间的整屏快照），随后原地缩回小缩略图、停约半拍、再向左上滑走 ——
+   总时长与 app.js 里 flash 那一步的 900ms 对齐，滑走后正好接上「高亮输入栏」那一步 */
+.gx-shot-pop { background: #fff; border-radius: 14px; box-shadow: 0 10px 30px rgba(0, 0, 0, .45); transform-origin: left bottom; animation: gx-shot-pop .9s cubic-bezier(.32, .72, .33, 1) both; }
 @keyframes gx-shot-pop {
-  0% { transform: translate(-130%, 0) rotate(-6deg); opacity: 0; }
-  12% { transform: translate(0, 0) rotate(-4deg); opacity: 1; }
-  58% { transform: translate(0, 0) rotate(-4deg); opacity: 1; }
-  100% { transform: translate(-130%, -30%) rotate(-10deg); opacity: 0; }
+  0% { transform: translate(0, 0) rotate(0deg) scale(2.4); opacity: 0; }
+  12% { transform: translate(0, 0) rotate(0deg) scale(2.4); opacity: 1; }
+  46% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+  72% { transform: translate(0, 0) rotate(0deg) scale(1); opacity: 1; }
+  100% { transform: translate(-130%, -30%) rotate(-8deg) scale(1); opacity: 0; }
 }
 
 /* ---- 首次登录的「资料引导」（2026-09-28，选择性别 / 你的出生日期两步）----
