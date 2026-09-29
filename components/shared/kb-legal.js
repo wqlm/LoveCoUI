@@ -3,7 +3,7 @@
    正文与主 App「协议中心 → 协议正文」**同一份快照**（legal-data.js），只是**缩到键盘这一条
    高度里**滚动浏览：顶条（键盘菜单栏那么高，左边一行小字协议名、右边 X）→ 正文区
    （flex:1 + 纵向滚动，在键盘高度内翻完全文）。
-   形态由 state.kbLegal 决定（'' = 不显示 / 'terms' 用户注册协议 / 'privacy' 用户隐私协议 /
+   形态由 state.kbLegal 决定（'' = 不显示 / 'terms' 用户协议 / 'privacy' 隐私协议 /
    'carrier' 中国联通认证服务协议），正文与标题经 uiContext 的 kbLegal（app.js 的 kbLegalDoc）
    取用；皮肤与登录层同一套 --kbl-* 令牌（固定浅色，不跟随键盘外观）。
    出口：右上角 X（close-kb-legal）或 Esc —— **只关掉本页**，底下的登录层原样还在

@@ -20,7 +20,7 @@
               「手机号登录」切过来（就地换表单，不重放滑入动画）：顶部一行小字页名「手机号登录」，
               下面手机号 + 验证码两张浅灰胶囊输入框（验证码框内右侧嵌「获取验证码」白胶囊）；
               手机号 11 位、验证码 6 位填齐后，底部「登录」由淡紫禁用态变实色（设计图里就是未填齐时的样子），
-              按钮下面是同一套协议勾选行（只列用户注册协议 / 隐私协议，不带运营商认证协议）——
+              按钮下面是同一套协议勾选行（只列用户协议 / 隐私协议，不带运营商认证协议）——
               **未勾选时点「登录」与一键登录同一套提示**（键盘形态抖协议行、主 App 弹弹框）；
      done    登录成功 —— 一键登录 / 短信登录成功后先弹的一记提示（对勾 + 「登录成功」，约 1 秒），
               播完由 app.js 收起登录层、回到键盘。它不是全局轻提示（toast 组件已整体删除），
@@ -48,14 +48,17 @@ LoveCoUI.define('shared', 'kb-login', (ctx) => {
      仍用 <button> 保持可点语义；点它不会顺带切换勾选（label 对交互元素后代不转发激活行为） */
   const legalLink = (key, label) => `<button type="button" class="kbl-legal-link" data-action="kb-legal:${key}">${label}</button>`;
   /* 协议勾选行：两种登录形态共用同一条（同一份 state.kbLoginConsent，勾过一次两边都算数）——
-     一键登录带运营商认证协议（设计图里那三份），手机号登录只用用户注册协议 / 隐私协议；
-     未勾选时点各自的主按钮都不静默：键盘形态抖这一行、主 App 的登录页弹弹框（askDialog）。 */
-  const consentRow = (withCarrier) => `<label class="kbl-consent"><input id="kb-login-consent" type="checkbox" ${state.kbLoginConsent ? 'checked' : ''}><span>我已阅读并同意${withCarrier ? legalLink('carrier', '中国联通认证服务协议') + '和' : ''}${legalLink('terms', '用户注册协议')}、${legalLink('privacy', '用户隐私协议')}</span></label>`;
+     一键登录带运营商认证协议（设计图里那三份），手机号登录只用用户协议 / 隐私协议；
+     未勾选时点各自的主按钮都不静默：键盘形态抖这一行、主 App 的登录页弹弹框（askDialog）。
+     协议名用简称（2026-09-29 需求：一键登录 / 手机号登录页与它们的弹框里，「用户注册协议」→「用户协议」、
+     「用户隐私协议」→「隐私协议」）—— 只是链接文案变短，点开的正文页标题仍是 legal-data.js 里那份
+     《LoveCo用户协议》/《LoveCo隐私协议》，key（terms / privacy）与正文内容都不动。 */
+  const consentRow = (withCarrier) => `<label class="kbl-consent"><input id="kb-login-consent" type="checkbox" ${state.kbLoginConsent ? 'checked' : ''}><span>我已阅读并同意${withCarrier ? legalLink('carrier', '中国联通认证服务协议') + '和' : ''}${legalLink('terms', '用户协议')}、${legalLink('privacy', '隐私协议')}</span></label>`;
   /* 「请阅读并同意以下条款」弹框（2026-09-29 需求，**主 App 的两张登录页专属**）：主 App 上未勾选
      协议就点主按钮不再抖协议行，而是原地盖一层弹框（照参考截图）：深色蒙层 + 居中白卡 ——
      右上角 X、居中标题、协议文案（三个协议名照常可点开键盘内协议正文页 kb-legal）、
      底部整宽蓝色胶囊「同意并继续」。协议文案与各自页面底部那条协议勾选行同一套口径：
-     一键登录页带运营商认证协议、手机号登录页只列用户注册协议 / 隐私协议。
+     一键登录页带运营商认证协议、手机号登录页只列用户协议 / 隐私协议（都是简称，见 consentRow）。
      出口：X（kb-consent-close）= 只收起弹框、仍不勾选；「同意并继续」（kb-consent-agree）
      = 视作勾选（协议行同步变成已勾状态）并接着把这次被拦下的登录跑完
      （哪一次由 app.js 的 kbConsentNext 记着，见 askKbConsent）。键盘形态没有这个弹框 ——
@@ -65,7 +68,7 @@ LoveCoUI.define('shared', 'kb-login', (ctx) => {
     <div class="kbl-ask-card">
       ${ib('Close', '关闭', 'kb-consent-close', 'kbl-ask-close')}
       <h3 class="kbl-ask-title">请阅读并同意以下条款</h3>
-      <p class="kbl-ask-consent">我已阅读并同意${withCarrier ? legalLink('carrier', '中国联通认证服务协议') + '和' : ''}${legalLink('terms', '用户注册协议')}、${legalLink('privacy', '用户隐私协议')}</p>
+      <p class="kbl-ask-consent">我已阅读并同意${withCarrier ? legalLink('carrier', '中国联通认证服务协议') + '和' : ''}${legalLink('terms', '用户协议')}、${legalLink('privacy', '隐私协议')}</p>
       <button type="button" class="kbl-ask-primary" data-action="kb-consent-agree">同意并继续</button>
     </div>
   </div>` : '';
