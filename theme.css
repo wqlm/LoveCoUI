@@ -1335,8 +1335,9 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    矮窗口 210px），不额外把整块键盘拉高到三分之二屏（键盘选择器 / 分析面板那套 with-picker 不适用），
    菜单栏 / 键区 / 底栏一并盖住。层级最高（z-index 18，压在选图 / 分析 / 编辑面板之上），
    弹出时机见 app.js 的 checkKbLogin()。
-   皮肤**固定浅色**（设计图即浅色场景，与选图 / 分析面板的固定深色同理）：顶部一层淡蓝渐变
-   向下渐隐到白（2026-09-29 按需求改蓝，原淡粉紫渐变），不跟随键盘的浅色 / 深色外观；两种形态
+   皮肤**固定浅色**（设计图即浅色场景，与选图 / 分析面板的固定深色同理）：整块通底淡蓝
+   （2026-09-29 按需求改蓝，当天先做「渐变向下渐隐到白」、随即按用户反馈下半页露白改成通体纯色，
+   原淡粉紫渐变），不跟随键盘的浅色 / 深色外观；两种形态
    （one-tap 本机号一键登录 / sms 手机号验证登录）
    共用同一块底与同一个右上角 X，靠根节点的 .one-tap / .sms 区分内部结构 —— 一键登录的 X 坐在顶部一条
    键盘菜单栏那么高的「顶条」里（.kbl-bar，把本机号及其下内容整体往下顶），手机号登录的 X 仍是悬浮在
@@ -1345,7 +1346,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    够得上触控的紧凑档，剩余空白交给 flex 吸收 —— 一键登录的协议行与短信形态的「登录」按钮
    分别沉到各自的最下方。
    键盘内协议正文页（kb-legal）与登录层共用同一套 --kbl-* 令牌（选择器并列在下面），
-   两层的顶条 / X / 文字配色由此天然一致 —— 底色 2026-09-29 起分家：登录层淡蓝渐变、
+   两层的顶条 / X / 文字配色由此天然一致 —— 底色 2026-09-29 起分家：登录层通底淡蓝、
    协议正文页维持原淡粉紫渐变（见下面两条 background）；正文页自己的一组规则在下面单独一段。 */
 .kb-login,
 .kb-legal {
@@ -1363,10 +1364,11 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   flex-direction: column;
   color: var(--kbl-ink);
 }
-/* 底色（2026-09-29 按需求分家）：登录层改淡蓝渐变（与层内 #5766F2 蓝色主按钮同一蓝系，
-   渐变结构与色标位置照搬原粉紫底、只换色相 —— 用户需求原话「手机号登录页 背景色改成 蓝色」）；
+/* 底色（2026-09-29 按需求分家）：登录层改整块通底淡蓝（与层内 #5766F2 蓝色主按钮同一蓝系；
+   当天先按「手机号登录页 背景色改成 蓝色」做了淡蓝渐变，随即按用户反馈「整个页面的背景都用淡蓝色，
+   目前页面下半部分还是白色」改为通体纯色、不再向下渐隐到白）；
    协议正文页（kb-legal）维持原淡粉紫渐变不动 */
-.kb-login { background: linear-gradient(180deg, #E8ECFD 0%, #F6F7FE 30%, #FFFFFF 56%); }
+.kb-login { background: #E8ECFD; }
 .kb-legal { background: linear-gradient(180deg, #F8E6F0 0%, #FCF5FA 30%, #FFFFFF 56%); }
 /* 与选图面板同一套「从下往上弹出」：只在登录层新弹出的那次渲染播放（app.js 置一次性标记 pickerEnter） */
 .kb-login.entering,
@@ -1623,6 +1625,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    按「首选渠道 + 周/季度档」条件显示（结构在 app.js，本段只管皮）。
    同日四次需求：微信标换**真素材** assets/微信支付.png（原先是品牌绿底 + 白「微」字自绘标），
    会员态不再置灰主按钮、续订说明也不再按会员态换文案（那两条会员态分叉整体删除）。
+   同日五次需求：**支付宝标也换真素材** assets/支付宝支付.png（原先蓝底 + 白「支」字自绘标），
+   两个标共用一套「7px 圆角容器 + img 铺满」；**iOS 不渲染支付方式行**（那行只剩安卓 / 鸿蒙，
+   故底部那组改用 .pu-foot 承载 auto 外边距）；**协议行去掉勾选框**（.pu-circle 与未勾选抖动删除）；
+   「立即解锁」加**一跳一跳**（复用键盘付费层的 pw-cta-bounce）。
    骨架（弹性列、居中、底钉、支付行按钮重置）在 styles.css 的 .pu-* 一组，本段只管配色与尺寸。 */
 .pu-page {
   --pu-ink: #1D4FA8;
@@ -1662,27 +1668,25 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu-plan-price { margin-top: 5px; font-size: 23px; font-weight: 800; color: #1A5EE8; letter-spacing: .2px; }
 .pu-plan-price i { margin-right: 1px; font-size: 13px; font-weight: 650; }
 .pu-plan-origin { margin-top: 3px; font-size: 10.5px; color: var(--pu-faint); }
-/* 续订说明：下面留 18px 的**最小**间距 —— 支付行再往上顶时要靠这段留白兜底（见 .pu-pay 的 auto） */
+/* 续订说明：下面留 18px 的**最小**间距 —— 底部那组（.pu-foot）再往上顶时要靠这段留白兜底 */
 .pu-cap { margin: 13px 4px 18px; font-size: 11px; line-height: 1.5; color: var(--pu-faint); }
-.pu-pay { gap: 11px; margin-top: auto; padding: 13px 14px; background: #F6F6F8; }
+.pu-pay { gap: 11px; padding: 13px 14px; background: #F6F6F8; }
 .pu-pay[data-action]:hover { background: #F0F1F5; }
-.pu-pay-logo { width: 26px; height: 26px; background: #FFF; border: 1px solid #E4E4EA; color: #3C3C43; }
-.pu-pay-logo.ali { border: 0; background: #1677FF; color: #FFF; font-size: 13px; font-weight: 700; }
-/* 微信支付（2026-09-29 三次需求：安卓 / 鸿蒙那行点一下从支付宝切到微信）——
-   标走**真素材** assets/微信支付.png（200×200，绿底圆角方 + 白色气泡勾，2026-09-29 四次需求换的）；
-   素材自带圆角，故这里把 .pu-pay-logo 的圆形收成 7px 同款圆角（裁圆会切掉四个角） */
-.pu-pay-logo.wx { border: 0; background: none; border-radius: 7px; overflow: hidden; }
+/* 支付渠道标：支付宝 / 微信**都走真素材**（assets/支付宝支付.png、assets/微信支付.png，均 200×200
+   圆角方 PNG）—— 素材自带圆角，故把圆形标收成 7px 同款圆角（照圆裁会切掉四个角），里面铺一张 img */
+.pu-pay-logo { width: 26px; height: 26px; }
+.pu-pay-logo.ali,
+.pu-pay-logo.wx { border: 0; border-radius: 7px; overflow: hidden; }
 .pu-pay-logo img { display: block; width: 100%; height: 100%; object-fit: contain; }
 .pu-pay-name { font-size: 14px; font-weight: 600; color: #454B58; }
 .pu-pay-switch { width: 15px; height: 15px; color: #B9BFC9; }
-/* 「立即解锁」：整宽蓝色渐变胶囊（已是会员时置灰）；协议勾选行：圆形勾选框 + 两份协议名可点 */
-.pu-cta { height: 48px; margin-top: 18px; background: linear-gradient(90deg, var(--pu-hot-2), var(--pu-hot)); color: #FFF; font-size: 16.5px; font-weight: 700; letter-spacing: 2px; box-shadow: 0 8px 18px #1E6BF540; }
+/* 「立即解锁」：整宽蓝色渐变胶囊 + **整颗一跳一跳**（放大缩小，与键盘付费引导层的立即解锁同一套
+   pw-cta-bounce：1.4s 一个来回、scale 1 ↔ 1.055 + 蓝色投影同步加深；试付进行中停下）；
+   协议行：**纯文字一行**（没有勾选框，2026-09-29 五次需求删），两份协议名可点 */
+.pu-cta { height: 48px; margin-top: 18px; background: linear-gradient(90deg, var(--pu-hot-2), var(--pu-hot)); color: #FFF; font-size: 16.5px; font-weight: 700; letter-spacing: 2px; box-shadow: 0 8px 18px #1E6BF540; animation: pw-cta-bounce 1.4s ease-in-out infinite; }
 .pu-cta:hover { box-shadow: 0 10px 22px #1E6BF566; }
-.pu-cta:disabled { background: #D4E2F0; box-shadow: none; cursor: default; }
-.pu-consent { gap: 6px; margin-top: 15px; font-size: 10.5px; line-height: 1.5; color: var(--pu-faint); }
-.pu-circle { width: 15px; height: 15px; border: 1.5px solid #9EB9E3; background: #FFF; color: #FFF; }
-.pu-circle.on { border-color: var(--pu-hot); background: var(--pu-hot); }
-.pu-circle svg { width: 9px; height: 9px; }
+.pu-cta:disabled { background: #D4E2F0; box-shadow: none; cursor: default; animation: none; }
+.pu-consent { margin-top: 15px; font-size: 10.5px; line-height: 1.5; color: var(--pu-faint); }
 .pu-consent .pu-legal-link { color: var(--pu-deep); }
 .pu-consent .pu-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
 /* iOS 系统支付框（ios-pay-sheet 组件）：iOS 上点会员开通层的「立即解锁」就地弹出的**系统级**弹窗
