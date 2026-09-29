@@ -292,7 +292,8 @@
        那一刻接着走两步 —— ① **选择性别**（不可跳过）→ ② **你的出生日期**（可跳过），
        走完（或跳过第 ② 步）才进主 App 首页，之后登录不再出现。
        「是否首次登录」由左栏「模拟 › 首次登录App」仿真开关控制（firstLogin，**默认开**、落库；
-       两种 App形态左栏与「仿真控制台」弹层三处同步）—— 开 = 登录成功就走资料引导；
+       **仅主 App 形态渲染**这一行 —— 2026-09-29 需求，键盘形态左栏与「仿真控制台」弹层不再显示，
+       状态本身照常随形态共享）—— 开 = 登录成功就走资料引导；
        走完（或跳过）时开关像「模拟额度耗尽」那样**自动复位成关**（生命周期同理：模拟的是
        「这台设备还是首次登录」这一状态），想再看一遍就手动再打开。
        birthday 是 'YYYY-MM-DD'（跳过则留空，落库；「我的 › 个人资料」里的年龄段随之对上）；
@@ -2025,20 +2026,28 @@
     /* 键盘使用引导（演示层）：高亮框贴合目标元素 + 打字机（不在引导里时空跑） */
     paintKbUsageGuide();
   }
-  /* 「模拟」组（两种 App形态的左栏都渲染；窄屏是「仿真控制台」弹层）的四个仿真开关：
-     登录状态 / 首次登录App / 模拟额度耗尽 / 模拟安全拦截（2026-09-27 起主 App 形态左栏也用这一节 —— 与「设备权限」同理，
-     这些仿真都是「设备级」的，切到主 App 也能直接切登录态 / 首登 / 额度 / 拦截，不必先回键盘形态）。
+  /* 「模拟」组（两种 App形态的左栏都渲染；窄屏是「仿真控制台」弹层）的仿真开关：
+     登录状态 / 模拟额度耗尽 / 模拟安全拦截（2026-09-27 起主 App 形态左栏也用这一节 —— 与「设备权限」同理，
+     这些仿真都是「设备级」的，切到主 App 也能直接切登录态 / 额度 / 拦截，不必先回键盘形态）。
      「首次登录App」（2026-09-28 补，默认开）控制**这次登录算不算第一次**：开 = 登录成功后走
      首次登录的资料引导（选择性别 → 出生日期，见 startOnboarding），走完（或跳过）自动关上
      —— 与「模拟额度耗尽」购买后复位同一套做法；想再看一遍就手动再打开。
-     原「请求结果」下拉已删除（见 state.outcome 注释），四条都是同一格式的 control-line + 开关。
+     **它只在主 App 形态渲染**（2026-09-29 需求：「仅在主 App 时显现」）—— 资料引导是主 App 的
+     流程（键盘形态登录也会切到主 App 走完，见 startOnboarding），键盘形态左栏与「仿真控制台」
+     弹层都不再显示这一行；开关状态本身仍落库、不随形态丢，想切它就切到主 App。
+     原「请求结果」下拉已删除（见 state.outcome 注释），每条都是同一格式的 control-line + 开关。
      多处同时渲染时靠前缀区分控件 id（见 state.renderedControls）。
      底部一行「语音指令」下拉是按住面板麦克风时说的那句话（见 VOICE_QUERIES，只有一档）——
-     它是「输入内容的仿真」，与上面四条开关一样只在本地生效。 */
+     它是「输入内容的仿真」，与上面几条开关一样只在本地生效。 */
   function simControls() {
     const prefix=state.renderedControls?'sim-dialog-':'sim-';state.renderedControls=true;
-    const markup=`<div class="control-line"><label for="mock-login">登录状态</label><input id="mock-login" class="switch" type="checkbox" ${state.loggedIn?'checked':''}></div>
-   <div class="control-line"><label for="mock-first-login" title="控制这次登录算不算「第一次」：开 = 登录成功后走资料引导（选择性别 → 出生日期），走完自动关上">首次登录App</label><input id="mock-first-login" class="switch" type="checkbox" ${state.firstLogin?'checked':''}></div>
+    /* 「首次登录App」仅主 App 形态显示（2026-09-29 需求）：键盘形态下不渲染这一行 ——
+       下面的前缀正则保留 mock-first-login 不受影响（匹配不到就不替换） */
+    const firstLogin=state.appView==='app'
+      ? `
+   <div class="control-line"><label for="mock-first-login" title="控制这次登录算不算「第一次」：开 = 登录成功后走资料引导（选择性别 → 出生日期），走完自动关上">首次登录App</label><input id="mock-first-login" class="switch" type="checkbox" ${state.firstLogin?'checked':''}></div>`
+      : '';
+    const markup=`<div class="control-line"><label for="mock-login">登录状态</label><input id="mock-login" class="switch" type="checkbox" ${state.loggedIn?'checked':''}></div>${firstLogin}
    <div class="control-line"><label for="mock-credits">模拟额度耗尽</label><input id="mock-credits" class="switch" type="checkbox" ${state.creditsOut?'checked':''}></div>
    <div class="control-line"><label for="mock-block">模拟安全拦截</label><input id="mock-block" class="switch" type="checkbox" ${state.outcome==='blocked'?'checked':''}></div>
    <div class="control-line"><label for="mock-voice">语音指令</label><select id="mock-voice" title="按住聊天分析面板的麦克风时说的那句话，AI 按它重新生成（AI 通用回复）">${Object.entries(VOICE_QUERIES).map(([id,q])=>`<option value="${id}"${state.voiceQuery===id?' selected':''}>${q.label}</option>`).join('')}</select></div>`;
@@ -4101,7 +4110,8 @@
       if(state.appView==='keyboard'&&!state.kbCollapsed){closeKbLogin();closeKbFullAccess();if(checkKbEntry())return;return render();}
       render();
     }));
-    /* 左栏「模拟 › 首次登录App」仿真开关（键盘 / 主 App 左栏与「仿真控制台」弹层三处同步）：
+    /* 左栏「模拟 › 首次登录App」仿真开关（**仅主 App 形态渲染** —— 2026-09-29 需求：键盘形态左栏
+       与「仿真控制台」弹层不再显示这一行；这里按 data-control 挂监听，DOM 里没有就不挂）：
        开 = 登录成功算「第一次」、接着走资料引导；关 = 不算。只改状态、落库，不当场进引导 ——
        生效时机在**下一次登录成功**那一刻（finishKbLogin / mock-login 的主 App 分支都读它）。
        资料引导走完（或跳过）时它会自动关上（见 finishOnboarding）。 */
