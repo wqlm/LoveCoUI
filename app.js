@@ -247,7 +247,7 @@
        第二个「完整体验模式」绑 permissions.keyboard —— 鸿蒙系统里完全访问这个权限就叫这个名字，
        开它左栏「键盘完全访问」同步打开（2026-09-28 需求，此前是另存的 kbGuideFull，两处不联动）。
        引导完成的条件按平台两分（见 guideSatisfied）：键盘已启用；
-       安卓还要「当前输入法」已是 LoveCo（permissions.ime，左栏「设备权限」里可切）。
+       安卓还要「当前输入法」已是 LoveCo（permissions.ime，左栏「平台与app形态」里可切）。
        页面内存、不持久化；完成引导 / 离开主 App 都清空。 */
     kbGuidePage:'',
     /* 键盘切换悬浮窗（ieSwitchSheet，2026-09-28 按设计截图补入；只有安卓引导流程会开它）：
@@ -260,7 +260,7 @@
        iOS / 鸿蒙引导的**第二步** —— 键盘已启用、但当前键盘还不是 LoveCo 时，主 App 落这一页
        教用户长按地球把键盘切过来（安卓的第二步是键盘切换悬浮窗，不走这一页）。
        这一页底下那块「当前正在使用的键盘」直接读 permissions.ime（system = 系统英文键盘 /
-       loveco = LoveCo 键盘）—— 与左栏「设备权限 › 当前输入法」同一个状态，不另存一份；
+       loveco = LoveCo 键盘）—— 与左栏「平台与app形态 › 当前输入法」同一个状态，不另存一份；
        kbSwitchPicker 是长按地球弹出的**键盘选择器**（更多键盘设置… / LoveCo / 英文键盘）的开关。
        页面内存、不持久化；换页 / 完成引导 / 跳页面列表都会收起。 */
     kbSwitchPicker:false,
@@ -1048,18 +1048,23 @@
       default: kbReset(); return render(); /* host-chat：清场后即为目标页面（离开按住说话等静态态也走这里） */
     }
   }
-  /* 左栏只留两组切换器（App形态 / 运行平台）—— 页面列表已移到右栏整节（见 pageListSection） */
+  /* 左栏「平台与app形态」板块：App形态 / 运行平台 / 当前输入法 三组切换器 —— 板块跨平台、
+     跨 App形态通用，键盘与主 App 两个形态共用同一段结构；页面列表已移到右栏整节（见 pageListSection）。
+     「当前输入法」2026-09-29 起从「设备权限」挪到运行平台下面（默认系统默认）：它跟另外两组一样
+     是「这台设备此刻用哪套界面」的选择而非权限；两档仍走 ime 动作（见 action），渲染跟随
+     render()（主 App 下转发 renderApp()），两个形态无需各写一套。 */
   function deviceSwitchers() {
-    return `<div class="switcher"><span class="switch-label">App形态</span>${surfaceButtons()}</div><div class="switcher"><span class="switch-label">运行平台</span>${platformButtons()}</div>`;
+    const ime=state.permissions.ime;
+    return `<div class="switcher"><span class="switch-label">App形态</span>${surfaceButtons()}</div><div class="switcher"><span class="switch-label">运行平台</span>${platformButtons()}</div><div class="switcher"><span class="switch-label">当前输入法</span><div class="segmented" role="group" aria-label="当前输入法">${[['system','系统默认'],['loveco','LoveCo']].map(([id,name])=>`<button data-action="ime:${id}" class="${ime===id?'active':''}" aria-pressed="${ime===id}">${name}</button>`).join('')}</div></div>`;
   }
   /* 左栏「设备权限」整节：**设备级**而非某一种 App形态的控件 —— 切到主 App 只是换了一层 App，
      同一台设备的这些权限照旧存在，所以键盘模式与主 App 模式共用这一节（render / renderApp 都渲染它）。
-     五项的监听统一在 bind() 里按 id 挂（查不到就跳过）、相册三档走 photos 动作、当前输入法
-    两档走 ime 动作，都是 render() 收尾 —— render() 在主 App 下会转发 renderApp()，
-    因此两处渲染同一份结构即可，无需各写一套。 */
+     开关的监听统一在 bind() 里按 id 挂（查不到就跳过）、相册三档走 photos 动作，都是 render() 收尾
+    —— render() 在主 App 下会转发 renderApp()，因此两处渲染同一份结构即可，无需各写一套。
+     （「当前输入法」两档原在这里，2026-09-29 起挪到上面的「平台与app形态」板块、运行平台下面。） */
   function permissionSection() {
     const P=state.permissions;
-    return `<div class="rail-section"><div class="rail-heading"><h2>设备权限</h2></div><div class="kv"><span>网络访问</span><strong>${P.network?'正常':'已关闭'}</strong></div><div class="control-line"><label for="perm-cellular">蜂窝网络</label><input id="perm-cellular" class="switch" type="checkbox" ${P.cellular?'checked':''}></div><div class="control-line"><label for="perm-kb-enabled">开启键盘</label><input id="perm-kb-enabled" class="switch" type="checkbox" ${P.kbEnabled?'checked':''}></div><div class="control-line"><label for="perm-kb-full">键盘完全访问</label><input id="perm-kb-full" class="switch" type="checkbox" ${P.keyboard?'checked':''}></div><div class="switcher"><span class="switch-label">当前输入法</span><div class="segmented" role="group" aria-label="当前输入法">${[['system','系统默认'],['loveco','LoveCo']].map(([id,name])=>`<button data-action="ime:${id}" class="${P.ime===id?'active':''}" aria-pressed="${P.ime===id}">${name}</button>`).join('')}</div></div><div class="switcher"><span class="switch-label">相册访问权限</span><div class="segmented" role="group" aria-label="相册访问权限">${[['denied','关闭'],['limited','有限访问'],['full','完整访问']].map(([id,name])=>`<button data-action="photos:${id}" class="${P.photos===id?'active':''}" aria-pressed="${P.photos===id}">${name}</button>`).join('')}</div></div></div>`;
+    return `<div class="rail-section"><div class="rail-heading"><h2>设备权限</h2></div><div class="kv"><span>网络访问</span><strong>${P.network?'正常':'已关闭'}</strong></div><div class="control-line"><label for="perm-cellular">蜂窝网络</label><input id="perm-cellular" class="switch" type="checkbox" ${P.cellular?'checked':''}></div><div class="control-line"><label for="perm-kb-enabled">开启键盘</label><input id="perm-kb-enabled" class="switch" type="checkbox" ${P.kbEnabled?'checked':''}></div><div class="control-line"><label for="perm-kb-full">键盘完全访问</label><input id="perm-kb-full" class="switch" type="checkbox" ${P.keyboard?'checked':''}></div><div class="switcher"><span class="switch-label">相册访问权限</span><div class="segmented" role="group" aria-label="相册访问权限">${[['denied','关闭'],['limited','有限访问'],['full','完整访问']].map(([id,name])=>`<button data-action="photos:${id}" class="${P.photos===id?'active':''}" aria-pressed="${P.photos===id}">${name}</button>`).join('')}</div></div></div>`;
   }
   /* 右栏「页面列表」整节：按当前 App形态列出全部页面 / 组件形态，组名可折叠，点条目手机即跳到该页面。
      原先它是左栏「运行平台」底下的一组切换器，现独占右栏一栏（左栏改放设备权限 + 模拟）。 */
@@ -1397,7 +1402,7 @@
     state.kbSwitchPicker=false;render();
   }
   /* 在选择器里选一套键盘 = 在系统里把当前键盘切过去：落到 permissions.ime
-     （与左栏「设备权限 › 当前输入法」同一个状态）—— 下方那块键盘随之换成 LoveCo 键盘 /
+     （与左栏「平台与app形态 › 当前输入法」同一个状态）—— 下方那块键盘随之换成 LoveCo 键盘 /
      系统英文键盘，提示气泡与「完成」胶囊互换。选 LoveCo 必然已启用键盘，顺手补一句兜底。 */
   function pickKbSwitch(id) {
     const loveco = id==='loveco';
@@ -1820,7 +1825,7 @@
     const scrollMemo = captureScrolls($('#app'));
     $('#app').innerHTML = `<div class="shell app-workspace">
       <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">主 App 手机模拟器</span></div><div class="top-actions"><span class="sandbox-pill"><i class="dot"></i>本地仿真 · 无真实扣款</span><button class="text-button" data-action="reset">重置会话</button></div></header>
-      <main class="workspace"><aside class="rail left-rail"><div class="rail-section"><div class="eyebrow">LOVECO / APP</div><div class="rail-heading"><h2>主 App</h2></div>${deviceSwitchers()}</div>${permissionSection()}<div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}</div></aside>
+      <main class="workspace"><aside class="rail left-rail"><div class="rail-section"><div class="eyebrow">LOVECO / APP</div><div class="rail-heading"><h2>平台与app形态</h2></div>${deviceSwitchers()}</div>${permissionSection()}<div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}</div></aside>
         <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbLogin?LoveCoUI.render('kb-login', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${state.appLegal?legalSheet('app-legal-close'):''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div><button class="icon-btn" title="仿真设置" aria-label="仿真设置" data-action="simulator">${icon('Monitor')}</button><button class="icon-btn" title="重置会话" aria-label="重置会话" data-action="reset">${icon('RefreshLeft')}</button></div></section><aside class="rail right-rail">${pageListSection()}<div class="rail-section"><div class="eyebrow">APP STATE</div><div class="kv"><span>App形态</span><strong>主 App 模式</strong></div><div class="kv"><span>当前页面</span><strong>${esc(title)}</strong></div><div class="kv"><span>运行平台</span><strong>${platformName()}</strong></div><button class="row-button" data-action="simulator">${icon('Monitor')}仿真控制台<span class="end">${icon('ArrowRight')}</span></button></div></aside></main>
     </div>`;
     bind();
@@ -1950,7 +1955,7 @@
       <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">键盘交互实验室</span></div>
       <div class="top-actions"><span class="sandbox-pill"><i class="dot"></i>本地仿真 · 无真实扣款</span><button class="text-button" data-action="reset">重置会话</button></div></header>
       <main class="workspace">
-        <aside class="rail left-rail"><div class="rail-section"><div class="rail-heading"><h2>会话工作台</h2></div>${deviceSwitchers()}</div>
+        <aside class="rail left-rail"><div class="rail-section"><div class="rail-heading"><h2>平台与app形态</h2></div>${deviceSwitchers()}</div>
         ${permissionSection()}
         <div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}</div></aside>
         <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 键盘模式 · 宿主 App 内</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div>
@@ -3606,7 +3611,7 @@
        覆盖层只有一个选择动作，停在原地会让人以为没生效（键区被覆盖层挡着）；
        编辑面板打开时设置页只覆盖下半键盘区域，收起后上方仍是编辑面板
        （在新增 / 修改页面里切形态不跳走）。
-       主 App / 会话工作台的「键盘设置」弹层里选布局则留在弹层 —— 那里还有深色外观等其它开关，
+       主 App / 键盘形态左栏（平台与app形态板块）的「键盘设置」弹层里选布局则留在弹层 —— 那里还有深色外观等其它开关，
        所以只在覆盖层打开时收起。
        键盘归属：数字 / 符号 / 英文 / 九宫格中文 / 26 键中文是五套独立键盘，只有中文有两套布局
        （26 键 / 九宫格）—— state.layout 记的始终是中文键盘的布局；
@@ -3620,7 +3625,7 @@
        消费方是键盘选择器（kb-photo-picker）的两套引导形态；面板里的「开启权限」/「去开启权限」
        也走这条动作（仿真「去系统设置开启完全访问」：置成完整访问，面板就地切回正常选择器） */
     if(name==='photos'){state.permissions.photos=arg;return render();}
-    /* 左栏「设备权限」的当前输入法两档（系统默认 / LoveCo）：选 LoveCo = 在系统里切好了输入法，
+    /* 左栏「平台与app形态」的当前输入法两档（系统默认 / LoveCo；2026-09-29 起挪到运行平台下面）：选 LoveCo = 在系统里切好了输入法，
        键盘必然是已启用的（未启用的键盘不可能当当前输入法）—— 顺带把「开启键盘」打开；
        若此刻正停在引导流程、两步都已齐，直接完成引导（等价于「返回 App 重新校验」，见 finishGuideIfDone） */
     if(name==='ime'){
