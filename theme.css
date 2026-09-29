@@ -2535,7 +2535,8 @@ html[data-view="device"] .sheet-footer {
 .ie-sep { height: 1px; margin: 10px 8px 0; background: #E7E7EB; }
 
 /* ---- 「切换到 LoveCo 键盘」页（2026-09-28，iOS / 鸿蒙「开启键盘」引导的第二步）----
-   整页白底（状态栏一起转白，`.guide-white` 由 renderApp 挂），自上而下三段：
+   整页蓝底（`#5B68F5` —— 与引导第一步同一块紫蓝，2026-09-29 需求：原白底改成蓝色；
+   状态栏一起转蓝、白字，`.guide-blue` 由 renderApp 挂），自上而下三段：
    ① 循环播放的演示动画；② LoveCo 页面的输入框（进来就是激活态）；
    ③ **当前正在使用的键盘**（高 = --lc-keyboard-height —— 与真实键盘同高，换键盘时页面不跳）：
       **系统英文键盘**（.kbsw-sys，1:1 照设计截图用 CSS 画）—— 2026-09-29 需求：这一页只演
@@ -2544,10 +2545,10 @@ html[data-view="device"] .sheet-footer {
       「键盘使用引导（演示）」页，见 app.js 的 pickKbSwitch。
    长按地球弹出的键盘选择器（.kbsw-picker）盖在整页之上（一层半透明遮罩）。
    所有类名统一用 kbsw- 前缀（页面内部自成一体的皮肤，不进通用令牌体系）。 */
-.app-phone.guide-white { background: #FFFFFF; }
-.app-phone.guide-white > .statusbar { background: #FFFFFF; color: #191919; }
-.app-phone.guide-white .app-main { width: 100%; padding: 0; }
-.kbsw-page { position: relative; height: 100%; display: flex; flex-direction: column; background: #fff; color: #191919; }
+.app-phone.guide-blue { background: #5B68F5; }
+.app-phone.guide-blue > .statusbar { background: #5B68F5; color: #fff; }
+.app-phone.guide-blue .app-main { width: 100%; padding: 0; }
+.kbsw-page { position: relative; height: 100%; display: flex; flex-direction: column; background: #5B68F5; color: #191919; }
 /* ① 演示视频：卡片高度按视频自身比例自适应（素材 1280×730 横版），在输入框以上的整块
    余高内上下居中（2026-09-29 需求：此前卡片撑满余高 + object-fit:cover 把横版视频
    裁切放大 —— 现改为高度随视频、上下居中；余高不够时 max-height 兜底防溢出） */
