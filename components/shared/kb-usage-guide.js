@@ -21,7 +21,8 @@
      stream    同一块面板换成分析结果，打字机逐字输出：关系简报（关系阶段 / 聊天氛围
                + 分析正文）→ 两条回复思路（标题 + 回复正文）
      pick      输出完面板底部浮出悬浮按钮条，遮罩高亮第一条回复（整卡）——「就用这句」
-     send      面板**不收起**，遮罩改高亮面板底部那颗「发送」——「点这里，发送给他」
+     send      面板**不收起**，遮罩改高亮面板底部那颗「发送」——「发送给 TA」
+              （face 模式：整块提示左移，手指正好落在发送按钮的中轴线上）
      win       回复进会话 + 庆祝层（「哇！你好棒呀」+ 彩带 + 「去使用吧」）—— 演完了，菜单栏
                相册位置**换回普通的图片图标**（不再是跳动的截图缩略图）
 
@@ -146,16 +147,19 @@ LoveCoUI.define('shared', 'kb-usage-guide', (ctx) => {
      回复卡 / 发送按钮）再贴合，屏幕高度、键盘状态变了也不会错位。
      mode：默认 = 提示落在目标的上方或下方（手指换向）；left = 提示贴在目标**左侧**、
      垂直居中，手指在文字右端朝右指着它（菜单栏那颗缩略图右边没地方，提示只能往左摆）；
+     face = 摆法与「默认」一样（目标上方或下方、手指换向），但水平改按**手指**对位 ——
+     整块提示左移「文字 + 间隙」的一半，让指向目标的手势正好落在目标中轴线上
+     （发送那一步，2026-09-29 需求）；
      self = 提示块**本身就是高亮目标**（第一步的「点击模拟截屏」按钮）—— 提示仍按锚点
      （消息行）摆到下方居中，高亮框改贴提示块自身。
      第一步（shot）不带手势 emoji —— 提示只有文字（2026-09-29 需求删掉手指）。 */
-  const SPOT = {
-    shot: ["[data-gx='shot']", 6, '点击模拟截屏', 'self'],
-    composer: ['.gx-host .wx-composer', 6, '点击输入框，唤出键盘'],
-    thumb: ["[data-gx='thumb']", 6, '点这里，AI 帮你分析', 'left'],
-    pick: ["[data-gx='idea1']", 3, '就用这句'],
-    send: ["[data-gx='send']", 4, '点这里，发送给他'],
-  };
+     const SPOT = {
+     shot: ["[data-gx='shot']", 6, '点击模拟截屏', 'self'],
+     composer: ['.gx-host .wx-composer', 6, '点击输入框，唤出键盘'],
+     thumb: ["[data-gx='thumb']", 6, '点这里，AI 帮你分析', 'left'],
+     pick: ["[data-gx='idea1']", 3, '就用这句'],
+     send: ["[data-gx='send']", 4, '发送给 TA', 'face'],
+     };
   /* —— 开场说明卡（只在第一步 shot）：两句话交代这层演示是干嘛的、第一句怎么用 ——
      落在聊天区下半部那片空白上（消息与「点击模拟截屏」都在上半屏，互不遮挡），
      与遮罩同一拍淡入（比遮罩再晚半拍浮起，见 theme.css）、点掉后跟着遮罩一起消失；
@@ -170,7 +174,7 @@ LoveCoUI.define('shared', 'kb-usage-guide', (ctx) => {
     ? `<div class="gx-mask">
         <div class="gx-shield"></div>
         <div class="gx-spot" data-target="${SPOT[step][0]}" data-pad="${SPOT[step][1]}" data-mode="${SPOT[step][3] || ''}" data-action="gx-next:${step}"></div>
-        <div class="gx-tip${SPOT[step][3] === 'left' ? ' gx-tip-left' : ''}" data-action="gx-next:${step}"><span class="gx-tip-text">${esc(SPOT[step][2])}</span>${step === 'shot' ? '' : `<span class="gx-tip-face" aria-hidden="true">${SPOT[step][3] ? '👉' : '👇'}</span>`}</div>
+        <div class="gx-tip${SPOT[step][3] === 'left' ? ' gx-tip-left' : ''}" data-action="gx-next:${step}"><span class="gx-tip-text">${esc(SPOT[step][2])}</span>${step === 'shot' ? '' : `<span class="gx-tip-face" aria-hidden="true">${SPOT[step][3] === 'left' ? '👉' : '👇'}</span>`}</div>
         ${intro}
       </div>`
     : '';
