@@ -591,7 +591,7 @@
     {id:'home',name:'首页',route:'/home',trigger:'主 App 底部 Tab 第一项「首页」；登录成功后也落在这里',desc:'**空白模板**：原首页的四段内容（问候行 / 会员横幅 /「快捷开始」/「我的对象」+「账户概览」）已按需求全部删除，这一页现在只留整页骨架（.app-content.app-page），不渲染任何元素 —— 只有底部 Tab 栏照常，等按新设计重做',note:'主 App 的落地页（进入主 App 按状态检查链走：键盘权限 → 键盘完全访问 → 登录状态，哪一环没过就停在对应引导上 —— 整页「开启键盘」引导 / 完全访问引导层 / 键盘同款登录层，都通过才停在首页，见 appEntryGuards）。因内容清空，原先挂在这一页的入口（去键盘问 AI / 分析聊天截图 / 键盘设置 / 模拟订单 / 兑换积分 / 新建对象）在主 App 内随之不再可达：新建对象改从「对象」页进（模拟订单 / 兑换积分 / 键盘设置三个页面与入口已于 2026-09-26 整体删除）'},
     {id:'account',name:'我的',route:'/account',trigger:'主 App 底部 Tab 第三项「我的」',desc:'按设计图重做的「我的」页，自上而下：① 问候行（「你好，昵称」+ 折角箭头，点它进个人资料；已开通会员时下面多一行金色会员标识「L+ 会员到期日 2026-09-30」，永久档写「永久会员」）；② 会员横幅（未开通蓝底「成为 L+ 会员 / 解锁全部高级功能」，已开通橙底「L+ 会员 / 已解锁全部高级功能」，右侧白胶囊「立即查看」弹出**键盘同款的会员开通覆盖层** —— 原「会员与积分」整页已删）；③「客户支持」卡片两行（键盘内容投诉与举报 → 反馈页并把类型预选成「举报」；反馈与建议）；④「账户」卡片一行（退出登录）；⑤「相关协议」卡片五行（用户协议 / 隐私政策 / 个人信息收集清单 / 第三方信息共享清单，各自打开对应协议正文覆盖层，末行进协议中心看全部）。设计图里右上角的邮箱图标（消息通知）、「基础设置 · 键盘基础预设」与「消息提醒 · 消息通知」两组按需求不呈现（键盘设置页面与入口已于 2026-09-26 整体删除）。2026-09-26 另删三行入口：「在线客服」「我的订单」「兑换积分」（对应页面一并删除）；同日晚些时候卡片下方那枚「注销仿真账户」文字按钮也删除（连同确认框链路，页面至此没有任何注销类入口）',note:'「我的」不再有键盘设置入口（该页面已删除）；注销入口已删，页面内不再有「需先清空会员 / 积分才能操作」的前置条件；这一页需要登录 —— 未登录时点「我的」Tab 不切页，就地弹出键盘同款的登录覆盖层（原独立登录页已删）'},
     {id:'account-member',name:'我的 · 已开通 L+ 会员',route:'/account（会员态）',trigger:'本列表点入（现场摆上会员标识与到期日 2026-09-30，不落库）；真实链路里购买会员到账后也是这一形态',desc:'「我的」页的会员态：问候行下方多一行金色会员标识（小方块「L+」+「会员到期日 2026-09-30」，永久档写「永久会员 · 已解锁全部高级功能」），会员横幅同时换成橙底「L+ 会员 / 已解锁全部高级功能」，其余分区（客户支持 / 账户 / 相关协议）与未开通时完全一致',note:'会员到期日与会员标识一起持久化：购买后写入（主 App 与键盘内是同一张商品表 —— 永久档落 0 = 永久，周 / 季度档按 7 / 90 天算）；老存档只有会员标识、没有到期信息时不硬编日期，只说「已解锁全部高级功能」'},
-    {id:'purchase',name:'商品购买页',route:'/account/purchase',trigger:'「我的」页的会员横幅「立即查看」（未开通蓝底 / 已开通橙底都进）；主 App 内额度不足发起生成被拦时也落这一页；键盘安卓 / 鸿蒙点「立即解锁」同样跳到这里（gotoAppPurchase）。本列表点入即静态查看',desc:'**参考竞品（恋爱回复键盘）购买页布局重做的整页购买页**（2026-09-28 需求），主 App 的购买都走这一页（键盘内的付费引导层 kb-paywall 回归键盘形态专属）。**功能**：三档商品卡点选切换档位（state.kbPlan，与键盘付费引导层共用同一张表 PLANS 与同一个选中态）→「立即解锁」按平台 / 形态分路：iOS 就地弹 iOS 系统支付框（确认后才到账）、安卓 / 鸿蒙一键到账（completePurchase）；购买到账后横幅转橙底、页内按钮换置灰的「已解锁会员权益」。照参考图**带协议勾选**：未勾选点「立即解锁」不往下走，底部协议行左右抖一下提示先勾选；两份协议名（《自动续费协议》《会员协议》）点开键盘同款协议正文覆盖层（kb-legal，压在本页之上，X 关掉回本页）；左上角 X 回「我的」。**设计**：固定粉色浅色皮肤（不跟随深色外观），整页两段 —— ① **粉色渐变 Hero**：左上角白底圆形 X、右上角白描边「平台专属」角标（文案随运行平台变），两行标题（小字「解锁高情商回复键盘」+ 大号加粗「LoveCo会员「限时特惠」」），下接五条权益清单（白色圆形图标章 + 玫红 13px 文案：键盘实时帮回复 / 上传聊天截图读懂TA的潜台词（挂红色「新上线」小标）/ 海量人设免费使用 / 会员专享定制专属人设 / 亲密调节自动把控聊天分寸）；② **白色圆角主体**（上缘圆角盖在渐变上）：三档商品卡横向等分（档位名 + 大号玫红现价 + 划线原价，选中的那张粉描边浅粉底、顶部浮一枚渐变玫红角标 = 该档 badge：一次性买断 / 畅享 7 天 / 畅享 90 天）→ 随档位变的续订说明（永久档「一次性买断，永久有效」/ 周·季度「到期后 ¥xx/期自动续订，可随时取消」）→ 浅灰支付方式行（iOS = 「Apple 账户 · App Store 内购」，安卓 / 鸿蒙 = 蓝色「支」圆形标 +「支付宝」，右侧换向图标，纯展示不可切换）→ 整宽粉色渐变胶囊「立即解锁」（42px 高、玫红投影）→ 底部协议勾选行（14px 圆形勾选框，勾选后变玫红实底白勾）',note:'商品只有一张表 PLANS（永久 / 周 / 季度）：本页与键盘付费引导层共用，改档位 / 价格 / badge 两处同时变；支付方式行是纯展示（真机上支付渠道由系统 / SDK 决定），iOS 上点「立即解锁」先弹 iOS 系统支付框、确认才到账'},
+    {id:'purchase',name:'商品购买页',route:'/account/purchase',trigger:'「我的」页的会员横幅「立即查看」（未开通蓝底 / 已开通橙底都进）；主 App 内额度不足发起生成被拦时也落这一页；键盘安卓 / 鸿蒙点「立即解锁」同样跳到这里（gotoAppPurchase）。本列表点入即静态查看',desc:'**参考竞品（恋爱回复键盘）购买页布局重做的整页购买页**（2026-09-28 需求），主 App 的购买都走这一页（键盘内的付费引导层 kb-paywall 回归键盘形态专属）。**功能**：三档商品卡点选切换档位（state.kbPlan，与键盘付费引导层共用同一张表 PLANS 与同一个选中态）→「立即解锁」按平台 / 形态分路：iOS 就地弹 iOS 系统支付框（确认后才到账）、安卓 / 鸿蒙一键到账（completePurchase）；购买到账后横幅转橙底、页内按钮换置灰的「已解锁会员权益」。照参考图**带协议勾选**：未勾选点「立即解锁」不往下走，底部协议行左右抖一下提示先勾选；两份协议名（《自动续费协议》《会员协议》）点开键盘同款协议正文覆盖层（kb-legal，压在本页之上，X 关掉回本页）；左上角 X 回「我的」。**设计**：固定蓝色浅色皮肤（不跟随深色外观）；2026-09-29 起整页铺满整个屏幕 —— 上下左右无边距、盖住底部 Tab 栏（appTabBar 不渲染）、状态栏连着 Hero 一起转蓝（.guide-purchase），左上角 X 是唯一出口。整页两段 —— ① **蓝色渐变 Hero**：左上角白底圆形 X，两行标题（小字「解锁高情商回复键盘」+ 大号加粗「LoveCo会员「限时特惠」」），下接五条权益清单（**纯文字** 13px 文案，原白色圆形图标章已删：键盘实时帮回复 / 上传聊天截图读懂TA的潜台词（挂红色「新上线」小标）/ 海量人设免费使用 / 会员专享定制专属人设 / 亲密调节自动把控聊天分寸）；② **白色主体**：三档商品卡横向等分（档位名 + 大号蓝色现价 + 划线原价，选中的那张蓝描边浅蓝底、顶部浮一枚渐变蓝角标 = 该档 badge：一次性买断 / 畅享 7 天 / 畅享 90 天）→ 随档位变的续订说明（永久档「一次性买断，永久有效」/ 周·季度「到期后 ¥xx/期自动续订，可随时取消」）→ 浅灰支付方式行（iOS = 「Apple 账户 · App Store 内购」，安卓 / 鸿蒙 = 蓝色「支」圆形标 +「支付宝」，右侧换向图标，纯展示不可切换）→ 整宽蓝色渐变胶囊「立即解锁」（42px 高、蓝投影）→ 底部协议勾选行（14px 圆形勾选框，勾选后变蓝实底白勾）。原右上角白描边「平台专属」角标（文案随运行平台变）已按 2026-09-29 需求删除',note:'商品只有一张表 PLANS（永久 / 周 / 季度）：本页与键盘付费引导层共用，改档位 / 价格 / badge 两处同时变；支付方式行是纯展示（真机上支付渠道由系统 / SDK 决定），iOS 上点「立即解锁」先弹 iOS 系统支付框、确认才到账'},
     {id:'profile',name:'个人资料',route:'/account/profile',trigger:'「我的」页最上方的问候行（「你好，昵称」）',desc:'昵称、性别、年龄段（选填）编辑并保存（PATCH /v1/me）。这里的性别也是对象编辑页「性别默认取反」的依据',note:'昵称会同步到聊天页「我」的头像兜底与各处显示'},
     {id:'feedback',name:'反馈与建议',route:'/feedback',trigger:'「我的」· 客户支持 ·「反馈与建议」；从「键盘内容投诉与举报」进来时类型预选「举报」',desc:'反馈类型（功能问题 / 键盘问题 / AI 效果 / 建议 / 投诉 / 举报）+ 详细说明提交（POST /v1/feedback）；页内不再有「我的反馈」入口',note:'提交成功后回「我的」页（原落点「我的反馈」页与反馈历史记录已删除，反馈不留历史列表）'},
     {id:'legal-list',name:'协议中心',route:'/legal',trigger:'「我的」· 相关协议 ·「协议中心」',desc:'内置 7 份协议的列表（用户协议、隐私、会员与积分、自动续费、联通认证等），点任一行打开**协议正文覆盖层**（不是独立页面，见下）',note:'协议为静态快照，不联网更新；协议正文原是一个独立页面（/legal/:key），2026-09-26 按需求删除页面后降级为浮在当前页上的覆盖层（state.appLegal），X / 返回 / Esc 关掉即回原页'},
@@ -1591,28 +1591,32 @@
      「我的」会员横幅「立即查看」（app-membership 动作）、主 App 内额度不足发起生成被拦、
      键盘安卓 / 鸿蒙点「立即解锁」跳转过来（gotoAppPurchase）。
      商品与键盘内付费引导层共用同一张表 PLANS、同一个选中档位（state.kbPlan，kb-plan 动作切档）。
-     结构自上而下两段：**粉色渐变 Hero**（左上角圆形 X（purchase-close，回「我的」）+ 右上角
-     平台专属角标 + 两行标题「解锁高情商回复键盘 / LoveCo会员「限时特惠」」+ 五条会员权益清单，
-     第二条挂红色「新上线」小标）；**白色圆角主体**（三档商品卡横向等分：档位名 + 现价 + 划线原价，
-     选中的那张粉描边浅粉底、顶部浮一枚玫红角标（PLANS 的 badge）→ 随档位变的续订说明 →
+     结构自上而下两段：**蓝色渐变 Hero**（左上角圆形 X（purchase-close，回「我的」，整页铺满后是
+     唯一出口）+ 两行标题「解锁高情商回复键盘 / LoveCo会员「限时特惠」」+ 五条会员权益清单
+     （2026-09-29 起纯文字、不带图标章；右上角的平台专属角标同日按需求删除），
+     第二条挂红色「新上线」小标）；**白色主体**（三档商品卡横向等分：档位名 + 现价 + 划线原价，
+     选中的那张蓝描边浅蓝底、顶部浮一枚蓝色角标（PLANS 的 badge）→ 随档位变的续订说明 →
      支付方式行（iOS = Apple 账户 · App Store 内购；安卓 / 鸿蒙 = 支付宝；纯展示不可切换）→
-     整宽粉色渐变胶囊「立即解锁」（purchase 动作：iOS 就地弹系统支付框、安卓 / 鸿蒙一键到账；
+     整宽蓝色渐变胶囊「立即解锁」（purchase 动作：iOS 就地弹系统支付框、安卓 / 鸿蒙一键到账；
      已是会员时整颗置灰「已解锁会员权益」）→ 协议勾选行（圆形勾选框 purchase-agree 可点选、
      协议名点开键盘同款协议正文覆盖层 kb-legal）。
      照参考图**带协议勾选**（与键盘付费引导层的「无勾选框」不同）：未勾选点「立即解锁」不往下走，
-     只让协议行抖一下提示先勾选（shakePurchaseConsent）。皮肤固定粉色浅色（不跟随深色外观）。
+     只让协议行抖一下提示先勾选（shakePurchaseConsent）。皮肤固定蓝色浅色（不跟随深色外观）。
+     2026-09-29 起整页铺满整个屏幕：上下左右无边距、盖住底部 Tab 栏（appTabBar 在 purchase 下
+     不渲染）、状态栏连着一起转蓝（renderApp 挂 .guide-purchase，theme.css 清零 .app-main 边距）。
      已开通会员时也进得来（横幅在会员态仍显示「立即查看」）：页面照常渲染，按钮换成置灰的
      「已解锁会员权益」，续订说明换成「会员权益生效中」。 */
   function appPurchasePage() {
     const plan = PLANS[state.kbPlan] || {};
+    /* 2026-09-29 起权益清单纯文字（原来的白色圆形图标章按需求删除） */
     const FEATS = [
-      ['ChatDotRound','键盘实时帮回复，不限次',''],
-      ['Picture','上传聊天截图，读懂TA的潜台词','新上线'],
-      ['MagicStick','幽默、高情商，海量人设免费使用',''],
-      ['Star','会员专享，定制专属人设',''],
-      ['Sunny','亲密调节，自动把控聊天分寸',''],
+      ['键盘实时帮回复，不限次',''],
+      ['上传聊天截图，读懂TA的潜台词','新上线'],
+      ['幽默、高情商，海量人设免费使用',''],
+      ['会员专享，定制专属人设',''],
+      ['亲密调节，自动把控聊天分寸',''],
     ];
-    const feats = FEATS.map(([ic,txt,tag])=>`<li><i class="pu-feat-ico" aria-hidden="true">${icon(ic)}</i><span>${esc(txt)}</span>${tag?`<b class="pu-feat-tag">${esc(tag)}</b>`:''}</li>`).join('');
+    const feats = FEATS.map(([txt,tag])=>`<li><span>${esc(txt)}</span>${tag?`<b class="pu-feat-tag">${esc(tag)}</b>`:''}</li>`).join('');
     const cards = Object.entries(PLANS).map(([id,p])=>`<button type="button" class="pu-plan${state.kbPlan===id?' active':''}" data-action="kb-plan:${id}" aria-pressed="${state.kbPlan===id}">
       <span class="pu-plan-badge">${esc(p.badge)}</span>
       <span class="pu-plan-name">${esc(p.name)}</span>
@@ -1629,7 +1633,6 @@
     return `<div class="pu-page">
       <section class="pu-hero">
         <button type="button" class="pu-close" data-action="purchase-close" aria-label="关闭商品购买页">${icon('Close')}</button>
-        <span class="pu-hero-badge">${esc(platformName())}专属</span>
         <h2 class="pu-hero-title"><span>解锁高情商回复键盘</span><strong>LoveCo会员「限时特惠」</strong></h2>
         <ul class="pu-feats">${feats}</ul>
       </section>
@@ -1789,8 +1792,8 @@
   const APP_TABS = [['home','首页','home'],['partners','对象','users'],['account','我的','user']];
   const APP_TAB_OF = {home:'home',partners:'partners','partner-edit':'partners',account:'account',profile:'account',feedback:'account','legal-list':'account',purchase:'account'};
   function appTabBar() {
-    /* 「开启键盘」引导流程与首次登录的「资料引导」都没有底部 Tab（都是整页流程） */
-    if(state.appScreen==='kb-guide'||state.appScreen==='onboard')return '';
+    /* 「开启键盘」引导流程、首次登录的「资料引导」与商品购买页（2026-09-29 起整页铺满）都没有底部 Tab */
+    if(state.appScreen==='kb-guide'||state.appScreen==='onboard'||state.appScreen==='purchase')return '';
     const glyph = window.LoveCoSystemGlyphs;
     const active = APP_TAB_OF[state.appScreen] || '';
     return `<nav class="app-nav" role="tablist">${APP_TABS.map(([id,label,g])=>`<button data-action="app-tab:${id}" class="${active===id?'active':''}" aria-selected="${active===id}" role="tab">${glyph[g]}${label}</button>`).join('')}</nav>`;
@@ -1824,7 +1827,9 @@
         : state.kbGuidePage==='switch' ? ' guide-white'
         : (state.kbGuidePage==='settings' && state.platform==='android') ? ' guide-light' : ' guide-dark')
       /* 首次登录的「资料引导」连状态栏一起转淡紫（见 theme.css 的 .guide-lavender） */
-      : state.appScreen==='onboard' ? ' guide-lavender' : '';
+      : state.appScreen==='onboard' ? ' guide-lavender'
+      /* 商品购买页整页铺满（2026-09-29）：状态栏跟着 Hero 一起转蓝（.guide-purchase，theme.css） */
+      : state.appScreen==='purchase' ? ' guide-purchase' : '';
     const scrollMemo = captureScrolls($('#app'));
     $('#app').innerHTML = `<div class="shell app-workspace">
       <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">主 App 手机模拟器</span></div><div class="top-actions"><span class="sandbox-pill"><i class="dot"></i>本地仿真 · 无真实扣款</span><button class="text-button" data-action="reset">重置会话</button></div></header>

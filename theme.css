@@ -1600,58 +1600,60 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   .kb-paywall .pw-cta { height: 35px; margin-top: 24px; font-size: 14px; }
   .kb-paywall .pw-cta-tag { top: -7px; height: 15px; line-height: 15px; }
 }
-/* —— 主 App · 商品购买页（appPurchasePage，2026-09-28 新增）——
-   参考竞品（恋爱回复键盘）购买页照搬的**粉色浅色皮肤**（不跟随深色外观，与付费引导层同一条约定）。
-   整页两段：粉色渐变 Hero（X + 平台专属角标 + 两行玫红标题 + 权益清单）→ 白色圆角主体
-   （三档商品卡 + 续订说明 + 支付方式行 + 粉色渐变胶囊「立即解锁」+ 协议勾选行）。
-   负 margin 抵掉 .app-main 的 10px 侧边距 / 上下留白，让 Hero 顶到状态栏下、白底铺到屏幕底。 */
+/* —— 主 App · 商品购买页（appPurchasePage，2026-09-28 新增；2026-09-29 改蓝色整页）——
+   参考竞品（恋爱回复键盘）购买页布局的**蓝色浅色皮肤**（不跟随深色外观，与付费引导层同一条约定）。
+   整页两段：蓝色渐变 Hero（X + 两行蓝标题 + 纯文字权益清单，平台专属角标与图标章已删）→ 白色主体
+   （三档商品卡 + 续订说明 + 支付方式行 + 蓝色渐变胶囊「立即解锁」+ 协议勾选行）。
+   2026-09-29 起整页铺满整个屏幕（上下左右无边距）：.app-main 由 .guide-purchase 清零边距
+   （width:100%; padding:0，与引导页同一套做法），本页不再用负 margin；底部 Tab 栏由
+   appTabBar() 在 purchase 下不渲染；状态栏连着 Hero 一起转蓝（见下方 .guide-purchase 两条）。 */
 .pu-page {
-  --pu-ink: #A81E58;
-  --pu-deep: #C2336F;
-  --pu-hot: #FF3D7F;
-  --pu-hot-2: #FF6FA5;
-  --pu-sub: #7A415A;
-  --pu-faint: #C99AA9;
-  --pu-line: #FFD9E7;
-  margin: -10px -10px -14px;
+  --pu-ink: #1D4FA8;
+  --pu-deep: #2563C9;
+  --pu-hot: #1E6BF5;
+  --pu-hot-2: #5E96F8;
+  --pu-sub: #41547A;
+  --pu-faint: #9AA9C4;
+  --pu-line: #D4E2FB;
+  min-height: 100%;
   padding-bottom: 16px;
-  background: linear-gradient(180deg, #FF8FB4 0px, #FFC2D6 230px, #FFFFFF 460px);
+  background: linear-gradient(180deg, #5B93F7 0px, #A9C7FC 230px, #FFFFFF 460px);
   color: var(--pu-ink);
 }
+/* 整页铺满三件套（同引导页做法）：app-main 清零边距 + 状态栏转蓝；Tab 栏不渲染在 app.js */
+.app-phone.guide-purchase .app-main { width: 100%; padding: 0; }
+.app-phone.guide-purchase > .statusbar { background: #5B93F7; color: #FFF; }
 .pu-hero { padding: 16px 16px 6px; }
-.pu-close { width: 26px; height: 26px; border: 0; background: rgba(255, 255, 255, .88); color: var(--pu-hot); box-shadow: 0 2px 8px #D6336C26; }
+.pu-close { width: 26px; height: 26px; border: 0; background: rgba(255, 255, 255, .88); color: var(--pu-hot); box-shadow: 0 2px 8px #1E5FD026; }
 .pu-close svg { width: 14px; height: 14px; }
-.pu-hero-badge { padding: 2px 9px; border: 1px solid rgba(255, 255, 255, .92); background: rgba(255, 255, 255, .2); color: #FFF; font-size: 10px; font-weight: 600; letter-spacing: .5px; }
 .pu-hero-title { margin: 10px 0 0; }
-.pu-hero-title span { font-size: 13.5px; font-weight: 650; color: #9C1D55; letter-spacing: .3px; }
-.pu-hero-title strong { margin-top: 3px; font-size: 23px; font-weight: 800; color: #B01E5A; letter-spacing: .3px; }
+.pu-hero-title span { font-size: 13.5px; font-weight: 650; color: #1D4086; letter-spacing: .3px; }
+.pu-hero-title strong { margin-top: 3px; font-size: 23px; font-weight: 800; color: #1449C8; letter-spacing: .3px; }
 .pu-feats { margin-top: 18px; }
 .pu-feats li { gap: 10px; padding: 7px 0; font-size: 13px; font-weight: 600; color: var(--pu-deep); }
-.pu-feat-ico { width: 26px; height: 26px; background: #FFF; color: var(--pu-hot-2); box-shadow: 0 2px 6px #D6336C1F; }
-.pu-feat-ico svg { width: 14px; height: 14px; }
 .pu-feat-tag { margin-left: 6px; padding: 1px 5px; background: var(--pu-hot); color: #FFF; font-size: 9px; font-weight: 600; line-height: 1.5; }
-/* 白色主体：三档卡（选中那张玫红描边 + 顶部浮一枚玫红角标）→ 续订说明 → 支付方式行 */
-.pu-body { margin-top: 14px; padding: 16px 12px 4px; background: #FFF; box-shadow: 0 -8px 20px #D6336C12; }
-.pu-plan { padding: 11px 2px 12px; background: #FFF7FA; border-color: var(--pu-line); }
-.pu-plan:hover { border-color: #FFB3D0; }
-.pu-plan.active { background: #FFF0F7; border-color: var(--pu-hot); box-shadow: inset 0 0 0 1px var(--pu-hot); }
-.pu-plan-badge { top: -9px; padding: 2px 8px; background: linear-gradient(90deg, var(--pu-hot-2), var(--pu-hot)); color: #FFF; font-size: 9px; font-weight: 600; line-height: 1.5; box-shadow: 0 3px 8px #FF3D7F4D; }
+/* 白色主体：三档卡（选中那张蓝描边 + 顶部浮一枚蓝角标）→ 续订说明 → 支付方式行 */
+.pu-body { margin-top: 14px; padding: 16px 12px 4px; background: #FFF; box-shadow: 0 -8px 20px #1E5FD012; }
+.pu-plan { padding: 11px 2px 12px; background: #F7FAFF; border-color: var(--pu-line); }
+.pu-plan:hover { border-color: #A9C4F5; }
+.pu-plan.active { background: #F0F5FF; border-color: var(--pu-hot); box-shadow: inset 0 0 0 1px var(--pu-hot); }
+.pu-plan-badge { top: -9px; padding: 2px 8px; background: linear-gradient(90deg, var(--pu-hot-2), var(--pu-hot)); color: #FFF; font-size: 9px; font-weight: 600; line-height: 1.5; box-shadow: 0 3px 8px #1E6BF54D; }
 .pu-plan-name { font-size: 12px; font-weight: 650; color: var(--pu-sub); }
-.pu-plan-price { margin-top: 3px; font-size: 20px; font-weight: 800; color: #E93A7D; letter-spacing: .2px; }
+.pu-plan-price { margin-top: 3px; font-size: 20px; font-weight: 800; color: #1A5EE8; letter-spacing: .2px; }
 .pu-plan-price i { margin-right: 1px; font-size: 12px; font-weight: 650; }
 .pu-plan-origin { margin-top: 1px; font-size: 10px; color: var(--pu-faint); }
 .pu-cap { margin: 10px 2px 0; font-size: 10.5px; line-height: 1.5; color: var(--pu-faint); }
 .pu-pay { gap: 10px; margin-top: 12px; padding: 10px 12px; background: #F6F6F8; }
 .pu-pay-logo { width: 22px; height: 22px; background: #FFF; border: 1px solid #E4E4EA; color: #3C3C43; }
 .pu-pay-logo.ali { border: 0; background: #1677FF; color: #FFF; font-size: 12px; font-weight: 700; }
-.pu-pay-name { font-size: 13px; font-weight: 600; color: #4A4458; }
-.pu-pay-switch { width: 14px; height: 14px; color: #B9B3C2; }
-/* 「立即解锁」：整宽粉色渐变胶囊（已是会员时置灰）；协议勾选行：圆形勾选框 + 两份协议名可点 */
-.pu-cta { height: 42px; margin-top: 14px; background: linear-gradient(90deg, var(--pu-hot-2), var(--pu-hot)); color: #FFF; font-size: 15.5px; font-weight: 700; letter-spacing: 2px; box-shadow: 0 8px 18px #FF3D7F40; }
-.pu-cta:hover { box-shadow: 0 10px 22px #FF3D7F66; }
-.pu-cta:disabled { background: #F0D4E0; box-shadow: none; cursor: default; }
+.pu-pay-name { font-size: 13px; font-weight: 600; color: #454B58; }
+.pu-pay-switch { width: 14px; height: 14px; color: #B9BFC9; }
+/* 「立即解锁」：整宽蓝色渐变胶囊（已是会员时置灰）；协议勾选行：圆形勾选框 + 两份协议名可点 */
+.pu-cta { height: 42px; margin-top: 14px; background: linear-gradient(90deg, var(--pu-hot-2), var(--pu-hot)); color: #FFF; font-size: 15.5px; font-weight: 700; letter-spacing: 2px; box-shadow: 0 8px 18px #1E6BF540; }
+.pu-cta:hover { box-shadow: 0 10px 22px #1E6BF566; }
+.pu-cta:disabled { background: #D4E2F0; box-shadow: none; cursor: default; }
 .pu-consent { gap: 5px; margin-top: 11px; font-size: 10px; line-height: 1.5; color: var(--pu-faint); }
-.pu-circle { width: 14px; height: 14px; border: 1.5px solid #E39EBB; background: #FFF; color: #FFF; }
+.pu-circle { width: 14px; height: 14px; border: 1.5px solid #9EB9E3; background: #FFF; color: #FFF; }
 .pu-circle.on { border-color: var(--pu-hot); background: var(--pu-hot); }
 .pu-circle svg { width: 9px; height: 9px; }
 .pu-consent .pu-legal-link { color: var(--pu-deep); }
