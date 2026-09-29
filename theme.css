@@ -2586,7 +2586,25 @@ html[data-view="device"] .sheet-footer {
    整层固定深色 —— 演的就是宿主会话那一屏（微信深色场景），不跟随键盘的浅色 / 深色外观：
    底色与文字取宿主会话那套 --wx-* 变量（定义在 .phone.host-wechat 上，聊天页与键盘也都
    直接用它们自己的皮肤类，这里只补演示层自己的几块）。 */
-.kb-usage-guide { background: var(--wx-bg); color: var(--wx-received-ink); }
+.kb-usage-guide {
+  /* --wx-* 原本定义在 .phone.host-wechat 上；2026-09-29 起引导层也铺在主 App 整机
+     （.phone.app-phone）上 —— 那边没有这套变量，这里自带一份同值兜底，
+     两种形态的整机上皮肤一致（整层固定深色的本意由此真正落实） */
+  --wx-bg: #111111;           /* 状态栏 / 会话头部 / 消息区底色 */
+  --wx-bar: #1C1C1C;          /* 底部输入栏 */
+  --wx-field: #2C2C2C;        /* 输入框底、对方气泡 */
+  --wx-divider: #171717;      /* 头部下缘细线（截图里只比底色亮一点点） */
+  --wx-bubble: #28B561;       /* 本方气泡 */
+  --wx-bubble-ink: #000000;   /* 本方气泡文字（绿底黑字） */
+  --wx-time: #595959;         /* 时间行 */
+  --wx-title: #CFCFCF;        /* 会话标题 */
+  --wx-ink: #D1D1D1;          /* 输入栏圆钮线条 */
+  --wx-ink-dim: #969696;      /* 输入框内麦克风（比圆钮暗一档） */
+  --wx-status: #FFFFFF;       /* 状态栏文字与图标 */
+  --wx-received-ink: #E6E6E6; /* 对方气泡文字（截图里没有对方消息，按微信深色取值） */
+  background: var(--wx-bg);
+  color: var(--wx-received-ink);
+}
 .gx-body { background: var(--wx-bg); }
 .gx-chat { background: var(--wx-bg); }
 /* 消息从顶部开始排（与参考截图一致；宿主会话本体仍是贴底的 .wx-chat 那一套）——

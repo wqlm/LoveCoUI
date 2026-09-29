@@ -21,6 +21,8 @@
    底栏直接复用真键盘组件（kb-keys / kb-navbar），菜单栏按同一套类名自己装配（相册位置
    换成自绘的截图缩略图 —— 与截屏瞬间浮出的那张是同一张画法，只是尺寸不同）；分析面板
    复用 .kb-chat-analysis 的皮肤，**从 scan 那一步起一直在屏**（只换内容、不重播弹入动画）。
+   自绘意味着它不依赖底层画面 —— 主 App 与键盘两种形态的整机都挂这一层（app.js 的
+   render / renderApp，点入不切 App形态，Esc 收场回当前形态的原页）。
    本组件只产出结构；高亮框定位（渲染后实测目标元素、把坐标写进 .gx-spot）与打字机
    （逐帧直接改 textContent）都由 app.js 的 paintKbUsageGuide() / gxTyping() 完成，
    文案表在 app.js 的 GUIDE_DEMO（ctx.guideDemo）。 */

@@ -130,8 +130,9 @@
     /* 三个可见开关**默认都是关的**（2026-09-28 需求）：蜂窝网络 / 开启键盘 / 键盘完全访问 ——
        配上「模拟 › 登录状态」也默认关，启动即一台还没启用键盘、没授权访问、没登录的新设备，
        引导链路（键盘引导 → 完全访问引导 → 登录）从头走一遍；network 与 microphone 没有 UI 入口，
-       是拦截判定（手改验证），保持默认开启 */
-    permissions:{network:true,cellular:false,kbEnabled:false,keyboard:false,photos:'full',microphone:true,ime:'system'},
+       是拦截判定（手改验证），保持默认开启；相册访问权限也默认「关闭」（2026-09-29 需求）——
+       键盘里点相册图标走的是「相册权限引导页」那条形态 */
+    permissions:{network:true,cellular:false,kbEnabled:false,keyboard:false,photos:'denied',microphone:true,ime:'system'},
     modal:null, modalData:{}, modalBack:null, partnerPanel:false, settingsPanel:false, photoPanel:false,
     /* 新增 / 编辑聊天对象面板（kb-partner-editor）：键盘模式下替代弹层；
        photoMode 记录选择器是聊天截图模式（chat）还是头像模式（avatar，单选、底部「确定」）；
@@ -207,7 +208,8 @@
        pick / send / win，十步的说明见组件头注释）。gxTyped 是打字机已输出的字数
        （组件按它截断重绘、gxTyping() 从原地继续推进）；gxTimer 给步骤之间的过渡
        （白闪 / 键盘弹起 / 分析动画 / 选回复），gxStreamTimer 是「输出完 → 选回复」的
-       半拍停顿（防重入）。只在页面内存、不持久化；Esc 直接收场回干净键盘页。 */
+       半拍停顿（防重入）。只在页面内存、不持久化；主 App 与键盘两种形态的整机都挂这层
+       （点入不切 App形态），Esc 直接收场回当前形态的原页。 */
     kbGuideDemo:'', gxTyped:0, gxTimer:null, gxStreamTimer:null,
     /* 键盘内登录层（kb-login 组件）：键盘模式下未登录时，键盘一被唤起就弹出、覆盖整个键盘区域 ——
        kbLogin 记当前形态（'' = 不显示 / 'one-tap' 本机号一键登录 / 'sms' 手机号验证登录 /
@@ -624,8 +626,9 @@
     {id:'onboard-birthday',name:'资料设置 · 你的出生日期(首次登录)',route:'首次登录成功 › 第二步',trigger:'性别那一步选好点底部箭头进入；或本列表点入（现场摆成「已登录 + 性别已选」的第二步，滚轮默认停在 2006年9月28日，不落库）',desc:'**与第一步同一套整页皮肤**（淡紫底、居中、三个分页圆点这回亮第 2 个），自上而下 —— ① 顶栏三件事：左侧**白色圆形返回钮**（36px + 淡投影，回第一步「选择性别」，选过的性别留着）、中间分页圆点、右侧**「跳过」**（灰字 15px —— 这一步**可跳过**：点了不带生日结束引导）；② **蛋糕插画**（116px，照设计图：粉色托盘 + 两层蓝蛋糕 + 奶油波浪 + 一根点着的蜡烛）；③ 大标题「**你的出生日期**」；④ **三列滚轮**（年 1980–2015 / 月 1–12 / 日 1–31，行高 44px、整块高 220px，CSS scroll-snap 吸附到中线那一行，中线上铺一条白色圆角选中带、选中行深色加粗，滚 / 点某一行即停到那行）；⑤ 滚轮下一行**「N岁  星座」**（17px / 600，两项间隔 26px，按停着的那天实时算 —— 年龄按今天、星座按 12 段月日划分，设计图 2006-09-28 = **20岁 天秤座**；日按当月天数收紧，2 月 30 日按当月最后一天算）；⑥ 底部同一颗**蓝色胶囊箭头按钮**（这一步常亮）：点它把那天写成 `state.birthday`（`YYYY-MM-DD`）并结束引导。滚轮改动**不整页重渲染**（重建 DOM 会把滚轮位置弹回），只就地刷新「N岁 星座」这一行（见 bindOnboardWheel）',note:'首次登录资料引导的第二步（**可跳过**）：跳过 = 不带生日结束引导（性别已在第一步选好），返回箭头只是回第一步、不算跳过。生日落库时顺带把「我的 › 个人资料」里的年龄段（`state.age`）对上 18–22 / 23–30 / 31–40 / 40以上 里那一档；两步走完（或跳过第二步）把「模拟 › 首次登录App」开关自动关上（`state.firstLogin=false`，落库）、进主 App 首页 —— 之后登录不再出现这两页；想再看一遍把开关再打开即可'},
     /* 键盘使用引导（kb-usage-guide 组件）：整机覆盖的**纯演示层**（假页面）——
        不接真实链路，只把「截图 → 唤出键盘 → AI 分析 → 选回复 → 发送」从头演一遍。
-       它贯穿聊天页与键盘两个区域、铺在整机之上；不属于任何真实用户路径。 */
-    {id:'kb-usage-guide',name:'键盘使用引导（演示）',route:'键盘 › 整机覆盖层（贯穿全屏的演示流程）',trigger:'本列表点入（现场摆成引导第一步：干净的聊天页 + 一枚「点这里，模拟截屏」的提示，页面不压暗）',desc:'**纯演示的假页面**：不接真实链路 —— 没有截图进相册、没有 AI 请求，也不动积分与会话消息，只在整机覆盖层里把「截图分析一条龙」从头演到尾（每一步只有高亮区域可点、点别处无反应；Esc 随时收场）。十步：① 仿微信聊天页（林间、深色，**只留**对方那句「爸爸说，离花言巧语的男生要远一点。」，上面不留历史记录）+ 一枚提示「点这里，模拟截屏」（**没有遮罩**、页面不压暗，手指朝右）—— 只有那句话与提示可点；② 点掉后整屏白闪一下 + **左下角浮出「刚截的截图」缩略图**（iOS 截屏缩略图的样子，停约半秒自动滑走，滑走后正好进下一步）；③ 遮罩出现，改高亮宿主输入栏，提示「点击输入框，唤出键盘」；④ 键盘从屏幕底部弹上来（高度 0 → 常规键盘高，聊天区随之压缩）；⑤ 遮罩再回来，高亮菜单栏里那张**刚截的缩略图**（相册图标就地换成截图缩略图、持续跳动），提示「点这里，AI 帮你分析」放在缩略图的**左侧**、手指朝右指着它；⑥ 分析面板**从底部滑入一次**，内容区先是约 1 秒的「正在分析中…」取景框扫描动画；⑦ 同一块面板换成结果，打字机逐字输出：关系简报（「关系阶段：熟悉 / 聊天氛围：相互拉扯试探」+ 一段分析正文）→ 两条回复思路卡（标题 + 回复正文，只演这两条）；⑧ 输出完面板底部浮出悬浮按钮条（麦克风 / 重新生成 / 发送），遮罩高亮第一条回复（整卡）提示「点它，就用这句」；⑨ 点选后整卡亮起、**面板不收起**，遮罩改高亮面板底部那颗「发送」提示「点这里，发送给他」；⑩ 点发送 → 回复进会话（我的绿色气泡入场）+ 庆祝层「**哇！你好棒呀**」（彩带飘落 + 蓝色胶囊「去使用吧」）→ 点它收场并跳主 App 首页。**设计**：遮罩是半透明黑（rgba(0,0,0,.62)），高亮区用「聚光灯」做法（高亮框的 box-shadow 铺满全屏，框内透出下层内容），框缘一圈呼吸描边；高亮框的位置**不写死在 CSS 里** —— 渲染后由 JS 实测目标元素（消息行 / 输入栏 / 缩略图 / 回复卡 / 发送按钮）贴合，屏幕高度、键盘状态变了也不会错位；提示块跟着目标自动落在它的上方或下方（手指 emoji 换向），也可贴到目标左侧、手指朝右（缩略图那一步）。聊天页与键盘都是**自绘**的（聊天复用宿主会话的 .wx-* 骨架与皮肤，键盘外壳借 .keyboard 的骨架、键区与底栏直接复用真键盘组件 kb-keys / kb-navbar），不读底层手机当前停在哪个页面；「刚截的截图」缩略图（浮出的大图与菜单栏的小图）也是自绘的「聊天页缩影」（同一张画法两种尺寸）。分析面板**从扫描那一步起一直在屏** —— 只换内容、不重播弹入动画（此前每步都重建 DOM，看着像弹了两次）。步骤之间的过渡都是动画：白闪 .42s + 缩略图浮出 .9s、键盘弹起 / 回落 .34s、面板滑入 .34s（仅一次）、打字机每帧 2 字 / 40ms（全篇约 2 秒）。',note:'演示性质，不进真实用户路径（入口只有本列表这一条）；推进动作 gx-next:<步> 会校验当前步 —— 连点、旧 DOM 的点击推进不了；中途 Esc 直接收场回干净键盘页。结束时跳主 App 首页（openAppScreen("home")）—— 首页当前是空白模板，落地即见底部 Tab 栏。本条目点入 = 从第一步开始，每一步点击照常推进（可以整条走完）；剧本（聊天记录 / 分析结果）在 app.js 的 GUIDE_DEMO，改文案只改那一处'},
+       聊天页与键盘都是自绘的，主 App 与键盘两种形态的整机都挂这一层（点入不切 App形态，
+       主 App 列表点入就地铺在主 App 整机上）；不属于任何真实用户路径。 */
+    {id:'kb-usage-guide',name:'键盘使用引导（演示）',route:'主 App / 键盘 › 整机覆盖层（贯穿全屏的演示流程，两形态通用）',trigger:'本列表点入（**不切 App形态**，演示层就地铺在主 App 整机上 —— 现场摆成引导第一步：干净的聊天页 + 一枚「点这里，模拟截屏」的提示，页面不压暗）',desc:'**纯演示的假页面**：不接真实链路 —— 没有截图进相册、没有 AI 请求，也不动积分与会话消息，只在整机覆盖层里把「截图分析一条龙」从头演到尾（每一步只有高亮区域可点、点别处无反应；Esc 随时收场）。十步：① 仿微信聊天页（林间、深色，**只留**对方那句「爸爸说，离花言巧语的男生要远一点。」，上面不留历史记录）+ 一枚提示「点这里，模拟截屏」（**没有遮罩**、页面不压暗，手指朝右）—— 只有那句话与提示可点；② 点掉后整屏白闪一下 + **左下角浮出「刚截的截图」缩略图**（iOS 截屏缩略图的样子，停约半秒自动滑走，滑走后正好进下一步）；③ 遮罩出现，改高亮宿主输入栏，提示「点击输入框，唤出键盘」；④ 键盘从屏幕底部弹上来（高度 0 → 常规键盘高，聊天区随之压缩）；⑤ 遮罩再回来，高亮菜单栏里那张**刚截的缩略图**（相册图标就地换成截图缩略图、持续跳动），提示「点这里，AI 帮你分析」放在缩略图的**左侧**、手指朝右指着它；⑥ 分析面板**从底部滑入一次**，内容区先是约 1 秒的「正在分析中…」取景框扫描动画；⑦ 同一块面板换成结果，打字机逐字输出：关系简报（「关系阶段：熟悉 / 聊天氛围：相互拉扯试探」+ 一段分析正文）→ 两条回复思路卡（标题 + 回复正文，只演这两条）；⑧ 输出完面板底部浮出悬浮按钮条（麦克风 / 重新生成 / 发送），遮罩高亮第一条回复（整卡）提示「点它，就用这句」；⑨ 点选后整卡亮起、**面板不收起**，遮罩改高亮面板底部那颗「发送」提示「点这里，发送给他」；⑩ 点发送 → 回复进会话（我的绿色气泡入场）+ 庆祝层「**哇！你好棒呀**」（彩带飘落 + 蓝色胶囊「去使用吧」）→ 点它收场并跳主 App 首页。**设计**：遮罩是半透明黑（rgba(0,0,0,.62)），高亮区用「聚光灯」做法（高亮框的 box-shadow 铺满全屏，框内透出下层内容），框缘一圈呼吸描边；高亮框的位置**不写死在 CSS 里** —— 渲染后由 JS 实测目标元素（消息行 / 输入栏 / 缩略图 / 回复卡 / 发送按钮）贴合，屏幕高度、键盘状态变了也不会错位；提示块跟着目标自动落在它的上方或下方（手指 emoji 换向），也可贴到目标左侧、手指朝右（缩略图那一步）。聊天页与键盘都是**自绘**的（聊天复用宿主会话的 .wx-* 骨架与皮肤，键盘外壳借 .keyboard 的骨架、键区与底栏直接复用真键盘组件 kb-keys / kb-navbar），不读底层手机当前停在哪个页面；「刚截的截图」缩略图（浮出的大图与菜单栏的小图）也是自绘的「聊天页缩影」（同一张画法两种尺寸）。分析面板**从扫描那一步起一直在屏** —— 只换内容、不重播弹入动画（此前每步都重建 DOM，看着像弹了两次）。步骤之间的过渡都是动画：白闪 .42s + 缩略图浮出 .9s、键盘弹起 / 回落 .34s、面板滑入 .34s（仅一次）、打字机每帧 2 字 / 40ms（全篇约 2 秒）。',note:'演示性质，不进真实用户路径（入口只有本列表这一条）；推进动作 gx-next:<步> 会校验当前步 —— 连点、旧 DOM 的点击推进不了；中途 Esc 直接收场回主 App 原页（本条目在主 App 形态点入，收场不切形态）。结束时跳主 App 首页（openAppScreen("home")）—— 首页当前是空白模板，落地即见底部 Tab 栏。本条目点入 = 从第一步开始，每一步点击照常推进（可以整条走完）；剧本（聊天记录 / 分析结果）在 app.js 的 GUIDE_DEMO，改文案只改那一处'},
   ];
   function pageCatalog() { return state.appView==='app' ? APP_PAGES : KB_PAGES; }
   /* 页面列表：按组分节，组名可点击折叠 / 展开。
@@ -901,8 +904,8 @@
      「AI 分析过渡页」不设定时器：避免 1 秒后自动切走，方便静态查看（真实链路里由 openScanPanel 播完接面板）。 */
   function setupPage(it) {
     if(state.appView==='app'){
-      /* 键盘使用引导（kb-usage-guide 组件）：这一层铺在**键盘形态**的整机上 —— 主 App 列表点入
-         先切回键盘形态，再从头开演（openKbUsageGuide 内部处理） */
+      /* 键盘使用引导（kb-usage-guide 组件）：自绘的整机覆盖层，主 App 整机上也挂这一层 ——
+         列表点入**不切 App形态**、就地从头开演（openKbUsageGuide 内部处理） */
       if(it.id==='kb-usage-guide')return openKbUsageGuide();
       /* 目录里的整屏流程子页（不在 appScreens 集合、从流程中途进入）：静态跳转补上运行上下文
          （原「确认模拟订单」「权益已到账」两条子页已随购买链路合并而删除） */
@@ -1043,7 +1046,8 @@
          平台切 iOS（支付框只在 iOS 出现，落库与「平台外观 · iOS」条目一致）、额度过期（不落库），
          会员开通层 + 系统支付框两层一起开着 */
       case 'kb-ios-pay': kbReset(); state.platform='ios'; persist(); state.loggedIn=true; state.member=false; state.credits=0; state.creditsOut=true; openPaywall(); return openIosPaySheet();
-      /* 键盘使用引导（演示层）：清场后从第一步（截图）开始播 —— 主 App 形态点入会先切回键盘形态 */
+      /* 键盘使用引导（演示层）：清场后从第一步（截图）开始播 —— 条目只在主 App 列表，
+         键盘形态点不到这里，保留同一入口兜底 */
       case 'kb-usage-guide': kbReset(); return openKbUsageGuide();
       default: kbReset(); return render(); /* host-chat：清场后即为目标页面（离开按住说话等静态态也走这里） */
     }
@@ -1825,8 +1829,8 @@
     const scrollMemo = captureScrolls($('#app'));
     $('#app').innerHTML = `<div class="shell app-workspace">
       <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">主 App 手机模拟器</span></div><div class="top-actions"><span class="sandbox-pill"><i class="dot"></i>本地仿真 · 无真实扣款</span><button class="text-button" data-action="reset">重置会话</button></div></header>
-      <main class="workspace"><aside class="rail left-rail"><div class="rail-section"><div class="eyebrow">LOVECO / APP</div><div class="rail-heading"><h2>平台与app形态</h2></div>${deviceSwitchers()}</div>${permissionSection()}<div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}</div></aside>
-        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbLogin?LoveCoUI.render('kb-login', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${state.appLegal?legalSheet('app-legal-close'):''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div><button class="icon-btn" title="仿真设置" aria-label="仿真设置" data-action="simulator">${icon('Monitor')}</button><button class="icon-btn" title="重置会话" aria-label="重置会话" data-action="reset">${icon('RefreshLeft')}</button></div></section><aside class="rail right-rail">${pageListSection()}<div class="rail-section"><div class="eyebrow">APP STATE</div><div class="kv"><span>App形态</span><strong>主 App 模式</strong></div><div class="kv"><span>当前页面</span><strong>${esc(title)}</strong></div><div class="kv"><span>运行平台</span><strong>${platformName()}</strong></div><button class="row-button" data-action="simulator">${icon('Monitor')}仿真控制台<span class="end">${icon('ArrowRight')}</span></button></div></aside></main>
+      <main class="workspace"><aside class="rail left-rail"><div class="rail-section"><div class="rail-heading"><h2>平台与app形态</h2></div>${deviceSwitchers()}</div>${permissionSection()}<div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}</div></aside>
+        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbLogin?LoveCoUI.render('kb-login', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.kbGuideDemo?LoveCoUI.render('kb-usage-guide', ctx):''}${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${state.appLegal?legalSheet('app-legal-close'):''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div><button class="icon-btn" title="仿真设置" aria-label="仿真设置" data-action="simulator">${icon('Monitor')}</button><button class="icon-btn" title="重置会话" aria-label="重置会话" data-action="reset">${icon('RefreshLeft')}</button></div></section><aside class="rail right-rail">${pageListSection()}<div class="rail-section"><div class="eyebrow">APP STATE</div><div class="kv"><span>App形态</span><strong>主 App 模式</strong></div><div class="kv"><span>当前页面</span><strong>${esc(title)}</strong></div><div class="kv"><span>运行平台</span><strong>${platformName()}</strong></div><button class="row-button" data-action="simulator">${icon('Monitor')}仿真控制台<span class="end">${icon('ArrowRight')}</span></button></div></aside></main>
     </div>`;
     bind();
     /* 引导流程的演示动画：每次重建 DOM 后重新接一遍「拿到手势就开声音」（见 wireGuideVideos） */
@@ -1862,6 +1866,9 @@
       if(node.id==='partner-name')['click','keyup','select'].forEach(ev=>node.addEventListener(ev,()=>{if(!state.composition)state.partnerCaret=node.selectionStart;}));
     });
     restoreScrolls($('#app'), scrollMemo);
+    /* 键盘使用引导（演示层）：主 App 整机也挂这一层（2026-09-29 起）—— 高亮框贴合目标元素
+       + 打字机（不在引导里时空跑）；放 restoreScrolls 之后，滚动对位不被恢复逻辑盖掉 */
+    paintKbUsageGuide();
   }
   /* 全局防回弹：render/renderApp 用 innerHTML 重建整棵 DOM，聊天区、键盘区、请求列表、
      弹层等所有滚动容器的位置都会归零 —— 按一个键页面就「弹一下」。渲染前记下所有已滚动
@@ -2074,9 +2081,8 @@
      高亮框与提示的位置、以及打字机的逐帧推进，都在每次 render 之后由
      paintKbUsageGuide() / gxTyping() 直接改 DOM（见下方两个函数）。 */
   function openKbUsageGuide() {
-    /* 这一层铺的是键盘形态的整机（聊天页与键盘都是自绘的）—— 主 App 形态下先回键盘形态，
-       否则没地方挂它（renderApp 不渲染这一层） */
-    if (state.appView === 'app') returnKeyboard();
+    /* 这一层是自绘的整机覆盖层（聊天页与键盘都自己画，不读底层页面），主 App 与键盘
+       两种形态的整机都挂它（render / renderApp）—— 点入**不切 App形态**，就地开演 */
     abortVoiceHold();
     state.kbGuideDemo = 'shot';
     state.gxTyped = 0;
