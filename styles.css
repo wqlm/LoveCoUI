@@ -267,8 +267,10 @@ small{font-size:11px;color:#73847d}
 .pu-plan-price i{font-style:normal}
 .pu-plan-origin{text-decoration:line-through}
 .pu-cap{margin:0}
-/* 支付方式行：安卓 / 鸿蒙那一条是可点的 <button>（点一下切渠道），iOS 那条是纯展示的 <div> ——
-   同用一个类，这里的按钮重置对 div 无影响；可点的那条才给手型光标 */
+/* 屏幕底部那一组：支付方式行（iOS 不渲染这一行）+ 立即解锁 + 协议行 —— margin-top:auto 把整组
+   顶到白色主体底部（富余高度落在档位卡与这组之间，见 theme.css 的纵向节奏说明） */
+.pu-foot{display:flex;flex-direction:column;margin-top:auto}
+/* 支付方式行：可点的 <button>（点一下切渠道），这里的按钮重置对任何宿主都适用 */
 .pu-pay{display:flex;width:100%;align-items:center;border:0;border-radius:12px;font:inherit;color:inherit;text-align:left}
 .pu-pay[data-action]{cursor:pointer}
 .pu-pay-logo{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%}
@@ -277,11 +279,9 @@ small{font-size:11px;color:#73847d}
 .pu-pay-switch{display:flex;flex-shrink:0}
 .pu-pay-switch svg{width:100%;height:100%}
 .pu-cta{width:100%;border:0;border-radius:999px}
+/* 协议行：纯文字一行居中（没有勾选框 —— 2026-09-29 五次需求删掉圆形勾选框与未勾选抖动） */
 .pu-consent{display:flex;align-items:center;justify-content:center}
-.pu-circle{display:flex;align-items:center;justify-content:center;flex-shrink:0;padding:0;border-radius:50%}
-.pu-circle svg{width:100%;height:100%}
 .pu-legal-link{padding:0;border:0;background:none;font:inherit;font-weight:600;line-height:inherit;cursor:pointer}
-.pu-consent.shake{animation:kbl-shake .42s cubic-bezier(.36,.07,.19,.97) both}
 /* iOS 系统支付框（ios-pay-sheet）：iOS 上点会员开通层的「立即解锁」就地弹出的系统级弹层 ——
    挂在手机根节点上、铺满整个手机屏（骨架；深色皮肤在 theme.css，只有 iOS 会走到它） */
 .aps-layer{position:absolute;inset:0;z-index:50;display:flex;flex-direction:column;justify-content:flex-end}
