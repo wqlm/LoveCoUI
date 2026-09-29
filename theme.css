@@ -1594,8 +1594,8 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 /* 极矮窗口（device 视图 <520px 高，键盘只有 210px）：整条再收紧一档 —— 2026-09-29 需求起
    除去续订说明后连协议行也要一屏放下（三档卡 / 按钮 / 协议行都够得着、整层不再滚动） */
 @media (max-height: 519px) {
-  .kb-paywall .pw-body { padding: 12px 14px 6px; }
-  .kb-paywall .pw-title { margin-bottom: 6px; font-size: 14px; }
+  .kb-paywall .pw-body { padding: 12px 14px 5px; }
+  .kb-paywall .pw-title { margin-bottom: 5px; font-size: 14px; }
   .kb-paywall .pw-plan { padding: 5px 2px 6px; }
   .kb-paywall .pw-plan-name { font-size: 11px; }
   .kb-paywall .pw-plan-price { font-size: 17px; }
@@ -1746,6 +1746,11 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    清零边距并充当定位祖先 —— .kb-login 的 absolute inset:0 就地铺满整页；下面几条 kb-login 适配
    让内容在整页高度里舒展（主内容组压中部、协议行沉底）。付费层仍铺满正文区（.app-shell），
    商品卡压中部、给右上角 X 留出余量。 */
+/* 状态栏连着页面一起转淡蓝（2026-09-29 需求：登录页通底淡蓝后状态栏还是原来的浅灰白，
+   露出一条不搭的浅色顶带 —— 状态栏是 .app-main 之外的独立元素，跟引导页同一套做法由手机根 class 驱动；
+   深色外观下登录页仍是固定浅色，这里的选择器优先级高于 .dark .statusbar，深浅两态都成立） */
+.app-phone.guide-login { background: #E8ECFD; }
+.app-phone.guide-login > .statusbar { background: #E8ECFD; color: #191919; }
 .app-phone.guide-login .app-main { width: 100%; padding: 0; position: relative; }
 .app-phone .kb-login .kbl-body { padding: 0 22px 16px; }
 .app-phone .kb-login.one-tap .kbl-hero { margin-top: auto; }
