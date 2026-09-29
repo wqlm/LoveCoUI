@@ -1690,7 +1690,9 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu-feats { margin-top: 18px; }
 .pu-feats li { padding: 9px 0; font-size: 13.5px; line-height: 1.45; font-weight: 600; color: var(--pu-deep); }
 /* 白色主体：三档卡（选中那张蓝描边 + 顶部浮一枚蓝角标）→ 续订说明 → …（富余高度）… →
-   支付方式行 + 主按钮 + 协议行（这一组由 .pu-pay 的 auto 外边距钉在底部，见 styles.css） */
+   支付方式行 + 主按钮 + 协议行（这一组由 .pu-pay 的 auto 外边距钉在底部，见 styles.css）→
+   iOS 的周 / 季度档在协议行**下方**再压一段自动续订说明（2026-09-29 三次需求，沉在第二屏、
+   整页可滚后可见 —— 滚动容器是 .app-main 的 overflow:auto） */
 .pu-body { margin-top: 16px; padding: 22px 14px max(22px, env(safe-area-inset-bottom)); background: #FFF; box-shadow: 0 -8px 20px #1E5FD012; }
 .pu-plan { padding: 15px 4px 15px; background: #F7FAFF; border-color: var(--pu-line); }
 .pu-plan:hover { border-color: #A9C4F5; }
@@ -1728,6 +1730,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu-consent { margin-top: 15px; font-size: 10.5px; line-height: 1.5; color: var(--pu-faint); }
 .pu-consent .pu-legal-link { color: var(--pu-deep); }
 .pu-consent .pu-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+/* 自动续订说明段（照设计图 1:1：浅灰圆角说明块，压在协议行**下方**）—— **只在 iOS 的周 / 季度档**
+   渲染（2026-09-29 三次需求），文案与键盘付费层同一段（app.js 的 RENEWAL_NOTE）；它是这一页的
+   第二屏内容：页面高过一屏、往上滚一段才看得到；块内自带留白、小字两端对齐 */
+.pu-note { margin: 16px 2px 2px; padding: 11px 12px; border-radius: 10px; background: #F5F7FA; font-size: 11px; line-height: 1.65; color: var(--pu-faint); text-align: justify; }
 /* iOS 系统支付框（ios-pay-sheet 组件）：iOS 上点会员开通层的「立即解锁」就地弹出的**系统级**弹窗
    （App Store 内购确认，照参考截图）—— 挂在手机根节点上、铺满整个手机屏（含键盘与宿主 App），
    自成一层皮肤：**固定系统深色外观**（系统弹窗不跟随键盘的浅色 / 深色皮肤）。

@@ -42,9 +42,10 @@ LoveCoUI.define('shared', 'kb-paywall', (ctx) => {
   const close = ib('Close', '关闭付费引导', 'kb-paywall-close', 'pw-close');
   /* 与选图面板同一套「从下往上弹出」：只在这一层新弹出的那次渲染播放（app.js 的 pickerEnter） */
   const enter = state.pickerEnter ? ' entering' : '';
-  /* 自动续订说明（照设计图文案：iTunes 自动续订、到期前 24 小时扣费、取消方式、试用期规则）。
+  /* 自动续订说明（照设计图文案）—— 文案由 app.js 统一提供（RENEWAL_NOTE 经 uiContext 传来，
+     与主 App 会员购买页同一段，2026-09-29 三次需求起组件不再自带一份）：
      文案是 iOS 场景的，只在 iOS 渲染；永久会员（一次性买断）整段连同《续费协议》一起不出现。 */
-  const RENEWAL_NOTE = '确认购买并支付后，将通过您的iTunes账号自动续订。苹果iTunes账户会在到期前24小时内扣费，扣费成功后订阅周期顺延一个订阅周期。如需取消续订，请在当前订阅周期到期前24小时以前，手动在iTunes/AppleID设置管理中关闭自动续费功能。试用期内，iTunes账户如不取消订阅，则会在试用周期结束时自动开通订阅并扣款，未使用的试用时长在购买订阅之后将会自动作废。本协议由您自主选择是否取消，若您选择不取消，将为您开通下一个订阅周期的续费服务。免费试用机会每位用户仅可在首次订阅时试用一次。';
+  const RENEWAL_NOTE = ctx.renewalNote || '';
   const renewing = state.kbPlan !== 'permanent';
   const legalLink = (key, label) => `<button type="button" class="pw-legal-link" data-action="kb-legal:${key}">${esc(label)}</button>`;
   const cards = Object.entries(plans).map(([id, p]) => `<button type="button" class="pw-plan${state.kbPlan === id ? ' active' : ''}" data-action="kb-plan:${id}" aria-pressed="${state.kbPlan === id}">
@@ -59,7 +60,7 @@ LoveCoUI.define('shared', 'kb-paywall', (ctx) => {
       <div class="pw-plans">${cards}</div>
       <button type="button" class="pw-cta" data-action="purchase" ${state.paymentBusy ? 'disabled' : ''}>立即解锁<span class="pw-cta-tag">${esc(plan.badge || '')}</span></button>
       <p class="pw-consent">我已阅读并同意${legalLink('membership', '《会员协议》')}${renewing ? '、' + legalLink('renewal', '《续费协议》') : ''}</p>
-      ${renewing && ctx.platform === 'ios' ? `<p class="pw-note">${esc(RENEWAL_NOTE)}</p>` : ''}
+      ${renewing && ctx.platform === 'ios' && RENEWAL_NOTE ? `<p class="pw-note">${esc(RENEWAL_NOTE)}</p>` : ''}
     </div>
     ${state.appView === 'app' ? '' : LoveCoUI.render('kb-navbar', ctx)}
   </div>`;
