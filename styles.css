@@ -241,19 +241,17 @@ small{font-size:11px;color:#73847d}
 .kb-paywall .pw-legal-link{padding:0;border:0;background:none;font:inherit;font-weight:600;line-height:inherit;cursor:pointer}
 .kb-paywall .pw-cta{position:relative;flex-shrink:0;border:0;border-radius:999px}
 .kb-paywall .pw-cta-tag{position:absolute;border-radius:6px}
-/* 主 App · 商品购买页（appPurchasePage，2026-09-28 新增）：整页购买页的骨架 ——
-   粉色渐变皮肤与配色在 theme.css 的 .pu-* 一组；商品与 kb-paywall 共用 PLANS / state.kbPlan，
-   样式独立（那边浅紫蓝、这边照参考截图走粉色） */
+/* 主 App · 商品购买页（appPurchasePage，2026-09-28 新增；2026-09-29 改蓝色、X 挪右上角）：
+   整页购买页的骨架 —— 蓝色渐变皮肤与配色在 theme.css 的 .pu-* 一组；商品与 kb-paywall
+   共用 PLANS / state.kbPlan，样式独立（那边浅紫蓝、这边照参考截图走蓝色）。
+   权益清单的图标章（.pu-feat-ico）、「平台专属」角标（.pu-hero-badge）与「新上线」小标
+   （.pu-feat-tag）均已随 2026-09-29 两次需求删除，骨架规则一并清理 */
 .pu-page{display:flex;flex-direction:column;min-height:100%}
 .pu-hero{position:relative;flex-shrink:0}
-.pu-close{position:absolute;top:10px;left:10px;display:flex;align-items:center;justify-content:center;border-radius:50%}
-.pu-hero-badge{position:absolute;top:14px;right:14px;border-radius:999px}
+.pu-close{position:absolute;top:10px;right:10px;display:flex;align-items:center;justify-content:center;border-radius:50%}
 .pu-hero-title span,.pu-hero-title strong{display:block}
 .pu-feats{list-style:none;margin:0;padding:0}
 .pu-feats li{display:flex;align-items:center}
-.pu-feat-ico{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%}
-.pu-feat-ico svg{width:100%;height:100%}
-.pu-feat-tag{flex-shrink:0;border-radius:4px;font-style:normal}
 .pu-body{flex:1;border-radius:18px 18px 0 0}
 .pu-plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .pu-plan{position:relative;display:flex;flex-direction:column;align-items:center;border:1px solid transparent;border-radius:12px}

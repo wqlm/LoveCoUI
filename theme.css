@@ -1630,8 +1630,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu-hero-title span { font-size: 13.5px; font-weight: 650; color: #1D4086; letter-spacing: .3px; }
 .pu-hero-title strong { margin-top: 3px; font-size: 23px; font-weight: 800; color: #1449C8; letter-spacing: .3px; }
 .pu-feats { margin-top: 18px; }
-.pu-feats li { gap: 10px; padding: 7px 0; font-size: 13px; font-weight: 600; color: var(--pu-deep); }
-.pu-feat-tag { margin-left: 6px; padding: 1px 5px; background: var(--pu-hot); color: #FFF; font-size: 9px; font-weight: 600; line-height: 1.5; }
+.pu-feats li { padding: 7px 0; font-size: 13px; font-weight: 600; color: var(--pu-deep); }
 /* 白色主体：三档卡（选中那张蓝描边 + 顶部浮一枚蓝角标）→ 续订说明 → 支付方式行 */
 .pu-body { margin-top: 14px; padding: 16px 12px 4px; background: #FFF; box-shadow: 0 -8px 20px #1E5FD012; }
 .pu-plan { padding: 11px 2px 12px; background: #F7FAFF; border-color: var(--pu-line); }
