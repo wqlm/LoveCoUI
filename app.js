@@ -225,8 +225,11 @@
        kbLoginConsent 是一键登录的协议勾选、kbLoginTimer 是成功提示的收起定时器。
        appLoginReturn 记主 App 登录页的来路页（2026-09-29 起主 App 的登录是 appScreen='login' /
        'login-one-tap' 的独立页面，X / Esc 关掉、登录成功收尾都回到来路那一页；键盘形态不用它）。
+       kbConsentAsk 是主 App 登录页上「请阅读并同意以下条款」弹框的开关（未勾选协议就点主按钮时弹，
+       键盘形态仍是抖协议行、不用它）、kbConsentNext 记这次被拦下的是哪个动作，点「同意并继续」
+       时接着跑它（见 askKbConsent / kb-consent-agree）。
        除恒常驻的启动态外，都是打开时重置。 */
-       kbLogin:'', kbLoginPhone:'', kbLoginCode:'', kbLoginSent:false, kbLoginBusy:false, kbLoginConsent:false, kbLoginTimer:null, appLoginReturn:'',
+       kbLogin:'', kbLoginPhone:'', kbLoginCode:'', kbLoginSent:false, kbLoginBusy:false, kbLoginConsent:false, kbLoginTimer:null, appLoginReturn:'', kbConsentAsk:false, kbConsentNext:'',
     /* 键盘内协议正文页（kb-legal 组件）：登录层协议行里点协议名打开 —— 把该协议全文缩到键盘
        这一条高度里滚动浏览（正文取 legal-data.js 同一份快照，见 kbLegalDoc）。
        kbLegal 记当前协议 key（'' = 不显示 / 'terms' 用户注册协议 / 'privacy' 用户隐私协议 /
@@ -616,8 +619,8 @@
        同日补登记的第三条「会员开通覆盖层」（app-paywall）已按需求从目录删除：主 App 2026-09-28 起
        就不弹这层（购买改走会员购买页），同层条目只留在键盘目录（kb-paywall）。 */
     {id:'app-full-access',group:'键盘权限',name:'完全访问引导层',route:'主 App › 整页覆盖层（状态检查链第二环 · 键盘同款）',trigger:'进入主 App 的状态检查链（appEntryGuards）第二环：键盘已开启但「键盘完全访问」没开（iOS / 鸿蒙；安卓系统默认就有、跳过这一环）时弹出 —— 先权限后登录，这一环通过才轮到登录层；或本列表点入（现场把「键盘完全访问」置成关、停在安卓时切到 iOS（安卓不弹这一层），不落库）',desc:'键盘同款的完全访问引导层（kb-full-access 组件）浮在 .app-shell 上、铺满正文区（主 App 形态不渲染键盘底栏，元素按整机尺度放大一档）：① 顶条 —— 底色与主体一致、不显示文字，只在最右侧放一枚圆形叉号（关掉这一层回原页）；② 标题「开启[允许完全访问]，AI 帮你回复」（鸿蒙端按系统叫法写「[完整访问]」）；③ 白色圆角卡里两张设置操作引导图的轮播（一轮 6 秒、交叉淡入淡出：系统设置列表红箭头点「键盘」行 → 键盘详情页红箭头点那颗权限开关），卡下蓝底白字「去开启」按钮',note:'与键盘形态共用同一组件（kb-full-access）与同一个开关 state.kbFullAccess（与登录层互斥）；「去开启」= 仿真开启完全访问（permissions.keyboard=true）并接着跑下一环登录检查；键盘形态的同层条目见 KB_PAGES「键盘权限与登录」组的 kb-full-access'},
-    {id:'app-login',group:'登录',name:'手机号登录',route:'主 App › 独立页面（未登录时进入 · 键盘同款）',trigger:'未登录时的登录落点之一：启动 / 切进主 App / 点底部 Tab 走状态检查链最后一环时进入本页（「设备权限 › 蜂窝网络」关着 = 无卡 / 未开蜂窝网络），主 App 内各处需要登录的动作（needLogin）也进本页；或本列表点入（现场置成未登录，不落库 —— 本页固定短信验证码形态；一键登录形态已拆成独立的「一键登录」页，见下一条）',desc:'键盘同款登录页整页直出的**独立页面**（kb-login 组件、appScreen=login —— 2026-09-29 三次需求起不再是覆盖层：当天早些时候它还叫「登录覆盖层」、更早的 2026-09-26 前是「登录 LoveCo」整页；底色同日定稿为整块通底淡蓝，原淡粉紫渐变），铺满整页、无底部 Tab 栏：右上角 X + 「手机号登录」页名 + 手机号 / 验证码两张胶囊输入框（验证码框内嵌「获取验证码」胶囊）+ 整宽「登录」按钮（11 位手机号 + 6 位验证码填齐才从淡紫禁用态变实色）+ 协议勾选行（只列用户注册协议 / 隐私协议，协议名可点开键盘同款协议正文覆盖层；未勾选点「登录」让协议行抖一下）。本页原来还兼演一键登录形态（表单随蜂窝网络开关二选一），2026-09-29 晚些按需求拆出去成了独立的「一键登录」页。右上角 X / Esc 关掉回来路页；登录成功先给一记「登录成功」提示，随后若左栏「模拟 › 首次登录App」开着就接「资料引导」（选择性别 → 你的出生日期），否则回来路页',note:'与键盘内登录层是同一组件、同一份状态（state.kbLogin）；主 App 形态是 appScreen=login 的整页、渲染在 .app-main 里（无底部 Tab 栏），键盘形态仍是从下往上弹出的覆盖层、只占键盘那一条；2026-09-29 起「登录不再是页面」的口径作废 —— 手机号登录回到页面形态（页面本体就是键盘同款登录页）；键盘形态的同一层见 KB_PAGES「键盘权限与登录」组三条登录条目'},
-    {id:'app-login-one-tap',group:'登录',name:'一键登录',route:'主 App › 独立页面（未登录时进入 · 键盘同款）',trigger:'未登录时的登录落点之一：启动 / 切进主 App / 点底部 Tab 走状态检查链最后一环时进入本页（「设备权限 › 蜂窝网络」开着 = 视为已插卡且有蜂窝网络），主 App 内各处需要登录的动作（needLogin）也进本页；或本列表点入（现场置成未登录 + 蜂窝网络开，不落库 —— 本页固定一键登录形态，与键盘内一键登录弹窗同一套页面）',desc:'键盘内一键登录弹窗同一套页面整页直出的**独立页面**（kb-login 组件、appScreen=login-one-tap —— 2026-09-29 按需求从「手机号登录」页里拆出：原来两形态共挤一页、随蜂窝网络开关二选一，现在各占一页；底色同为整块通底淡蓝），铺满整页、无底部 Tab 栏：**X 顶条**（X 靠右独占一行，页内内容整体跟着下移）+ 居中大号本机号（state.phone，号码旁不标「上次登录」）+ 整宽蓝色胶囊主按钮「本机号一键登录」（未勾选协议时点它让底部协议行左右抖一下，不静默无反应）+ 居中的「手机号登录」圆角方块入口（**点它跳到独立的「手机号登录」页**，不再是键盘里的就地换表单）+ 底部协议勾选行（带中国联通认证服务协议，协议名可点开键盘同款协议正文覆盖层）。右上角 X / Esc 关掉回来路页；登录成功先给一记「登录成功」提示，随后若左栏「模拟 › 首次登录App」开着就接「资料引导」，否则回来路页',note:'与键盘内登录层是同一组件、同一份状态（state.kbLogin）；两页之间互跳不算来路变更，X / Esc / 登录成功收尾都回到进第一页时记的那一页（appLoginReturn）'},
+    {id:'app-login',group:'登录',name:'手机号登录',route:'主 App › 独立页面（未登录时进入 · 键盘同款）',trigger:'未登录时的登录落点之一：启动 / 切进主 App / 点底部 Tab 走状态检查链最后一环时进入本页（「设备权限 › 蜂窝网络」关着 = 无卡 / 未开蜂窝网络），主 App 内各处需要登录的动作（needLogin）也进本页；或本列表点入（现场置成未登录，不落库 —— 本页固定短信验证码形态；一键登录形态已拆成独立的「一键登录」页，见下一条）',desc:'键盘同款登录页整页直出的**独立页面**（kb-login 组件、appScreen=login —— 2026-09-29 三次需求起不再是覆盖层：当天早些时候它还叫「登录覆盖层」、更早的 2026-09-26 前是「登录 LoveCo」整页；底色同日定稿为整块通底淡蓝，原淡粉紫渐变），铺满整页、无底部 Tab 栏：右上角 X + 「手机号登录」页名 + 手机号 / 验证码两张胶囊输入框（验证码框内嵌「获取验证码」胶囊）+ 整宽「登录」按钮（11 位手机号 + 6 位验证码填齐才从淡紫禁用态变实色）+ 协议勾选行（只列用户注册协议 / 隐私协议，协议名可点开键盘同款协议正文覆盖层；**未勾选点「登录」不再抖协议行，而是弹「请阅读并同意以下条款」弹框** —— 2026-09-29 需求：深色蒙层 + 居中白卡（右上角 X、居中标题、协议文案里协议名可点、底部整宽蓝色胶囊「同意并继续」，卡宽约屏宽七成、白卡 16px 圆角），点「同意并继续」= 视作勾选并接着把这次登录跑完、X / Esc 只收起弹框；键盘形态仍是抖协议行）。本页原来还兼演一键登录形态（表单随蜂窝网络开关二选一），2026-09-29 晚些按需求拆出去成了独立的「一键登录」页。右上角 X / Esc 关掉回来路页；登录成功先给一记「登录成功」提示，随后若左栏「模拟 › 首次登录App」开着就接「资料引导」（选择性别 → 你的出生日期），否则回来路页',note:'与键盘内登录层是同一组件、同一份状态（state.kbLogin）；主 App 形态是 appScreen=login 的整页、渲染在 .app-main 里（无底部 Tab 栏），键盘形态仍是从下往上弹出的覆盖层、只占键盘那一条；2026-09-29 起「登录不再是页面」的口径作废 —— 手机号登录回到页面形态（页面本体就是键盘同款登录页）；键盘形态的同一层见 KB_PAGES「键盘权限与登录」组三条登录条目'},
+    {id:'app-login-one-tap',group:'登录',name:'一键登录',route:'主 App › 独立页面（未登录时进入 · 键盘同款）',trigger:'未登录时的登录落点之一：启动 / 切进主 App / 点底部 Tab 走状态检查链最后一环时进入本页（「设备权限 › 蜂窝网络」开着 = 视为已插卡且有蜂窝网络），主 App 内各处需要登录的动作（needLogin）也进本页；或本列表点入（现场置成未登录 + 蜂窝网络开，不落库 —— 本页固定一键登录形态，与键盘内一键登录弹窗同一套页面）',desc:'键盘内一键登录弹窗同一套页面整页直出的**独立页面**（kb-login 组件、appScreen=login-one-tap —— 2026-09-29 按需求从「手机号登录」页里拆出：原来两形态共挤一页、随蜂窝网络开关二选一，现在各占一页；底色同为整块通底淡蓝），铺满整页、无底部 Tab 栏：**X 顶条**（X 靠右独占一行，页内内容整体跟着下移）+ 居中大号本机号（state.phone，号码旁不标「上次登录」）+ 整宽蓝色胶囊主按钮「本机号一键登录」（**未勾选协议时点它不再抖协议行，而是弹「请阅读并同意以下条款」弹框** —— 2026-09-29 需求：深色蒙层 + 居中白卡（右上角 X、居中标题、协议文案带运营商认证协议三份、底部整宽蓝色胶囊「同意并继续」），点「同意并继续」= 视作勾选并接着把这次登录跑完、X / Esc 只收起弹框，不静默无反应；键盘形态的同一层仍是抖协议行）+ 居中的「手机号登录」圆角方块入口（**点它跳到独立的「手机号登录」页**，不再是键盘里的就地换表单）+ 底部协议勾选行（带中国联通认证服务协议，协议名可点开键盘同款协议正文覆盖层）。右上角 X / Esc 关掉回来路页；登录成功先给一记「登录成功」提示，随后若左栏「模拟 › 首次登录App」开着就接「资料引导」，否则回来路页',note:'与键盘内登录层是同一组件、同一份状态（state.kbLogin）；两页之间互跳不算来路变更，X / Esc / 登录成功收尾都回到进第一页时记的那一页（appLoginReturn）'},
     {id:'profile',group:'账户与协议',name:'个人资料',route:'/account/profile',trigger:'「我的」页最上方的问候行（「你好，昵称」）',desc:'昵称、性别、年龄段（选填）编辑并保存（PATCH /v1/me）。这里的性别也是对象编辑页「性别默认取反」的依据',note:'昵称会同步到聊天页「我」的头像兜底与各处显示'},
     {id:'feedback',group:'账户与协议',name:'反馈与建议',route:'/feedback',trigger:'「我的」· 客户支持 ·「反馈与建议」；从「键盘内容投诉与举报」进来时类型预选「举报」',desc:'反馈类型（功能问题 / 键盘问题 / AI 效果 / 建议 / 投诉 / 举报）+ 详细说明提交（POST /v1/feedback）；页内不再有「我的反馈」入口',note:'提交成功后回「我的」页（原落点「我的反馈」页与反馈历史记录已删除，反馈不留历史列表）'},
     {id:'legal-list',group:'账户与协议',name:'协议中心',route:'/legal',trigger:'「我的」· 相关协议 ·「协议中心」',desc:'内置 7 份协议的列表（用户协议、隐私、会员与积分、自动续费、联通认证等），点任一行打开**协议正文覆盖层**（不是独立页面，见下）',note:'协议为静态快照，不联网更新；协议正文原是一个独立页面（/legal/:key），2026-09-26 按需求删除页面后降级为浮在当前页上的覆盖层（state.appLegal），X / 返回 / Esc 关掉即回原页'},
@@ -814,6 +817,8 @@
     clearTimeout(state.kbLoginTimer); state.kbLoginTimer = null;
     state.kbLogin = '';
     state.kbLegal = '';
+    /* 主 App 登录页的「请阅读并同意以下条款」弹框跟着登录层一起收（它只为这两页服务，见 askKbConsent） */
+    state.kbConsentAsk = false; state.kbConsentNext = '';
   }
   /* —— 主 App 的登录独立页面（2026-09-29 需求：不再是覆盖层；同日晚些按需求拆成两页）——
      mode='sms' → appScreen='login'「手机号登录」页（短信验证码表单）；
@@ -822,7 +827,9 @@
      state.kbLogin 仍是两种形态共用的表单状态。真实链路（状态检查链 / needLogin）按
      kbLoginMode()（蜂窝网络开关）选落点；两页之间用页内入口互跳（kb-login-sms 动作）。
      appLoginReturn 记来路页：X / Esc 关掉、登录成功收尾都回到那一页（覆盖层时代的「停在原页」）；
-     在两页之间互跳不算来路变更（appLoginReturn 保持进第一页时记的那一页）。 */
+     在两页之间互跳不算来路变更（appLoginReturn 保持进第一页时记的那一页）。
+     两页上未勾选协议就点主按钮的提示也与键盘形态分家（2026-09-29 需求）：不抖协议行，
+     改成弹「请阅读并同意以下条款」弹框（askKbConsent / kb-consent-agree，键盘形态照旧抖）。 */
   function openAppLogin(mode = kbLoginMode()) {
     abortVoiceHold();
     closeKbLogin();
@@ -918,9 +925,14 @@
     const d = window.LOVECO_LEGAL && window.LOVECO_LEGAL[state.kbLegal];
     return d ? { title: d.title || d.name || '协议正文', body: d.body || '暂未载入正文' } : null;
   }
-  /* 未勾选协议就点「本机号一键登录」：让底部协议行抖一下提示先勾选 ——
-     不重渲染（重建 DOM 会把动画一起重建）、也不用全局提示条（toast 组件已整体删除），
-     就地在协议行上播一次：先摘类 + 强制重排，连点也能重放。 */
+  /* 未勾选协议就点主按钮的提示（2026-09-29 需求按形态分家）：
+     ① 键盘形态 —— 让底部协议行抖一下提示先勾选（下面这个 shakeKbConsent）：不重渲染（重建 DOM
+        会把动画一起重建）、也不用全局提示条（toast 组件已整体删除），就地在协议行上播一次：
+        先摘类 + 强制重排，连点也能重放。键盘层只有一条键盘高，塞不下弹框；
+     ② 主 App 的两张登录页（appScreen='login' / 'login-one-tap'）—— 不再抖协议行，改成弹
+        「请阅读并同意以下条款」弹框（kb-login 组件的 .kbl-ask，照参考截图）：next 记下这次被
+        拦下的动作名，点弹框里的「同意并继续」时视作勾选并接着把它跑完（见 action 的
+        kb-consent-agree）；X（kb-consent-close）只收起弹框、仍不勾选。 */
   function shakeKbConsent() {
     const node = document.querySelector('.kb-login .kbl-consent');
     if(!node)return;
@@ -929,6 +941,12 @@
     node.classList.add('shake');
     node.addEventListener('animationend', () => node.classList.remove('shake'), {once:true});
   }
+  function askKbConsent(next) {
+    state.kbConsentAsk = true;
+    state.kbConsentNext = next;
+    return render();
+  }
+  function closeKbConsentAsk() { state.kbConsentAsk = false; state.kbConsentNext = ''; }
   /* 登录成功后的收尾：一键登录与短信登录共用 —— 先给一记「登录成功」提示（登录层的收尾形态，
      KB_LOGIN_DONE_MS 之后自动收起），再回到键盘；状态落库，号码由调用方写进 state.phone。
      **第一次登录还要多走一步**（2026-09-28 需求）：登录层收起那一刻接着进「资料引导」
@@ -1157,7 +1175,9 @@
      页名就叫「手机号登录」；键盘形态仍是覆盖层（openKbLogin）不变。
      同日晚些再按需求拆成两页：appScreen='login-one-tap'「一键登录」页独立出来（页面 = 键盘内
      一键登录弹窗那套）、「手机号登录」页固定短信表单 —— 真实链路按蜂窝网络开关二选一落页，
-     一键登录页的「手机号登录」入口跳独立页（不再是键盘里的就地换表单）。 */
+     一键登录页的「手机号登录」入口跳独立页（不再是键盘里的就地换表单）。
+     2026-09-29 再按需求改一处细节：这两页上未勾选协议就点主按钮**不再抖协议行**，改成弹
+     「请阅读并同意以下条款」弹框（kb-login 组件的 .kbl-ask，见 askKbConsent）；键盘形态照旧抖。 */
      const appScreens = new Set(['home','account','profile','feedback','legal-list','partners','purchase','login','login-one-tap']);
   /* —— 主 App：底部 Tab 三页（首页 / 对象 / 我的）——
      主 App 形态的骨架 = 页面正文 + 底部 Tab 栏（首页 / 对象 / 我的，见 appTabBar）。
@@ -3986,13 +4006,25 @@
     if(name==='kb-paywall-close'){closeKbPaywall();return render();}
     /* 登录层协议行里的协议名：打开键盘内协议正文页（正文与主 App 协议中心同一份 legal-data.js 快照） */
     if(name==='kb-legal'){openKbLegal(arg);return;}
+    /* 「请阅读并同意以下条款」弹框的两个动作（2026-09-29 需求，主 App 登录页专属 —— 未勾选协议就点
+       主按钮时由 askKbConsent 弹出，见 kb-login 组件的 .kbl-ask）：
+       X = 只收起弹框、仍不算勾选；「同意并继续」= 视作勾选（页面底部协议行同步变成已勾选）
+       并接着把刚才被拦下的那次登录跑完（kbConsentNext 记的是 kb-login-one-tap / kb-login-submit）。 */
+    if(name==='kb-consent-close'){closeKbConsentAsk();return render();}
+    if(name==='kb-consent-agree'){
+      const next=state.kbConsentNext;
+      closeKbConsentAsk();
+      state.kbLoginConsent=true;
+      return next?action(next):render();
+    }
     /* 一键登录页的「手机号登录」入口：键盘形态就地换成短信表单（不重放滑入动画）；
        主 App 的「一键登录」页则跳到独立的「手机号登录」页（2026-09-29 需求：两页各占一个 appScreen，
        来路页 appLoginReturn 不变 —— 回来路还是回到进登录前那一页） */
     if(name==='kb-login-sms'){state.kbLogin='sms';if(state.appView==='app'&&state.appScreen==='login-one-tap')state.appScreen='login';return render();}
     if(name==='kb-login-one-tap'){
-      /* 协议未勾选：不静默 return，让底部协议行抖一下提示先勾选（shakeKbConsent） */
-      if(!state.kbLoginConsent)return shakeKbConsent();
+      /* 协议未勾选：不静默 return —— 键盘形态让底部协议行抖一下（shakeKbConsent），
+         主 App 的「一键登录」页弹「请阅读并同意以下条款」弹框（askKbConsent） */
+      if(!state.kbLoginConsent)return state.appView==='app'?askKbConsent('kb-login-one-tap'):shakeKbConsent();
       return runMutation('/v1/auth/one-tap/login',{phone:state.phone,carrier:'中国联通',simulated:true},()=>{finishKbLogin();});
     }
     if(name==='kb-login-send'){
@@ -4004,8 +4036,9 @@
       catch(e){}finally{state.kbLoginBusy=false;render();}return;
     }
     if(name==='kb-login-submit'){
-      /* 协议未勾选：与一键登录同一套提示 —— 让底部协议行抖一下（能点到这颗按钮说明手机号 / 验证码已填齐） */
-      if(!state.kbLoginConsent)return shakeKbConsent();
+      /* 协议未勾选：与一键登录同一套提示（能点到这颗按钮说明手机号 / 验证码已填齐）——
+         键盘形态抖协议行、主 App 的「手机号登录」页弹同一个弹框 */
+      if(!state.kbLoginConsent)return state.appView==='app'?askKbConsent('kb-login-submit'):shakeKbConsent();
       const phone=state.kbLoginPhone.trim(),code=state.kbLoginCode.trim();
       if(!/^1\d{10}$/.test(phone)||code!=='123456')return;
       return runMutation('/v1/auth/sms/login',{phone:phone.slice(0,3)+'****'+phone.slice(-4),code:'[已脱敏]'},()=>{
@@ -4363,8 +4396,9 @@
     });
   });
   document.addEventListener('keydown',e=>{
-    /* Esc：主 App 协议覆盖层 / 键盘协议正文页 / 完全访问引导层 / 键盘内登录层压在最上层（后两层互斥），
-       先关它们；其次聊天分析面板（生成中=取消本次生成），再轮到各覆盖层 */
+    /* Esc：主 App 协议覆盖层 / 键盘协议正文页 / 主 App 登录页的协议弹框 / 完全访问引导层 /
+       键盘内登录层压在最上层（后两层互斥），先关它们；其次聊天分析面板（生成中=取消本次生成），
+       再轮到各覆盖层 */
     if(e.key==='Escape'){if(state.paymentBusy)return;
       /* 键盘使用引导（演示层）压在最上层：Esc 先收它（每一步只有高亮区域可点，Esc 是它的出口；
          从「切换到 LoveCo 键盘」页进来的那一次，收场 = 完成引导，见 closeKbUsageGuide） */
@@ -4372,7 +4406,7 @@
       /* 主 App 的「开启键盘」引导是流程整页：Esc 不提供出口（引导流程只能走自己的返回 / 完成动作）——
          「切换到 LoveCo 键盘」页上的键盘选择器是这一页自己的浮层，Esc 先把这一层收掉 */
       if(state.appView==='app'&&state.appScreen==='kb-guide'){if(state.kbSwitchPicker){state.kbSwitchPicker=false;render();}return;}
-      if(state.iosPaySheet){closeIosPaySheet();render();return;}if(state.appLegal){state.appLegal=false;render();return;}if(state.kbLegal){closeKbLegal();render();return;}if(state.kbLogin){if(state.appView==='app'&&(state.appScreen==='login'||state.appScreen==='login-one-tap'))closeAppLogin();else closeKbLogin();render();return;}if(state.kbFullAccess){closeKbFullAccess();render();return;}if(state.kbPaywall){closeKbPaywall();render();return;}if(state.modal)closeModal();else if(state.chatPanel)closeChatAnalysis();else if(state.scanPanel)finishScan();else if(state.photoPanel)closePhotoPanel();else if(state.settingsPanel){state.settingsPanel=false;render();}else if(state.kbEditor){closeKbEditor();render();}else if(state.partnerPanel){state.partnerPanel=false;render();}else if(state.freePicker){closeFreePicker();}else if(state.freeChat){closeFreeChat();}else if(state.pending)cancelAI();return;}
+      if(state.iosPaySheet){closeIosPaySheet();render();return;}if(state.appLegal){state.appLegal=false;render();return;}if(state.kbLegal){closeKbLegal();render();return;}if(state.kbConsentAsk){closeKbConsentAsk();render();return;}if(state.kbLogin){if(state.appView==='app'&&(state.appScreen==='login'||state.appScreen==='login-one-tap'))closeAppLogin();else closeKbLogin();render();return;}if(state.kbFullAccess){closeKbFullAccess();render();return;}if(state.kbPaywall){closeKbPaywall();render();return;}if(state.modal)closeModal();else if(state.chatPanel)closeChatAnalysis();else if(state.scanPanel)finishScan();else if(state.photoPanel)closePhotoPanel();else if(state.settingsPanel){state.settingsPanel=false;render();}else if(state.kbEditor){closeKbEditor();render();}else if(state.partnerPanel){state.partnerPanel=false;render();}else if(state.freePicker){closeFreePicker();}else if(state.freeChat){closeFreeChat();}else if(state.pending)cancelAI();return;}
     if(e.key==='Tab'&&state.modal){
       const nodes=[...document.querySelectorAll('.sheet button:not(:disabled),.sheet input,.sheet textarea,.sheet select,.sheet a[href]')].filter(n=>n.offsetParent!==null);
       if(!nodes.length)return;const first=nodes[0],last=nodes.at(-1);

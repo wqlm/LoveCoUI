@@ -220,6 +220,12 @@ small{font-size:11px;color:#73847d}
 .kb-login .kbl-field{position:relative;display:flex;align-items:center}
 .kb-login .kbl-field input{width:100%;border:0;border-radius:999px}
 .kb-login .kbl-send{position:absolute;right:6px;top:50%;transform:translateY(-50%);border:0;border-radius:999px}
+/* 「请阅读并同意以下条款」弹框（主 App 登录页专属，见 app.js 的 askKbConsent）：骨架 */
+.kb-login .kbl-ask{position:absolute;inset:0;display:grid;place-items:center}
+.kb-login .kbl-ask-scrim{position:absolute;inset:0}
+.kb-login .kbl-ask-card{position:relative;width:100%;text-align:center}
+.kb-login .kbl-ask-consent{text-align:left}
+.kb-login .kbl-ask-primary{width:100%;border:0;border-radius:999px}
 /* 键盘内协议正文页（kb-legal）：骨架（浅色皮肤、顶条与正文区尺寸在 theme.css） */
 .kb-legal{position:absolute;inset:0;z-index:18;display:flex;flex-direction:column}
 .kb-legal .kbl-bar{display:flex;align-items:center}

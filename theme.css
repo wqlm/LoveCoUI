@@ -1434,14 +1434,42 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 }
 .kb-login .kbl-consent input:checked { border-color: var(--kbl-accent); background: var(--kbl-accent); }
 .kb-login .kbl-consent input:checked:after { content: "✓"; display: block; color: #FFF; font-size: 10px; line-height: 12px; text-align: center; font-weight: 700; }
-/* 协议行抖动：未勾选协议就点「本机号一键登录」时的一次提示 —— 类由 app.js 的 shakeKbConsent()
-   就地加上（不重渲染），动画播完由 animationend 摘掉，连点也能重放（先摘类 + 强制重排） */
+/* 协议行抖动：**键盘形态**上未勾选协议就点主按钮时的一次提示 —— 类由 app.js 的 shakeKbConsent()
+   就地加上（不重渲染），动画播完由 animationend 摘掉，连点也能重放（先摘类 + 强制重排）。
+   主 App 的两张登录页不再用它，改成弹下面的 .kbl-ask 弹框（2026-09-29 需求）。 */
 .kb-login .kbl-consent.shake { animation: kbl-shake .42s cubic-bezier(.36, .07, .19, .97) both; }
 @keyframes kbl-shake {
   10%, 90% { transform: translateX(-1.5px); }
   20%, 80% { transform: translateX(3px); }
   30%, 50%, 70% { transform: translateX(-5px); }
   40%, 60% { transform: translateX(5px); }
+}
+/* —— 「请阅读并同意以下条款」弹框（2026-09-29 需求，**主 App 的两张登录页专属**）——
+   主 App 上未勾选协议就点主按钮时弹（键盘形态仍是上面那条抖协议行）：深色蒙层 + 居中白卡，
+   照参考截图排 —— 右上角圆形 X、居中标题、协议文案（协议名照常可点开 kb-legal 正文页）、
+   底部整宽蓝色胶囊「同意并继续」。卡宽按参考图收窄到屏宽七成上下（max-width 272px），
+   卡内留白偏大：标题与协议文案之间空一截、协议文案与按钮之间也留一档。
+   卡宽取屏宽的 74%（参考图里卡宽约屏宽七成）、上限 272px（真机 393 宽下正好是 269，
+   与参考图的绝对尺寸一致）—— 不挂在 .kbl-ask 的内边距上，免得百分比被内边距吃掉。
+   蒙层只盖登录页本身（`.kb-login` 就是整页）—— 与 kb-legal 等主 App 覆盖层同一语义，
+   不盖顶部状态栏（状态栏本就与页面同为淡蓝，露着不突兀）。 */
+.kb-login .kbl-ask { position: absolute; inset: 0; z-index: 2; display: grid; place-items: center; }
+.kb-login .kbl-ask-scrim { position: absolute; inset: 0; background: #10101AA6; }
+.kb-login .kbl-ask-card { position: relative; width: min(272px, 74%); padding: 30px 22px 20px; border-radius: 16px; background: #FFF; box-shadow: 0 18px 44px #10101038; text-align: center; animation: kbl-ask-in .2s cubic-bezier(.2, .8, .3, 1) both; }
+.kb-login .kbl-ask-close { position: absolute; top: 9px; right: 9px; width: 24px; height: 24px; border-radius: 50%; color: var(--kbl-ink); }
+.kb-login .kbl-ask-close:hover { background: #22222B0F; }
+.kb-login .kbl-ask-close svg { width: 14px; height: 14px; }
+.kb-login .kbl-ask-title { font-size: 15px; font-weight: 700; color: var(--kbl-ink); }
+.kb-login .kbl-ask-consent { margin-top: 26px; text-align: left; font-size: 11.5px; line-height: 1.7; color: var(--kbl-sub); }
+/* 弹框里的协议名用品牌蓝（页面底部那条协议行的协议名是深色，这里照参考图改蓝） */
+.kb-login .kbl-ask-consent .kbl-legal-link { padding: 0; border: 0; background: none; font: inherit; font-weight: 600; color: var(--kbl-accent); cursor: pointer; }
+.kb-login .kbl-ask-consent .kbl-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+.kb-login .kbl-ask-primary { width: 100%; height: 42px; margin-top: 18px; border-radius: 999px; background: var(--kbl-accent); color: #FFF; font-size: 14.5px; font-weight: 600; }
+.kb-login .kbl-ask-primary:hover { background: var(--kbl-accent-strong); }
+/* 卡片弹入：只在弹框新弹出的那次渲染播放（同 .kbl-done 那一记提示的做法，重渲染会重播） */
+@keyframes kbl-ask-in {
+  from { opacity: 0; transform: scale(.96); }
+  to { opacity: 1; transform: none; }
 }
 /* —— 手机号登录形态：小字页名 → 两张胶囊输入框 → 「登录」按钮 → 协议勾选行（沉底） —— */
 /* 页名下面留出比原先多一截的空白（11px → 21px）：两张输入框整体往下挪一点，
