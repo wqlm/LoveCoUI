@@ -1335,16 +1335,18 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    矮窗口 210px），不额外把整块键盘拉高到三分之二屏（键盘选择器 / 分析面板那套 with-picker 不适用），
    菜单栏 / 键区 / 底栏一并盖住。层级最高（z-index 18，压在选图 / 分析 / 编辑面板之上），
    弹出时机见 app.js 的 checkKbLogin()。
-   皮肤**固定浅色**（设计图即浅色场景，与选图 / 分析面板的固定深色同理）：顶部一层淡粉紫渐变
-   向下渐隐到白，不跟随键盘的浅色 / 深色外观；两种形态（one-tap 本机号一键登录 / sms 手机号验证登录）
+   皮肤**固定浅色**（设计图即浅色场景，与选图 / 分析面板的固定深色同理）：顶部一层淡蓝渐变
+   向下渐隐到白（2026-09-29 按需求改蓝，原淡粉紫渐变），不跟随键盘的浅色 / 深色外观；两种形态
+   （one-tap 本机号一键登录 / sms 手机号验证登录）
    共用同一块底与同一个右上角 X，靠根节点的 .one-tap / .sms 区分内部结构 —— 一键登录的 X 坐在顶部一条
    键盘菜单栏那么高的「顶条」里（.kbl-bar，把本机号及其下内容整体往下顶），手机号登录的 X 仍是悬浮在
    标题行右侧的绝对定位按钮。
    尺寸按「一条键盘那么高的横带」重排（设计图里的宽留白在这块高度里装不下）：按钮 / 输入框都取
    够得上触控的紧凑档，剩余空白交给 flex 吸收 —— 一键登录的协议行与短信形态的「登录」按钮
    分别沉到各自的最下方。
-   键盘内协议正文页（kb-legal）与登录层共用同一块底与同一套 --kbl-* 令牌（选择器并列在下面），
-   两层的顶条 / X / 配色由此天然一致；正文页自己的一组规则在下面单独一段。 */
+   键盘内协议正文页（kb-legal）与登录层共用同一套 --kbl-* 令牌（选择器并列在下面），
+   两层的顶条 / X / 文字配色由此天然一致 —— 底色 2026-09-29 起分家：登录层淡蓝渐变、
+   协议正文页维持原淡粉紫渐变（见下面两条 background）；正文页自己的一组规则在下面单独一段。 */
 .kb-login,
 .kb-legal {
   --kbl-ink: #22222B;
@@ -1359,9 +1361,13 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   z-index: 18;
   display: flex;
   flex-direction: column;
-  background: linear-gradient(180deg, #F8E6F0 0%, #FCF5FA 30%, #FFFFFF 56%);
   color: var(--kbl-ink);
 }
+/* 底色（2026-09-29 按需求分家）：登录层改淡蓝渐变（与层内 #5766F2 蓝色主按钮同一蓝系，
+   渐变结构与色标位置照搬原粉紫底、只换色相 —— 用户需求原话「手机号登录页 背景色改成 蓝色」）；
+   协议正文页（kb-legal）维持原淡粉紫渐变不动 */
+.kb-login { background: linear-gradient(180deg, #E8ECFD 0%, #F6F7FE 30%, #FFFFFF 56%); }
+.kb-legal { background: linear-gradient(180deg, #F8E6F0 0%, #FCF5FA 30%, #FFFFFF 56%); }
 /* 与选图面板同一套「从下往上弹出」：只在登录层新弹出的那次渲染播放（app.js 置一次性标记 pickerEnter） */
 .kb-login.entering,
 .kb-legal.entering { animation: picker-up .3s cubic-bezier(.32, .72, 0, 1) both; }
@@ -2633,9 +2639,13 @@ html[data-view="device"] .sheet-footer {
 @keyframes gx-kb-up { from { height: 0; } }
 @keyframes gx-kb-drop { from { height: var(--gx-kb-panel-h, 520px); } }
 /* 面板只在「AI 分析」那一步从底部滑入**一次** —— 后面三步是同一块面板换内容（打字机
-   输出 → 选回复 → 发送），不再重播弹入动画（此前每步都重建 DOM，看着像弹了两次） */
-.kb-usage-guide[data-step="scan"] .gx-sheet { animation: gx-sheet-in .34s cubic-bezier(.32, .72, .33, 1); }
+   输出 → 选回复 → 发送），不再重播弹入动画（此前每步都重建 DOM，看着像弹了两次）。
+   2026-09-29 需求：分析过场（面板滑入 + 骨架扫描 + 打字机）整体提速 1/3 —— 滑入
+   .34s → .26s，扫描线一个来回 1s → .75s（只覆盖演示层，真键盘的 AI 分析过渡页
+   仍按 styles.css 的 1s） */
+.kb-usage-guide[data-step="scan"] .gx-sheet { animation: gx-sheet-in .26s cubic-bezier(.32, .72, .33, 1); }
 @keyframes gx-sheet-in { from { transform: translateY(100%); } }
+.kb-usage-guide .scan-line { animation-duration: .75s; }
 /* 截图白闪：亮起后快速淡出（与「模拟截屏」的 .shot-flash 同一种观感） */
 .gx-flash { animation: gx-flash-out .42s ease-out both; }
 @keyframes gx-flash-out { from { opacity: .92; } to { opacity: 0; } }
