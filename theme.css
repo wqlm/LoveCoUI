@@ -1551,8 +1551,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .kb-paywall .pw-close { width: 26px; height: 26px; border-radius: 50%; color: var(--pw-ink); }
 .kb-paywall .pw-close:hover { background: #22222B0F; }
 .kb-paywall .pw-close svg { width: 15px; height: 15px; }
-/* 主体：标题 / 三档卡 / 「立即解锁」/ 协议行自上而下排成一列（2026-09-29 需求起整列一屏放下、
-   不再滚动 —— overflow-y:auto 仅作极矮窗口的保底）；矮窗口另有收紧档。 */
+/* 主体是**这一层唯一的滚动容器**（flex:1 + overflow-y:auto，见 styles.css）：标题 / 三档卡 /
+   「立即解锁」/ 协议行排进首屏（2026-09-29 需求把沉底的协议行收回首屏），iOS 的周 / 季度档
+   还会在协议行下面压一段自动续订说明 —— 超出首屏、往上滚一段才露出（同日二次需求恢复）；
+   矮窗口另有收紧档。 */
 .kb-paywall .pw-body { padding: 18px 16px 4px; }
 .kb-paywall .pw-title { margin: 0 0 8px; font-size: 15.5px; font-weight: 700; line-height: 1.4; letter-spacing: .2px; }
 .kb-paywall .pw-plans { gap: 8px; }
@@ -1569,6 +1571,9 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .kb-paywall .pw-consent { justify-content: center; margin: 8px 0 0; font-size: 10px; line-height: 1.45; color: var(--pw-sub); }
 .kb-paywall .pw-consent .pw-legal-link { color: var(--pw-ink); }
 .kb-paywall .pw-consent .pw-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+/* 自动续订说明（照设计图 1:1，只在 iOS 的周 / 季度档渲染；永久会员那一档整段不出现）：
+   浅灰小字、两端对齐，压在协议行下面 —— 沉在首屏之外，要滚动才看得到（2026-09-29 二次需求） */
+.kb-paywall .pw-note { margin: 13px 0 0; padding-bottom: 10px; font-size: 10px; line-height: 1.75; color: var(--pw-faint); text-align: justify; }
 /* 主按钮：整宽蓝色胶囊（在滚动列内），红色小标悬在右上角、文案随档位变；
    **整颗持续一跳一跳**（2026-09-28 需求定稿：不是亮度闪烁，而是「放大缩小」的跳动感 ——
    1.4s 一个来回，scale 1 ↔ 1.055 + 蓝色投影同步加深；与引导页主按钮的 kg-breathe 同一路做法，
@@ -1591,8 +1596,8 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .kb-paywall .pw-cta:hover { background: var(--pw-cta-strong); }
 .kb-paywall .pw-cta:disabled { background: #B9C4F0; box-shadow: none; animation: none; }
 .kb-paywall .pw-cta-tag { right: 10px; top: -8px; height: 16px; padding: 0 5px; background: var(--pw-tag); color: #FFF; font-size: 9px; line-height: 16px; font-weight: 600; }
-/* 极矮窗口（device 视图 <520px 高，键盘只有 210px）：整条再收紧一档 —— 2026-09-29 需求起
-   除去续订说明后连协议行也要一屏放下（三档卡 / 按钮 / 协议行都够得着、整层不再滚动） */
+/* 极矮窗口（device 视图 <520px 高，键盘只有 210px）：整条再收紧一档 —— 协议行仍留在首屏，
+   iOS 的续订说明照样沉在其下、滚动可见（2026-09-29 二次需求） */
 @media (max-height: 519px) {
   .kb-paywall .pw-body { padding: 12px 14px 5px; }
   .kb-paywall .pw-title { margin-bottom: 5px; font-size: 14px; }
@@ -1602,6 +1607,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   .kb-paywall .pw-plan-price i { font-size: 11px; }
   .kb-paywall .pw-plan-origin { font-size: 10px; }
   .kb-paywall .pw-consent { margin-top: 5px; }
+  .kb-paywall .pw-note { margin-top: 11px; padding-bottom: 6px; }
   .kb-paywall .pw-cta { height: 35px; margin-top: 6px; font-size: 14px; }
   .kb-paywall .pw-cta-tag { top: -7px; height: 15px; line-height: 15px; }
 }
@@ -1741,8 +1747,9 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .aps-confirm:disabled { opacity: .6; cursor: default; }
 /* —— 登录页 / 会员开通层 / 键盘内协议正文页在主 App 里的适配 ——
    同一套结构在键盘形态里按「一条键盘那么高的横带」紧凑排布（见上面的 .kb-login / .kb-paywall /
-   .kb-legal 规则）。「手机号登录」2026-09-29 起在主 App 里是**独立页面**（不再是覆盖层）：
-   appScreen='login' 整页直出在 .app-main 里（无底部 Tab，见 appTabBar），guide-login 让 .app-main
+   .kb-legal 规则）。登录 2026-09-29 起在主 App 里是**独立页面**（不再是覆盖层；同日晚些拆成
+   「手机号登录」appScreen=login 与「一键登录」appScreen=login-one-tap 两页，同一套适配共用）：
+   整页直出在 .app-main 里（无底部 Tab，见 appTabBar），guide-login 让 .app-main
    清零边距并充当定位祖先 —— .kb-login 的 absolute inset:0 就地铺满整页；下面几条 kb-login 适配
    让内容在整页高度里舒展（主内容组压中部、协议行沉底）。付费层仍铺满正文区（.app-shell），
    商品卡压中部、给右上角 X 留出余量。 */
