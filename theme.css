@@ -1522,8 +1522,9 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    自上而下：右上角圆形 X → 两行居中标题「成为LoveCo会员，/ 无限次使用AI功能～」→ 三档商品卡
    （横向等分并排，白底浅灰描边、选中的那张浅紫底 + 紫描边）→ 整宽蓝色胶囊「立即解锁」
    （右上角悬一枚红色小标，文案随档位变：永久「一次性买断」/ 周「畅享 7 天」/ 季度「畅享 90 天」）
-   → **协议行与续订说明沉在按钮下方**（设计图的小心机：整块内容高过这一层，默认停在顶部时协议与
-   说明都在可视区外，把这一层往上滚一段才看得见）→ 平台底栏（kb-navbar，Android 不渲染）。
+   → **协议行收在按钮下方、首屏可见**（2026-09-29 需求：原「协议行与续订说明沉在可视区之外、
+   要滚一段才露出」的小心机废除 —— 续订说明段整段删除、间距收紧，整层一屏放下、不再滚动）
+   → 平台底栏（kb-navbar，Android 不渲染）。
    皮肤固定浅色（与登录层 / 完全访问引导层同理，不跟随键盘的浅色 / 深色外观）：顶部一层淡紫渐变
    向下渐隐到白。设计图里标题上方的两块徽章与卡片上的「告白季特惠」标签不呈现。 */
 .kb-paywall {
@@ -1550,11 +1551,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .kb-paywall .pw-close { width: 26px; height: 26px; border-radius: 50%; color: var(--pw-ink); }
 .kb-paywall .pw-close:hover { background: #22222B0F; }
 .kb-paywall .pw-close svg { width: 15px; height: 15px; }
-/* 主体是**这一层唯一的滚动容器**（flex:1 + overflow-y:auto，见 styles.css）：标题 / 三档卡 /
-   「立即解锁」/ 协议行 / 续订说明自上而下排成一列，整列高过可视区 —— 首屏只看到卡与按钮，
-   协议与说明要往上滚一段才露出来（设计图的小心机）；矮窗口另有收紧档。 */
-.kb-paywall .pw-body { padding: 18px 16px 12px; }
-.kb-paywall .pw-title { margin: 0 0 10px; font-size: 15.5px; font-weight: 700; line-height: 1.4; letter-spacing: .2px; }
+/* 主体：标题 / 三档卡 / 「立即解锁」/ 协议行自上而下排成一列（2026-09-29 需求起整列一屏放下、
+   不再滚动 —— overflow-y:auto 仅作极矮窗口的保底）；矮窗口另有收紧档。 */
+.kb-paywall .pw-body { padding: 18px 16px 4px; }
+.kb-paywall .pw-title { margin: 0 0 8px; font-size: 15.5px; font-weight: 700; line-height: 1.4; letter-spacing: .2px; }
 .kb-paywall .pw-plans { gap: 8px; }
 .kb-paywall .pw-plan { padding: 6px 2px 7px; background: var(--pw-card); border-color: var(--pw-line); }
 .kb-paywall .pw-plan:hover { border-color: #D9D5F2; }
@@ -1564,14 +1564,11 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .kb-paywall .pw-plan-price { margin-top: 2px; font-size: 19px; font-weight: 750; line-height: 1.2; letter-spacing: .2px; }
 .kb-paywall .pw-plan-price i { margin-right: 1px; font-size: 12px; font-weight: 650; }
 .kb-paywall .pw-plan-origin { margin-top: 1px; font-size: 10.5px; line-height: 1.3; color: var(--pw-faint); text-decoration: line-through; }
-/* 协议行（在「立即解锁」**下方**，设计图里这一行要滚动才看得到）：水平居中的纯文字行，
-   不带勾选框（已按需求去掉，购买不再前置勾选） */
-.kb-paywall .pw-consent { justify-content: center; margin: 9px 0 0; font-size: 10px; line-height: 1.45; color: var(--pw-sub); }
+/* 协议行（在「立即解锁」**下方**、首屏可见 —— 2026-09-29 需求起不再沉到可视区外）：
+   水平居中的纯文字行，不带勾选框（已按需求去掉，购买不再前置勾选） */
+.kb-paywall .pw-consent { justify-content: center; margin: 8px 0 0; font-size: 10px; line-height: 1.45; color: var(--pw-sub); }
 .kb-paywall .pw-consent .pw-legal-link { color: var(--pw-ink); }
 .kb-paywall .pw-consent .pw-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
-/* 自动续订说明（照设计图 1:1，只在 iOS 渲染；永久会员那一档整段不出现）：
-   浅灰小字、两端对齐，压在协议行下面 —— 同样在首屏之外，要滚动才看得到 */
-.kb-paywall .pw-note { margin: 13px 0 0; font-size: 10px; line-height: 1.75; color: var(--pw-faint); text-align: justify; }
 /* 主按钮：整宽蓝色胶囊（在滚动列内），红色小标悬在右上角、文案随档位变；
    **整颗持续一跳一跳**（2026-09-28 需求定稿：不是亮度闪烁，而是「放大缩小」的跳动感 ——
    1.4s 一个来回，scale 1 ↔ 1.055 + 蓝色投影同步加深；与引导页主按钮的 kg-breathe 同一路做法，
@@ -1579,7 +1576,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .kb-paywall .pw-cta {
   width: 100%;
   height: 38px;
-  margin: 30px 0 0;
+  margin: 10px 0 0; /* 2026-09-29 起收紧（原 30px 是「把按钮底推到可视区下沿、协议行沉底」的小心机，已废除） */
   background: var(--pw-cta);
   color: #FFF;
   font-size: 15px;
@@ -1594,18 +1591,18 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .kb-paywall .pw-cta:hover { background: var(--pw-cta-strong); }
 .kb-paywall .pw-cta:disabled { background: #B9C4F0; box-shadow: none; animation: none; }
 .kb-paywall .pw-cta-tag { right: 10px; top: -8px; height: 16px; padding: 0 5px; background: var(--pw-tag); color: #FFF; font-size: 9px; line-height: 16px; font-weight: 600; }
-/* 极矮窗口（device 视图 <520px 高，键盘只有 210px）：整条再收紧一档，三档卡与按钮都够得着 */
+/* 极矮窗口（device 视图 <520px 高，键盘只有 210px）：整条再收紧一档 —— 2026-09-29 需求起
+   除去续订说明后连协议行也要一屏放下（三档卡 / 按钮 / 协议行都够得着、整层不再滚动） */
 @media (max-height: 519px) {
-  .kb-paywall .pw-body { padding: 12px 14px 10px; }
-  .kb-paywall .pw-title { margin-bottom: 7px; font-size: 14px; }
+  .kb-paywall .pw-body { padding: 12px 14px 6px; }
+  .kb-paywall .pw-title { margin-bottom: 6px; font-size: 14px; }
   .kb-paywall .pw-plan { padding: 5px 2px 6px; }
   .kb-paywall .pw-plan-name { font-size: 11px; }
   .kb-paywall .pw-plan-price { font-size: 17px; }
   .kb-paywall .pw-plan-price i { font-size: 11px; }
   .kb-paywall .pw-plan-origin { font-size: 10px; }
-  .kb-paywall .pw-consent { margin-top: 7px; }
-  .kb-paywall .pw-note { margin-top: 11px; }
-  .kb-paywall .pw-cta { height: 35px; margin-top: 24px; font-size: 14px; }
+  .kb-paywall .pw-consent { margin-top: 5px; }
+  .kb-paywall .pw-cta { height: 35px; margin-top: 6px; font-size: 14px; }
   .kb-paywall .pw-cta-tag { top: -7px; height: 15px; line-height: 15px; }
 }
 /* —— 主 App · 会员购买页（appPurchasePage，2026-09-28 新增时叫「商品购买页」；2026-09-29 改名 +
@@ -1742,10 +1739,14 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .aps-side svg { display: block; width: 100%; height: 100%; }
 .aps-confirm-text { margin-top: 7px; font-size: 13px; }
 .aps-confirm:disabled { opacity: .6; cursor: default; }
-/* —— 登录层 / 会员开通层 / 键盘内协议正文页在主 App 里的适配 ——
+/* —— 登录页 / 会员开通层 / 键盘内协议正文页在主 App 里的适配 ——
    同一套结构在键盘形态里按「一条键盘那么高的横带」紧凑排布（见上面的 .kb-login / .kb-paywall /
-   .kb-legal 规则），主 App 里铺满整个正文区（.app-shell，含底部 Tab 栏）会显得元素全挤在顶部 ——
-   把主内容组（本机号 + 按钮 / 表单、商品卡）整体压到中部，协议行仍沉底，付费层给右上角 X 留出余量。 */
+   .kb-legal 规则）。「手机号登录」2026-09-29 起在主 App 里是**独立页面**（不再是覆盖层）：
+   appScreen='login' 整页直出在 .app-main 里（无底部 Tab，见 appTabBar），guide-login 让 .app-main
+   清零边距并充当定位祖先 —— .kb-login 的 absolute inset:0 就地铺满整页；下面几条 kb-login 适配
+   让内容在整页高度里舒展（主内容组压中部、协议行沉底）。付费层仍铺满正文区（.app-shell），
+   商品卡压中部、给右上角 X 留出余量。 */
+.app-phone.guide-login .app-main { width: 100%; padding: 0; position: relative; }
 .app-phone .kb-login .kbl-body { padding: 0 22px 16px; }
 .app-phone .kb-login.one-tap .kbl-hero { margin-top: auto; }
 .app-phone .kb-login.sms .kbl-body { justify-content: center; }
