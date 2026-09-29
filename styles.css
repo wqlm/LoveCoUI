@@ -246,13 +246,18 @@ small{font-size:11px;color:#73847d}
    共用 PLANS / state.kbPlan，样式独立（那边浅紫蓝、这边照参考截图走蓝色）。
    权益清单的图标章（.pu-feat-ico）、「平台专属」角标（.pu-hero-badge）与「新上线」小标
    （.pu-feat-tag）均已随 2026-09-29 两次需求删除，骨架规则一并清理 */
+/* 纵向节奏（2026-09-29 按反馈重排：此前 Hero 挤在顶部、正文到半屏就结束、下半个屏幕全空）：
+   .pu-page 是一列弹性布局，富余高度按 2:1 分给 Hero 与白色主体 —— Hero 里的两行标题 + 权益清单
+   **整块上下居中**（多出来的高度变成上下留白，顶部不再拥挤）；主体里的支付方式行 + 主按钮 + 协议行
+   这一组用 margin-top:auto 钉在**屏幕底部**（主体内的富余高度全落到卡片与支付行之间的一段留白上，
+   下半屏不再空着）。窗口矮 / 内容超屏时两者都退回内容高度，整页照常滚动。 */
 .pu-page{display:flex;flex-direction:column;min-height:100%}
-.pu-hero{position:relative;flex-shrink:0}
-.pu-close{position:absolute;top:10px;right:10px;display:flex;align-items:center;justify-content:center;border-radius:50%}
+.pu-hero{position:relative;flex:2 0 auto;display:flex;flex-direction:column;justify-content:center}
+.pu-close{position:absolute;top:12px;right:12px;display:flex;align-items:center;justify-content:center;border-radius:50%}
 .pu-hero-title span,.pu-hero-title strong{display:block}
 .pu-feats{list-style:none;margin:0;padding:0}
 .pu-feats li{display:flex;align-items:center}
-.pu-body{flex:1;border-radius:18px 18px 0 0}
+.pu-body{flex:1 1 auto;display:flex;flex-direction:column;border-radius:18px 18px 0 0}
 .pu-plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
 .pu-plan{position:relative;display:flex;flex-direction:column;align-items:center;border:1px solid transparent;border-radius:12px}
 .pu-plan-badge{display:none;position:absolute;left:50%;transform:translateX(-50%);border-radius:999px;white-space:nowrap}
@@ -556,20 +561,13 @@ to{transform:translateY(0);opacity:1}
 .gx-confetti i:nth-child(4n){width:6px;height:14px}
 /* 打字机光标：正在输出的那一段的末尾 */
 .gx-typing:after{content:"";display:inline-block;width:2px;height:12px;margin-left:2px;vertical-align:-2px}
-/* 「刚截的那张截图」（自绘）：深色聊天页的缩影 —— 顶部条 / 一条消息（带头像点）/ 底部输入栏。
-   截屏瞬间左下角浮出的那张是 .big、菜单栏那颗是默认尺寸 —— 同一套结构两种尺寸，
-   「刚截的截图」长什么样，两处一眼就对得上 */
-.gx-shot-art{flex-shrink:0;display:flex;flex-direction:column;gap:2px;width:32px;height:32px;padding:3px 2px;overflow:hidden}
-.gx-shot-art i{display:block;border-radius:2px}
-.gx-shot-art .gsa-head{flex-shrink:0;align-self:center;width:42%;height:3px}
-.gx-shot-art .gsa-msg{position:relative;flex:1;margin-left:6px;border-radius:3px}
-.gx-shot-art .gsa-msg:before{content:"";position:absolute;left:-5px;top:1px;width:4px;height:4px;border-radius:50%}
-.gx-shot-art .gsa-bar{flex-shrink:0;height:4px}
-.gx-shot-art.big{width:86px;height:118px;gap:5px;padding:7px 5px}
-.gx-shot-art.big .gsa-head{height:5px;border-radius:3px}
-.gx-shot-art.big .gsa-bar{height:9px;border-radius:3px}
-.gx-shot-art.big .gsa-msg{margin-left:14px;border-radius:4px}
-.gx-shot-art.big .gsa-msg:before{left:-12px;top:0;width:10px;height:10px}
+/* 「刚截的那张截图」（真机截图资产 —— 2026-09-29 起换掉原先自绘的色块骨架）：
+   截屏动画里左下角浮出的那张大卡 = assets/guide-chat-shot.png（仿微信聊天页的全屏真机截图，
+   真机比例 618×1352，按宽度撑高）；菜单栏那颗持续跳动的方形缩略图 = assets/guide-chat-thumb.png
+   （同一张图裁出的方形版 618×618）。两者是同一屏的两个尺寸，「刚截的截图」长什么样一眼对得上
+   （该页布局 / 文案变了按 README「维护说明」重截这两张） */
+.gx-shot-img{display:block;flex-shrink:0;width:100%;height:100%;object-fit:cover}
+.gx-shot-img.big{width:84px;height:auto;aspect-ratio:618 / 1352;border-radius:8px}
 /* 截屏动画的那张截图卡（左下角）：先放大成大卡再缩回小缩略图、停约半拍滑走
    （缩放原点 left bottom，动画在 theme.css） */
 .gx-shot-pop{position:absolute;left:14px;bottom:16px;z-index:22;padding:4px;pointer-events:none}

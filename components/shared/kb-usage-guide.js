@@ -7,11 +7,13 @@
                半秒，随后遮罩淡入压暗、高亮**「点击模拟截屏」按钮本身**（消息不高亮，
                见 SPOT.shot 的 self 模式）（**无手势 emoji**）
      flash     遮罩瞬间消失 + 整屏白闪一下（模拟截图动效）+ 左下角弹出一张**大的截图卡**
-               再缩成「刚截的截图」小缩略图，停约半拍后滑走（iOS 截屏动画的样子）
+               （真机截图资产 assets/guide-chat-shot.png）再缩成「刚截的截图」小缩略图，
+               停约半拍后滑走（iOS 截屏动画的样子）
      composer  遮罩出现，高亮宿主输入栏 ——「点击输入框，唤出键盘」
      kb        键盘从屏幕底部弹上来（高度 0 → 常规键盘高，聊天区随之压缩）
-     thumb     遮罩高亮菜单栏里那张刚截的缩略图（相册位置就地换成截图缩略图、持续跳动），
-               提示贴在缩略图的**左侧**、文字右端的手指 👉 朝右指着它 ——「点这里，AI 帮你分析」
+     thumb     遮罩高亮菜单栏里那张刚截的缩略图（相册位置就地换成截图缩略图
+               assets/guide-chat-thumb.png、持续跳动），提示贴在缩略图的**左侧**、
+               文字右端的手指 👉 朝右指着它 ——「点这里，AI 帮你分析」
      scan      面板从底部滑入**一次**，内容区是「正在分析中…」的取景框扫描动画（约 1 秒）
      stream    同一块面板换成分析结果，打字机逐字输出：关系简报（关系阶段 / 聊天氛围
                + 分析正文）→ 两条回复思路（标题 + 回复正文）
@@ -22,7 +24,8 @@
 
    聊天页与键盘都是本组件**自绘**的：聊天复用宿主会话的 .wx-* 骨架与皮肤，键盘的键区 /
    底栏直接复用真键盘组件（kb-keys / kb-navbar），菜单栏按同一套类名自己装配（相册位置
-   换成自绘的截图缩略图 —— 与截屏瞬间浮出的那张是同一张画法，只是尺寸不同）；分析面板
+   换成「刚截的截图」的方形缩略图 —— 真机截图资产 assets/guide-chat-thumb.png，与截屏瞬间
+   浮出的那张大卡 assets/guide-chat-shot.png 是同一屏的两个尺寸）；分析面板
    复用 .kb-chat-analysis 的皮肤，**从 scan 那一步起一直在屏**（只换内容、不重播弹入动画）。
    自绘意味着它不依赖底层画面 —— 主 App 与键盘两种形态的整机都挂这一层（app.js 的
    render / renderApp，点入不切 App形态，Esc 收场回当前形态的原页）。
@@ -75,18 +78,20 @@ LoveCoUI.define('shared', 'kb-usage-guide', (ctx) => {
       <div class="wx-composer"><span class="wx-circle">${glyph.wxVoice}</span><div class="input-wrap wx-field">${composerText ? `<div class="gx-field-text">${esc(composerText)}</div>` : ''}</div>${composerText ? '<span class="wx-send">发送</span>' : `<span class="wx-circle">${glyph.wxEmoji}</span>`}</div>
     </div>`;
 
-  /* —— 「刚截的那张截图」（自绘：深色聊天页缩影 —— 顶部条 / 一条消息 / 底部输入栏）：
-        截屏瞬间左下角浮出的那张，与菜单栏里那颗方形缩略图，是**同一张画法的两种尺寸** —— */
-  const shotArt = (big) => `<span class="gx-shot-art${big ? ' big' : ''}" aria-hidden="true"><i class="gsa-head"></i><i class="gsa-msg"></i><i class="gsa-bar"></i></span>`;
+  /* —— 「刚截的那张截图」（**真机截图资产**，2026-09-29 起换掉原先自绘的色块骨架）：
+      截屏瞬间左下角浮出的那张大卡 = assets/guide-chat-shot.png（第一步那个仿微信聊天页的
+      全屏真机截图 618×1352）；菜单栏里那颗持续跳动的方形缩略图 = assets/guide-chat-thumb.png
+      （同一张图裁出的方形版 618×618，含「林间」标题 + 日期 + 女生那句）—— 同一屏的两个尺寸，
+      「刚截的截图」长什么样一眼对得上（该页布局 / 文案变了按 README 维护说明重截这两张） —— */
+  const shotImg = (big) => `<img class="gx-shot-img${big ? ' big' : ''}" src="assets/guide-chat-${big ? 'shot' : 'thumb'}.png" alt="" aria-hidden="true">`;
 
   /* —— 键盘（自绘外壳）：键区与底栏复用真键盘组件，外层借 .keyboard 类吃同一套骨架；
-        菜单栏按同一套类名装配 —— 相册（图片）位置就地换成刚截的缩略图（持续跳动） —— */
-  /* —— 键盘（自绘外壳）：键区与底栏复用真键盘组件，外层借 .keyboard 类吃同一套骨架；
-        菜单栏按同一套类名装配 —— 相册（图片）位置：thumb 那几步就地换成刚截的缩略图
-        （持续跳动）；win 收场那一步演完了，换回普通的图片图标（不再跳动） —— */
+       菜单栏按同一套类名装配 —— 相册（图片）位置：thumb 及之前的步就地换成刚截的截图
+       缩略图（真机截图资产 assets/guide-chat-thumb.png，持续跳动）；win 收场那一步演完了，
+       换回普通的图片图标（不再跳动） —— */
   const thumbBtn = step === 'win'
     ? `<button type="button" class="icon-btn" tabindex="-1" aria-hidden="true">${icon('Picture')}</button>`
-    : `<button type="button" class="icon-btn kb-shot-thumb" tabindex="-1" data-gx="thumb" aria-label="分析刚刚的截图">${shotArt(false)}</button>`;
+    : `<button type="button" class="icon-btn kb-shot-thumb" tabindex="-1" data-gx="thumb" aria-label="分析刚刚的截图">${shotImg(false)}</button>`;
   const keyboard = `<div class="gx-kb">
       <div class="keyboard gx-kb-inner">
         <div class="kb-toolbar">
@@ -169,7 +174,7 @@ LoveCoUI.define('shared', 'kb-usage-guide', (ctx) => {
   return `<div class="kb-usage-guide" data-step="${step}" role="dialog" aria-modal="true" aria-label="键盘使用引导（演示）">
     <div class="gx-body">${chat}${keyboard}</div>
     ${step === 'flash' ? '<div class="gx-flash" aria-hidden="true"></div>' : ''}
-    ${step === 'flash' ? `<div class="gx-shot-pop" aria-hidden="true">${shotArt(true)}</div>` : ''}
+    ${step === 'flash' ? `<div class="gx-shot-pop" aria-hidden="true">${shotImg(true)}</div>` : ''}
     ${mask}
     ${win}
   </div>`;
