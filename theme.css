@@ -1638,6 +1638,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   --pu-sub: #41547A;
   --pu-faint: #9AA9C4;
   --pu-line: #D4E2FB;
+  --pu-tag: #EE3F4E; /* 按钮角标的红（与键盘付费引导层的 --pw-tag 同色，全产品一枚红标） */
   min-height: 100%;
   background: linear-gradient(180deg, #5B93F7 0px, #A9C7FC 230px, #FFFFFF 460px);
   color: var(--pu-ink);
@@ -1682,10 +1683,17 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu-pay-switch { width: 15px; height: 15px; color: #B9BFC9; }
 /* 「立即解锁」：整宽蓝色渐变胶囊 + **整颗一跳一跳**（放大缩小，与键盘付费引导层的立即解锁同一套
    pw-cta-bounce：1.4s 一个来回、scale 1 ↔ 1.055 + 蓝色投影同步加深；试付进行中停下）；
-   协议行：**纯文字一行**（没有勾选框，2026-09-29 五次需求删），两份协议名可点 */
+   协议行：**纯文字一行**（没有勾选框，2026-09-29 五次需求删），两份协议名可点。
+   2026-09-29 六次需求：按钮右上角加一枚**红色角标**（照参考截图，文案随档位变 = plan.badge，
+   与键盘付费引导层那颗 pw-cta-tag 同一套做法 —— 都在归一化的按钮里、都跟着按钮一起跳；那颗 6px 圆角
+   是键盘层的小尺寸特例，本页与同页的档位卡角标一致用 999px 胶囊）。位置按 48px 高的按钮定：
+   右侧让开 18px 落到胶囊右端的弧线上、上半颗探出顶边 10px（19px 高 → 上下各露一半，照截图），
+   letter-spacing 归零 —— 按钮那 2px 是为了「立即解锁」四个大字，角标跟着会被拉开、还多出一截尾距 */
 .pu-cta { height: 48px; margin-top: 18px; background: linear-gradient(90deg, var(--pu-hot-2), var(--pu-hot)); color: #FFF; font-size: 16.5px; font-weight: 700; letter-spacing: 2px; box-shadow: 0 8px 18px #1E6BF540; animation: pw-cta-bounce 1.4s ease-in-out infinite; }
 .pu-cta:hover { box-shadow: 0 10px 22px #1E6BF566; }
 .pu-cta:disabled { background: #D4E2F0; box-shadow: none; cursor: default; animation: none; }
+.pu-cta-badge { right: 18px; top: -10px; height: 19px; padding: 0 9px; background: var(--pu-tag); color: #FFF; font-size: 10px; font-weight: 600; line-height: 19px; letter-spacing: 0; box-shadow: 0 3px 8px #EE3F4E45; }
+.pu-cta:disabled .pu-cta-badge { background: #C9CFDA; box-shadow: none; }
 .pu-consent { margin-top: 15px; font-size: 10.5px; line-height: 1.5; color: var(--pu-faint); }
 .pu-consent .pu-legal-link { color: var(--pu-deep); }
 .pu-consent .pu-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }

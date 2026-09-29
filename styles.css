@@ -278,7 +278,10 @@ small{font-size:11px;color:#73847d}
 .pu-pay-name{flex:1}
 .pu-pay-switch{display:flex;flex-shrink:0}
 .pu-pay-switch svg{width:100%;height:100%}
-.pu-cta{width:100%;border:0;border-radius:999px}
+/* 「立即解锁」+ 按钮右上角那枚**红色角标**（2026-09-29 六次需求，照参考截图）——角标钉在按钮的
+   相对定位里、上半颗探出按钮顶边（具体的 right / top 偏移与尺寸在 theme.css），文案随档位变（plan.badge） */
+.pu-cta{position:relative;width:100%;border:0;border-radius:999px}
+.pu-cta-badge{position:absolute;border-radius:999px;white-space:nowrap}
 /* 协议行：纯文字一行居中（没有勾选框 —— 2026-09-29 五次需求删掉圆形勾选框与未勾选抖动） */
 .pu-consent{display:flex;align-items:center;justify-content:center}
 .pu-legal-link{padding:0;border:0;background:none;font:inherit;font-weight:600;line-height:inherit;cursor:pointer}
