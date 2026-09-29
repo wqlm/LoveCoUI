@@ -2517,12 +2517,11 @@ html[data-view="device"] .sheet-footer {
 .app-phone.guide-white > .statusbar { background: #FFFFFF; color: #191919; }
 .app-phone.guide-white .app-main { width: 100%; padding: 0; }
 .kbsw-page { position: relative; height: 100%; display: flex; flex-direction: column; background: #fff; color: #191919; }
-/* ① 演示视频：占满输入框以上的整块余高（占位卡与素材到位后的 video 同一块位置） */
+/* ① 演示视频：占满输入框以上的整块余高（2026-09-29 素材到位 —— 原「素材待补」占位卡
+   连同它的居中样式一并删除，视频卡占同一块位置，圆角白卡 + 覆盖铺满的 video） */
 .kbsw-video { flex: 1 1 auto; min-height: 0; display: flex; padding: 12px 12px 8px; }
-.kbsw-video-card { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 7px; border: 1px solid #ECECF2; border-radius: 14px; background: #F4F4F8; color: #A0A0AC; text-align: center; }
-.kbsw-video-card svg { width: 26px; height: 26px; }
-.kbsw-video-card strong { font-size: 12.5px; font-weight: 600; color: #8A8A96; }
-.kbsw-video-card span { font-size: 10.5px; }
+.kbsw-video-card { flex: 1; border-radius: 14px; overflow: hidden; background: #F4F4F8; box-shadow: 0 12px 32px rgba(16, 16, 84, 0.28); }
+.kbsw-video-card video { display: block; width: 100%; height: 100%; object-fit: cover; }
 /* ② LoveCo 页面的输入框：整宽、白底 + 浅灰描边 + 一层淡投影；进来由 app.js 聚焦（激活态） */
 .kbsw-input-row { flex: 0 0 auto; padding: 4px 12px 10px; }
 .kbsw-input { width: 100%; height: 38px; padding: 0 12px; border: 1px solid #E6E6EE; border-radius: 10px; background: #fff; color: #1B1B24; font-size: 14px; box-shadow: 0 1px 2px #2621320D; caret-color: #1B1B24; }
