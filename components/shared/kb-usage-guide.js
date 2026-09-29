@@ -10,13 +10,14 @@
      composer  遮罩出现，高亮宿主输入栏 ——「点击输入框，唤出键盘」
      kb        键盘从屏幕底部弹上来（高度 0 → 常规键盘高，聊天区随之压缩）
      thumb     遮罩高亮菜单栏里那张刚截的缩略图（相册位置就地换成截图缩略图、持续跳动），
-               提示放在缩略图的**右侧**、手指朝左指着它 ——「点这里，AI 帮你分析」
+               提示贴在缩略图的**左侧**、文字右端的手指 👉 朝右指着它 ——「点这里，AI 帮你分析」
      scan      面板从底部滑入**一次**，内容区是「正在分析中…」的取景框扫描动画（约 1 秒）
      stream    同一块面板换成分析结果，打字机逐字输出：关系简报（关系阶段 / 聊天氛围
                + 分析正文）→ 两条回复思路（标题 + 回复正文）
      pick      输出完面板底部浮出悬浮按钮条，遮罩高亮第一条回复（整卡）——「点它，就用这句」
      send      面板**不收起**，遮罩改高亮面板底部那颗「发送」——「点这里，发送给他」
-     win       回复进会话 + 庆祝层（「哇！你好棒呀」+ 彩带 + 「去使用吧」）
+     win       回复进会话 + 庆祝层（「哇！你好棒呀」+ 彩带 + 「去使用吧」）—— 演完了，菜单栏
+               相册位置**换回普通的图片图标**（不再是跳动的截图缩略图）
 
    聊天页与键盘都是本组件**自绘**的：聊天复用宿主会话的 .wx-* 骨架与皮肤，键盘的键区 /
    底栏直接复用真键盘组件（kb-keys / kb-navbar），菜单栏按同一套类名自己装配（相册位置
@@ -79,13 +80,19 @@ LoveCoUI.define('shared', 'kb-usage-guide', (ctx) => {
 
   /* —— 键盘（自绘外壳）：键区与底栏复用真键盘组件，外层借 .keyboard 类吃同一套骨架；
         菜单栏按同一套类名装配 —— 相册（图片）位置就地换成刚截的缩略图（持续跳动） —— */
+  /* —— 键盘（自绘外壳）：键区与底栏复用真键盘组件，外层借 .keyboard 类吃同一套骨架；
+        菜单栏按同一套类名装配 —— 相册（图片）位置：thumb 那几步就地换成刚截的缩略图
+        （持续跳动）；win 收场那一步演完了，换回普通的图片图标（不再跳动） —— */
+  const thumbBtn = step === 'win'
+    ? `<button type="button" class="icon-btn" tabindex="-1" aria-hidden="true">${icon('Picture')}</button>`
+    : `<button type="button" class="icon-btn kb-shot-thumb" tabindex="-1" data-gx="thumb" aria-label="分析刚刚的截图">${shotArt(false)}</button>`;
   const keyboard = `<div class="gx-kb">
       <div class="keyboard gx-kb-inner">
         <div class="kb-toolbar">
           <button type="button" class="kb-user" tabindex="-1">${icon('User')}<span class="kb-user-name empty">未选择</span></button>
           <div class="kb-toolbar-end">
             <button type="button" class="icon-btn" tabindex="-1" aria-hidden="true">${icon('ChatDotRound')}</button>
-            <button type="button" class="icon-btn kb-shot-thumb" tabindex="-1" data-gx="thumb" aria-label="分析刚刚的截图">${shotArt(false)}</button>
+            ${thumbBtn}
             <button type="button" class="icon-btn" tabindex="-1" aria-hidden="true">${icon('Setting')}</button>
           </div>
         </div>
@@ -142,7 +149,7 @@ LoveCoUI.define('shared', 'kb-usage-guide', (ctx) => {
     ? `<div class="gx-mask">
         <div class="gx-shield"></div>
         <div class="gx-spot" data-target="${SPOT[step][0]}" data-pad="${SPOT[step][1]}" data-mode="${SPOT[step][3] || ''}" data-action="gx-next:${step}"></div>
-        <div class="gx-tip${SPOT[step][3] === 'left' ? ' gx-tip-left' : ''}" data-action="gx-next:${step}">${step === 'shot' ? '' : `<span class="gx-tip-face" aria-hidden="true">${SPOT[step][3] ? '👉' : '👇'}</span>`}<span class="gx-tip-text">${esc(SPOT[step][2])}</span></div>
+        <div class="gx-tip${SPOT[step][3] === 'left' ? ' gx-tip-left' : ''}" data-action="gx-next:${step}"><span class="gx-tip-text">${esc(SPOT[step][2])}</span>${step === 'shot' ? '' : `<span class="gx-tip-face" aria-hidden="true">${SPOT[step][3] ? '👉' : '👇'}</span>`}</div>
       </div>`
     : '';
 
