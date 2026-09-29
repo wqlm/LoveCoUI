@@ -5,7 +5,9 @@
 
      shot      仿微信聊天页（**只留**对方那句要截的话，上面不留历史记录）：页面先干净亮相
                半秒，随后遮罩淡入压暗、高亮**「点击模拟截屏」按钮本身**（消息不高亮，
-               见 SPOT.shot 的 self 模式）（**无手势 emoji**）
+               见 SPOT.shot 的 self 模式）（**无手势 emoji**）；同时屏幕下半部浮出
+               **开场说明卡**（「如何使用 LoveCo ？」+「当对方发送了一条不知怎么回答的消息时，
+               先截屏！」），交代这层演示是干嘛的（2026-09-29 需求）
      flash     遮罩瞬间消失 + 整屏白闪一下（模拟截图动效）+ 左下角弹出一张**大的截图卡**
                （真机截图资产 assets/guide-chat-shot.png）再缩成「刚截的截图」小缩略图，
                停约半拍后滑走（iOS 截屏动画的样子）
@@ -153,11 +155,22 @@ LoveCoUI.define('shared', 'kb-usage-guide', (ctx) => {
     pick: ["[data-gx='idea1']", 3, '点它，就用这句'],
     send: ["[data-gx='send']", 4, '点这里，发送给他'],
   };
+  /* —— 开场说明卡（只在第一步 shot）：两句话交代这层演示是干嘛的、第一句怎么用 ——
+     落在聊天区下半部那片空白上（消息与「点击模拟截屏」都在上半屏，互不遮挡），
+     与遮罩同一拍淡入（比遮罩再晚半拍浮起，见 theme.css）、点掉后跟着遮罩一起消失；
+     卡片自己**不接受点击**：挡板照旧吃掉高亮区以外的点击，「点别处无反应」的规矩不变。 */
+  const intro = step === 'shot'
+    ? `<div class="gx-intro">
+        <p class="gx-intro-head"><span class="gx-intro-mark" aria-hidden="true">${glyph.spark}</span>如何使用 LoveCo ？</p>
+        <p class="gx-intro-text">当对方发送了一条不知怎么回答的消息时，<span class="gx-intro-key">先截屏！</span></p>
+      </div>`
+    : '';
   const mask = MASK_STEPS.includes(step)
     ? `<div class="gx-mask">
         <div class="gx-shield"></div>
         <div class="gx-spot" data-target="${SPOT[step][0]}" data-pad="${SPOT[step][1]}" data-mode="${SPOT[step][3] || ''}" data-action="gx-next:${step}"></div>
         <div class="gx-tip${SPOT[step][3] === 'left' ? ' gx-tip-left' : ''}" data-action="gx-next:${step}"><span class="gx-tip-text">${esc(SPOT[step][2])}</span>${step === 'shot' ? '' : `<span class="gx-tip-face" aria-hidden="true">${SPOT[step][3] ? '👉' : '👇'}</span>`}</div>
+        ${intro}
       </div>`
     : '';
 

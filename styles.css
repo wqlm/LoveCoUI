@@ -522,7 +522,8 @@ to{transform:translateY(0);opacity:1}
 /* ---- 键盘使用引导（kb-usage-guide 组件）：整机覆盖的演示层（假页面）----
    铺满手机屏幕（含状态栏），z-index 25 —— 高于键盘区域里的全部覆盖层（15–18）与
    手机内弹层遮罩（20）。内部四块：.gx-body（状态栏以下的自绘聊天页 + 键盘）、
-   .gx-flash（截图白闪）、.gx-mask（全屏挡板 + 高亮框 + 提示）、.gx-win（庆祝层）。
+   .gx-flash（截图白闪）、.gx-mask（全屏挡板 + 高亮框 + 提示 + 第一步的开场说明卡
+   .gx-intro）、.gx-win（庆祝层）。
    皮肤与动画在 theme.css；高亮框的坐标由 app.js 的 paintKbUsageGuide 渲染后实测写入。 */
 .kb-usage-guide{position:absolute;inset:0;z-index:25}
 .gx-body{position:absolute;inset:var(--lc-sysbar-height) 0 0;display:flex;flex-direction:column;overflow:hidden}
@@ -571,6 +572,16 @@ to{transform:translateY(0);opacity:1}
 /* 截屏动画的那张截图卡（左下角）：先放大成大卡再缩回小缩略图、停约半拍滑走
    （缩放原点 left bottom，动画在 theme.css） */
 .gx-shot-pop{position:absolute;left:14px;bottom:16px;z-index:22;padding:4px;pointer-events:none}
+/* 开场说明卡（只在第一步 shot）：两句话交代这层演示是干嘛的、第一句怎么用 ——
+   搭在遮罩层里、落在聊天区下半部那片空白上（消息与「点击模拟截屏」按钮都在上半屏，
+   互不遮挡）；卡片的底边离屏幕底 62px ≈ 宿主输入栏上方 14px，不压住输入栏。
+   卡片自己 pointer-events:none：挡板照旧吃掉高亮区以外的点击（点卡片 = 点别处，无反应） */
+.gx-intro{position:absolute;left:14px;right:14px;bottom:62px;display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:16px;pointer-events:none}
+.gx-intro-head{display:flex;align-items:center;gap:8px;margin:0;font-size:15px;font-weight:800;letter-spacing:.3px}
+.gx-intro-mark{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:8px}
+.gx-intro-mark svg{width:12px;height:12px}
+.gx-intro-text{margin:0;font-size:13px;line-height:1.7}
+.gx-intro-key{font-weight:800}
 /* 提示的摆法（位置由 app.js 实测写入，这里只给变换与排布方式）：
    left = 整块贴到目标左侧、垂直居中（其余都是落在目标的上方或下方） */
 .gx-tip.gx-tip-left{transform:translate(-100%,-50%)}
