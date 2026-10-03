@@ -2303,7 +2303,7 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 /* —— 主 App 底部 Tab 三页（首页 / 对象 / 我的）与对象编辑页的皮肤 ——
    排版是「浅灰画布 + 白色圆角卡片 + 灰色分组标题」：卡片里一行 = .app-row（右端统一折角箭头，
    相邻行之间一条细分隔线）；会员横幅两态共用一套尺寸，只换底色（未开通 = 强调紫蓝，
-   已开通 = 会员金橙），横幅与「L+」小方块用同一套会员色。 */
+   已开通 = 会员金橙），横幅与「LoveCo」小方块用同一套会员色。 */
 .app-hello { padding: 2px 2px 13px; }
 .app-hello .hello-text strong { font-size: 21px; font-weight: 650; }
 .app-hello .hello-text small { margin-top: 3px; font-size: 11px; color: var(--lc-muted); }
@@ -2311,8 +2311,10 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .app-hello.as-button:hover { background: var(--lc-accent-soft); }
 .app-hello > .chev { color: var(--lc-subtle); }
 .app-hello > .chev svg { width: 15px; height: 15px; }
+/* 会员标识行的小方块：2026-10-03 品牌口径 L+ → LoveCo（名字更长，字号 10px → 9px、
+   左右内边距 5px → 4.5px 收一档，视觉上仍是一枚小牌、不喧宾夺主） */
 .member-line { font-size: 11px; color: var(--lc-yellow); }
-.member-line b { font-size: 10px; font-weight: 700; padding: 1px 5px; border-radius: 5px; background: var(--lc-yellow-soft); }
+.member-line b { font-size: 9px; font-weight: 700; padding: 1.5px 4.5px; border-radius: 5px; background: var(--lc-yellow-soft); }
 .member-banner { margin-bottom: 16px; padding: 14px 16px; border-radius: 14px; background: linear-gradient(115deg, #6577F0, #4C5CE6); color: #fff; }
 .member-banner.is-member { background: linear-gradient(115deg, #F7B544, #EE9520); }
 .member-banner .mb-text strong { font-size: 16px; font-weight: 650; }
