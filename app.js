@@ -565,7 +565,7 @@
     {id:'composer-typing',group:'宿主会话与菜单栏',name:'宿主输入栏 · 输入中',route:'宿主 App › 会话输入栏',trigger:'输入框里有文字（键盘输入 / 语音转写写入 / 思路带入）',desc:'右侧表情圆钮换成蓝色的「发送」键，点击把输入框内容作为「我」的消息发进会话并清空输入框',note:'两种形态只差右侧按键；左侧语音圆钮与框内麦克风在两种状态下都在'},
     {id:'kb-toolbar-default',group:'宿主会话与菜单栏',name:'键盘菜单栏 · 未选择对象',route:'键盘 › 顶部菜单栏（第一状态）',trigger:'唤起键盘默认显示；或在聊天对象管理页选「不选择」后返回',desc:'左侧灰色用户图标 +「未选择」（点击进聊天对象管理页），右侧三个入口：问AI（气泡）、相册（键盘选择器）、键盘设置',note:'与「已选择对象」是同一组件（kb-toolbar）的两种形态'},
     {id:'kb-toolbar-partner',group:'宿主会话与菜单栏',name:'键盘菜单栏 · 已选择对象',route:'键盘 › 顶部菜单栏（第一状态）',trigger:'在聊天对象管理页选择任一对象后返回',desc:'左侧显示当前对象的圆形插画头像 + 备注名（点击回聊天对象管理页），右侧入口同上（问AI / 相册 / 键盘设置）',note:'头像即键盘侧上下文来源，切换对象只影响键盘侧的生成，不影响宿主会话'},
-    {id:'kb-toolbar-shot',group:'宿主会话与菜单栏',name:'键盘菜单栏 · 待分析截图',route:'键盘 › 顶部菜单栏（截屏提示态）',trigger:'键盘收起 / 不在屏时点左栏「模拟 › 模拟截屏」（或仿真控制台里的同名按钮）产生一张截屏 —— 键盘当时感知不到这次截屏，截图先躺在相册里；随后把键盘唤起（点宿主输入框），**完全访问权限 → 登录状态 → 相册访问权限 = 完整访问** 三关都通过后，菜单栏最右侧的相册图标就地换成这张截图的缩略图',desc:'菜单栏相册入口的第三种形态（前两种是「未选择对象」「已选择对象」）：键盘不在屏时截的图会在键盘回来时补一个入口 —— 相册图标**就地换成那张截图的缩略图**：一枚**方形真缩略图**（28×28，与旁边两枚图标同宽）—— 这张聊天截图由 canvas 画成位图后导出（core/kit.js 的 shotThumb，同一张只画一次），深色底 + 几条气泡，缩略图边缘裁切、文字不再溢出（不再用 DOM 拼 3:4 卡片），整枚图标**持续放大缩小**（1.1s 一个来回，scale 1 → 1.12 配一圈淡紫呼吸光环）一闪一闪地引导点击；点它**不再经过选图面板**（不点图片按钮、不选图、不点分析），直接进「AI 分析」过渡动画页，之后的链路与「立即分析」完全一样。功能上这是键盘**感知截屏事件**的落点：键盘在屏时截屏根本不用提示 —— 那一下就自动进分析链路（「模拟截屏」的另一条分支）；只有键盘不在屏时，这次截屏才需要等键盘回来补一个入口。点掉它、再截一张，或从页面列表跳转，即回到普通相册图标；截图本身留在相册里，打开选择器仍可照常选用',note:'三关任一没过都不露脸（菜单栏仍是普通相册图标：没完全访问权限先弹引导页、未登录先弹登录页、相册不是完整访问则点图标走权限引导形态），条件补齐后同一张图自动露脸；提示位同一时刻只有一张（再截以最新那张为准），截图与提示都只在页面内存里（刷新 / 重置即清）。本条目点入 = 现场补一张「刚刚的截图」并把三关置成通过（键盘完全访问开、已登录、相册完整访问），停在提示态便于查看 —— 点缩略图即真实走一遍 AI 分析链路'},
+    {id:'kb-toolbar-shot',group:'宿主会话与菜单栏',name:'键盘菜单栏 · 待分析截图',route:'键盘 › 顶部菜单栏（截屏提示态）',trigger:'键盘收起 / 不在屏时点左栏「模拟 › 模拟截屏」（或仿真控制台里的同名按钮）产生一张截屏 —— 键盘当时感知不到这次截屏，截图先躺在相册里；随后把键盘唤起（点宿主输入框），**完全访问权限 → 登录状态 → 相册访问权限 = 完整访问** 三关都通过后，菜单栏最右侧的相册图标就地换成这张截图的缩略图',desc:'菜单栏相册入口的第三种形态（前两种是「未选择对象」「已选择对象」）：键盘不在屏时截的图会在键盘回来时补一个入口 —— 相册图标**就地换成那张截图的缩略图**：一枚**方形真缩略图**（28×28，与旁边两枚图标同宽）—— 这张聊天截图由 canvas 画成位图后导出（core/kit.js 的 shotThumb，同一张只画一次），深色底 + 几条气泡，缩略图边缘裁切、文字不再溢出（不再用 DOM 拼 3:4 卡片），整枚图标**持续放大缩小**（1.1s 一个来回，scale 1 → 1.12 配一圈淡紫呼吸光环）一闪一闪地引导点击；点它**不再经过选图面板**（不点图片按钮、不选图、不点分析），直接进「AI 分析」过渡动画页，之后的链路与「立即分析」完全一样。功能上这是键盘**感知截屏事件**的落点：键盘在屏时截屏根本不用提示 —— 那一下就自动进分析链路（「模拟截屏」的另一条分支）；只有键盘不在屏时，这次截屏才需要等键盘回来补一个入口。点掉它、再截一张，或从页面列表跳转，即回到普通相册图标；截图本身留在相册里，打开选择器仍可照常选用',note:'三关任一没过都不露脸（菜单栏仍是普通相册图标：没完全访问权限先弹引导页、未登录先弹登录页、相册不是完整访问则点图标走权限引导形态），条件补齐后同一张图自动露脸；提示位同一时刻只有一张（再截以最新那张为准），截图与提示都只在页面内存里（刷新即清 —— 「重置会话」入口 2026-10-03 已删）。本条目点入 = 现场补一张「刚刚的截图」并把三关置成通过（键盘完全访问开、已登录、相册完整访问），停在提示态便于查看 —— 点缩略图即真实走一遍 AI 分析链路'},
     {id:'kb-candidates',group:'宿主会话与菜单栏',name:'候选词栏 · 打字中',route:'键盘 › 顶部菜单栏（第二状态）',trigger:'中文键盘键区按任意字母 / 数字键进入打字态',desc:'一行候选词 + 最右侧 X（退回菜单栏）；未确认的拼音带下划线显示在宿主聊天输入框里（问AI 页 / 对象编辑面板打开时则显示在各自的输入框里），点候选词 / 空格 / 回车替换那句字母；联想词按当前输入目标光标前的文字算',note:'英文键盘、数字层、符号层按键直接上屏，不进入打字态'},
     /* 问AI 页（kb-free-chat 组件）：键盘菜单栏气泡按钮进入的「与 AI 对话」页面 —— 标题栏 + 输入区 + 键区；
        下两条是它的两种形态（展开图片选择器 / 按住输入框说话） */
@@ -1988,9 +1988,9 @@
       : (state.appScreen==='login'||state.appScreen==='login-one-tap') ? ' guide-login' : '';
     const scrollMemo = captureScrolls($('#app'));
     $('#app').innerHTML = `<div class="shell app-workspace">
-      <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">主 App 手机模拟器</span></div><div class="top-actions"><span class="sandbox-pill"><i class="dot"></i>本地仿真 · 无真实扣款</span><button class="text-button" data-action="reset">重置会话</button></div></header>
+      <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">主 App 手机模拟器</span></div></header>
       <main class="workspace"><aside class="rail left-rail"><div class="rail-section"><div class="rail-heading"><h2>平台与app形态</h2></div>${deviceSwitchers()}</div>${permissionSection()}<div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}</div></aside>
-        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.kbGuideDemo?LoveCoUI.render('kb-usage-guide', ctx):''}${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${state.appLegal?legalSheet('app-legal-close'):''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div><button class="icon-btn" title="重置会话" aria-label="重置会话" data-action="reset">${icon('RefreshLeft')}</button></div></section><aside class="rail right-rail">${pageListSection()}</aside></main>
+        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.kbGuideDemo?LoveCoUI.render('kb-usage-guide', ctx):''}${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${state.appLegal?legalSheet('app-legal-close'):''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div></div></section><aside class="rail right-rail">${pageListSection()}</aside></main>
     </div>`;
     bind();
     /* 引导流程的演示动画：每次重建 DOM 后重新接一遍「拿到手势就开声音」（见 wireGuideVideos） */
@@ -2119,8 +2119,7 @@
               ${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}
             </section>`;
     $('#app').innerHTML = `<div class="shell">
-      <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">键盘交互实验室</span></div>
-      <div class="top-actions"><span class="sandbox-pill"><i class="dot"></i>本地仿真 · 无真实扣款</span><button class="text-button" data-action="reset">重置会话</button></div></header>
+      <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">键盘交互实验室</span></div></header>
       <main class="workspace">
         <aside class="rail left-rail"><div class="rail-section"><div class="rail-heading"><h2>平台与app形态</h2></div>${deviceSwitchers()}</div>
         ${permissionSection()}
@@ -2138,7 +2137,7 @@
           </div>
           <div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>KEYBOARD · HOST APP</div>
           ${pageDetail()}
-          <div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div><button class="icon-btn" title="仿真设置" aria-label="仿真设置" data-action="simulator">${icon('Monitor')}</button><button class="icon-btn" title="重置会话" aria-label="重置会话" data-action="reset">${icon('RefreshLeft')}</button></div>
+          <div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div><button class="icon-btn" title="仿真设置" aria-label="仿真设置" data-action="simulator">${icon('Monitor')}</button></div>
         </section>
         <aside class="rail right-rail">${pageListSection()}</aside>
       </main><input type="file" id="avatar-input" accept="image/jpeg,image/png,image/webp" hidden>
@@ -2595,8 +2594,9 @@
   function renderModal() {
     const m = state.modal;
     /* 「仿真控制台」弹层：入口只有键盘形态窄屏工具条的「仿真设置」按钮（主 App 形态的右栏
-       APP STATE 与其「仿真控制台」入口 2026-09-29 已按需求删除 —— 那一形态不再可达这一层） */
-    if (m==='simulator') return sheet('仿真控制台',`<div class="hint-banner">所有接口在当前页面内模拟。不会发送短信、上传图片或发起真实交易。</div>${simControls()}<div class="button-pair"><button class="secondary" data-action="incoming">收到新消息</button><button class="secondary" data-action="sim-screenshot">模拟截屏</button></div><button class="text-button" data-action="reset">重置全部本地仿真数据</button>`);
+       APP STATE 与其「仿真控制台」入口 2026-09-29 已按需求删除 —— 那一形态不再可达这一层；
+       底部的「重置全部本地仿真数据」按钮 2026-10-03 已按需求删除 —— 弹层只剩模拟开关与两颗演示按钮） */
+    if (m==='simulator') return sheet('仿真控制台',`<div class="hint-banner">所有接口在当前页面内模拟。不会发送短信、上传图片或发起真实交易。</div>${simControls()}<div class="button-pair"><button class="secondary" data-action="incoming">收到新消息</button><button class="secondary" data-action="sim-screenshot">模拟截屏</button></div>`);
     /* 说明：对象列表（partners）与对象新增 / 编辑（partner-edit）两个屏已归属「对象」Tab，
        一律由 appScreenContent 直接渲染整页（appPartnersPage / partnerEditor），不在这里出分支；
        另外「我的」（account）也同样走 appAccountPage。这里只留子页的 sheet 卡片。
@@ -2610,7 +2610,8 @@
     /* 反馈类型支持预选（state.modalData.type）：「我的 · 键盘内容投诉与举报」进来时预选「举报」 */
     if (m==='feedback') return sheet('反馈与建议',`<div class="hint-banner">我们将及时受理、处理您的投诉或举报，并反馈处理结果。</div><label class="field">反馈类型<select id="feedback-type">${['功能问题','键盘问题','AI效果','建议','投诉','举报'].map(t=>`<option ${state.modalData.type===t?'selected':''}>${t}</option>`).join('')}</select></label><label class="field">详细说明<textarea id="feedback-text" maxlength="500" placeholder="请描述遇到的问题，不要填写敏感信息…"></textarea></label>`,primary('提交仿真反馈','submit-feedback','Position'));
     if (m==='legal-list') return sheet('协议中心',Object.entries(window.LOVECO_LEGAL).map(([k,v])=>`<button class="row-button" data-action="legal:${k}">${icon('Document')}<span style="flex:1">${esc(v.title||v.name||k)}</span>${icon('ArrowRight')}</button>`).join(''));
-    if (m==='confirm') return sheet(esc(state.modalData.title),`<p class="muted">${esc(state.modalData.message)}</p>`,`<div class="button-pair"><button class="secondary" data-action="close">取消</button><button class="primary" data-action="confirm-action">${state.modalData.label||'确认'}</button></div>`);
+    /* 原「重置会话」的通用确认弹层（m==='confirm' + confirm-action 动作）随重置功能一起于
+       2026-10-03 按需求删除 —— 工作台现在没有二次确认弹窗，勿补回。 */
     /* 分支覆盖全部合法 m（openModal 白名单 / appScreens），无兜底卡片 */
     return '';
   }
@@ -3238,7 +3239,8 @@
      键盘在屏（未收起、未关闭）→ 完全访问权限（Android 默认开启）→ 已登录 → 相册是「完整访问」。
      任一关没过就仍是普通相册图标（点了照旧走选择器 / 对应的权限引导形态）；
      等条件补齐（唤起键盘做完前置检查、或把相册权限置成完整访问）后同一张图自动露脸 ——
-     pendingShot 一直留着，直到点掉它（进入 AI 分析）、再截一张，或从页面列表跳转 / 重置会话。 */
+     pendingShot 一直留着，直到点掉它（进入 AI 分析）、再截一张，或从页面列表跳转（「重置会话」
+     入口 2026-10-03 已删，刷新页面即清）。 */
   function pendingShotItem() {
     if(!state.pendingShot||state.kbCollapsed||!state.permissions.kbEnabled)return null;
     if(needsFullAccess()||!state.loggedIn||state.permissions.photos!=='full')return null;
@@ -3978,7 +3980,7 @@
        （编辑器里的「删除这个对象」按需求去掉后，原先那条确认框链路（delete-partner /
        delete-partner-confirm）已整体删除）。 */
     if(name==='remove-partner')return deletePartner(arg);
-    if(name==='confirm-action')return action(state.modalData.action);
+    /* 通用确认弹层的确认动作（confirm-action）随「重置会话」功能于 2026-10-03 一并删除，勿补回 */
     /* 「模拟截屏」（左栏「模拟」/ 仿真控制台的同名按钮）：仿真按一下系统截屏键 ——
        键盘激活就直接进 AI 分析链路；键盘不在屏就只把截图放进相册、等键盘唤起后再提示（见 takeScreenshot） */
     if(name==='sim-screenshot')return takeScreenshot();
@@ -4119,8 +4121,9 @@
     if(name==='legal')return openAppLegal(arg);
     /* 协议覆盖层的 X / 返回 / Esc：只收这一层，回原页（它不进 appScreen 的页面栈） */
     if(name==='app-legal-close'){state.appLegal=false;return render();}
-    if(name==='reset')return openModal('confirm',{title:'重置本地仿真？',message:'将清除聊天对象、会话与本地仿真设置，恢复初始测试账户。真实项目数据不受影响。',label:'重置',action:'reset-confirm'});
-    if(name==='reset-confirm'){cancelAI(true);abortVoiceHold();try{localStorage.removeItem(STORE);}catch(_){}location.reload();return;}
+    /* 「重置会话 / 重置本地仿真」链路（reset 确认弹窗 → reset-confirm 清 localStorage 并刷新）已于
+       2026-10-03 按需求整体删除：两形态顶部菜单栏的按钮、窄屏工具条的图标按钮与「仿真控制台」里的
+       「重置全部本地仿真数据」三处入口一并移除 —— 工作台不再有重置入口，勿补回。 */
     /* 原「确认模拟订单 / 权益已到账 / 模拟订单 / 兑换积分 / 我的反馈 / 键盘设置」六个页面已删除，
        各自的动作（checkout / pay / cancel-payment / redeem-submit / tickets）随之移除。
        simulator = 打开「仿真控制台」弹层：现在只有键盘形态（窄屏工具条的「仿真设置」按钮）会触发，

@@ -22,8 +22,6 @@ small{font-size:11px;color:#73847d}
 .brand img{width:38px;height:38px;border-radius:10px}
 .brand-name{font-size:24px;font-weight:750}
 .brand-tag{border-left:1px solid #d8e1db;margin-left:12px;padding-left:22px;color:#64776d;font-size:13px}
-.top-actions{display:flex;align-items:center;gap:16px}
-.sandbox-pill{display:flex;align-items:center;gap:7px;color:#577568;font-size:12px}
 .dot{width:6px;height:6px;display:inline-block;border-radius:50%;background:#429677}
 .workspace{display:grid;grid-template-columns:240px minmax(335px,1fr) 278px;gap:32px;max-width:1360px;margin:auto;padding:26px 32px 20px}
 .rail{padding-top:7px;min-width:0}
@@ -515,9 +513,6 @@ to{transform:translateY(0);opacity:1}
 .topbar{height:54px;padding:0 16px}
 .brand img{width:27px;height:27px;border-radius:7px}
 .brand-name{font-size:19px}
-.top-actions{gap:8px}
-.sandbox-pill{font-size:10px}
-.top-actions>.text-button{display:none}
 .workspace{display:block;padding:12px 10px;max-width:460px}
 .right-rail{display:none}
 .device-top{width:100%;padding:0 4px;font-size:10px;margin-bottom:8px}
