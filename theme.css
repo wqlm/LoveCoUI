@@ -1690,9 +1690,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu-feats { margin-top: 18px; }
 .pu-feats li { padding: 9px 0; font-size: 13.5px; line-height: 1.45; font-weight: 600; color: var(--pu-deep); }
 /* 白色主体：三档卡（选中那张蓝描边 + 顶部浮一枚蓝角标）→ 续订说明 → …（富余高度）… →
-   支付方式行 + 主按钮 + 协议行（这一组由 .pu-pay 的 auto 外边距钉在底部，见 styles.css）→
-   iOS 的周 / 季度档在协议行**下方**再压一段自动续订说明（2026-09-29 三次需求，沉在第二屏、
-   整页可滚后可见 —— 滚动容器是 .app-main 的 overflow:auto） */
+   支付方式行 + 主按钮 + 协议行（这一组由 .pu-pay 的 auto 外边距钉在底部，见 styles.css）。
+   iOS 的周 / 季度档那段自动续订说明**不在这一块里**（2026-09-29 七次需求）：它排在首屏
+   （.pu-page）之外、由 .pu-more 白底块承载 —— 整段沉在屏幕下方，往下滑才见（见本页 .pu-more
+   / .pu-note 两条） */
 .pu-body { margin-top: 16px; padding: 22px 14px max(22px, env(safe-area-inset-bottom)); background: #FFF; box-shadow: 0 -8px 20px #1E5FD012; }
 .pu-plan { padding: 15px 4px 15px; background: #F7FAFF; border-color: var(--pu-line); }
 .pu-plan:hover { border-color: #A9C4F5; }
@@ -1730,10 +1731,15 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu-consent { margin-top: 15px; font-size: 10.5px; line-height: 1.5; color: var(--pu-faint); }
 .pu-consent .pu-legal-link { color: var(--pu-deep); }
 .pu-consent .pu-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
-/* 自动续订说明段（照设计图 1:1：浅灰圆角说明块，压在协议行**下方**）—— **只在 iOS 的周 / 季度档**
-   渲染（2026-09-29 三次需求），文案与键盘付费层同一段（app.js 的 RENEWAL_NOTE）；它是这一页的
-   第二屏内容：页面高过一屏、往上滚一段才看得到；块内自带留白、小字两端对齐 */
-.pu-note { margin: 16px 2px 2px; padding: 11px 12px; border-radius: 10px; background: #F5F7FA; font-size: 11px; line-height: 1.65; color: var(--pu-faint); text-align: justify; }
+/* 自动续订说明段（照设计图 1:1：浅灰圆角块 + 两端对齐小字）—— **只在 iOS 的周 / 季度档**渲染
+   （2026-09-29 三次需求），文案与键盘付费层同一段（app.js 的 RENEWAL_NOTE）。
+   2026-09-29 七次需求改落位：它整段挪到首屏（.pu-page）**之外** —— 首屏默认正好占满屏幕、
+   这一段整个沉在屏幕下方（默认一点不露，不再是压出屏幕底边露半截），往下滑一段才看得到。
+   .pu-more 是它所在的白底块：延续白色主体，左右 / 底部留白与 .pu-body 同口径（左右 14px、
+   底部同一条安全区口径）。注意 .pu-note 已不在 .pu-page 里、继承不到那组 --pu-* 令牌，
+   颜色直接写死（= --pu-faint） */
+.pu-more { padding: 0 14px max(22px, env(safe-area-inset-bottom)); background: #FFF; }
+.pu-note { margin: 16px 2px 2px; padding: 11px 12px; border-radius: 10px; background: #F5F7FA; font-size: 11px; line-height: 1.65; color: #9AA9C4; text-align: justify; }
 /* iOS 系统支付框（ios-pay-sheet 组件）：iOS 上点会员开通层的「立即解锁」就地弹出的**系统级**弹窗
    （App Store 内购确认，照参考截图）—— 挂在手机根节点上、铺满整个手机屏（含键盘与宿主 App），
    自成一层皮肤：**固定系统深色外观**（系统弹窗不跟随键盘的浅色 / 深色皮肤）。
@@ -2815,7 +2821,8 @@ html[data-view="device"] .sheet-footer {
 .onb-row { display: flex; align-items: center; justify-content: center; width: 100%; height: 44px; flex: 0 0 auto; scroll-snap-align: center; border: 0; background: none; color: #A2A3B2; font-size: 16px; cursor: pointer; }
 .onb-row.on { color: #191919; font-weight: 700; }
 .onb-meta { display: flex; justify-content: center; gap: 26px; margin: 18px 0 0; font-size: 17px; font-weight: 600; color: #2A2A33; }
-/* 底部箭头：居中贴底（margin-top:auto 把它推到底），没选性别时置灰不可点 */
-.onb-next { display: flex; align-items: center; justify-content: center; width: 112px; height: 56px; margin: auto auto 0; border: 0; border-radius: 28px; background: #5B68F5; color: #fff; box-shadow: 0 10px 24px rgba(91, 104, 245, .32); cursor: pointer; }
-.onb-next svg { width: 22px; height: 22px; }
+/* 底部箭头：居中贴底（margin-top:auto 把它推到底），没选性别时置灰不可点 ——
+   尺寸按需求收小一档（2026-10-04：原 112×56 / 图标 22px，视觉上过于抢眼） */
+.onb-next { display: flex; align-items: center; justify-content: center; width: 88px; height: 44px; margin: auto auto 0; border: 0; border-radius: 22px; background: #5B68F5; color: #fff; box-shadow: 0 8px 18px rgba(91, 104, 245, .3); cursor: pointer; }
+.onb-next svg { width: 18px; height: 18px; }
 .onb-next:disabled { background: #DCDDE8; color: #AEB0C2; box-shadow: none; cursor: default; }
