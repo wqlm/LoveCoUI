@@ -2367,7 +2367,7 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .app-page-foot { padding-top: 16px; }
 /* —— 「用户」页（原「个人资料」，2026-10-04 按设计图重做的设置式整页）——
    页头：圆形返回钮（hover 淡紫底）+ 17px 居中标题；卡内行放大到 52px / 15px，
-   值 14px 深色（未设置为灰字）；卡下「退出登录」是整宽白底蓝字卡片。
+   值 14px 深色（未设置为灰字）；页尾「退出登录」是整宽白底蓝字卡片。
    三张白卡的底 / 圆角 / 投影仍走 .app-card，行分隔线走 .app-card > .app-row 那条。 */
 .user-head { padding: 2px 0 10px; }
 .user-head .user-back { width: 32px; height: 32px; border-radius: 50%; color: var(--lc-text); }
@@ -2382,7 +2382,11 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .user-copy { width: 28px; height: 28px; border-radius: 8px; color: var(--lc-muted); }
 .user-copy:hover { background: var(--lc-accent-soft); color: var(--lc-accent-strong); }
 .user-copy svg { width: 16px; height: 16px; }
-.user-logout { min-height: 52px; margin-top: 20px; color: var(--lc-accent-strong); font-size: 15px; font-weight: 600; }
+/* 「退出登录」沉在正文底（2026-10-04 反馈：位置固定为离底部菜单栏一定间距处）：
+   整页撑满一屏高（.user-page 的 min-height:100%，骨架在 styles.css），这张卡 margin-top:auto
+   吃掉富余高度后贴在正文底；与底部 Tab 栏的间距 = .app-main 的 14px 下内边距 + 这里 6px = 20px，
+   内容再短也不会飘到卡片正下方、超出一屏时 auto 归零、按钮仍接在第三张卡后（卡片自带 12px 下边距）。 */
+.user-logout { min-height: 52px; margin-top: auto; margin-bottom: 6px; color: var(--lc-accent-strong); font-size: 15px; font-weight: 600; }
 .user-logout:hover { background: var(--lc-accent-soft); }
 /* —— 「注销账号」页（2026-10-04 需求）—— 骨架在 styles.css 的 .cd-* 一组，本段只管皮：
    整页白底 + 状态栏连着转白（.guide-cancel 由 renderApp 挂、.app-main 清零边距让白底通底）；

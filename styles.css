@@ -483,8 +483,11 @@ small{font-size:11px;color:#73847d}
 .app-page-foot{display:flex}
 /* 「用户」页（原「个人资料」，2026-10-04 按设计图重做）：设置式整页的骨架 ——
    页头（返回钮 + 居中标题 + 右侧与返回钮等宽的占位）、三张白卡（复用 .app-card）、
-   卡下整宽「退出登录」按钮；卡内行仍走 .app-row 骨架、三处编辑弹层的滚轮复用 .onb-*
-   骨架（.user-wheel 包一层只是把 onb 那一步的上边距收掉）。皮肤在 theme.css 的「用户页」一组。 */
+   页尾整宽「退出登录」按钮；卡内行仍走 .app-row 骨架、两处编辑弹层的滚轮复用 .onb-*
+   骨架（.user-wheel 包一层只是把 onb 那一步的上边距收掉）。皮肤在 theme.css 的「用户页」一组。
+   整页撑满正文一屏高（min-height:100%）：「退出登录」靠 margin-top:auto 沉到正文底，
+   与底部 Tab 栏的固定间距见 theme.css 的 .user-logout（2026-10-04 反馈）。 */
+.user-page{min-height:100%}
 .user-head{justify-content:space-between}
 .user-back{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .user-head-side{flex-shrink:0}

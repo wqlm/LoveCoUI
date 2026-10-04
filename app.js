@@ -317,8 +317,9 @@
     voiceHold:null, voiceQuery:'review', legalKey:'terms',
     requestSeq:0,
     accountEpoch:0, gender:saved.gender||'暂不设置', age:saved.age||'暂不设置', mutationBusy:false, formCache:{},
-    /* 会员 ID（「用户」页第一张卡片那一行，2026-10-04 需求）：跟着存档走的展示值
-       （默认 7297034，与设计图一致），右侧一枚复制图标把值写进剪贴板；
+    /* 用户 ID（「用户」页第一张卡片那一行，2026-10-04 需求；行标签原为「会员 ID」，
+       同日按反馈改「用户 ID」并去掉行尾折角箭头 —— 展示值仍叫 memberId）：
+       跟着存档走的展示值（默认 7297034，与设计图一致），右侧一枚复制图标把值写进剪贴板；
        memberIdCopied 是复制后图标变勾的那一下（约 1.2 秒后由 memberIdTimer 复位）。 */
     memberId:saved.memberId||'7297034', memberIdCopied:false, memberIdTimer:null,
     /* 首次登录后的「资料引导」（2026-09-28 需求，见 appOnboardPage）：第一次登录成功收起登录层
@@ -334,10 +335,11 @@
        滚轮上停着的年月日 —— 两者都是页面内存，不落库。 */
     birthday:saved.birthday||'',
     firstLogin:saved.firstLogin===false || saved.onboarded===true ? false : true, onboarding:'', onboardPick:{y:2006,m:9,d:28},
-    /* 「用户」页（原「个人资料」，2026-10-04 按设计图重做）三处编辑的**就地弹层**：
-       '' 不显示 / 'nickname' 改名 / 'gender' 性别二选 / 'birthday' 出生日期滚轮；
+    /* 「用户」页（原「个人资料」，2026-10-04 按设计图重做）两处编辑的**就地弹层**：
+       '' 不显示 / 'gender' 性别二选（只在还没设置过时开得起来）/ 'birthday' 出生日期滚轮；
        userPick 是出生日期滚轮停着的年月日（弹层草稿，打开时按当前生日初始化）。
-       都是页面内存、不落库 —— 换页 / Esc / 保存后收起（见 renderApp 挂点与 userSheet()）。 */
+       都是页面内存、不落库 —— 换页 / Esc / 保存后收起（见 renderApp 挂点与 userSheet()）；
+       原 'nickname' 改名弹层随昵称行于 2026-10-04 一并删除。 */
     userSheet:'', userPick:{y:2006,m:9,d:28},
     /* 「注销账号」链路（2026-10-04 需求，见 appCancelPage / cancelAskSheet）：
        cancelAsk 是注销页上「注销申请成功」弹框的开关（点「确认注销」弹框、
@@ -405,7 +407,7 @@
         creditsOut:state.creditsOut,creditsSnapshot:state.creditsSnapshot,
         /* 首次登录资料引导的结果一起落库：生日（跳过则留空）+「模拟 › 首次登录App」开关（见 state.firstLogin） */
         partners:state.partners,gender:state.gender,age:state.age,birthday:state.birthday,firstLogin:state.firstLogin,
-        /* 会员 ID 也落库（「用户」页显示的那枚展示值） */
+        /* 用户 ID（state.memberId）也落库（「用户」页显示的那枚展示值） */
         memberId:state.memberId}));
     } catch (_) {}
   }
@@ -650,7 +652,7 @@
     {id:'app-full-access',group:'键盘权限',name:'完全访问引导层',route:'主 App › 整页覆盖层（状态检查链第二环 · 键盘同款）',trigger:'进入主 App 的状态检查链（appEntryGuards）第二环：键盘已开启但「键盘完全访问」没开（iOS / 鸿蒙；安卓系统默认就有、跳过这一环）时弹出 —— 先权限后登录，这一环通过才轮到登录层；或本列表点入（现场把「键盘完全访问」置成关、停在安卓时切到 iOS（安卓不弹这一层），不落库）',desc:'键盘同款的完全访问引导层（kb-full-access 组件）浮在 .app-shell 上、铺满正文区（主 App 形态不渲染键盘底栏，元素按整机尺度放大一档）：① 顶条 —— 底色与主体一致、不显示文字，只在最右侧放一枚圆形叉号（关掉这一层回原页）；② 标题「开启[允许完全访问]，AI 帮你回复」（鸿蒙端按系统叫法写「[完整访问]」）；③ 白色圆角卡里两张设置操作引导图的轮播（一轮 6 秒、交叉淡入淡出：系统设置列表红箭头点「键盘」行 → 键盘详情页红箭头点那颗权限开关），卡下蓝底白字「去开启」按钮',note:'与键盘形态共用同一组件（kb-full-access）与同一个开关 state.kbFullAccess（与登录层互斥）；「去开启」= 仿真开启完全访问（permissions.keyboard=true）并接着跑下一环登录检查；键盘形态的同层条目见 KB_PAGES「键盘权限与登录」组的 kb-full-access'},
     {id:'app-login',group:'登录',name:'手机号登录',route:'主 App › 独立页面（未登录时进入 · 键盘同款）',trigger:'未登录时的登录落点之一：启动 / 切进主 App / 点底部 Tab 走状态检查链最后一环时进入本页（「设备权限 › 蜂窝网络」关着 = 无卡 / 未开蜂窝网络），主 App 内各处需要登录的动作（needLogin）也进本页；**未登录点「我的」Tab 也落本页**（2026-10-04 需求：先进「我的」页、0.5 秒后按蜂窝网络开关在本页与另一张登录页之间二选一，见 `ACCOUNT_LOGIN_DELAY_MS`）；或本列表点入（现场置成未登录，不落库 —— 本页固定短信验证码形态；一键登录形态已拆成独立的「一键登录」页，见下一条）',desc:'键盘同款登录页整页直出的**独立页面**（kb-login 组件、appScreen=login —— 2026-09-29 三次需求起不再是覆盖层：当天早些时候它还叫「登录覆盖层」、更早的 2026-09-26 前是「登录 LoveCo」整页；底色同日定稿为整块通底淡蓝，原淡粉紫渐变），铺满整页、无底部 Tab 栏：右上角 X + 「手机号登录」页名 + 手机号 / 验证码两张胶囊输入框（验证码框内嵌「获取验证码」胶囊）+ 整宽「登录」按钮（11 位手机号 + 6 位验证码填齐才从淡紫禁用态变实色）+ 协议勾选行（只列**用户协议 / 隐私协议**两个简称 —— 2026-09-29 需求起链接文案改短、点开的正文页标题仍是《LoveCo用户协议》/《LoveCo隐私协议》，协议名可点开键盘同款协议正文覆盖层；**进页即未勾选**（同一条需求：手机号页面默认不勾选协议），**未勾选点「登录」不抖协议行，而是弹「请阅读并同意以下条款」弹框** —— 2026-09-29 需求：深色蒙层 + 居中白卡（右上角 X、居中标题、协议文案里协议名可点、底部整宽蓝色胶囊「同意并继续」，卡宽约屏宽七成、白卡 16px 圆角），点「同意并继续」= 视作勾选并接着把这次登录跑完、X / Esc 只收起弹框；键盘形态仍是抖协议行）。本页原来还兼演一键登录形态（表单随蜂窝网络开关二选一），2026-09-29 晚些按需求拆出去成了独立的「一键登录」页。右上角 X / Esc 关掉回来路页；登录成功先给一记「登录成功」提示，随后若左栏「模拟 › 首次登录App」开着就接「资料引导」（选择性别 → 你的出生日期），否则回来路页',note:'与键盘内登录层是同一组件、同一份状态（state.kbLogin）；主 App 形态是 appScreen=login 的整页、渲染在 .app-main 里（无底部 Tab 栏），键盘形态仍是从下往上弹出的覆盖层、只占键盘那一条；**协议勾选在主 App 是「每次进页清空」**（state.kbLoginConsent，见 openAppLogin / kb-login-sms —— 2026-09-29 需求：手机号页面默认不勾选协议），键盘形态仍是共用同一份勾选状态；2026-09-29 起「登录不再是页面」的口径作废 —— 手机号登录回到页面形态（页面本体就是键盘同款登录页）；键盘形态的同一层见 KB_PAGES「键盘权限与登录」组三条登录条目'},
     {id:'app-login-one-tap',group:'登录',name:'一键登录',route:'主 App › 独立页面（未登录时进入 · 键盘同款）',trigger:'未登录时的登录落点之一：启动 / 切进主 App / 点底部 Tab 走状态检查链最后一环时进入本页（「设备权限 › 蜂窝网络」开着 = 视为已插卡且有蜂窝网络），主 App 内各处需要登录的动作（needLogin）也进本页；**未登录点「我的」Tab 也落本页**（2026-10-04 需求：先进「我的」页、0.5 秒后按蜂窝网络开关在本页与另一张登录页之间二选一，见 `ACCOUNT_LOGIN_DELAY_MS`）；或本列表点入（现场置成未登录 + 蜂窝网络开，不落库 —— 本页固定一键登录形态，与键盘内一键登录弹窗同一套页面）',desc:'键盘内一键登录弹窗同一套页面整页直出的**独立页面**（kb-login 组件、appScreen=login-one-tap —— 2026-09-29 按需求从「手机号登录」页里拆出：原来两形态共挤一页、随蜂窝网络开关二选一，现在各占一页；底色同为整块通底淡蓝），铺满整页、无底部 Tab 栏：**X 顶条**（X 靠右独占一行，页内内容整体跟着下移）+ 居中大号本机号（state.phone，号码旁不标「上次登录」）+ 整宽蓝色胶囊主按钮「本机号一键登录」（**未勾选协议时点它不再抖协议行，而是弹「请阅读并同意以下条款」弹框** —— 2026-09-29 需求：深色蒙层 + 居中白卡（右上角 X、居中标题、协议文案带运营商认证协议三份、底部整宽蓝色胶囊「同意并继续」），点「同意并继续」= 视作勾选并接着把这次登录跑完、X / Esc 只收起弹框，不静默无反应；键盘形态的同一层仍是抖协议行）+ 居中的「手机号登录」圆角方块入口（**点它跳到独立的「手机号登录」页**，不再是键盘里的就地换表单）+ 底部协议勾选行（带**用户协议 / 隐私协议**两个简称 + 中国联通认证服务协议，协议名可点开键盘同款协议正文覆盖层；**进页即未勾选** —— 2026-09-29 需求：主 App 两张登录页默认不勾选协议，等同页底部「手机号登录」入口跳过去也不算已勾）。右上角 X / Esc 关掉回来路页；登录成功先给一记「登录成功」提示，随后若左栏「模拟 › 首次登录App」开着就接「资料引导」，否则回来路页',note:'与键盘内登录层是同一组件（state.kbLogin 记形态）；**协议勾选在主 App 是「每次进页清空」**（state.kbLoginConsent，见 openAppLogin / kb-login-sms），键盘形态仍是共用同一份勾选状态；两页之间互跳不算来路变更，X / Esc / 登录成功收尾都回到进第一页时记的那一页（appLoginReturn）'},
-    {id:'profile',group:'账户与协议',name:'用户',route:'/account/profile',trigger:'「我的」页最上方的问候行（「你好，昵称」/ 未登录时为「立即登录」，由 needLogin 拦到登录页）；本列表点入（现场摆成已登录，不落库）',desc:'**2026-10-04 按设计图重做的整页设置页**（原「个人资料」的昵称 / 性别 / 年龄段编辑表单按需求整体删除）：顶部一条页头（左侧圆形返回钮 → 回「我的」，中间居中标题「用户」）；正文三张白卡（无分组标题、卡间距 12px，卡内一行 = 47px 行的同款骨架、行高 52px）：① 昵称（右值深色）+ 会员 ID（右值 + 一枚复制图标，点它把 ID 写进剪贴板、图标变勾约 1.2 秒后复原）；② 手机号（纯展示、无箭头）+ 性别 + 出生日期（两项未设置时灰字「未设置」）；③ 注销账号（点它进**注销账号页** —— 2026-10-04 晚些需求：注销链路按新设计图重建为独立整页 + 成功弹框，见 `cancel-account` 条目；此前「仅视觉、点击暂无响应」的状态结束）；卡下单独一张「退出登录」卡（蓝字居中，走既有 logout：清会话 → 回首页并进登录页）。**昵称 / 性别 / 出生日期三行点开就地弹层编辑**（底部卡片，X / Esc 只收层）：昵称 → 输入框改名（PATCH /v1/me 仿真）；性别 → 男 / 女两行点即改并收层；出生日期 → 三列滚轮（年 1980–2015 / 月 / 日，与资料引导第二步同一套 scroll-snap 骨架与「N岁 星座」实时行、选中带在弹层里换浅灰底）+「保存」写回 state.birthday（顺带对上 age 档）',note:'性别与资料引导（onboard-gender）是同一个值、生日与「你的出生日期」（onboard-birthday）是同一个值；性别仍是对象编辑页「性别默认取反」的依据、昵称仍同步到聊天页「我」的头像兜底与各处显示；会员 ID（state.memberId）是跟着存档走的展示值（默认 7297034，与设计图一致）。原「年龄段（选填）」字段随本页改版不再显示（state.age 只留在存档里）'},
+    {id:'profile',group:'账户与协议',name:'用户',route:'/account/profile',trigger:'「我的」页最上方的问候行（「你好，昵称」/ 未登录时为「立即登录」，由 needLogin 拦到登录页）；本列表点入（现场摆成已登录，不落库）',desc:'**2026-10-04 按设计图重做的整页设置页**（原「个人资料」的昵称 / 性别 / 年龄段编辑表单按需求整体删除）：顶部一条页头（左侧圆形返回钮 → 回「我的」，中间居中标题「用户」）；正文三张白卡（无分组标题、卡间距 12px，卡内一行 = 47px 行的同款骨架、行高 52px）：① **用户 ID**（右值 + 一枚复制图标，点它把 ID 写进剪贴板、图标变勾约 1.2 秒后复原；**不带折角箭头**）+ 手机号（纯展示、无箭头）—— 2026-10-04 反馈：该行标签原为「会员 ID」、手机号原在第二张卡；② 性别（未设置时灰字「未设置」、点开二选；**设置后不可修改** —— 行不可点、也不画箭头）+ 出生日期（未设置时灰字「未设置」，设置前后都可点开滚轮改）；③ 注销账号（点它进**注销账号页** —— 2026-10-04 晚些需求：注销链路按新设计图重建为独立整页 + 成功弹框，见 `cancel-account` 条目；此前「仅视觉、点击暂无响应」的状态结束）；**页尾单独一张「退出登录」卡**（蓝字居中，走既有 logout：清会话 → 回首页并进登录页；2026-10-04 反馈：整页撑满一屏高、这张卡沉在正文底，与底部 Tab 栏保持固定间距）。**性别 / 出生日期两行点开就地弹层编辑**（底部卡片，X / Esc 只收层）：性别 → 男 / 女两行点即改并收层；出生日期 → 三列滚轮（年 1980–2015 / 月 / 日，与资料引导第二步同一套 scroll-snap 骨架与「N岁 星座」实时行、选中带在弹层里换浅灰底）+「保存」写回 state.birthday（顺带对上 age 档）',note:'性别与资料引导（onboard-gender）是同一个值、生日与「你的出生日期」（onboard-birthday）是同一个值；性别仍是对象编辑页「性别默认取反」的依据；昵称按 2026-10-04 反馈不再在本页显示、也没有改昵称的入口（改名弹层与 PATCH /v1/me 同去），但仍留在存档里、同步到聊天页「我」的头像兜底与各处显示；用户 ID（state.memberId，行标签原「会员 ID」）是跟着存档走的展示值（默认 7297034，与设计图一致）。原「年龄段（选填）」字段随本页改版不再显示（state.age 只留在存档里）'},
     {id:'cancel-account',group:'账户与协议',name:'注销账号',route:'/account/profile/cancel',trigger:'「用户」页第三张卡的「注销账号」行（user-cancel）；本列表点入（现场摆成已登录、与「用户」页同一来路，不落库）',desc:'**2026-10-04 按设计图新增的独立整页**（注销链路 2026-09-26 曾整体删除，现按新设计图重建 —— 不再是旧的确认框形态；无底部 Tab、整页白底、状态栏连着转白）：自上而下：① 页头（左侧圆形返回钮 → 回「用户」页，中间居中标题「注销账号」，复用用户页页头骨架）；② 正文（左对齐、无卡片）：加粗句「为保证您的权益，请阅读以下内容」+ 两句说明（注销后个人资料 / 使用记录等关联数据永久删除、无法恢复；无法再使用本账号、也无法找回相关信息）+「包括并不限于」两条清单（个人信息 / 当前账号中维护的聊天对象资料；2026-10-04 晚些需求：原第二条「历史缓存图片」改成这条、第三条「与微信·苹果等第三方账号的绑定关系」整条删除）+ 加粗句「注销账号，需满足以下条件：」+ 两条条件（账号处于正常使用状态 / 账号财产已结清；正文说明字号 2026-10-04 晚些按需求调小一档 —— 加粗句 15px / 段落 13px）；③ 沉底一组：灰色小字「我已阅读并同意《账号注销协议》」（纯文字、不接协议正文）+ 整宽蓝色胶囊「确认注销」。**点「确认注销」弹「注销申请成功」弹框**（state.cancelAsk）：深色蒙层 + 居中白卡（标题 + 「7 天内为账号注销冷静期，7 天内再次登录视为放弃注销」两行说明 + 居中蓝色胶囊「知道了」），**点「知道了」收起弹框并回首页**；弹框没有 X，Esc 也只收弹框、仍停在注销页。深色外观下本页固定浅色（同购买页 / 登录页，配色写死在 theme.css）',note:'从「用户」页进入、返回也回「用户」页；注销申请只是提交（7 天冷静期）、**不清会话也不改账号状态**，未登录也可静态查看本页'},
     {id:'feedback',group:'账户与协议',name:'反馈与建议',route:'/feedback',trigger:'「我的」· 客户支持 ·「反馈与建议」；从「键盘内容投诉与举报」进来时类型预选「举报」',desc:'反馈类型（功能问题 / 键盘问题 / AI 效果 / 建议 / 投诉 / 举报）+ 详细说明提交（POST /v1/feedback）；页内不再有「我的反馈」入口',note:'提交成功后回「我的」页（原落点「我的反馈」页与反馈历史记录已删除，反馈不留历史列表）'},
     {id:'legal-list',group:'账户与协议',name:'协议中心',route:'/legal',trigger:'「我的」· 相关协议 ·「协议中心」',desc:'内置 7 份协议的列表（用户协议、隐私、会员与积分、自动续费、联通认证等），点任一行打开**协议正文覆盖层**（不是独立页面，见下）',note:'协议为静态快照，不联网更新；协议正文原是一个独立页面（/legal/:key），2026-09-26 按需求删除页面后降级为浮在当前页上的覆盖层（state.appLegal），X / 返回 / Esc 关掉即回原页'},
@@ -1739,26 +1741,33 @@
       ${appSection('相关协议',[appRow('用户协议','legal:terms'),appRow('隐私政策','legal:privacy'),appRow('个人信息收集清单','legal:collection'),appRow('第三方信息共享清单','legal:sharing'),appRow('协议中心','legal-list')].join(''))}
     </div>`;
   }
-  /* —— 主 App · 用户（原「个人资料」，2026-10-04 按设计图重做）——
+  /* —— 主 App · 用户（原「个人资料」，2026-10-04 按设计图重做，同日晚些再按反馈微调）——
      从「我的」页问候行进入的整页设置页（appScreen='profile'，见 appScreenContent）。
      原页面内容（昵称 / 性别 / 年龄段编辑表单 + 保存按钮）按需求整体删除，改为设计图的
      「设置」式布局：页头（左侧圆形返回钮回「我的」+ 居中标题「用户」）+ 三张白卡
-     （无分组标题，卡间距 12px、卡内一行 = .app-row 骨架、行高 52px）+ 卡下单独一张
+     （无分组标题，卡间距 12px、卡内一行 = .app-row 骨架、行高 52px）+ 页尾单独一张
      「退出登录」卡（蓝字居中，走既有 logout：清会话 → 回首页并进登录页）。
-     行内容照图逐条落位（图里的「微信账号」「Apple 账号」两行按需求改成「性别」「出生日期」；
-     其余值取存档：昵称 / 会员 ID / 手机号 / 性别 / 出生日期）：
-       ① 昵称（右值深色）+ 会员 ID（右值 + 复制图标，点它写剪贴板、图标变勾 1.2 秒）；
-       ② 手机号（纯展示、无箭头）+ 性别 + 出生日期（未设置时灰字「未设置」）；
+     **「退出登录」沉在正文底**（2026-10-04 反馈：位置固定为离底部 Tab 栏一定间距处）——
+     整页 min-height:100% + 按钮 margin-top:auto，间距见 theme.css 的 .user-logout。
+     行内容按 2026-10-04 反馈逐条落位（图里的「微信账号」「Apple 账号」两行改成「性别」「出生日期」；
+     值取存档：用户 ID / 手机号 / 性别 / 出生日期）：
+       ① 用户 ID（右值 + 复制图标，点它写剪贴板、图标变勾 1.2 秒；**不带折角箭头**）+
+          手机号（纯展示、无箭头）—— 该行标签原为「会员 ID」、手机号原在第二张卡，同日按反馈并到这张卡；
+       ② 性别（未设置时灰字「未设置」、点开二选；**设置后不可修改** —— 行不可点、也不画箭头）+
+          出生日期（未设置时灰字「未设置」，设置前后都可点开滚轮改）；
        ③ 注销账号（点它进独立注销页 —— 2026-10-04 晚些需求：注销链路按新设计图重建，
           独立整页 + 成功弹框，见 appCancelPage；不再是仅视觉的空行）。
-     昵称 / 性别 / 出生日期三行点开**就地弹层**编辑（见 userSheet()）：
-     改名走 PATCH /v1/me 仿真、性别点即改、出生日期用三列滚轮（复用资料引导那套骨架）。 */
+     **「昵称」行同日按反馈删除**（连同它的改名弹层 / PATCH /v1/me 仿真一起，见 action 里的说明）：
+     昵称仍留在存档里（「我的」问候行、聊天页「我」的头像兜底照用），只是本页不再显示、不再可改。
+     性别 / 出生日期两行点开**就地弹层**编辑（见 userSheet()）：性别点即改、
+     出生日期用三列滚轮（复用资料引导那套骨架）。 */
   function appUserPage() {
-    /* 本页一行：默认「左标签 + 右值 + 折角箭头」，按图三种变形 ——
-       dim = 值灰色（未设置）、chevron:false = 不画箭头（手机号）、copy = 右端换成复制图标（会员 ID）；
+    /* 本页一行：默认「左标签 + 右值 + 折角箭头」，按图几种变形 ——
+       dim = 值灰色（未设置）、chevron:false = 不画箭头（用户 ID / 手机号，以及设置过的性别）、
+       copy = 右端换成复制图标（用户 ID）；
        没有 action 的行渲染成 div（不可点），有 action 的整行可点。 */
     const row = (label,{end='',action='',dim=false,chevron=true,copy=false}={}) => {
-      const inner = `<span class="app-row-label">${esc(label)}</span>${end?`<span class="app-row-end${dim?' dim':''}">${esc(end)}</span>`:''}${copy?`<button class="user-copy" data-action="copy-member-id" aria-label="复制会员 ID">${icon(state.memberIdCopied?'Check':'CopyDocument')}</button>`:''}${chevron?`<i class="chev" aria-hidden="true">${icon('ArrowRight')}</i>`:''}`;
+      const inner = `<span class="app-row-label">${esc(label)}</span>${end?`<span class="app-row-end${dim?' dim':''}">${esc(end)}</span>`:''}${copy?`<button class="user-copy" data-action="copy-member-id" aria-label="复制用户 ID">${icon(state.memberIdCopied?'Check':'CopyDocument')}</button>`:''}${chevron?`<i class="chev" aria-hidden="true">${icon('ArrowRight')}</i>`:''}`;
       return action?`<button class="app-row user-row" data-action="${action}">${inner}</button>`:`<div class="app-row user-row">${inner}</div>`;
     };
     /* 性别 / 出生日期的显示值：没设过就是灰字「未设置」（「暂不设置」是旧档位的值，一并按未设置显示） */
@@ -1770,12 +1779,11 @@
         <span class="user-head-side" aria-hidden="true"></span>
       </div>
       <section class="app-card user-card">
-        ${row('昵称',{end:state.nickname,action:'edit-nickname'})}
-        ${row('会员 ID',{end:state.memberId,copy:true})}
+        ${row('用户 ID',{end:state.memberId,copy:true,chevron:false})}
+        ${row('手机号',{end:state.phone,chevron:false})}
       </section>
       <section class="app-card user-card">
-        ${row('手机号',{end:state.phone,chevron:false})}
-        ${row('性别',{end:gender||'未设置',dim:!gender,action:'edit-gender'})}
+        ${row('性别',{end:gender||'未设置',dim:!gender,action:gender?'':'edit-gender',chevron:!gender})}
         ${row('出生日期',{end:state.birthday||'未设置',dim:!state.birthday,action:'edit-birthday'})}
       </section>
       <section class="app-card user-card">
@@ -1784,14 +1792,14 @@
       <button class="app-card user-logout" data-action="logout">退出登录</button>
     </div>`;
   }
-  /* 「用户」页三处编辑的**就地弹层**（底部卡片，挂点见 renderApp 的 state.userSheet 一处）：
-     昵称改名（输入框 + 保存，PATCH /v1/me 仿真）、性别二选（男 / 女两行，点即改并收层）、
+  /* 「用户」页两处编辑的**就地弹层**（底部卡片，挂点见 renderApp 的 state.userSheet 一处）：
+     性别二选（男 / 女两行，点即改并收层 —— 行上设置过之后就不再给入口，见 appUserPage）、
      出生日期（三列滚轮 —— 骨架直接复用资料引导的 .onb-col / .onb-row，滚动吸附与两端 mask
      同一套；onb 那条白底选中带在白卡上看不出来，.user-wheel 下换成浅灰底，见 theme.css）。
+     昵称改名弹层随「昵称」行于 2026-10-04 一并删除（动作 edit-nickname / save-nickname 同去）。
      X / Esc 只收本层（动作 user-sheet-close），不动「用户」页。 */
   function userSheet() {
     const close='user-sheet-close';
-    if(state.userSheet==='nickname')return sheet('修改昵称',`<label class="field">昵称<input id="user-nickname" maxlength="20" value="${esc(state.nickname)}"></label>`,primary('保存','save-nickname','Check'),close);
     if(state.userSheet==='gender'){
       const pick=v=>`<button class="row-button" data-action="pick-gender:${v}">${icon(v===state.gender?'CircleCheck':'User')}<span style="flex:1">${v}</span>${v===state.gender?icon('Check'):''}</button>`;
       return sheet('性别',pick('男')+pick('女'),'',close);
@@ -2804,7 +2812,7 @@
        登录 2026-09-29 起又改回独立页面（appScreen='login'，见 openAppLogin），也不经过这里。
        「个人资料」（profile）的编辑表单卡片（昵称 / 性别 / 年龄段 + 保存资料）2026-10-04
        按需求整体删除 —— 该页改成整页结构的「用户」（见 appScreenContent / appUserPage），
-       不在这里出分支；它的三处就地编辑弹层另走 renderApp 的 state.userSheet 挂点（userSheet()）。 */
+       不在这里出分支；它的两处就地编辑弹层另走 renderApp 的 state.userSheet 挂点（userSheet()）。 */
     /* 反馈类型支持预选（state.modalData.type）：「我的 · 键盘内容投诉与举报」进来时预选「举报」 */
     if (m==='feedback') return sheet('反馈与建议',`<div class="hint-banner">我们将及时受理、处理您的投诉或举报，并反馈处理结果。</div><label class="field">反馈类型<select id="feedback-type">${['功能问题','键盘问题','AI效果','建议','投诉','举报'].map(t=>`<option ${state.modalData.type===t?'selected':''}>${t}</option>`).join('')}</select></label><label class="field">详细说明<textarea id="feedback-text" maxlength="500" placeholder="请描述遇到的问题，不要填写敏感信息…"></textarea></label>`,primary('提交仿真反馈','submit-feedback','Position'));
     if (m==='legal-list') return sheet('协议中心',Object.entries(window.LOVECO_LEGAL).map(([k,v])=>`<button class="row-button" data-action="legal:${k}">${icon('Document')}<span style="flex:1">${esc(v.title||v.name||k)}</span>${icon('ArrowRight')}</button>`).join(''));
@@ -4292,26 +4300,25 @@
     /* 退出登录：清掉会话态；未登录进「手机号登录」独立页面（来路记为首页，改主意可当场再登回来） */
     if(name==='logout'){cancelAI(true);state.accountEpoch++;state.loggedIn=false;state.results=[];persist();state.appView='app';state.appScreen='home';state.modal='home';state.modalData={};openAppLogin();return;}
     /* —— 「用户」页（原「个人资料」，2026-10-04 按设计图重做）的动作 ——
-       行内三处编辑都走就地弹层（见 appUserPage / userSheet）：
-         edit-nickname / edit-gender / edit-birthday 打开对应弹层（出生日期弹层先按当前生日
-         初始化滚轮，见 initUserPick）；user-sheet-close 只收弹层（X 与 Esc 共用）；
-         save-nickname（PATCH /v1/me 仿真）/ pick-gender:<值>（点即改并收层）/ save-birthday
-         （把滚轮停着的那天写回 state.birthday，顺带对上 age 档）是三个落地动作；
-         copy-member-id 把会员 ID 写进剪贴板，图标变勾约 1.2 秒后复原（没有别的提示 ——
+       行内两处编辑都走就地弹层（见 appUserPage / userSheet）：
+         edit-gender / edit-birthday 打开对应弹层（出生日期弹层先按当前生日
+         初始化滚轮，见 initUserPick）—— 性别只在还没设置过时行上才有这个动作，
+         设置过之后行不可点（「设置后不可修改」，见 appUserPage）；user-sheet-close 只收弹层（X 与 Esc 共用）；
+         pick-gender:<值>（点即改并收层）/ save-birthday（把滚轮停着的那天写回
+         state.birthday，顺带对上 age 档）是两个落地动作；
+         copy-member-id 把用户 ID 写进剪贴板，图标变勾约 1.2 秒后复原（没有别的提示 ——
          轻提示组件已按需求删除）；user-back 返回「我的」。
+       昵称改名（edit-nickname / save-nickname，PATCH /v1/me 仿真）随「昵称」行于 2026-10-04
+       按反馈一并删除（该接口至此没有调用方）—— 昵称仍留在存档里（「我的」问候行、
+       聊天页「我」的头像兜底照用），只是本页不再显示、也没有改昵称的入口。
        「注销账号」那一行点它进独立的注销页（user-cancel → appScreen='cancel-account'，
        2026-10-04 需求；注销链路 2026-09-26 曾整体删除，现按新设计图重建为
        「独立页 + 成功弹框」，与旧确认框链路无关）。 */
     if(name==='user-back')return openAppScreen('account');
     if(name==='user-cancel')return openAppScreen('cancel-account');
-    if(name==='edit-nickname'){state.userSheet='nickname';return render();}
     if(name==='edit-gender'){state.userSheet='gender';return render();}
     if(name==='edit-birthday'){initUserPick();state.userSheet='birthday';return render();}
     if(name==='user-sheet-close'){state.userSheet='';return render();}
-    if(name==='save-nickname'){
-      const nick=$('#user-nickname').value.trim();if(!nick)return;
-      return runMutation('/v1/me',{nickname:nick},()=>{state.nickname=nick;state.userSheet='';persist();render();},{method:'PATCH'});
-    }
     if(name==='pick-gender'){state.gender=arg;state.userSheet='';persist();return render();}
     if(name==='save-birthday'){
       const {y,m,d}=userPicked();
