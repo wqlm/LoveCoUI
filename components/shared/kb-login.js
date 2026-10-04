@@ -52,7 +52,7 @@ LoveCoUI.define('shared', 'kb-login', (ctx) => {
      未勾选时点各自的主按钮都不静默：键盘形态抖这一行、主 App 的登录页弹弹框（askDialog）。
      协议名用简称（2026-09-29 需求：一键登录 / 手机号登录页与它们的弹框里，「用户注册协议」→「用户协议」、
      「用户隐私协议」→「隐私协议」）—— 只是链接文案变短，点开的正文页标题仍是 legal-data.js 里那份
-     《LoveCo用户协议》/《LoveCo隐私协议》，key（terms / privacy）与正文内容都不动。 */
+     《用户协议》/《隐私协议》，key（terms / privacy）与正文内容都不动。 */
   const consentRow = (withCarrier) => `<label class="kbl-consent"><input id="kb-login-consent" type="checkbox" ${state.kbLoginConsent ? 'checked' : ''}><span>我已阅读并同意${withCarrier ? legalLink('carrier', '中国联通认证服务协议') + '和' : ''}${legalLink('terms', '用户协议')}、${legalLink('privacy', '隐私协议')}</span></label>`;
   /* 「请阅读并同意以下条款」弹框（2026-09-29 需求，**主 App 的两张登录页专属**）：主 App 上未勾选
      协议就点主按钮不再抖协议行，而是原地盖一层弹框（照参考截图）：深色蒙层 + 居中白卡 ——
