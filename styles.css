@@ -508,28 +508,35 @@ small{font-size:11px;color:#73847d}
 .cd-ask-scrim{position:absolute;inset:0}
 .cd-ask-card{position:relative;display:flex;flex-direction:column;text-align:center}
 .cd-ask-primary{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px}
-/* 协议正文页（appLegalPage）与协议中心（appLegalListPage）：2026-10-04 需求 —— 协议由覆盖层
-   改回整页，照设计图重排：链头只有一枚返回箭头，协议名 / 页名改由正文首行的大号标题承担。
-   骨架 = 整页弹性列（链头 + 可滚正文）；协议中心 = 同一链头 + 大标题 + 一张白卡列表
-   （列表行复用 .app-row 骨架）。整体撑满正文一屏高、白底通底，皮肤（字号 / 宋体 / 留白）
-   在 theme.css 的「协议正文页」一组。 */
+/* 协议正文页（appLegalPage）：2026-10-04 需求 —— 协议由覆盖层改回整页，照设计图重排：
+   链头只有一枚返回箭头，协议名改由正文首行的大号标题承担。
+   骨架 = 整页弹性列（链头 + 可滚正文）；**链头 sticky 钉在正文区顶部**（2026-10-04 晚些需求：
+   正文往下滚时返回箭头不跟着滚走 —— .app-main 是滚动容器，sticky 相对它生效；背景在 theme.css
+   给纯白，滚过的正文被链头盖住；原「协议中心」列表页同日删除，.lg-card 一并清掉）。
+   整体撑满正文一屏高、白底通底，皮肤（字号 / 宋体 / 留白）在 theme.css 的「协议正文页」一组。 */
 .lg-page{display:flex;flex-direction:column;min-height:100%}
-.lg-head{display:flex;align-items:center}
+.lg-head{position:sticky;top:0;z-index:2;display:flex;align-items:center}
 .lg-back{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .lg-body{flex:1 1 auto}
-.lg-card{overflow:hidden}
 /* 「问题反馈」页（appFeedbackPage，2026-10-04 按设计图从 sheet 卡片改成整页）：整页弹性列 ——
    页头（复用用户页 .user-head 骨架：返回箭头 + 居中标题）+ 正文一列（分组标签 / 胶囊组 /
-   多行输入 + 计数 / 单行输入 + 计数 / 整宽提交按钮 / 页尾说明）。
+   多行输入 + 计数 / 单行输入 + 计数 / 整宽提交按钮）。
    皮肤（深色配色、字号、圆角、间距）在 theme.css 的「问题反馈页」一组。 */
-.fb-page{display:flex;flex-direction:column;min-height:100%}
-.fb-body{flex:1 1 auto}
-.fb-chips{display:flex;flex-wrap:wrap}
-.fb-textarea,.fb-input{display:block;width:100%;font:inherit;-webkit-appearance:none}
-.fb-textarea{resize:none}
-.fb-count{text-align:right}
-.fb-submit{display:flex;align-items:center;justify-content:center;width:100%;border:0}
-.fb-note{text-align:center}
+   .fb-page{display:flex;flex-direction:column;min-height:100%}
+   .fb-body{flex:1 1 auto}
+   .fb-chips{display:flex;flex-wrap:wrap}
+   .fb-textarea,.fb-input{display:block;width:100%;font:inherit;-webkit-appearance:none}
+   .fb-textarea{resize:none}
+   .fb-count{text-align:right}
+   .fb-submit{display:flex;align-items:center;justify-content:center;width:100%;border:0}
+/* 「关于 LoveCo」页（appAboutPage，2026-10-04 晚些按设计图新增）：整页弹性列 ——
+   页头（复用用户页 .user-head 骨架：返回箭头 + 居中标题）+ 品牌区（图标 / 应用名 / 版本号
+   一列居中）+「隐私与协议」卡片（行复用 .app-row，与「我的」页同一套）+ 页尾备案信息。
+   整页撑满正文一屏高（min-height:100%）：备案信息靠 margin-top:auto 沉到正文底。
+   皮肤（图标尺寸 / 字号 / 灰字色）在 theme.css 的「关于页」一组。 */
+.about-page{min-height:100%}
+.about-hero{display:flex;flex-direction:column;align-items:center;text-align:center}
+.about-icp{margin-top:auto;text-align:center}
 .mobile-testbar{display:none}
 .dark.phone{background:#222b25;color:#e1e9df}
 /* 宿主 App（微信）自带深色外观，不跟随 .dark 开关，故这里的 .dark 不再覆盖会话区与输入栏 */

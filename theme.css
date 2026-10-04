@@ -1523,7 +1523,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   .kb-login .kbl-send { height: 31px; font-size: 12px; }
   .kb-login.sms .kbl-consent { margin-top: 5px; }
 }
-/* 键盘内协议正文页（kb-legal 组件）：登录层协议行里点协议名打开 —— 复用主 App「协议中心」的
+/* 键盘内协议正文页（kb-legal 组件）：登录层协议行里点协议名打开 —— 复用主 App 协议正文页的
    同一份正文快照（legal-data.js），只是**缩到键盘这一条高度里**滚动浏览（仍是键盘那一块、
    不拉高键盘，压在登录层之上）。结构：顶条（键盘菜单栏那么高 --lc-toolbar-height：常规 40 / 矮窗口 27px；
    左边一行小字协议名、超长省略，右边 X）→ 正文区（flex:1 + overflow-y:auto，在键盘高度内滚完全文）。
@@ -2437,43 +2437,42 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .cd-ask-primary { align-self: center; min-width: 132px; height: 42px; margin-top: 20px; padding: 0 30px; background: var(--cd-accent); color: #FFF; font-size: 15px; font-weight: 600; }
 .cd-ask-primary:hover { background: #4756E0; }
 @keyframes cd-ask-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
-/* —— 协议正文页（appLegalPage）与协议中心（appLegalListPage）（2026-10-04 需求）——
+/* —— 协议正文页（appLegalPage）（2026-10-04 需求）——
    照设计图把协议从**覆盖层改回整页**：整页白底（.guide-legal 挂手机根，状态栏连着转白、
    .app-main 清零边距让白底通底，同注销页 / 购买页的做法）、无底部 Tab（见 appTabBar）。
-   页头**只有一枚返回箭头**（没有页名、没有 X；原 sheet 头那行协议名与页尾那颗整宽「返回」
-   按钮一并去掉），协议名改在正文首行用大号加粗标题承担；「项目内置协议快照；模拟器本身
-   不提供真实付费服务。」那条说明也不再出现在手机里 —— 模拟器口径只留在工作台与 README。
+   页头**只有一枚返回箭头**、**且常驻顶部**（2026-10-04 晚些需求：正文往下滚时链头不跟着滚走
+   —— 骨架在 styles.css 给 .lg-head 的 position:sticky，这里给它纯白背景，滚过的正文被链头
+   盖住；没有页名、没有 X；原 sheet 头那行协议名与页尾那颗整宽「返回」按钮一并去掉），
+   协议名改在正文首行用大号加粗标题承担；「项目内置协议快照；模拟器本身不提供真实付费服务。」
+   那条说明也不再出现在手机里 —— 模拟器口径只留在工作台与 README。
    正文左对齐、宋体（设计图里标题与正文都是宋体这一路）、行高放宽到 1.95，
-   按空行分段（段间距 12px）；协议中心同一套页头 + 大标题（这一页不排宋体，跟着全站字体走）
-   + 一张白卡列表（行复用 .app-row 骨架，卡内分隔线由 .app-card 那条给）。
-   深色外观下这两页固定浅色（配色写死、不跟随 .dark —— 与购买页 / 登录页 / 注销页同一做法，
+   按空行分段（段间距 12px）。原「协议中心」列表页同日晚些按需求删除（.lg-card 一并清掉）。
+   深色外观下本页固定浅色（配色写死、不跟随 .dark —— 与购买页 / 登录页 / 注销页同一做法，
    选择器优先级高于 .dark 那几条）。 */
 .app-phone.guide-legal { --lg-ink: #1C1C1E; --lg-accent: #5766F2; --lg-serif: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif; background: #FFF; }
 .app-phone.guide-legal > .statusbar { background: #FFF; color: #191919; }
 .app-phone.guide-legal .app-main { width: 100%; padding: 0; }
 .lg-page { background: #FFF; color: var(--lg-ink); }
-.lg-head { padding: 6px 10px 2px; }
+.lg-head { padding: 6px 10px 2px; background: #FFF; }
 .lg-back { width: 38px; height: 38px; border-radius: 50%; color: var(--lg-ink); }
 .lg-back:hover { background: #1919190F; }
 .lg-back svg { width: 20px; height: 20px; }
 .lg-body { padding: 6px 22px 32px; }
-/* 大号协议名 / 页名：设计图里标题在返回箭头之下、左对齐，占两三行的位置 */
+/* 大号协议名：设计图里标题在返回箭头之下、左对齐，占两三行的位置 */
 .lg-title { font-size: 27px; font-weight: 700; line-height: 1.38; letter-spacing: .5px; }
-/* 协议正文页（.lg-doc）的标题与正文排宋体 —— 设计图里这两处都是宋体这一路（协议中心是列表页，
-   标题与行都跟着全站字体走）；正文段落按空行分段，段间距 12px */
+/* 协议正文页（.lg-doc）的标题与正文排宋体 —— 设计图里这两处都是宋体这一路；
+   正文段落按空行分段，段间距 12px */
 .lg-doc .lg-title { font-family: var(--lg-serif); }
 .lg-text { margin-top: 18px; font-family: var(--lg-serif); font-size: 15.5px; line-height: 1.95; color: var(--lg-ink); }
 .lg-text p + p { margin-top: 12px; }
-/* 协议中心：标题下留一档再排白卡（行仍走 .app-row 骨架，字号在手机口径里放大半档） */
-.lg-card { margin-top: 16px; }
-.lg-card .app-row { font-size: 14px; }
 /* —— 「问题反馈」页（appFeedbackPage，2026-10-04 按设计图从 sheet 卡片重做成整页）——
    照设计图把这页做成**深色整页**（原 sheet 卡片是浅色）：底色 #111318、卡面 / 未选胶囊
    #1C1F26、描边一档 #2A2E36、强调蓝 #4C8DFF（选中的胶囊与提交按钮同色）。尺寸按设计图
    量出来的口径：页边距 20px；标签 13px / 计数 13px（标签灰 #A9AEB8、计数 #C2C3CD）；
    类型胶囊 36px 高（全圆角、13px 字、左右内边距 19px、横 10px 纵 20px 间距）；
    描述框 174px 高（15px 字、内边距 17/20px、占位灰 #6F7580）；联系方式行 54px 高
-   （占位灰与标签同色 #A9AEB8）；提交按钮 52px 高（16px 字）；页尾说明 12px 居中（#6F7580）。
+   （占位灰与标签同色 #A9AEB8）；提交按钮 52px 高（16px 字）——设计图页尾那行 12px 居中
+  灰字说明（#6F7580）已按 2026-10-04 后续需求删除，勿补回。
    计数行右缘比卡右缘再内收 20px（设计图里「0/1000」「0/200」都缩在卡右缘以内一档）。
    **深色是这页自己的皮**：配色写死、不跟随 .dark（与购买页 / 登录页 / 注销页 / 协议页
    那种「按图定色」的做法一致，选择器优先级高于 .dark 那几条）；不渲染底部 Tab、
@@ -2501,7 +2500,20 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .fb-input::placeholder { color: #A9AEB8; }
 .fb-submit { height: 52px; margin-top: 20px; border-radius: 8px; background: var(--fb-accent); color: #FFF; font-size: 16px; font-weight: 600; }
 .fb-submit:hover { background: #3F7DEF; }
-.fb-note { margin-top: 10px; font-size: 12px; line-height: 17px; color: #6F7580; }
+/* —— 「关于 LoveCo」页（appAboutPage，2026-10-04 晚些按设计图新增）——
+   骨架在 styles.css 的 .about-* 一组。页头复用用户页 .user-head（返回钮 + 17px 居中标题，
+   这里只把内边距放到整页口径）；品牌区：图标 72px 圆角方块（带浅投影）+ 应用名 20px 加粗 +
+   灰字版本号 12px，一列居中；**「隐私与协议」卡片直接沿用「我的」页那一套
+   .app-section / .app-card / .app-row**（同一档行高 47px、字号 13.5px、右端折角箭头，
+   行首**没有图标** —— 需求原话「与外层的 item 样式一致，不需要左边的图标」）；
+   页尾备案信息沉在正文底（灰字 11px 居中，与手机底边留 20px，同 .user-logout 的做法）。
+   本页不写死配色、深浅两态都走通用令牌（与协议页 / 注销页那几页「按图定色」不同）。 */
+.about-head { padding: 2px 0 10px; }
+.about-hero { padding: 14px 0 24px; }
+.about-icon { width: 72px; height: 72px; border-radius: 18px; box-shadow: 0 6px 18px #2621321F; }
+.about-name { margin: 13px 0 0; font-size: 20px; font-weight: 650; color: var(--lc-text); }
+.about-version { margin: 5px 0 0; font-size: 12px; color: var(--lc-subtle); }
+.about-icp { margin: auto 0 0; padding: 18px 16px 6px; font-size: 11px; line-height: 1.7; color: var(--lc-subtle); }
 /* 出生日期弹层的滚轮：选中带换成浅灰（资料引导那一步的白色选中带在白卡弹层上看不出来），
    行文字也改走主题令牌 —— onb 那套颜色写死在淡紫页上，深色外观下在白卡弹层里会看不清；
    其余（scroll-snap 吸附 / 两端 mask 渐隐 / 44px 行高）全部复用 .onb-* 一套 */
