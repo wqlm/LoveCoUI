@@ -474,6 +474,8 @@ small{font-size:11px;color:#73847d}
 .app-card-pad{padding:14px;display:flex;flex-direction:column;gap:12px}
 .app-row{display:flex;align-items:center;gap:8px;width:100%;text-align:left}
 .app-row .app-row-label{flex:1;min-width:0}
+/* 两行式一行的文字块（标题 + 灰字副说明，见 appRowSub）：两行左对齐、纵向排 */
+.app-row .app-row-text{flex:1;min-width:0;display:flex;flex-direction:column;text-align:left}
 .app-row .chev{flex-shrink:0;display:inline-flex}
 .app-page-head{display:flex;align-items:center;gap:8px}
 .app-page-head h2{flex:1;min-width:0}
