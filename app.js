@@ -357,6 +357,12 @@
        原 supportCopied（复制后图标变勾约 1.2 秒再复原）随 2026-10-04 晚些「复制完就关弹层」
        的需求一并删除 —— 弹层收起后那一下勾也看不到了，不留这个状态。 */
     supportSheet:false,
+    /* 全局轻提示 toast（2026-10-04 需求：点客服邮箱那行复制完，屏幕上浮出一记「已复制」）：
+       toast 是提示文案（'' = 不显示），由 showToast() 置上、约 1.4s 后由 toastTimer 摘掉重渲染。
+       项目里的 toast 组件早年已整体删除，这里是按本轮需求重新加回的**最小一版**：只有一枚
+       居中偏下的深色胶囊（.app-toast，样式在 theme.css），不区分成功 / 失败、也没有关闭按钮，
+       不吃点击（pointer-events:none）。同样是页面内存、不落库。 */
+    toast:'', toastTimer:null,
     /* 「问题反馈」页（appFeedbackPage，2026-10-04 按设计图从 sheet 卡片重做成深色整页）：
        feedbackType 是选中的问题类型（FEEDBACK_TYPES 之一，入口可预选 ——
        2026-10-04 晚些前由「我的 · 键盘内容投诉与举报」预选，该行已删、现在一律从默认档起）；
@@ -2004,8 +2010,21 @@
      右端仍是复制图标，**2026-10-04 晚些再改：点整行把邮箱写进剪贴板后立刻收起弹层**
      （不再有「图标变勾 1.2 秒」那一下 —— 弹层都收起了，勾也看不到，所以卡内就是一颗常驻的复制图标），
      所以卡内已没有纯展示行（.sp-row.static 那套样式留着备用）。
+     复制的回执交给**全局轻提示**（2026-10-04 再改）：收起弹层的同时浮出一记「已复制」（showToast）。
      出口三条：复制那一行（support-copy:email）、右上角 X（support-close）与 Esc，都只收本层、仍停在「我的」页。
      邮箱写在 SUPPORT_EMAIL 一个常量里 —— 换邮箱只改那一处。 */
+  /* —— 全局轻提示（2026-10-04 需求，见 state.toast / .app-toast）——
+     复制这类「操作已完成」的即时回执：屏幕上浮出一枚居中偏下的深色胶囊（文案由调用方给），
+     约 1.4s（TOAST_MS）后自动收掉 —— 连着触发就重新计时、只留最新一条。
+     收起 = 摘掉标记重渲染（与 shotFlash 同一套写法）；面板不吃点击、也没有关闭按钮，
+     它只是「发生了什么」的一记回执，不打断当前页面。 */
+  const TOAST_MS = 1400;
+  function showToast(msg) {
+    state.toast=msg;
+    clearTimeout(state.toastTimer);
+    state.toastTimer=setTimeout(()=>{state.toastTimer=null;state.toast='';render();},TOAST_MS);
+    render();
+  }
   const SUPPORT_EMAIL = 'support@loveco.gasairea.com';
   function supportSheet() {
     return sheet('联系客服',`<button class="row-button sp-row" data-action="support-copy:email" aria-label="复制客服邮箱"><span>客服邮箱</span><span class="end">${esc(SUPPORT_EMAIL)}</span><span class="user-copy" aria-hidden="true">${icon('CopyDocument')}</span></button>`,'','support-close');
@@ -2428,7 +2447,7 @@
     $('#app').innerHTML = `<div class="shell app-workspace">
       <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">主 App 手机模拟器</span></div></header>
       <main class="workspace"><aside class="rail left-rail"><div class="rail-section"><div class="rail-heading"><h2>平台与app形态</h2></div>${deviceSwitchers()}</div>${permissionSection()}<div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}</div></aside>
-        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.kbGuideDemo?LoveCoUI.render('kb-usage-guide', ctx):''}${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${state.userSheet?userSheet():''}${state.cancelAsk?cancelAskSheet():''}${state.supportSheet?supportSheet():''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div></div></section><aside class="rail right-rail">${pageListSection()}</aside></main>
+        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.kbGuideDemo?LoveCoUI.render('kb-usage-guide', ctx):''}${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${state.userSheet?userSheet():''}${state.cancelAsk?cancelAskSheet():''}${state.supportSheet?supportSheet():''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}${state.toast?`<div class="app-toast" role="status" aria-live="polite">${esc(state.toast)}</div>`:''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div></div></section><aside class="rail right-rail">${pageListSection()}</aside></main>
     </div>`;
     bind();
     /* 引导流程的演示动画：每次重建 DOM 后重新接一遍「拿到手势就开声音」（见 wireGuideVideos） */
@@ -4209,12 +4228,15 @@
     if(name==='support'){state.supportSheet=true;return render();}
     if(name==='support-close'){state.supportSheet=false;return render();}
     /* 弹层里那行的复制（2026-10-04 晚些需求）：邮箱写进剪贴板后**立刻收起弹层**
-       —— 复制完即回到「我的」页，不再有「图标变勾 1.2 秒后复原」那一下（弹层收起了看不到）。
-       剪贴板不可用时也不报错、照样收起（项目内没有 toast 可提示，见「已删除的形态」）。 */
+       —— 复制完即回到「我的」页，不再有「图标变勾 1.2 秒后复原」那一下（弹层收起了看不到）；
+       2026-10-04 再改：**同时浮出一记「已复制」轻提示**（showToast，约 1.4s 后自己收掉），
+       弹层关了也得让用户知道复制成了 —— 剪贴板不可用时同样照提示、照收起。 */
     if(name==='support-copy'){
       if(arg==='email'){
         try{const p=navigator.clipboard&&navigator.clipboard.writeText(SUPPORT_EMAIL);if(p&&p.catch)p.catch(()=>{});}catch(_){}
         state.supportSheet=false;
+        showToast('已复制');
+        return;
       }
       return render();
     }

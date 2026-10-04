@@ -620,6 +620,33 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   from { opacity: .9; }
   to { opacity: 0; }
 }
+/* 复制后的轻提示（2026-10-04 需求：点客服邮箱那行复制完弹层收起，屏幕上浮出一记「已复制」，
+   见 app.js 的 showToast / state.toast）：手机内**居中偏下**的一枚深色胶囊（骨架与皮肤都在这里，
+   与 .shot-flash 同样只服务手机屏内），落在底部 Tab（56px）上方一截；约 1.4s 后 app.js 摘掉
+   标记重渲染，元素连着淡出动画一起消失，没有退场动画（重渲染没有过渡可挂）。
+   不吃点击（pointer-events:none），不带关闭按钮；z-index 25：高于手机内弹层遮罩（20）、
+   低于整屏白闪（30）。固定深底白字 —— 浅色 / 深色外观下都是同一枚胶囊（与键盘内的提示同族）。 */
+.app-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 92px;
+  z-index: 25;
+  pointer-events: none;
+  max-width: 76%;
+  padding: 9px 16px;
+  border-radius: 18px;
+  background: #262132e6;
+  color: #fff;
+  font-size: 13px;
+  line-height: 1.35;
+  text-align: center;
+  box-shadow: 0 6px 18px #2621322e;
+  animation: app-toast-in .18s ease-out both;
+}
+@keyframes app-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(6px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
 /* 按住说话遮罩（皮肤，骨架在 styles.css）：**高度跟着键盘区域走**（与 .keyboard 同高、同贴底），
    遮罩层自己走「底部 1 → 顶部 0」的渐隐 —— 背景色渐变负责压暗、mask 让毛玻璃一起淡出，
    上缘与聊天分析面板的内容自然融合，不再整屏压黑。固定深色（截图即深色场景），
