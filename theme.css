@@ -2365,6 +2365,31 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    勿因为它暂时没有使用者就把入口补回来。 */
 .text-button.danger-text { color: var(--lc-danger); }
 .app-page-foot { padding-top: 16px; }
+/* —— 「用户」页（原「个人资料」，2026-10-04 按设计图重做的设置式整页）——
+   页头：圆形返回钮（hover 淡紫底）+ 17px 居中标题；卡内行放大到 52px / 15px，
+   值 14px 深色（未设置为灰字）；卡下「退出登录」是整宽白底蓝字卡片。
+   三张白卡的底 / 圆角 / 投影仍走 .app-card，行分隔线走 .app-card > .app-row 那条。 */
+.user-head { padding: 2px 0 10px; }
+.user-head .user-back { width: 32px; height: 32px; border-radius: 50%; color: var(--lc-text); }
+.user-head .user-back:hover { background: var(--lc-accent-soft); }
+.user-head .user-back svg { width: 17px; height: 17px; }
+.user-head h2 { text-align: center; font-size: 17px; font-weight: 650; }
+.user-head .user-head-side { width: 32px; }
+.user-page .app-row { min-height: 52px; padding: 13px 15px; font-size: 15px; }
+.user-page .app-row-end { font-size: 14px; color: var(--lc-text); }
+.user-page .app-row-end.dim { color: var(--lc-subtle); }
+.user-page .app-row .chev svg { width: 14px; height: 14px; }
+.user-copy { width: 28px; height: 28px; border-radius: 8px; color: var(--lc-muted); }
+.user-copy:hover { background: var(--lc-accent-soft); color: var(--lc-accent-strong); }
+.user-copy svg { width: 16px; height: 16px; }
+.user-logout { min-height: 52px; margin-top: 20px; color: var(--lc-accent-strong); font-size: 15px; font-weight: 600; }
+.user-logout:hover { background: var(--lc-accent-soft); }
+/* 出生日期弹层的滚轮：选中带换成浅灰（资料引导那一步的白色选中带在白卡弹层上看不出来），
+   行文字也改走主题令牌 —— onb 那套颜色写死在淡紫页上，深色外观下在白卡弹层里会看不清；
+   其余（scroll-snap 吸附 / 两端 mask 渐隐 / 44px 行高）全部复用 .onb-* 一套 */
+.user-wheel .onb-wheel:before { background: var(--lc-canvas); box-shadow: none; }
+.user-wheel .onb-row { color: var(--lc-muted); }
+.user-wheel .onb-row.on { color: var(--lc-text); }
 .editor-avatar-button { padding: 2px 0 4px; font-size: 11.5px; color: var(--lc-muted); }
 .editor-avatar-button .avatar { width: 56px; height: 56px; font-size: 18px; }
 html[data-view="device"] .sheet-footer {
@@ -2796,7 +2821,8 @@ html[data-view="device"] .sheet-footer {
    ① 选择性别：两颗并列的 1:1 白卡，卡上是 **♂ / ♀ 两个符号图形**（按需求代替插画头像 ——
       SVG 粗圆头描边 + 渐变描边色：男蓝紫、女粉红，见 app.js 的 onboardGlyph）；
    ② 你的出生日期：蛋糕插画 + 三列滚轮（年 / 月 / 日）—— 吸附由 CSS 的 scroll-snap 给，
-      行高 44px = app.js 的 ONB_ROW（滚动停在哪一行按它换算，见 bindOnboardWheel）。 */
+      行高 44px = app.js 的 ONB_ROW（滚动停在哪一行按它换算，见 bindWheelCols ——
+      「用户」页的出生日期弹层也复用这套骨架，见 .user-wheel）。 */
 .onb-page { min-height: 100%; background: #F5F6FC; color: #191919; padding: 6px 24px 30px; display: flex; flex-direction: column; align-items: center; }
 .onb-top { display: flex; align-items: center; justify-content: space-between; width: 100%; min-height: 44px; }
 /* 性别那一步没有返回钮也没有「跳过」（不可跳过），两侧各留一个与返回钮同宽的占位，圆点才在正中 */
