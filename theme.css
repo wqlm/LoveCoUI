@@ -1731,15 +1731,22 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu-consent { margin-top: 15px; font-size: 10.5px; line-height: 1.5; color: var(--pu-faint); }
 .pu-consent .pu-legal-link { color: var(--pu-deep); }
 .pu-consent .pu-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
-/* 自动续订说明段（照设计图 1:1：浅灰圆角块 + 两端对齐小字）—— **只在 iOS 的周 / 季度档**渲染
+/* 自动续订说明段（照设计图 1:1：两端对齐小字）—— **只在 iOS 的周 / 季度档**渲染
    （2026-09-29 三次需求），文案与键盘付费层同一段（app.js 的 RENEWAL_NOTE）。
    2026-09-29 七次需求改落位：它整段挪到首屏（.pu-page）**之外** —— 首屏默认正好占满屏幕、
    这一段整个沉在屏幕下方（默认一点不露，不再是压出屏幕底边露半截），往下滑一段才看得到。
+   2026-10-04 需求两条（用户带截图圈出）：① **首屏 / 第二屏之间那条灰色间隔条去掉** ——
+   它其实是 .pu-note 的 margin-top 从 .pu-more 顶边溢出（父子外边距合并，父块没有上内边距 /
+   上边框挡住），露出来的是手机底色 #F5F5F8；现在给 .pu-more 补 16px 上内边距挡掉合并，
+   两屏的白底连成一片 —— 间距口径与原来一致（16px），只是不再夹着一条灰；
+   ② **说明段的浅灰方底框去掉** —— 原来的 `#F5F7FA` 底 + 10px 圆角 + 11px 内边距整套删掉，
+   只留浅灰小字（颜色仍是 #9AA9C4 = --pu-faint，两端对齐照旧），文字缩进从左 28px 收到
+   与上面 .pu-cap / 协议行同一列（14px 父内边距 + 4px）。
    .pu-more 是它所在的白底块：延续白色主体，左右 / 底部留白与 .pu-body 同口径（左右 14px、
    底部同一条安全区口径）。注意 .pu-note 已不在 .pu-page 里、继承不到那组 --pu-* 令牌，
    颜色直接写死（= --pu-faint） */
-.pu-more { padding: 0 14px max(22px, env(safe-area-inset-bottom)); background: #FFF; }
-.pu-note { margin: 16px 2px 2px; padding: 11px 12px; border-radius: 10px; background: #F5F7FA; font-size: 11px; line-height: 1.65; color: #9AA9C4; text-align: justify; }
+.pu-more { padding: 16px 14px max(22px, env(safe-area-inset-bottom)); background: #FFF; }
+.pu-note { margin: 10px 4px 2px; font-size: 11px; line-height: 1.65; color: #9AA9C4; text-align: justify; }
 /* iOS 系统支付框（ios-pay-sheet 组件）：iOS 上点会员开通层的「立即解锁」就地弹出的**系统级**弹窗
    （App Store 内购确认，照参考截图）—— 挂在手机根节点上、铺满整个手机屏（含键盘与宿主 App），
    自成一层皮肤：**固定系统深色外观**（系统弹窗不跟随键盘的浅色 / 深色皮肤）。
