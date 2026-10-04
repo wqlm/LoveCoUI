@@ -350,6 +350,14 @@
        点「知道了」回首页，Esc 只收弹框）；注销页是独立整页（appScreen='cancel-account'、
        无底部 Tab），从「用户」页第三张卡的「注销账号」行进。都是页面内存、不落库。 */
     cancelAsk:false,
+    /* 「问题反馈」页（appFeedbackPage，2026-10-04 按设计图从 sheet 卡片重做成深色整页）：
+       feedbackType 是选中的问题类型（FEEDBACK_TYPES 之一，入口可预选 ——
+       「我的 · 键盘内容投诉与举报」进来即「投诉与举报」）；
+       feedbackText / feedbackContact 是问题描述与联系方式的草稿。
+       这一页的控件是真 textarea / input（不再是 sheet 里靠 formCache 兜的表单域），
+       三项显式存在这里：换类型、重渲染都不丢已输入内容；每次进页开一张新表单（见 openAppScreen）。
+       都是页面内存、不落库。 */
+    feedbackType:'功能问题', feedbackText:'', feedbackContact:'',
   };
   /* 主 App 形态启动（**缺省形态**，2026-10-04 起；`?surface=app` 也走这一支）。
      进入不再直接落首页：先走一遍状态检查链
@@ -646,7 +654,7 @@
       ];
   const APP_PAGES = [
     {id:'home',group:'首页与我的',name:'首页',route:'/home',trigger:'主 App 底部 Tab 第一项「首页」；登录成功后也落在这里',desc:'**空白模板**：原首页的四段内容（问候行 / 会员横幅 /「快捷开始」/「我的对象」+「账户概览」）已按需求全部删除，这一页现在只留整页骨架（.app-content.app-page），不渲染任何元素 —— 只有底部 Tab 栏照常，等按新设计重做',note:'主 App 的落地页（进入主 App 按状态检查链走：键盘权限 → 键盘完全访问 → 登录状态，哪一环没过就停在对应引导上 —— 整页「开启键盘」引导 / 完全访问引导层 / 键盘同款登录层，都通过才停在首页，见 appEntryGuards）。因内容清空，原先挂在这一页的入口（去键盘问 AI / 分析聊天截图 / 键盘设置 / 模拟订单 / 兑换积分 / 新建对象）在主 App 内随之不再可达：新建对象改从「对象」页进（模拟订单 / 兑换积分 / 键盘设置三个页面与入口已于 2026-09-26 整体删除）'},
-    {id:'account',group:'首页与我的',name:'我的',route:'/account',trigger:'主 App 底部 Tab 第三项「我的」',desc:'按设计图重做的「我的」页，自上而下：① 问候行（**未登录时改显示「立即登录」占位**（2026-10-04 需求），点它由 needLogin 拦到登录页；已登录显示「你好，昵称」+ 折角箭头，点它进个人资料；已开通会员时下面多一行金色会员标识「LoveCo 会员到期日 2026-09-30」，永久档写「永久会员」）；② 会员横幅（未开通蓝底「成为 LoveCo 会员 / 解锁全部高级功能」，已开通橙底「LoveCo 会员 / 已解锁全部高级功能」，右侧白胶囊「立即查看」进**会员购买页**（2026-09-28 起主 App 的购买都走这一页，不再弹键盘同款的会员开通覆盖层）—— **2026-10-03 需求：会员文案的品牌口径从「L+」改成「LoveCo」**（横幅两态 + 会员标识小方块，界面里不再出现 L+，见 `memberBanner` / `appAccountPage`））；③「客户支持」卡片两行（键盘内容投诉与举报 → 反馈页并把类型预选成「举报」；反馈与建议）；④「相关协议」卡片五行（用户协议 / 隐私政策 / 个人信息收集清单 / 第三方信息共享清单，各自打开对应协议正文整页，末行进协议中心看全部）；⑤「更多」卡片一行（关于 LoveCo，副说明写版本号 `Version 1.9.0`）—— **2026-10-04 需求：设计图里「关于 Lovekey 键盘 / 这是一款可以帮你聊天的键盘输入法」与「Version 1.9.0 / 上线一些新人设」两行并成这一行**（品牌改 LoveCo、版本号挪进本行副说明、原独立版本条目不再出现；原型没有关于页，这一行是纯展示 —— `appRowSub` 不给 action 即静态行，右端折角箭头照设计图保留、不 hover）。**2026-10-04 需求：原「账户」卡片一行（退出登录）整组删除** —— 本页不再有「账户」栏目（退出登录仍从「用户」页页尾那颗卡进）。设计图里右上角的邮箱图标（消息通知）、「基础设置 · 键盘基础预设」与「消息提醒 · 消息通知」两组按需求不呈现（键盘设置页面与入口已于 2026-09-26 整体删除）。2026-09-26 另删三行入口：「在线客服」「我的订单」「兑换积分」（对应页面一并删除）；同日晚些时候卡片下方那枚「注销仿真账户」文字按钮也删除（连同确认框链路，页面至此没有任何注销类入口）。**2026-10-03 修复：本列表点入现场摆成未开通态** —— 点「我的」时先把会员态复位（`member=false` / `memberExpiry=null`，不落库），否则从「我的 · 已开通会员」切回来时页面仍是会员态、看着像没切过去（见 `setupPage()`）',note:'「我的」不再有键盘设置入口（该页面已删除）；注销入口已删，页面内不再有「需先清空会员 / 积分才能操作」的前置条件；**这一页未登录也进得来**（2026-10-04 需求：未登录点「我的」Tab 不再被登录页挡下 —— 先正常进页、0.5 秒后按蜂窝网络开关补弹「一键登录」/「手机号登录」独立页面，页内问候行显示「立即登录」；见 action 的 app-tab 分支与 ACCOUNT_LOGIN_DELAY_MS）'},
+    {id:'account',group:'首页与我的',name:'我的',route:'/account',trigger:'主 App 底部 Tab 第三项「我的」',desc:'按设计图重做的「我的」页，自上而下：① 问候行（**未登录时改显示「立即登录」占位**（2026-10-04 需求），点它由 needLogin 拦到登录页；已登录显示「你好，昵称」+ 折角箭头，点它进个人资料；已开通会员时下面多一行金色会员标识「LoveCo 会员到期日 2026-09-30」，永久档写「永久会员」）；② 会员横幅（未开通蓝底「成为 LoveCo 会员 / 解锁全部高级功能」，已开通橙底「LoveCo 会员 / 已解锁全部高级功能」，右侧白胶囊「立即查看」进**会员购买页**（2026-09-28 起主 App 的购买都走这一页，不再弹键盘同款的会员开通覆盖层）—— **2026-10-03 需求：会员文案的品牌口径从「L+」改成「LoveCo」**（横幅两态 + 会员标识小方块，界面里不再出现 L+，见 `memberBanner` / `appAccountPage`））；③「客户支持」卡片两行（键盘内容投诉与举报 → **问题反馈页**并把类型预选成「投诉与举报」——2026-10-04 需求：原「投诉」「举报」两类合并成这一颗；反馈与建议 → 问题反馈页，类型默认「功能问题」）；④「相关协议」卡片五行（用户协议 / 隐私政策 / 个人信息收集清单 / 第三方信息共享清单，各自打开对应协议正文整页，末行进协议中心看全部）；⑤「更多」卡片一行（关于 LoveCo，副说明写版本号 `Version 1.9.0`）—— **2026-10-04 需求：设计图里「关于 Lovekey 键盘 / 这是一款可以帮你聊天的键盘输入法」与「Version 1.9.0 / 上线一些新人设」两行并成这一行**（品牌改 LoveCo、版本号挪进本行副说明、原独立版本条目不再出现；原型没有关于页，这一行是纯展示 —— `appRowSub` 不给 action 即静态行，右端折角箭头照设计图保留、不 hover）。**2026-10-04 需求：原「账户」卡片一行（退出登录）整组删除** —— 本页不再有「账户」栏目（退出登录仍从「用户」页页尾那颗卡进）。设计图里右上角的邮箱图标（消息通知）、「基础设置 · 键盘基础预设」与「消息提醒 · 消息通知」两组按需求不呈现（键盘设置页面与入口已于 2026-09-26 整体删除）。2026-09-26 另删三行入口：「在线客服」「我的订单」「兑换积分」（对应页面一并删除）；同日晚些时候卡片下方那枚「注销仿真账户」文字按钮也删除（连同确认框链路，页面至此没有任何注销类入口）。**2026-10-03 修复：本列表点入现场摆成未开通态** —— 点「我的」时先把会员态复位（`member=false` / `memberExpiry=null`，不落库），否则从「我的 · 已开通会员」切回来时页面仍是会员态、看着像没切过去（见 `setupPage()`）',note:'「我的」不再有键盘设置入口（该页面已删除）；注销入口已删，页面内不再有「需先清空会员 / 积分才能操作」的前置条件；**这一页未登录也进得来**（2026-10-04 需求：未登录点「我的」Tab 不再被登录页挡下 —— 先正常进页、0.5 秒后按蜂窝网络开关补弹「一键登录」/「手机号登录」独立页面，页内问候行显示「立即登录」；见 action 的 app-tab 分支与 ACCOUNT_LOGIN_DELAY_MS）'},
     {id:'account-member',group:'首页与我的',name:'我的 · 已开通会员',route:'/account（会员态）',trigger:'本列表点入（现场摆上会员标识与到期日 2026-09-30，不落库）；真实链路里购买会员到账后也是这一形态',desc:'「我的」页的会员态：问候行下方多一行金色会员标识（小方块「LoveCo」+「会员到期日 2026-09-30」，永久档写「永久会员 · 已解锁全部高级功能」），会员横幅同时换成橙底「LoveCo 会员 / 已解锁全部高级功能」，其余分区（客户支持 / 相关协议 / 更多；「账户」栏目 2026-10-04 已删）与未开通时完全一致。**2026-10-03 需求：条目名由「我的 · 已开通 L+ 会员」改名「我的 · 已开通会员」、页面内容里的「L+」一并改成「LoveCo」**',note:'会员到期日与会员标识一起持久化：购买后写入（主 App 与键盘内是同一张商品表 —— 永久档落 0 = 永久，周 / 季度档按 7 / 90 天算）；老存档只有会员标识、没有到期信息时不硬编日期，只说「已解锁全部高级功能」；点入这条会把会员态**现场摆上**（不落库），点回「我的」条目即复位成未开通态（2026-10-03 用户反馈修复，两条互为对方形态的入口）'},
     {id:'purchase',group:'会员与积分',name:'会员购买页',route:'/account/purchase',trigger:'「我的」页的会员横幅「立即查看」（未开通蓝底 / 已开通橙底都进）；主 App 内额度不足发起生成被拦时也落这一页；键盘安卓 / 鸿蒙点「立即解锁」同样跳到这里（gotoAppPurchase）。本列表点入即静态查看',desc:'**参考竞品（恋爱回复键盘）购买页布局重做的整页购买页**（2026-09-28 需求），主 App 的购买都走这一页（键盘内的付费引导层 kb-paywall 回归键盘形态专属）。**功能**：三档商品卡点选切换档位（state.kbPlan，与键盘付费引导层共用同一张表 PLANS 与同一个选中态）→「立即解锁」按平台 / 形态分路：iOS 就地弹 iOS 系统支付框（确认后才到账）、安卓 / 鸿蒙一键到账（completePurchase）；购买到账后「我的」页的横幅转橙底。**已是会员也照常进、不做状态拦截**（2026-09-29 四次需求：原「置灰的『已解锁会员权益』按钮 + 续订说明换『会员权益生效中』」两条已删，会员重买即续期）。协议行**没有勾选框**（2026-09-29 五次需求：与键盘付费引导层一致，购买不再前置勾选 —— 原圆形勾选框与「未勾选抖动拦截」整套删除）；协议名点开协议正文（2026-10-04 需求：主 App 侧是**整页** —— 进 appScreen=legal 的协议正文页、返回箭头 / Esc 回本页且所选档位与支付渠道都留着，原先是压在本页之上的键盘同款覆盖层 kb-legal）；右上角 X 回「我的」。**支付渠道可切**（2026-09-29 三次需求，安卓 / 鸿蒙）：那一行**首选支付宝**，点行内任意处切到微信支付、再点切回来（右侧换向图标就是入口；只存内存、每次进页回到首选支付宝，试付进行中不给切）；两个标都是 assets/ 里的真素材（支付宝支付.png / 微信支付.png，2026-09-29 四、五次需求换的）。**iOS 不渲染这一行**（2026-09-29 五次需求：Apple 内购走系统支付框，页面里不再摆「Apple 账户 · App Store 内购」）。**《自动续费协议》条件显示**（口径已与需求方确认）：**渠道 + 档位**两个条件同时满足才出现 —— 渠道停在首选支付宝上（切到微信支付即隐藏；iOS 按首选渠道处理）且选的是周 / 季度档（永久档一次性买断不显示）；隐藏时那句话里的「、」一起去掉，只留《会员协议》（《会员协议》始终显示）。**设计**：固定蓝色浅色皮肤（不跟随深色外观）；2026-09-29 起整页铺满整个屏幕 —— 上下左右无边距、盖住底部 Tab 栏（appTabBar 不渲染）、状态栏连着 Hero 一起转蓝（.guide-purchase），右上角 X 是唯一出口（同日二次需求从左上角挪到右上角）。**同日二次需求再重排纵向节奏**（用户反馈「上面太拥挤了，下面又太空了，不协调」；393×852 实测旧版 Hero 仅 208px、正文到 y=520 结束、底下 332px 全空）：整页是弹性列，富余高度按 **2:1** 分给 Hero 与白色主体 —— Hero 里的标题块**上下居中**（顶部不再挤，蓝白分界下移到 y≈437）、主体里「支付方式行 + 立即解锁 + 协议行」这组（`.pu-foot`）用 `margin-top:auto` **钉在屏幕底部**（协议行贴屏底、下半屏不再空）；尺寸整体放大一档（清单 13.5px / 行距 9px、现价 23px、支付行 52px、主按钮 48px，大标题封顶 24px —— 再大这句就会在窄手机里折行把「」拆开）；窗口矮 / 内容超屏时 Hero 与主体都退回内容高度、整页照常滚动。整页两段 —— ① **蓝色渐变 Hero**：右上角白底圆形 X，两行标题（小字「解锁无限次AI使用」14px + 大号加粗「LoveCo会员「限时特惠」」24px），下接**四条纯文字**权益清单（13.5px 文案：LoveCo 帮回复，不限次 / 上传聊天截图，LoveCo 帮你读懂TA / 自定义聊天对象，回复更具针对性 / 设置关系阶段，LoveCo 帮你把控聊天分寸 —— 同日二次需求删去白色图标章与红色「新上线」小标、「幽默、高情商，海量人设免费使用」「会员专享，定制专属人设」两条删除、两条文案按需求改写；同日三次需求小标题「解锁高情商回复键盘」改「解锁无限次AI使用」、清单加回一条「自定义聊天对象，回复更具针对性」（在「设置关系阶段」上面）、另两条里的「AI」改「LoveCo」）；② **白色主体**：三档商品卡横向等分（档位名 + 大号蓝色现价 + 划线原价，选中的那张蓝描边浅蓝底、顶部浮一枚渐变蓝角标 = 该档 badge：一次性买断 / 畅享 7 天 / 畅享 90 天）→ 随档位变的续订说明（永久档「一次性买断，永久有效」/ 周·季度「到期后 ¥xx/期自动续订，可随时取消」，**金额取划线原价** = 周 ¥48/周、季度 ¥128/季度，2026-10-04 需求；此前报的是当期的优惠价 9.9 / 98）→ 浅灰支付方式行（**只有安卓 / 鸿蒙渲染**，可点切换 = 首选支付宝（真素材标 assets/支付宝支付.png +「支付宝」）、点一下切到微信支付（真素材标 assets/微信支付.png +「微信支付」）、再点切回来，右侧换向图标是入口；iOS 不渲染这一行）→ 整宽蓝色渐变胶囊「立即解锁」（48px 高、蓝投影、**右上角一枚红色角标、文案随所选档位变** = 该档 badge（2026-09-29 六次需求；与键盘付费层那颗 pw-cta-tag 同源）、**整颗一跳一跳** —— 与键盘付费引导层同一套 pw-cta-bounce）→ 底部**纯文字协议行**（没有勾选框，2026-09-29 五次需求删）。原右上角白描边「平台专属」角标（文案随运行平台变）已按 2026-09-29 需求删除；**首屏之外再压一段自动续订说明**（2026-09-29 三次需求照设计图补入、同日七次需求改落位：**只有 iOS 的周 / 季度档**渲染 —— **无底框**的 11px 浅灰小字两端对齐（2026-10-04 需求：原先那个浅灰圆角底框整个去掉、只留浅灰字；首屏 / 第二屏之间夹着的那条灰条也去掉 —— 它是 .pu-note 的 margin-top 从 .pu-more 顶边溢出露出的手机底色，给 .pu-more 补 16px 上内边距挡住合并后两屏白底连成一片），iTunes 自动续订 / 到期前 24 小时扣费 / 取消方式 / 试用规则；永久档与安卓 / 鸿蒙不出现）。它整段沉在**第二屏**（七次需求：原先排在协议行下方、与首屏同处一列，页面只比一屏高出一点点、这段在屏幕底边露出半截；现在排在首屏 .pu-page 之外的 .pu-more 里 —— 首屏默认正好占满屏幕、这段一点不露，往下滑一段才看得到；滚动容器是 .app-main 的 overflow:auto；实测（工作台 335px 手机）首屏 648 / 整页 879 可滚 231px、滚到底说明全文可见），永久档 / 安卓 / 鸿蒙刚好一屏不滚',note:'商品只有一张表 PLANS（永久 / 周 / 季度）：本页与键盘付费引导层共用，改档位 / 价格 / badge 两处同时变；自动续订说明文案也是两处共用的同一段（app.js 的 RENEWAL_NOTE，经 uiContext 传给 kb-paywall，改文案只改这一处）；支付方式行是仿真切换（真机上支付渠道由系统 / SDK 决定，这里只演选中态与《自动续费协议》的联动）；iOS 上点「立即解锁」先弹 iOS 系统支付框、确认才到账，且 iOS 不渲染支付方式行'},
     /* 「键盘权限」「登录」两组里的两条**键盘同款覆盖层**（2026-09-29 起登记进主 App 目录）：
@@ -658,7 +666,7 @@
     {id:'app-login-one-tap',group:'登录',name:'一键登录',route:'主 App › 独立页面（未登录时进入 · 键盘同款）',trigger:'未登录时的登录落点之一：启动 / 切进主 App / 点底部 Tab 走状态检查链最后一环时进入本页（「设备权限 › 蜂窝网络」开着 = 视为已插卡且有蜂窝网络），主 App 内各处需要登录的动作（needLogin）也进本页；**未登录点「我的」Tab 也落本页**（2026-10-04 需求：先进「我的」页、0.5 秒后按蜂窝网络开关在本页与另一张登录页之间二选一，见 `ACCOUNT_LOGIN_DELAY_MS`）；或本列表点入（现场置成未登录 + 蜂窝网络开，不落库 —— 本页固定一键登录形态，与键盘内一键登录弹窗同一套页面）',desc:'键盘内一键登录弹窗同一套页面整页直出的**独立页面**（kb-login 组件、appScreen=login-one-tap —— 2026-09-29 按需求从「手机号登录」页里拆出：原来两形态共挤一页、随蜂窝网络开关二选一，现在各占一页；底色同为整块通底淡蓝），铺满整页、无底部 Tab 栏：**X 顶条**（X 靠右独占一行，页内内容整体跟着下移）+ 居中大号本机号（state.phone，号码旁不标「上次登录」）+ 整宽蓝色胶囊主按钮「本机号一键登录」（**未勾选协议时点它不再抖协议行，而是弹「请阅读并同意以下条款」弹框** —— 2026-09-29 需求：深色蒙层 + 居中白卡（右上角 X、居中标题、协议文案带运营商认证协议三份、底部整宽蓝色胶囊「同意并继续」），点「同意并继续」= 视作勾选并接着把这次登录跑完、X / Esc 只收起弹框，不静默无反应；键盘形态的同一层仍是抖协议行）+ 居中的「手机号登录」圆角方块入口（**点它跳到独立的「手机号登录」页**，不再是键盘里的就地换表单）+ 底部协议勾选行（带**用户协议 / 隐私协议**两个简称 + 中国联通认证服务协议，协议名点开协议正文（2026-10-04 需求：主 App 侧是**整页** —— appScreen=legal，返回箭头回登录页、勾选状态与表单都留着；键盘形态那一层仍是覆盖层 kb-legal）；**进页即未勾选** —— 2026-09-29 需求：主 App 两张登录页默认不勾选协议，等同页底部「手机号登录」入口跳过去也不算已勾）。右上角 X / Esc 关掉回来路页；登录成功先给一记「登录成功」提示，随后若左栏「模拟 › 首次登录App」开着就接「资料引导」，否则回来路页',note:'与键盘内登录层是同一组件（state.kbLogin 记形态）；**协议勾选在主 App 是「每次进页清空」**（state.kbLoginConsent，见 openAppLogin / kb-login-sms），键盘形态仍是共用同一份勾选状态；两页之间互跳不算来路变更，X / Esc / 登录成功收尾都回到进第一页时记的那一页（appLoginReturn）'},
     {id:'profile',group:'账户与协议',name:'用户',route:'/account/profile',trigger:'「我的」页最上方的问候行（「你好，昵称」/ 未登录时为「立即登录」，由 needLogin 拦到登录页）；本列表点入（现场摆成已登录，不落库）',desc:'**2026-10-04 按设计图重做的整页设置页**（原「个人资料」的昵称 / 性别 / 年龄段编辑表单按需求整体删除）：顶部一条页头（左侧圆形返回钮 → 回「我的」，中间居中标题「用户」）；正文三张白卡（无分组标题、卡间距 12px，卡内一行 = 47px 行的同款骨架、行高 52px）：① **用户 ID**（右值 + 一枚复制图标，点它把 ID 写进剪贴板、图标变勾约 1.2 秒后复原；**不带折角箭头**）+ 手机号（纯展示、无箭头）—— 2026-10-04 反馈：该行标签原为「会员 ID」、手机号原在第二张卡；② 性别（未设置时灰字「未设置」、点开二选；**设置后不可修改** —— 行不可点、也不画箭头）+ 出生日期（未设置时灰字「未设置」，设置前后都可点开滚轮改）；③ 注销账号（**整行文字 2026-10-04 按反馈转灰** —— 行渲染器的 muted 变形，行尾折角箭头仍是同一档灰；点它进**注销账号页** —— 2026-10-04 晚些需求：注销链路按新设计图重建为独立整页 + 成功弹框，见 `cancel-account` 条目）；**页尾单独一张「退出登录」卡**（蓝字居中，走既有 logout：清会话 → 回首页并进登录页；2026-10-04 反馈：整页撑满一屏高、这张卡沉在正文底，与底部 Tab 栏保持固定间距）。**性别 / 出生日期两行点开就地弹层编辑**（底部卡片，X / Esc 只收层）：性别 → 男 / 女两行点即改并收层；出生日期 → 三列滚轮（年 1980–2015 / 月 / 日，与资料引导第二步同一套 scroll-snap 骨架与「N岁 星座」实时行、选中带在弹层里换浅灰底）+「保存」写回 state.birthday（顺带对上 age 档）',note:'性别与资料引导（onboard-gender）是同一个值、生日与「你的出生日期」（onboard-birthday）是同一个值；性别仍是对象编辑页「性别默认取反」的依据；昵称按 2026-10-04 反馈不再在本页显示、也没有改昵称的入口（改名弹层与 PATCH /v1/me 同去），但仍留在存档里、同步到聊天页「我」的头像兜底与各处显示；用户 ID（state.memberId，行标签原「会员 ID」）是跟着存档走的展示值（默认 7297034，与设计图一致）。原「年龄段（选填）」字段随本页改版不再显示（state.age 只留在存档里）'},
     {id:'cancel-account',group:'账户与协议',name:'注销账号',route:'/account/profile/cancel',trigger:'「用户」页第三张卡的「注销账号」行（user-cancel）；本列表点入（现场摆成已登录、与「用户」页同一来路，不落库）',desc:'**2026-10-04 按设计图新增的独立整页**（注销链路 2026-09-26 曾整体删除，现按新设计图重建 —— 不再是旧的确认框形态；无底部 Tab、整页白底、状态栏连着转白）：自上而下：① 页头（左侧圆形返回钮 → 回「用户」页，中间居中标题「注销账号」，复用用户页页头骨架）；② 正文（左对齐、无卡片）：加粗句「为保证您的权益，请阅读以下内容」+ 两句说明（注销后个人资料 / 使用记录等关联数据永久删除、无法恢复；无法再使用本账号、也无法找回相关信息）+「包括并不限于」两条清单（个人信息 / 当前账号中维护的聊天对象资料；2026-10-04 晚些需求：原第二条「历史缓存图片」改成这条、第三条「与微信·苹果等第三方账号的绑定关系」整条删除）+ 加粗句「注销账号，需满足以下条件：」+ 两条条件（账号处于正常使用状态 / 账号财产已结清；正文说明字号 2026-10-04 晚些按需求调小一档 —— 加粗句 15px / 段落 13px）；③ 沉底一组：灰色小字「我已阅读并同意《账号注销协议》」+ 整宽蓝色胶囊「确认注销」（2026-10-04 晚些需求：协议名由纯文字改成**可点文字按钮**，点它打开协议正文 —— 正文取 legal-data.js 的 `cancel` 快照《LoveCo用户注销协议》（线上 /agreement/cancel 全文）；**2026-10-04 晚些那版是浮在页面上的覆盖层，同日改整页后变成进协议正文页、返回箭头 / Esc 回本页**）。**点「确认注销」弹「注销申请成功」弹框**（state.cancelAsk）：深色蒙层 + 居中白卡（标题 + 「7 天内为账号注销冷静期，7 天内再次登录视为放弃注销」两行说明 + 居中蓝色胶囊「知道了」），**点「知道了」收起弹框并回首页**；弹框没有 X，Esc 也只收弹框、仍停在注销页。深色外观下本页固定浅色（同购买页 / 登录页，配色写死在 theme.css）',note:'从「用户」页进入、返回也回「用户」页；注销申请只是提交（7 天冷静期）、**不清会话也不改账号状态**，未登录也可静态查看本页'},
-    {id:'feedback',group:'账户与协议',name:'反馈与建议',route:'/feedback',trigger:'「我的」· 客户支持 ·「反馈与建议」；从「键盘内容投诉与举报」进来时类型预选「举报」',desc:'反馈类型（功能问题 / 键盘问题 / AI 效果 / 建议 / 投诉 / 举报）+ 详细说明提交（POST /v1/feedback）；页内不再有「我的反馈」入口',note:'提交成功后回「我的」页（原落点「我的反馈」页与反馈历史记录已删除，反馈不留历史列表）'},
+    {id:'feedback',group:'账户与协议',name:'问题反馈',route:'/feedback',trigger:'「我的」· 客户支持 ·「反馈与建议」；从「我的」·「键盘内容投诉与举报」进来时类型预选「投诉与举报」',desc:'**2026-10-04 按设计图从 sheet 卡片重做的深色整页**（页名同日从「反馈与建议」改成设计图上的「问题反馈」；设计图右上角那颗「我的反馈」按需求**不呈现** —— 原型里没有反馈历史页，重做后的页内也没有任何反馈历史入口）。**功能**：① 问题类型是一排胶囊按钮（**功能问题 / 键盘问题 / AI 效果 / 建议 / 投诉与举报** —— 最后一类是本轮需求新增，原有的「投诉」「举报」两类合成它，「我的 · 键盘内容投诉与举报」进来即预选它）点一颗即换选（feedback-type:<类型>）；② 问题描述多行输入（占位「请尽量描述复现步骤、期望结果和手机型号」，上限 1000 字、右下角实时计数 n/1000）；③ 联系方式单行输入（占位「联系方式（可选）」，上限 200 字、右下角计数 n/200）；④ 整宽蓝色「提交反馈」提交（POST /v1/feedback，成功回「我的」；描述不足 5 字不提交、焦点交回描述框）。草稿（类型 / 描述 / 联系方式）存在 state 里：换类型重渲染不丢已输入内容，**每次进页开一张新表单**（openAppScreen 里清场，原 sheet 那套 formCache 缓存已撤）。**设计**：整页深色（配色照设计图写死、**不跟随深色外观开关** —— 同购买页 / 登录页 / 注销页 / 协议页那种「按图定色」的做法）：底色 #111318、卡面与未选胶囊 #1C1F26、描边 #2A2E36、强调蓝 #4C8DFF（选中胶囊与提交按钮同色）；页头是返回箭头 + **居中标题「问题反馈」**（复用用户页 .user-head 骨架）；页边距 20px，类型胶囊 36px 高（全圆角、13px 字、横 10px 纵 20px 间距）、描述框 174px 高（15px 字、占位灰 #6F7580）、联系方式行 54px 高、提交按钮 52px 高（16px 字）、页尾一行 12px 居中灰字「提交后由客服团队处理。请勿填写密码、验证码等敏感信息。」；计数行（13px，#C2C3CD）右缘比卡右缘再内收 20px。无底部 Tab 栏、状态栏连着转深色（.guide-feedback），返回箭头 / Esc 的同一条出口回「我的」',note:'提交成功后回「我的」页（原落点「我的反馈」页与反馈历史记录已删除，反馈不留历史列表）；页面尺寸与配色按设计图量出（393×852 口径），改样式时对照 theme.css 的「问题反馈页」一组'},
     {id:'legal-list',group:'账户与协议',name:'协议中心',route:'/legal',trigger:'「我的」· 相关协议 ·「协议中心」（卡片末行）；本列表点入（来路记成「我的」，返回箭头回那一页）',desc:'**内置 8 份协议的列表整页**（用户协议、隐私政策、个人信息收集清单、第三方信息共享清单、会员与积分、自动续费、联通认证、账号注销）：① 页头**只有一枚返回箭头**（没有页名、没有 X，同协议正文页）；② 正文左对齐的大号标题「协议中心」（27px 加粗，跟着全站字体走 —— 这一页是列表不是公文，不排宋体）；③ 一张白卡、卡内一行一份协议（行 = 协议名 + 折角箭头，行高与「我的」页同款 47px 档），点任一行进**协议正文整页**（返回箭头回本页）。整页白底、无底部 Tab、状态栏连着转白；深色外观下也固定浅色',note:'协议为静态快照，不联网更新（列表由 window.LOVECO_LEGAL 自动成列 —— 加入新快照即自动多一行）；2026-10-04 需求前它是渲染工具里的一张 sheet（标题行 + 8 个行按钮），同日随协议正文一起改成整页（见同组的 legal 条目）'},
     {id:'legal',group:'账户与协议',name:'协议正文',route:'/legal/:key（本列表固定看《LoveCo用户协议》）',trigger:'「我的」· 相关协议四条直链（用户协议 / 隐私政策 / 个人信息收集清单 / 第三方信息共享清单）、协议中心每一行、注销页「我已阅读并同意《账号注销协议》」、两张登录页的协议勾选行与「请阅读并同意以下条款」弹框里的协议名、会员购买页的协议行；本列表点入（现场摆成从「我的」点进的《LoveCo用户协议》，不落库）',desc:'**协议正文整页**（2026-10-04 按设计图重做，route 回到 /legal/:key 口径）：① 页头**只有一枚返回箭头** —— 没有页名、没有 X（原 sheet 头那行协议名与页尾那颗整宽「返回」按钮一并去掉），协议名改在正文首行用 **27px 加粗大标题**承担；② 正文按空行分段、左对齐，**宋体** 15.5px / 行高 1.95（标题与正文都排宋体，与设计图一致），首行那份与标题重复的协议名在渲染时去掉（legalParagraphs，判据「首行不含句读且不超过 40 字」）。整页白底、无底部 Tab、状态栏连着转白；页面上**没有**「项目内置协议快照；模拟器本身不提供真实付费服务。」那条说明（模拟器口径只留在工作台与 README）。正文与键盘内 kb-legal 同一份快照（legal-data.js，8 份）',note:'返回箭头 / Esc 都回打开它的那一页（state.legalFrom）—— 从「我的」进的回「我的」、从协议中心进的回协议中心、从注销页进的回注销页、从登录页 / 购买页进的回那一页（输入的表单、协议勾选状态、所选档位都留着）；2026-09-26 ～ 2026-10-04 之间它是浮在页面上的 sheet 覆盖层（state.appLegal），本轮改回整页后覆盖层字段与 legalSheet 一并删除'},
     {id:'partners',group:'聊天对象',name:'聊天对象',route:'/partners',trigger:'主 App 底部 Tab 第二项「对象」；编辑保存后回到这里',desc:'对象管理列表（整页，纯管理）：标题行一行「聊天对象」+ 右侧「新建」文字按钮 —— 标题行下**没有**「当前上下文：…」那行说明，列表里也**没有「不选择」行**（清空 / 切换当前上下文只在键盘形态的管理页里做）；每行 = 圆形头像 + 备注名，**只有写过备注的对象才多一行备注**（最多两行 —— 没备注的行不占位、不写「还没有备注 —— …」提示语；**性别 · 关系阶段不在列表里出现**，进详情页才看得到）；顺序按最近操作在前（新建的排最前，编辑过的保存后提到最前）。**整行（含头像）都是点击区**：按下时整行铺一层淡紫高亮（`.partner-open:active`，不再画头像描边的选中态），松手进该对象的**详情页 = 编辑页**（字段预填，可改、底部只有一颗不带图标的「确定」）—— 点行**不改当前上下文**；左滑露出编辑 / 删除（从行右侧滑入、盖在行内容上，删除直接执行不二次确认，「编辑」与行点击同一动作）',note:'与键盘形态的管理页是同一份数据、同一套排序、同一套左滑动作，只是主 App 下渲染为整页；「不选择」条目与「切当前对象」只在键盘形态的管理页里 —— 两种形态的行点击语义不同：主 App 进详情（编辑页），键盘切当前对象'},
@@ -1254,8 +1262,8 @@
      原先那两条键盘入口也删掉了，只能走工作台左栏的 App形态切换。
      Tab 三页各有自己的整页结构（appHomePage /
      appPartnersPage / appAccountPage），子页里「用户」「注销账号」「协议正文」「协议中心」
-     与登录 / 购买各页也都有整页结构（见 appScreenContent），只有「反馈」仍是渲染工具里的 sheet
-     卡片（把外壳换成 .app-content 容器，卡片自带的标题行就是页名）——
+     「问题反馈」与登录 / 购买各页也都有整页结构（见 appScreenContent）——
+     2026-10-04 起**主 App 的子页全部是整页**，渲染工具里的 sheet 卡片只剩「仿真控制台」；
      子页不属于任何 Tab，但按归属给父 Tab 留一层选中态（见 APP_TAB_OF）。
      三页共用两块：会员横幅（memberBanner，未开通蓝底 / 已开通橙底）与分区卡片
      （appSection：灰色分组标题 + 白色圆角卡片，卡内一行 = appRow）。 */
@@ -1345,6 +1353,21 @@
       v.muted = false;
       /* 仍被拦（没有用户手势）：退回静音接着播，别把画面停住 */
       v.play().catch(() => { v.muted = true; v.play().catch(() => {}); });
+    });
+  }
+  /* 「问题反馈」页（appFeedbackPage）两个输入框的接线：输入即时回存 state 里的草稿
+     （换问题类型会整页重渲染，草稿在 state 里才不会丢），并把右下角计数就地改成
+     「已输入字数 / 上限」。计数只改文本、不重渲染 —— 焦点与光标不跳；上限由控件的
+     maxlength 兜住（1000 / 200）。 */
+  function bindFeedbackPage() {
+    [['#feedback-text','#feedback-text-count',1000,'feedbackText'],
+     ['#feedback-contact','#feedback-contact-count',200,'feedbackContact']].forEach(([sel,countSel,max,key])=>{
+      const node=$(sel), count=$(countSel);
+      if(!node||!count)return;
+      node.addEventListener('input',()=>{
+        state[key]=node.value;
+        count.textContent=`${node.value.length}/${max}`;
+      });
     });
   }
   function wireGuideVideos() {
@@ -1956,6 +1979,47 @@
       </div>
     </div>`;
   }
+  /* —— 主 App · 「问题反馈」页（appFeedbackPage，appScreen='feedback'）——
+     2026-10-04 按设计图从渲染工具里的一张 sheet 卡片**重做成深色整页**（页名也从
+     「反馈与建议」改成设计图上的「问题反馈」）：
+     ① 页头：左侧圆形返回箭头（feedback-back 回「我的」）+ **居中标题「问题反馈」**
+        （复用用户页 .user-head 骨架；设计图右上角那颗「我的反馈」按需求**不呈现** ——
+        原型里没有反馈历史页）；
+     ② 问题类型：一排胶囊按钮（FEEDBACK_TYPES：功能问题 / 键盘问题 / AI 效果 / 建议 /
+        投诉与举报 —— 最后一类是本轮需求新增，键盘内容投诉与举报进来即预选它），
+        选中的那颗蓝底白字（feedback-type:<类型> 换选，草稿不丢）；
+     ③ 问题描述：多行输入（占位「请尽量描述复现步骤、期望结果和手机型号」，上限 1000 字）+
+        右下角实时计数「n/1000」；
+     ④ 联系方式（可选）：单行输入（上限 200 字）+ 右下角计数「n/200」；
+     ⑤ 整宽蓝色「提交反馈」按钮（submit-feedback）；
+     ⑥ 页尾一行灰色小字说明（提交后由客服团队处理。请勿填写密码、验证码等敏感信息。）。
+     整页深色（配色 / 尺寸按设计图量出，写死在 theme.css，不跟随 .dark —— 同注销页 /
+     协议页那种「按图定色」的做法）、无底部 Tab（见 appTabBar），状态栏连着转深色
+     （renderApp 挂 .guide-feedback）。骨架（.fb-* 的排布）在 styles.css。
+     提交成功回「我的」（反馈不留历史列表，原「我的反馈」页早已删除 —— 设计图右上角的
+     那颗入口不再呈现）；描述不足 5 字不提交，焦点交回输入框。 */
+  const FEEDBACK_TYPES = ['功能问题','键盘问题','AI 效果','建议','投诉与举报'];
+  function appFeedbackPage() {
+    const chips = FEEDBACK_TYPES.map(t=>`<button class="fb-chip${t===state.feedbackType?' on':''}" data-action="feedback-type:${t}" aria-pressed="${t===state.feedbackType}">${esc(t)}</button>`).join('');
+    return `<div class="fb-page">
+      <div class="app-page-head user-head fb-head">
+        <button class="user-back" data-action="feedback-back" aria-label="返回">${icon('ArrowLeft')}</button>
+        <h2>问题反馈</h2>
+        <span class="user-head-side" aria-hidden="true"></span>
+      </div>
+      <div class="fb-body">
+        <p class="fb-label">问题类型</p>
+        <div class="fb-chips">${chips}</div>
+        <p class="fb-label fb-label-gap">问题描述</p>
+        <textarea class="fb-textarea" id="feedback-text" maxlength="1000" placeholder="请尽量描述复现步骤、期望结果和手机型号">${esc(state.feedbackText)}</textarea>
+        <p class="fb-count" id="feedback-text-count">${state.feedbackText.length}/1000</p>
+        <input class="fb-input" id="feedback-contact" maxlength="200" placeholder="联系方式（可选）" value="${esc(state.feedbackContact)}">
+        <p class="fb-count" id="feedback-contact-count">${state.feedbackContact.length}/200</p>
+        <button class="fb-submit" data-action="submit-feedback">提交反馈</button>
+        <p class="fb-note">提交后由客服团队处理。请勿填写密码、验证码等敏感信息。</p>
+      </div>
+    </div>`;
+  }
   /* —— 主 App · 会员购买页（appPurchasePage，2026-09-28 新增；2026-09-29 三次需求把页名
      从「商品购买页」改成「会员购买页」（2026-09-29 三次需求）——页面名 / 详情标题 / aria 标签 / README 用新名）——
     参考竞品（恋爱回复键盘）购买页布局重做的整页购买页，主 App 的所有购买入口都落到这里：
@@ -2221,18 +2285,20 @@
   function appTabBar() {
     /* 「开启键盘」引导流程、首次登录的「资料引导」、会员购买页（2026-09-29 起整页铺满）、
        注销账号页（2026-10-04 起整页铺满）、协议正文 / 协议中心两页（2026-10-04 起整页铺满，
-       照设计图只有一枚返回箭头、页尾也没有返回按钮）与两张登录独立页面（「手机号登录」/「一键登录」，
+       照设计图只有一枚返回箭头、页尾也没有返回按钮）、「问题反馈」页（2026-10-04 起整页铺满，
+       设计图里没有底部 Tab）与两张登录独立页面（「手机号登录」/「一键登录」，
        2026-09-29 起不再是覆盖层）都没有底部 Tab */
-    if(state.appScreen==='kb-guide'||state.appScreen==='onboard'||state.appScreen==='purchase'||state.appScreen==='cancel-account'||state.appScreen==='legal'||state.appScreen==='legal-list'||state.appScreen==='login'||state.appScreen==='login-one-tap')return '';
+    if(state.appScreen==='kb-guide'||state.appScreen==='onboard'||state.appScreen==='purchase'||state.appScreen==='cancel-account'||state.appScreen==='legal'||state.appScreen==='legal-list'||state.appScreen==='feedback'||state.appScreen==='login'||state.appScreen==='login-one-tap')return '';
     const glyph = window.LoveCoSystemGlyphs;
     const active = APP_TAB_OF[state.appScreen] || '';
     return `<nav class="app-nav" role="tablist">${APP_TABS.map(([id,label,g])=>`<button data-action="app-tab:${id}" class="${active===id?'active':''}" aria-selected="${active===id}" role="tab">${glyph[g]}${label}</button>`).join('')}</nav>`;
   }
-  /* 主 App 正文：Tab 三页与各整页子页走各自的整页结构，只有「反馈」（feedback）仍是 sheet 卡片
-     （把 sheet 外壳换成 .app-content 容器，卡片直接作为页面内容）；
+  /* 主 App 正文：Tab 三页与各整页子页走各自的整页结构（2026-10-04 起不再有 sheet 卡片的子页 ——
+     「反馈与建议」本轮也改成整页，renderModal 里最后那张卡片的分支随之撤掉）；
      子页里的整页结构：「用户」（profile，2026-10-04 按设计图重做）→ appUserPage、
      「注销账号」→ appCancelPage、「协议正文」/「协议中心」→ appLegalPage / appLegalListPage
-     （后两页 2026-10-04 按需求由覆盖层改回整页）。 */
+     （后两页 2026-10-04 按需求由覆盖层改回整页）、
+     「问题反馈」→ appFeedbackPage（2026-10-04 按设计图从 sheet 卡片重做成深色整页）。 */
   function appScreenContent() {
     const s = state.appScreen;
     /* 「开启键盘」引导流程是主 App 自己的整页：此刻正文整页替换、底部 Tab 栏一并隐藏（见 appTabBar） */
@@ -2249,6 +2315,8 @@
     /* 「协议正文」/「协议中心」（2026-10-04 需求：原 sheet 覆盖层 → 整页，无底部 Tab） */
     if(s==='legal')return appLegalPage();
     if(s==='legal-list')return appLegalListPage();
+    /* 「问题反馈」（2026-10-04 需求：原 sheet 卡片 → 深色整页，无底部 Tab） */
+    if(s==='feedback')return appFeedbackPage();
     /* 登录独立页面（2026-09-29 起不再是覆盖层；同日晚些拆成「手机号登录」/「一键登录」两页）：
        同一套 kb-login 组件整页直出 —— 表单形态由 state.kbLogin 决定（openAppLogin 落页时已摆好），
        X / Esc / 登录成功的收尾见 closeAppLogin / finishKbLogin */
@@ -2278,6 +2346,8 @@
       : state.appScreen==='cancel-account' ? ' guide-cancel'
       /* 协议正文 / 协议中心两页整页白底（2026-10-04 需求：覆盖层改整页）：状态栏同样转白（.guide-legal） */
       : (state.appScreen==='legal'||state.appScreen==='legal-list') ? ' guide-legal'
+      /* 「问题反馈」页整页深色（2026-10-04 需求：sheet 卡片改整页）：状态栏连着一起转深色（.guide-feedback） */
+      : state.appScreen==='feedback' ? ' guide-feedback'
       /* 登录整页淡蓝（2026-09-29，「手机号登录」/「一键登录」两页同一套）：状态栏连着一起转淡蓝（.guide-login，theme.css） */
       : (state.appScreen==='login'||state.appScreen==='login-one-tap') ? ' guide-login' : '';
     const scrollMemo = captureScrolls($('#app'));
@@ -2289,6 +2359,8 @@
     bind();
     /* 引导流程的演示动画：每次重建 DOM 后重新接一遍「拿到手势就开声音」（见 wireGuideVideos） */
     wireGuideVideos();
+    /* 「问题反馈」页两个输入框的草稿回存与实时计数（见 bindFeedbackPage） */
+    bindFeedbackPage();
     /* 「切换到 LoveCo 键盘」页的输入框**进来就是激活态**（2026-09-28 需求：不用先点一下才激活）——
        渲染后把焦点直接交给它（光标在框里闪 = 激活态）；页面上点任何一处也把焦点还回来，
        见 bindKbSwitchPage()（浮层与地球除外）。这一页只有这一个输入框，不会抢谁的焦点。 */
@@ -2899,12 +2971,14 @@
        按需求整体删除 —— 该页改成整页结构的「用户」（见 appScreenContent / appUserPage），
        不在这里出分支；它的两处就地编辑弹层另走 renderApp 的 state.userSheet 挂点（userSheet()）。
        「协议中心」（legal-list）原是本工具里的一张 sheet（标题行 + 8 个行按钮），2026-10-04 需求起
-       也改成整页（appLegalListPage，无底部 Tab、页头只有返回箭头），分支一并撤掉。 */
-    /* 反馈类型支持预选（state.modalData.type）：「我的 · 键盘内容投诉与举报」进来时预选「举报」 */
-    if (m==='feedback') return sheet('反馈与建议',`<div class="hint-banner">我们将及时受理、处理您的投诉或举报，并反馈处理结果。</div><label class="field">反馈类型<select id="feedback-type">${['功能问题','键盘问题','AI效果','建议','投诉','举报'].map(t=>`<option ${state.modalData.type===t?'selected':''}>${t}</option>`).join('')}</select></label><label class="field">详细说明<textarea id="feedback-text" maxlength="500" placeholder="请描述遇到的问题，不要填写敏感信息…"></textarea></label>`,primary('提交仿真反馈','submit-feedback','Position'));
+       也改成整页（appLegalListPage，无底部 Tab、页头只有返回箭头），分支一并撤掉。
+       「反馈与建议」原是本工具里最后一张 sheet 卡片（投诉说明横幅 + 类型下拉 + 详细说明 +
+       提交按钮），2026-10-04 需求起照设计图重做成**深色整页**「问题反馈」
+       （appFeedbackPage，类型改胶囊排、描述 1000 字 + 联系方式 200 字都带实时计数），
+       分支一并撤掉 —— 这一层现在只剩「仿真控制台」。 */
     /* 原「重置会话」的通用确认弹层（m==='confirm' + confirm-action 动作）随重置功能一起于
        2026-10-03 按需求删除 —— 工作台现在没有二次确认弹窗，勿补回。 */
-    /* 分支覆盖全部合法 m（openModal 白名单 / appScreens），无兜底卡片 */
+    /* 分支只覆盖「仿真控制台」；其余 m 都是整页（见 appScreenContent），没有兜底卡片 */
     return '';
   }
   function openModal(name,data={}) {
@@ -2917,7 +2991,7 @@
     state.modal=name;state.modalData=data;
     if(state.appView==='app') state.appScreen=name;
     render();
-    const focus = {'partner-edit':'#partner-name',feedback:'#feedback-text'}[name];
+    const focus = {'partner-edit':'#partner-name'}[name];
     if(focus) setTimeout(()=>$(focus)?.focus({preventScroll:true}),30);
   }
   function closeModal() {
@@ -3181,9 +3255,17 @@
     /* 键盘选择器（「切换到 LoveCo 键盘」页上的浮层）同理：换页不该跟着走 */
     state.kbSwitchPicker=false;
     state.partnerPanel=false; state.settingsPanel=false; state.photoPanel=false; state.photoBack=''; dismissChatPanel();
+    /* 「问题反馈」页每次进来开一张**新表单**（设计图上进来就是空表单）：问题类型取入口预选
+       （FEEDBACK_TYPES 里的值，没有 / 不认就落「功能问题」——「我的 · 键盘内容投诉与举报」
+       进来传的是「投诉与举报」），问题描述与联系方式清空。
+       原 sheet 那套「上一次的草稿留在 formCache 里」的做法随页面重做一并撤掉。 */
+    if(screen==='feedback'){
+      state.feedbackType=FEEDBACK_TYPES.includes(data.type)?data.type:FEEDBACK_TYPES[0];
+      state.feedbackText='';state.feedbackContact='';
+    }
     state.appView='app'; state.appScreen=screen; state.modal=screen; state.modalData=data; render();
-    const focus = {feedback:'#feedback-text'}[screen];
-    if(focus) setTimeout(()=>$(focus)?.focus({preventScroll:true}),30);
+    /* 「问题反馈」页进来**不自动聚焦描述框**：设计图上没有键盘（原 sheet 卡片会自动聚焦，
+       整页形态下那会把键盘顶起来、盖住半页），要打字点一下输入框即可 */
   }
   /* 返回键盘形态：从主 App 回来一律落在「键盘常驻」的底座上 —— 收起态只属于宿主会话里的一次收起动作 */
   function returnKeyboard() { abortVoiceHold();dismissKbEditor();dismissFreeChat(); state.iosPaySheet=false; state.kbCollapsed=false; state.partnerPanel=false; state.settingsPanel=false; state.photoPanel=false; state.photoBack=''; dismissChatPanel(); state.appView='keyboard'; state.appScreen=null; state.modal=null; state.modalData={}; state.kbGuidePage=''; state.kbImeSwitch=false; state.kbSwitchPicker=false; render(); }
@@ -4039,14 +4121,21 @@
     if(name==='onboard-back')return startOnboarding('gender');
     /* 出生日期**可跳过**：不带生日结束引导（性别已在第一步选好） */
     if(name==='onboard-skip')return finishOnboarding('');
-    /* 「我的」客户支持：键盘内容投诉与举报 → 反馈页并把类型预选成「举报」
-       （先清掉反馈页的表单缓存，否则上一次选过的类型会盖掉这次预选）
+    /* 「我的」客户支持：键盘内容投诉与举报 → 「问题反馈」页并把类型预选成「投诉与举报」
+       （2026-10-04 需求：问题类型里的「投诉 / 举报」两类合成设计图上的这一颗；进页开新表单的
+       清场在 openAppScreen 里做，这里只传预选）
        —— 原「在线客服」入口（support 动作与页面）已于 2026-09-26 删除 */
     if(name==='report'){
       if(needLogin())return;
-      Object.keys(state.formCache).filter(k=>k.startsWith('feedback:')).forEach(k=>delete state.formCache[k]);
-      return openAppScreen('feedback',{type:'举报'});
+      return openAppScreen('feedback',{type:'投诉与举报'});
     }
+    /* —— 「问题反馈」页（appFeedbackPage）的三个动作 ——
+       feedback-type:<类型>：换选中的问题类型（草稿在 state 里，重渲染不丢已输入内容）；
+       feedback-back：页头返回箭头 → 回「我的」（页面没有底部 Tab，这是唯一出口；
+       设计图右上角那颗「我的反馈」不呈现 —— 原型里没有反馈历史页）；
+       submit-feedback：提交仿真反馈，见下面同名的分支。 */
+    if(name==='feedback-type'){if(FEEDBACK_TYPES.includes(arg)){state.feedbackType=arg;render();}return;}
+    if(name==='feedback-back')return openAppScreen('account');
     /* —— 「开启键盘」引导（appKbGuideScreen 那条链路）—— */
   if(name==='kb-guide-settings')return openGuideSettings();
   /* 安卓引导第二步「切换到LoveCo输入法」：2026-09-28 起落点是**键盘切换悬浮窗**（ieSwitchSheet）——
@@ -4486,10 +4575,14 @@
        确认区 = 确认支付（真机是双击侧边按钮），走完仿真支付、权益到账并连同会员开通层一起收起 */
     if(name==='ios-pay-close'){closeIosPaySheet();return render();}
     if(name==='ios-pay-confirm')return completePurchase();
+    /* 「问题反馈」页的提交（appFeedbackPage 的整宽按钮）：描述与联系方式都从 state 的草稿取
+       （页面是整页结构，字段值不进 formCache），连同选中的问题类型一起 POST。
+       描述不足 5 个字不提交（原 sheet 的判据照旧），焦点交回描述框提示用户补充；
+       提交成功回「我的」（原落点是已删除的「我的反馈」页，反馈不留历史列表）。 */
     if(name==='submit-feedback'){
-      const text=$('#feedback-text').value.trim(),type=$('#feedback-type').value;if(text.length<5)return;
-      /* 提交成功回「我的」：原落点是「我的反馈」页（该页已随本需求删除，反馈不再留历史列表） */
-      return runMutation('/v1/feedback',{type,text},()=>openAppScreen('account'));
+      const text=(state.feedbackText||'').trim(),contact=(state.feedbackContact||'').trim();
+      if(text.length<5){$('#feedback-text')?.focus({preventScroll:true});return;}
+      return runMutation('/v1/feedback',{type:state.feedbackType,text,contact},()=>openAppScreen('account'));
     }
     /* 协议名 → 协议正文整页（「我的」四条直链 / 协议中心每行 / 注销页《账号注销协议》，
        见 openAppLegal；2026-10-04 需求前它打开的是覆盖层） */
@@ -4818,6 +4911,8 @@
       /* 主 App 的协议正文 / 协议中心是**整页**（2026-10-04 起，不再是覆盖层）：Esc = 返回箭头，
          回打开它的那一页（state.legalFrom） */
       if(state.appView==='app'&&(state.appScreen==='legal'||state.appScreen==='legal-list')){legalBack();return;}
+      /* 「问题反馈」也是**整页**（2026-10-04 起，不再是 sheet 卡片）：Esc = 返回箭头，回「我的」 */
+      if(state.appView==='app'&&state.appScreen==='feedback'){openAppScreen('account');return;}
       if(state.userSheet){state.userSheet='';render();return;}if(state.cancelAsk){state.cancelAsk=false;render();return;}if(state.kbLegal){closeKbLegal();render();return;}if(state.kbConsentAsk){closeKbConsentAsk();render();return;}if(state.kbLogin){if(state.appView==='app'&&(state.appScreen==='login'||state.appScreen==='login-one-tap'))closeAppLogin();else closeKbLogin();render();return;}if(state.kbFullAccess){closeKbFullAccess();render();return;}if(state.kbPaywall){closeKbPaywall();render();return;}if(state.modal)closeModal();else if(state.chatPanel)closeChatAnalysis();else if(state.scanPanel)finishScan();else if(state.photoPanel)closePhotoPanel();else if(state.settingsPanel){state.settingsPanel=false;render();}else if(state.kbEditor){closeKbEditor();render();}else if(state.partnerPanel){state.partnerPanel=false;render();}else if(state.freePicker){closeFreePicker();}else if(state.freeChat){closeFreeChat();}else if(state.pending)cancelAI();return;}
     if(e.key==='Tab'&&state.modal){
       const nodes=[...document.querySelectorAll('.sheet button:not(:disabled),.sheet input,.sheet textarea,.sheet select,.sheet a[href]')].filter(n=>n.offsetParent!==null);

@@ -518,6 +518,18 @@ small{font-size:11px;color:#73847d}
 .lg-back{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .lg-body{flex:1 1 auto}
 .lg-card{overflow:hidden}
+/* 「问题反馈」页（appFeedbackPage，2026-10-04 按设计图从 sheet 卡片改成整页）：整页弹性列 ——
+   页头（复用用户页 .user-head 骨架：返回箭头 + 居中标题）+ 正文一列（分组标签 / 胶囊组 /
+   多行输入 + 计数 / 单行输入 + 计数 / 整宽提交按钮 / 页尾说明）。
+   皮肤（深色配色、字号、圆角、间距）在 theme.css 的「问题反馈页」一组。 */
+.fb-page{display:flex;flex-direction:column;min-height:100%}
+.fb-body{flex:1 1 auto}
+.fb-chips{display:flex;flex-wrap:wrap}
+.fb-textarea,.fb-input{display:block;width:100%;font:inherit;-webkit-appearance:none}
+.fb-textarea{resize:none}
+.fb-count{text-align:right}
+.fb-submit{display:flex;align-items:center;justify-content:center;width:100%;border:0}
+.fb-note{text-align:center}
 .mobile-testbar{display:none}
 .dark.phone{background:#222b25;color:#e1e9df}
 /* 宿主 App（微信）自带深色外观，不跟随 .dark 开关，故这里的 .dark 不再覆盖会话区与输入栏 */

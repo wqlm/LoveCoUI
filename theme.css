@@ -2467,6 +2467,41 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 /* 协议中心：标题下留一档再排白卡（行仍走 .app-row 骨架，字号在手机口径里放大半档） */
 .lg-card { margin-top: 16px; }
 .lg-card .app-row { font-size: 14px; }
+/* —— 「问题反馈」页（appFeedbackPage，2026-10-04 按设计图从 sheet 卡片重做成整页）——
+   照设计图把这页做成**深色整页**（原 sheet 卡片是浅色）：底色 #111318、卡面 / 未选胶囊
+   #1C1F26、描边一档 #2A2E36、强调蓝 #4C8DFF（选中的胶囊与提交按钮同色）。尺寸按设计图
+   量出来的口径：页边距 20px；标签 13px / 计数 13px（标签灰 #A9AEB8、计数 #C2C3CD）；
+   类型胶囊 36px 高（全圆角、13px 字、左右内边距 19px、横 10px 纵 20px 间距）；
+   描述框 174px 高（15px 字、内边距 17/20px、占位灰 #6F7580）；联系方式行 54px 高
+   （占位灰与标签同色 #A9AEB8）；提交按钮 52px 高（16px 字）；页尾说明 12px 居中（#6F7580）。
+   计数行右缘比卡右缘再内收 20px（设计图里「0/1000」「0/200」都缩在卡右缘以内一档）。
+   **深色是这页自己的皮**：配色写死、不跟随 .dark（与购买页 / 登录页 / 注销页 / 协议页
+   那种「按图定色」的做法一致，选择器优先级高于 .dark 那几条）；不渲染底部 Tab、
+   状态栏连着转深色（.guide-feedback 挂手机根，见 appTabBar / renderApp）。 */
+.app-phone.guide-feedback { --fb-bg: #111318; --fb-card: #1C1F26; --fb-line: #2A2E36; --fb-ink: #F2F3F5; --fb-accent: #4C8DFF; background: var(--fb-bg); }
+.app-phone.guide-feedback > .statusbar { background: var(--fb-bg); color: #FFF; }
+.app-phone.guide-feedback .app-main { width: 100%; padding: 0; }
+.fb-page { background: var(--fb-bg); color: var(--fb-ink); }
+.fb-head { padding: 10px 16px 8px; }
+.fb-head .user-back { color: var(--fb-ink); }
+.fb-head .user-back:hover { background: #FFFFFF12; }
+.fb-head h2 { font-size: 18px; }
+.fb-body { padding: 12px 20px 24px; }
+.fb-label { margin: 0 0 10px 4px; font-size: 13px; line-height: 18px; color: #A9AEB8; }
+.fb-label-gap { margin-top: 29px; }
+.fb-chips { gap: 20px 10px; margin-top: 15px; }
+.fb-chip { height: 36px; padding: 0 19px; border: 1px solid var(--fb-line); border-radius: 999px; background: var(--fb-card); color: var(--fb-ink); font-size: 13px; }
+.fb-chip:hover { background: #242832; }
+.fb-chip.on { background: var(--fb-accent); color: #FFF; }
+.fb-chip.on:hover { background: var(--fb-accent); }
+.fb-textarea { height: 174px; padding: 17px 19px; border: 1px solid var(--fb-line); border-radius: 8px; background: var(--fb-card); color: var(--fb-ink); font-size: 15px; line-height: 21px; }
+.fb-textarea::placeholder { color: #6F7580; }
+.fb-count { margin-top: 5px; padding-right: 20px; font-size: 12px; line-height: 18px; color: #C2C3CD; }
+.fb-input { height: 54px; margin-top: 9px; padding: 0 19px; border: 1px solid var(--fb-line); border-radius: 8px; background: var(--fb-card); color: var(--fb-ink); font-size: 15px; }
+.fb-input::placeholder { color: #A9AEB8; }
+.fb-submit { height: 52px; margin-top: 20px; border-radius: 8px; background: var(--fb-accent); color: #FFF; font-size: 16px; font-weight: 600; }
+.fb-submit:hover { background: #3F7DEF; }
+.fb-note { margin-top: 10px; font-size: 12px; line-height: 17px; color: #6F7580; }
 /* 出生日期弹层的滚轮：选中带换成浅灰（资料引导那一步的白色选中带在白卡弹层上看不出来），
    行文字也改走主题令牌 —— onb 那套颜色写死在淡紫页上，深色外观下在白卡弹层里会看不清；
    其余（scroll-snap 吸附 / 两端 mask 渐隐 / 44px 行高）全部复用 .onb-* 一套 */
