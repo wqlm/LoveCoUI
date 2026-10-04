@@ -49,6 +49,10 @@ small{font-size:11px;color:#73847d}
 .row-button{display:flex;align-items:center;gap:9px;width:100%;padding:11px 0;text-align:left;font-size:12px}
 .row-button .end{margin-left:auto;color:#91a197}
 .row-button:hover{color:#16765c}
+/* 「联系客服」弹层里的一行（2026-10-04 需求，见 supportSheet()）：左标签 + 右值 + 复制图标，
+   值右对齐、长邮箱可折行；带 .static 的那一行是纯展示（服务时间），不响应点击 */
+.sp-row .end{text-align:right;overflow-wrap:anywhere}
+.sp-row.static{cursor:default}
 .text-button{font-size:12px;color:#41745e;padding:7px 0}
 .kv{display:flex;justify-content:space-between;align-items:center;gap:15px;font-size:12px;padding:7px 0;color:#74857b}
 .kv strong{color:#344d3d;font-weight:550;text-align:right}

@@ -598,6 +598,11 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .sheet-content { padding: 16px; overflow-wrap: anywhere; }
 .sheet-footer { padding: 12px 16px 18px; }
 .sheet .row-button { min-height: 44px; font-size: 13px; }
+/* 「联系客服」弹层（2026-10-04 需求，见 supportSheet()）：一行 = 左标签 + 右值
+   （.row-button .end 右对齐、灰字）+ 右端复制图标（.user-copy 与「用户」页同一档）；
+   「服务时间」那行是纯展示行（.static）：不换 hover 色、也不响应点击 */
+.sp-row .end { font-size: 13px; color: var(--lc-muted); }
+.sp-row.static:hover { color: var(--lc-text); }
 .sheet .field input, .sheet .field select, .sheet .field textarea { font-size: 16px; line-height: 22px; background: var(--lc-canvas); color: var(--lc-text); border-color: var(--lc-border); }
 .hint-banner { background: var(--lc-canvas); color: var(--lc-muted); border-radius: 6px; }
 /* 「模拟截屏」的整屏白闪：真机按下系统截屏键的即时反馈（app.js 置 state.shotFlash，
@@ -2470,8 +2475,9 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    #1C1F26、描边一档 #2A2E36、强调蓝 #4C8DFF（选中的胶囊与提交按钮同色）。尺寸按设计图
    量出来的口径：页边距 20px；标签 13px / 计数 13px（标签灰 #A9AEB8、计数 #C2C3CD）；
    类型胶囊 36px 高（全圆角、13px 字、左右内边距 19px、横 10px 纵 20px 间距）；
-   描述框 174px 高（15px 字、内边距 17/20px、占位灰 #6F7580）；联系方式行 54px 高
-   （占位灰与标签同色 #A9AEB8）；提交按钮 52px 高（16px 字）——设计图页尾那行 12px 居中
+   描述框 174px 高（输入 15px 字、内边距 17/20px、占位灰 #6F7580）；联系方式行 54px 高
+   （输入 15px 字、占位灰与标签同色 #A9AEB8）——**两处占位字号 13px / 行高 18px 与标签
+   一致**（2026-10-04 后续需求：原随输入框 15px，太大）；提交按钮 52px 高（16px 字）——设计图页尾那行 12px 居中
   灰字说明（#6F7580）已按 2026-10-04 后续需求删除，勿补回。
    计数行右缘比卡右缘再内收 20px（设计图里「0/1000」「0/200」都缩在卡右缘以内一档）。
    **深色是这页自己的皮**：配色写死、不跟随 .dark（与购买页 / 登录页 / 注销页 / 协议页
@@ -2494,10 +2500,10 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .fb-chip.on { background: var(--fb-accent); color: #FFF; }
 .fb-chip.on:hover { background: var(--fb-accent); }
 .fb-textarea { height: 174px; padding: 17px 19px; border: 1px solid var(--fb-line); border-radius: 8px; background: var(--fb-card); color: var(--fb-ink); font-size: 15px; line-height: 21px; }
-.fb-textarea::placeholder { color: #6F7580; }
+.fb-textarea::placeholder { color: #6F7580; font-size: 13px; line-height: 18px; }
 .fb-count { margin-top: 5px; padding-right: 20px; font-size: 12px; line-height: 18px; color: #C2C3CD; }
 .fb-input { height: 54px; margin-top: 9px; padding: 0 19px; border: 1px solid var(--fb-line); border-radius: 8px; background: var(--fb-card); color: var(--fb-ink); font-size: 15px; }
-.fb-input::placeholder { color: #A9AEB8; }
+.fb-input::placeholder { color: #A9AEB8; font-size: 13px; }
 .fb-submit { height: 52px; margin-top: 20px; border-radius: 8px; background: var(--fb-accent); color: #FFF; font-size: 16px; font-weight: 600; }
 .fb-submit:hover { background: #3F7DEF; }
 /* —— 「关于 LoveCo」页（appAboutPage，2026-10-04 晚些按设计图新增）——
