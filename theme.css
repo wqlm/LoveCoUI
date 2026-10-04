@@ -2388,6 +2388,9 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    内容再短也不会飘到卡片正下方、超出一屏时 auto 归零、按钮仍接在第三张卡后（卡片自带 12px 下边距）。 */
 .user-logout { min-height: 52px; margin-top: auto; margin-bottom: 6px; color: var(--lc-accent-strong); font-size: 15px; font-weight: 600; }
 .user-logout:hover { background: var(--lc-accent-soft); }
+/* 「注销账号」行整行文字转灰（2026-10-04 反馈：字体改成灰色）—— 灰取 --lc-subtle，
+   与行尾折角箭头、未设置的值同一档；仍是可点行（进注销页），hover 高亮照旧 */
+.user-page .app-row.user-row-muted { color: var(--lc-subtle); }
 /* —— 「注销账号」页（2026-10-04 需求）—— 骨架在 styles.css 的 .cd-* 一组，本段只管皮：
    整页白底 + 状态栏连着转白（.guide-cancel 由 renderApp 挂、.app-main 清零边距让白底通底）；
    页头复用用户页 .user-head（这里只把内边距放到整页口径）；正文左对齐
@@ -2410,6 +2413,10 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .cd-body h3:not(:first-child) { margin-top: 22px; }
 .cd-foot { padding: 12px 16px max(12px, env(safe-area-inset-bottom)); }
 .cd-agree { margin-bottom: 12px; font-size: 13px; text-align: center; color: var(--cd-faint); }
+/* 协议行里的《账号注销协议》是可点文字按钮（2026-10-04 需求：点它打开协议正文覆盖层）——
+   字号 / 行高随整行，只把颜色压深一档 + 加粗做可点提示（与登录层协议名同一套做法） */
+.cd-agree .cd-legal-link { padding: 0; border: 0; background: none; font: inherit; font-weight: 600; line-height: inherit; color: var(--cd-ink); cursor: pointer; }
+.cd-agree .cd-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
 .cd-submit { height: 48px; background: var(--cd-accent); color: #FFF; font-size: 16px; font-weight: 600; }
 .cd-submit:hover { background: #4756E0; }
 /* 「注销申请成功」弹框（见 app.js 的 cancelAskSheet）：深色蒙层 + 居中白卡 —— 卡宽与登录页
