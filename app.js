@@ -60,7 +60,9 @@
      看着像开关失灵。顺带兜一条旧数据：开关关着而积分 < 1（旧版本留下的脏值）时回到初始额度。 */
   const creditsOut = saved.creditsOut === true;
   const savedCredits = Number.isFinite(saved.credits) ? saved.credits : 28;
-  /* App形态：app = LoveCo 主 App 界面，keyboard = 宿主 App 内唤起的 LoveCo 键盘。 */
+  /* App形态：app = LoveCo 主 App 界面，keyboard = 宿主 App 内唤起的 LoveCo 键盘。
+     2026-10-04 起**缺省即主 App**（用户需求：「网页打开时，app形态 默认为主app」）——
+     原来缺省是键盘形态，想看键盘用 `?surface=keyboard` 显式指定。 */
   const surfaceParam = ['app','keyboard'].includes(route.get('surface')) ? route.get('surface') : '';
   /* 重渲染把焦点还给 #host 时的标记：这类 focus 不是用户主动聚焦，只是渲染后的还原。 */
   let restoringFocus = false;
@@ -194,7 +196,8 @@
        shotFlash 是整屏白闪的标记（约 0.35s 后由 shotFlashTimer 摘掉），
        pendingShot / 截图 / 白闪都只在页面内存里，不持久化。 */
     pendingShot:'', shotFlash:0, shotFlashTimer:null,
-    appView:surfaceParam || 'keyboard', appScreen:null,
+    /* 启动缺省形态 = 主 App（2026-10-04 需求；原来是 keyboard），`?surface=keyboard` 进键盘形态 */
+    appView:surfaceParam || 'app', appScreen:null,
     /* 页面列表分组的展开集合：空 = 全部默认折叠（见 pageList），点组名才把该组加进来。
        只存「展开的组」，新增分组无需额外登记即自动落到默认折叠态。页面内存、不持久化。 */
     pageExpanded:{},
@@ -325,7 +328,8 @@
     birthday:saved.birthday||'',
     firstLogin:saved.firstLogin===false || saved.onboarded===true ? false : true, onboarding:'', onboardPick:{y:2006,m:9,d:28},
   };
-  /* ?surface=app 直接进入主 App 形态。进入不再直接落首页：先走一遍状态检查链
+  /* 主 App 形态启动（**缺省形态**，2026-10-04 起；`?surface=app` 也走这一支）。
+     进入不再直接落首页：先走一遍状态检查链
      appEntryCheck() —— 键盘未开启就整页进「开启键盘」引导、完全访问没开弹引导层、
      未登录弹登录层，都通过才落首页。放定时器里跑：
      启动脚本还没跑完（后面还有 const），同步调用 render 会踩 TDZ。 */
@@ -2918,7 +2922,7 @@
      ③ **登录状态**（未登录进「手机号登录」独立页面，2026-09-29 起不再是覆盖层）。通过则检查下一个；没通过就停在对应的引导上
      （返回 true = 已经渲染过，调用方别再渲染）—— 与原来「落首页 + 补弹登录层」的差别就在于
      中间这道完全访问检查，且三层不再同时出现（先权限、后登录，与键盘侧同一套思路）。
-     检查点三处：进入主 App（appEntryCheck：?surface=app 启动 / 工作台切 App形态）、
+     检查点三处：进入主 App（appEntryCheck：**启动缺省形态 / `?surface=app`** / 工作台切 App形态）、
      「开启键盘」引导完成那一刻（finishGuide —— 接着把后两环补完）、左栏「键盘完全访问」开关的
      仿真联动（与键盘侧 checkKbEntry 同一条链）。 */
   function appEntryGuards() {
