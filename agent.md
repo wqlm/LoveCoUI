@@ -27,14 +27,19 @@ LoveCo 键盘交互原型（纯静态 HTML/CSS/JS，无构建）。工作台右�
   字段，重新分类。
 - 键盘形态需覆盖所有交互分支：同一 UI 的不同状态各占一条
   （例：键盘菜单栏的「未选择对象」与「已选择对象」是 `kb-toolbar` 的两种形态）。
-- 主 App 形态覆盖 `appScreens` 集合的 6 个页面（首页 / 对象 / 我的三个 Tab 页打头）
-  + 2 个整屏流程子页
+- 主 App 形态覆盖 `appScreens` 集合的 11 个整页（`home` / `account` / `profile` /
+  `cancel-account` / `partners` / `purchase` / `login` / `login-one-tap` / `legal` /
+  `about` / `feedback`）+ 2 个整屏流程子页
   （`partner-new` 新增聊天对象 / `partner-edit` 编辑聊天对象，不在集合内）
   + 1 条会员态条目（`account-member`），页面跳转统一走 `openAppScreen()`
   （流程子页在 `setupPage()` 里补编辑对象等运行上下文）。
+  **2026-10-04 口径**：协议正文已改回整页（`legal`，页头返回箭头常驻顶部）；
+  同日与它一起改整页的「协议中心」（`legal-list`）当晚些又按需求整体删除 ——
+  审计时勿把「协议中心」当遗漏补回。
   **2026-09-26 已按需求删除 10 个页面**：先删 8 个（确认模拟订单 / 权益已到账 / 模拟订单 /
-  兑换积分 / 我的反馈 / 协议正文 / 在线客服 / 键盘设置）—— 协议正文降级为覆盖层
-  （`state.appLegal`），购买链路合并为 `purchase` 一步到账，其余连入口一并删除；
+  兑换积分 / 我的反馈 / 协议正文 / 在线客服 / 键盘设置）—— 协议正文当时降级为覆盖层
+  （`state.appLegal`，该覆盖层 2026-10-04 又按需求改回整页 `legal`，字段已删），
+  购买链路合并为 `purchase` 一步到账，其余连入口一并删除；
   同日稍后又删 `login` 登录 LoveCo 与 `membership` 会员与积分两个整页 —— 登录改弹
   **键盘同款的登录覆盖层**（`kb-login` 组件，`openKbLogin()` / `needLogin()`），
   会员开通改弹**键盘同款的付费覆盖层**（`kb-paywall` 组件，`openPaywall()`），
@@ -48,3 +53,15 @@ LoveCo 键盘交互原型（纯静态 HTML/CSS/JS，无构建）。工作台右�
 - 每次需求变更：先在 `README.md` 的「需求记录」表登记，再同步受影响章节。
 - 新增组件文件后必须在 `index.html` 登记 `<script>`，否则 `LoveCoUI.render()` 抛错。
 - 键盘 UI 组件改动：三端共用改 `components/shared/`，单端改 `components/<平台>/`。
+
+## 教学视频（`generate-video/`）
+
+4 支教学视频的**源码**在 `generate-video/`（2026-09-29 从 `video-tutorial/` 改名，
+目录自包含）：`tutorial`（LoveCo App 教程）/ `ios-keyboard` / `android-keyboard` /
+`kbswitch`（长按地球键切换键盘）。
+
+- 画面是 HTML，改文案/配色/时间轴就改页面；配音文案在 `plans/*.sh`。
+  **不用录屏、不用剪辑软件**，改完重跑出片。
+- 重出：`cd generate-video && TARGET=<片子> ./run.sh`（默认出 `tutorial`）。
+- 每支片子的「改哪里」速查、渲染器/配音/排错的完整说明见 `generate-video/README.md`。
+- 这个目录与主原型**互不依赖**（独立 node 脚本 + Chrome，不碰 `app.js` / `components/`）。
