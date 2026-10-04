@@ -339,6 +339,11 @@
        userPick 是出生日期滚轮停着的年月日（弹层草稿，打开时按当前生日初始化）。
        都是页面内存、不落库 —— 换页 / Esc / 保存后收起（见 renderApp 挂点与 userSheet()）。 */
     userSheet:'', userPick:{y:2006,m:9,d:28},
+    /* 「注销账号」链路（2026-10-04 需求，见 appCancelPage / cancelAskSheet）：
+       cancelAsk 是注销页上「注销申请成功」弹框的开关（点「确认注销」弹框、
+       点「知道了」回首页，Esc 只收弹框）；注销页是独立整页（appScreen='cancel-account'、
+       无底部 Tab），从「用户」页第三张卡的「注销账号」行进。都是页面内存、不落库。 */
+    cancelAsk:false,
   };
   /* 主 App 形态启动（**缺省形态**，2026-10-04 起；`?surface=app` 也走这一支）。
      进入不再直接落首页：先走一遍状态检查链
@@ -645,7 +650,8 @@
     {id:'app-full-access',group:'键盘权限',name:'完全访问引导层',route:'主 App › 整页覆盖层（状态检查链第二环 · 键盘同款）',trigger:'进入主 App 的状态检查链（appEntryGuards）第二环：键盘已开启但「键盘完全访问」没开（iOS / 鸿蒙；安卓系统默认就有、跳过这一环）时弹出 —— 先权限后登录，这一环通过才轮到登录层；或本列表点入（现场把「键盘完全访问」置成关、停在安卓时切到 iOS（安卓不弹这一层），不落库）',desc:'键盘同款的完全访问引导层（kb-full-access 组件）浮在 .app-shell 上、铺满正文区（主 App 形态不渲染键盘底栏，元素按整机尺度放大一档）：① 顶条 —— 底色与主体一致、不显示文字，只在最右侧放一枚圆形叉号（关掉这一层回原页）；② 标题「开启[允许完全访问]，AI 帮你回复」（鸿蒙端按系统叫法写「[完整访问]」）；③ 白色圆角卡里两张设置操作引导图的轮播（一轮 6 秒、交叉淡入淡出：系统设置列表红箭头点「键盘」行 → 键盘详情页红箭头点那颗权限开关），卡下蓝底白字「去开启」按钮',note:'与键盘形态共用同一组件（kb-full-access）与同一个开关 state.kbFullAccess（与登录层互斥）；「去开启」= 仿真开启完全访问（permissions.keyboard=true）并接着跑下一环登录检查；键盘形态的同层条目见 KB_PAGES「键盘权限与登录」组的 kb-full-access'},
     {id:'app-login',group:'登录',name:'手机号登录',route:'主 App › 独立页面（未登录时进入 · 键盘同款）',trigger:'未登录时的登录落点之一：启动 / 切进主 App / 点底部 Tab 走状态检查链最后一环时进入本页（「设备权限 › 蜂窝网络」关着 = 无卡 / 未开蜂窝网络），主 App 内各处需要登录的动作（needLogin）也进本页；**未登录点「我的」Tab 也落本页**（2026-10-04 需求：先进「我的」页、0.5 秒后按蜂窝网络开关在本页与另一张登录页之间二选一，见 `ACCOUNT_LOGIN_DELAY_MS`）；或本列表点入（现场置成未登录，不落库 —— 本页固定短信验证码形态；一键登录形态已拆成独立的「一键登录」页，见下一条）',desc:'键盘同款登录页整页直出的**独立页面**（kb-login 组件、appScreen=login —— 2026-09-29 三次需求起不再是覆盖层：当天早些时候它还叫「登录覆盖层」、更早的 2026-09-26 前是「登录 LoveCo」整页；底色同日定稿为整块通底淡蓝，原淡粉紫渐变），铺满整页、无底部 Tab 栏：右上角 X + 「手机号登录」页名 + 手机号 / 验证码两张胶囊输入框（验证码框内嵌「获取验证码」胶囊）+ 整宽「登录」按钮（11 位手机号 + 6 位验证码填齐才从淡紫禁用态变实色）+ 协议勾选行（只列**用户协议 / 隐私协议**两个简称 —— 2026-09-29 需求起链接文案改短、点开的正文页标题仍是《LoveCo用户协议》/《LoveCo隐私协议》，协议名可点开键盘同款协议正文覆盖层；**进页即未勾选**（同一条需求：手机号页面默认不勾选协议），**未勾选点「登录」不抖协议行，而是弹「请阅读并同意以下条款」弹框** —— 2026-09-29 需求：深色蒙层 + 居中白卡（右上角 X、居中标题、协议文案里协议名可点、底部整宽蓝色胶囊「同意并继续」，卡宽约屏宽七成、白卡 16px 圆角），点「同意并继续」= 视作勾选并接着把这次登录跑完、X / Esc 只收起弹框；键盘形态仍是抖协议行）。本页原来还兼演一键登录形态（表单随蜂窝网络开关二选一），2026-09-29 晚些按需求拆出去成了独立的「一键登录」页。右上角 X / Esc 关掉回来路页；登录成功先给一记「登录成功」提示，随后若左栏「模拟 › 首次登录App」开着就接「资料引导」（选择性别 → 你的出生日期），否则回来路页',note:'与键盘内登录层是同一组件、同一份状态（state.kbLogin）；主 App 形态是 appScreen=login 的整页、渲染在 .app-main 里（无底部 Tab 栏），键盘形态仍是从下往上弹出的覆盖层、只占键盘那一条；**协议勾选在主 App 是「每次进页清空」**（state.kbLoginConsent，见 openAppLogin / kb-login-sms —— 2026-09-29 需求：手机号页面默认不勾选协议），键盘形态仍是共用同一份勾选状态；2026-09-29 起「登录不再是页面」的口径作废 —— 手机号登录回到页面形态（页面本体就是键盘同款登录页）；键盘形态的同一层见 KB_PAGES「键盘权限与登录」组三条登录条目'},
     {id:'app-login-one-tap',group:'登录',name:'一键登录',route:'主 App › 独立页面（未登录时进入 · 键盘同款）',trigger:'未登录时的登录落点之一：启动 / 切进主 App / 点底部 Tab 走状态检查链最后一环时进入本页（「设备权限 › 蜂窝网络」开着 = 视为已插卡且有蜂窝网络），主 App 内各处需要登录的动作（needLogin）也进本页；**未登录点「我的」Tab 也落本页**（2026-10-04 需求：先进「我的」页、0.5 秒后按蜂窝网络开关在本页与另一张登录页之间二选一，见 `ACCOUNT_LOGIN_DELAY_MS`）；或本列表点入（现场置成未登录 + 蜂窝网络开，不落库 —— 本页固定一键登录形态，与键盘内一键登录弹窗同一套页面）',desc:'键盘内一键登录弹窗同一套页面整页直出的**独立页面**（kb-login 组件、appScreen=login-one-tap —— 2026-09-29 按需求从「手机号登录」页里拆出：原来两形态共挤一页、随蜂窝网络开关二选一，现在各占一页；底色同为整块通底淡蓝），铺满整页、无底部 Tab 栏：**X 顶条**（X 靠右独占一行，页内内容整体跟着下移）+ 居中大号本机号（state.phone，号码旁不标「上次登录」）+ 整宽蓝色胶囊主按钮「本机号一键登录」（**未勾选协议时点它不再抖协议行，而是弹「请阅读并同意以下条款」弹框** —— 2026-09-29 需求：深色蒙层 + 居中白卡（右上角 X、居中标题、协议文案带运营商认证协议三份、底部整宽蓝色胶囊「同意并继续」），点「同意并继续」= 视作勾选并接着把这次登录跑完、X / Esc 只收起弹框，不静默无反应；键盘形态的同一层仍是抖协议行）+ 居中的「手机号登录」圆角方块入口（**点它跳到独立的「手机号登录」页**，不再是键盘里的就地换表单）+ 底部协议勾选行（带**用户协议 / 隐私协议**两个简称 + 中国联通认证服务协议，协议名可点开键盘同款协议正文覆盖层；**进页即未勾选** —— 2026-09-29 需求：主 App 两张登录页默认不勾选协议，等同页底部「手机号登录」入口跳过去也不算已勾）。右上角 X / Esc 关掉回来路页；登录成功先给一记「登录成功」提示，随后若左栏「模拟 › 首次登录App」开着就接「资料引导」，否则回来路页',note:'与键盘内登录层是同一组件（state.kbLogin 记形态）；**协议勾选在主 App 是「每次进页清空」**（state.kbLoginConsent，见 openAppLogin / kb-login-sms），键盘形态仍是共用同一份勾选状态；两页之间互跳不算来路变更，X / Esc / 登录成功收尾都回到进第一页时记的那一页（appLoginReturn）'},
-    {id:'profile',group:'账户与协议',name:'用户',route:'/account/profile',trigger:'「我的」页最上方的问候行（「你好，昵称」/ 未登录时为「立即登录」，由 needLogin 拦到登录页）；本列表点入（现场摆成已登录，不落库）',desc:'**2026-10-04 按设计图重做的整页设置页**（原「个人资料」的昵称 / 性别 / 年龄段编辑表单按需求整体删除）：顶部一条页头（左侧圆形返回钮 → 回「我的」，中间居中标题「用户」）；正文三张白卡（无分组标题、卡间距 12px，卡内一行 = 47px 行的同款骨架、行高 52px）：① 昵称（右值深色）+ 会员 ID（右值 + 一枚复制图标，点它把 ID 写进剪贴板、图标变勾约 1.2 秒后复原）；② 手机号（纯展示、无箭头）+ 性别 + 出生日期（两项未设置时灰字「未设置」）；③ 注销账号（**只有视觉、点击暂无响应** —— 注销链路此前已整体删除，这一行按需求先留着、功能以后再说）；卡下单独一张「退出登录」卡（蓝字居中，走既有 logout：清会话 → 回首页并进登录页）。**昵称 / 性别 / 出生日期三行点开就地弹层编辑**（底部卡片，X / Esc 只收层）：昵称 → 输入框改名（PATCH /v1/me 仿真）；性别 → 男 / 女两行点即改并收层；出生日期 → 三列滚轮（年 1980–2015 / 月 / 日，与资料引导第二步同一套 scroll-snap 骨架与「N岁 星座」实时行、选中带在弹层里换浅灰底）+「保存」写回 state.birthday（顺带对上 age 档）',note:'性别与资料引导（onboard-gender）是同一个值、生日与「你的出生日期」（onboard-birthday）是同一个值；性别仍是对象编辑页「性别默认取反」的依据、昵称仍同步到聊天页「我」的头像兜底与各处显示；会员 ID（state.memberId）是跟着存档走的展示值（默认 7297034，与设计图一致）。原「年龄段（选填）」字段随本页改版不再显示（state.age 只留在存档里）'},
+    {id:'profile',group:'账户与协议',name:'用户',route:'/account/profile',trigger:'「我的」页最上方的问候行（「你好，昵称」/ 未登录时为「立即登录」，由 needLogin 拦到登录页）；本列表点入（现场摆成已登录，不落库）',desc:'**2026-10-04 按设计图重做的整页设置页**（原「个人资料」的昵称 / 性别 / 年龄段编辑表单按需求整体删除）：顶部一条页头（左侧圆形返回钮 → 回「我的」，中间居中标题「用户」）；正文三张白卡（无分组标题、卡间距 12px，卡内一行 = 47px 行的同款骨架、行高 52px）：① 昵称（右值深色）+ 会员 ID（右值 + 一枚复制图标，点它把 ID 写进剪贴板、图标变勾约 1.2 秒后复原）；② 手机号（纯展示、无箭头）+ 性别 + 出生日期（两项未设置时灰字「未设置」）；③ 注销账号（点它进**注销账号页** —— 2026-10-04 晚些需求：注销链路按新设计图重建为独立整页 + 成功弹框，见 `cancel-account` 条目；此前「仅视觉、点击暂无响应」的状态结束）；卡下单独一张「退出登录」卡（蓝字居中，走既有 logout：清会话 → 回首页并进登录页）。**昵称 / 性别 / 出生日期三行点开就地弹层编辑**（底部卡片，X / Esc 只收层）：昵称 → 输入框改名（PATCH /v1/me 仿真）；性别 → 男 / 女两行点即改并收层；出生日期 → 三列滚轮（年 1980–2015 / 月 / 日，与资料引导第二步同一套 scroll-snap 骨架与「N岁 星座」实时行、选中带在弹层里换浅灰底）+「保存」写回 state.birthday（顺带对上 age 档）',note:'性别与资料引导（onboard-gender）是同一个值、生日与「你的出生日期」（onboard-birthday）是同一个值；性别仍是对象编辑页「性别默认取反」的依据、昵称仍同步到聊天页「我」的头像兜底与各处显示；会员 ID（state.memberId）是跟着存档走的展示值（默认 7297034，与设计图一致）。原「年龄段（选填）」字段随本页改版不再显示（state.age 只留在存档里）'},
+    {id:'cancel-account',group:'账户与协议',name:'注销账号',route:'/account/profile/cancel',trigger:'「用户」页第三张卡的「注销账号」行（user-cancel）；本列表点入（现场摆成已登录、与「用户」页同一来路，不落库）',desc:'**2026-10-04 按设计图新增的独立整页**（注销链路 2026-09-26 曾整体删除，现按新设计图重建 —— 不再是旧的确认框形态；无底部 Tab、整页白底、状态栏连着转白）：自上而下：① 页头（左侧圆形返回钮 → 回「用户」页，中间居中标题「注销账号」，复用用户页页头骨架）；② 正文（左对齐、无卡片）：加粗句「为保证您的权益，请阅读以下内容」+ 两句说明（注销后个人资料 / 使用记录等关联数据永久删除、无法恢复；无法再使用本账号、也无法找回相关信息）+「包括并不限于」三条清单（个人信息 / 历史缓存图片 / 微信·苹果等第三方账号绑定关系）+ 加粗句「注销账号，需满足以下条件：」+ 两条条件（账号处于正常使用状态 / 账号财产已结清）；③ 沉底一组：灰色小字「我已阅读并同意《账号注销协议》」（纯文字、不接协议正文）+ 整宽蓝色胶囊「确认注销」。**点「确认注销」弹「注销申请成功」弹框**（state.cancelAsk）：深色蒙层 + 居中白卡（标题 + 「7 天内为账号注销冷静期，7 天内再次登录视为放弃注销」两行说明 + 居中蓝色胶囊「知道了」），**点「知道了」收起弹框并回首页**；弹框没有 X，Esc 也只收弹框、仍停在注销页。深色外观下本页固定浅色（同购买页 / 登录页，配色写死在 theme.css）',note:'从「用户」页进入、返回也回「用户」页；注销申请只是提交（7 天冷静期）、**不清会话也不改账号状态**，未登录也可静态查看本页'},
     {id:'feedback',group:'账户与协议',name:'反馈与建议',route:'/feedback',trigger:'「我的」· 客户支持 ·「反馈与建议」；从「键盘内容投诉与举报」进来时类型预选「举报」',desc:'反馈类型（功能问题 / 键盘问题 / AI 效果 / 建议 / 投诉 / 举报）+ 详细说明提交（POST /v1/feedback）；页内不再有「我的反馈」入口',note:'提交成功后回「我的」页（原落点「我的反馈」页与反馈历史记录已删除，反馈不留历史列表）'},
     {id:'legal-list',group:'账户与协议',name:'协议中心',route:'/legal',trigger:'「我的」· 相关协议 ·「协议中心」',desc:'内置 7 份协议的列表（用户协议、隐私、会员与积分、自动续费、联通认证等），点任一行打开**协议正文覆盖层**（不是独立页面，见下）',note:'协议为静态快照，不联网更新；协议正文原是一个独立页面（/legal/:key），2026-09-26 按需求删除页面后降级为浮在当前页上的覆盖层（state.appLegal），X / 返回 / Esc 关掉即回原页'},
     {id:'partners',group:'聊天对象',name:'聊天对象',route:'/partners',trigger:'主 App 底部 Tab 第二项「对象」；编辑保存后回到这里',desc:'对象管理列表（整页，纯管理）：标题行一行「聊天对象」+ 右侧「新建」文字按钮 —— 标题行下**没有**「当前上下文：…」那行说明，列表里也**没有「不选择」行**（清空 / 切换当前上下文只在键盘形态的管理页里做）；每行 = 圆形头像 + 备注名，**只有写过备注的对象才多一行备注**（最多两行 —— 没备注的行不占位、不写「还没有备注 —— …」提示语；**性别 · 关系阶段不在列表里出现**，进详情页才看得到）；顺序按最近操作在前（新建的排最前，编辑过的保存后提到最前）。**整行（含头像）都是点击区**：按下时整行铺一层淡紫高亮（`.partner-open:active`，不再画头像描边的选中态），松手进该对象的**详情页 = 编辑页**（字段预填，可改、底部只有一颗不带图标的「确定」）—— 点行**不改当前上下文**；左滑露出编辑 / 删除（从行右侧滑入、盖在行内容上，删除直接执行不二次确认，「编辑」与行点击同一动作）',note:'与键盘形态的管理页是同一份数据、同一套排序、同一套左滑动作，只是主 App 下渲染为整页；「不选择」条目与「切当前对象」只在键盘形态的管理页里 —— 两种形态的行点击语义不同：主 App 进详情（编辑页），键盘切当前对象'},
@@ -1032,6 +1038,9 @@
       /* 「用户」（原「个人资料」）：静态查看摆成已登录（页面读的是账号资料 —— 昵称 / 手机号 /
          性别 / 生日都取存档值），不落库、刷新即恢复 */
       if(it.id==='profile'){state.loggedIn=true;return openAppScreen('profile');}
+      /* 「注销账号」（2026-10-04 需求）：与「用户」页同一来路，同样摆成已登录
+         （页面本身不读登录态），不落库 */
+      if(it.id==='cancel-account'){state.loggedIn=true;return openAppScreen('cancel-account');}
       /* 首次登录的「资料引导」两条：现场摆成「已登录 + 算首次登录（开关置开，不落库）」，
          分别停在对应那一步（性别已选 / 滚轮停在默认那天） */
       if(it.id==='onboard-gender'){state.loggedIn=true;state.firstLogin=true;state.onboarding='gender';return openAppScreen('onboard');}
@@ -1222,7 +1231,7 @@
      一键登录页的「手机号登录」入口跳独立页（不再是键盘里的就地换表单）。
      2026-09-29 再按需求改一处细节：这两页上未勾选协议就点主按钮**不再抖协议行**，改成弹
      「请阅读并同意以下条款」弹框（kb-login 组件的 .kbl-ask，见 askKbConsent）；键盘形态照旧抖。 */
-     const appScreens = new Set(['home','account','profile','feedback','legal-list','partners','purchase','login','login-one-tap']);
+     const appScreens = new Set(['home','account','profile','cancel-account','feedback','legal-list','partners','purchase','login','login-one-tap']);
   /* —— 主 App：底部 Tab 三页（首页 / 对象 / 我的）——
      主 App 形态的骨架 = 页面正文 + 底部 Tab 栏（首页 / 对象 / 我的，见 appTabBar）。
      **顶部没有导航栏**：状态栏之下直接就是正文，「我的」拿问候行当页头、「对象」拿
@@ -1740,8 +1749,8 @@
      其余值取存档：昵称 / 会员 ID / 手机号 / 性别 / 出生日期）：
        ① 昵称（右值深色）+ 会员 ID（右值 + 复制图标，点它写剪贴板、图标变勾 1.2 秒）；
        ② 手机号（纯展示、无箭头）+ 性别 + 出生日期（未设置时灰字「未设置」）；
-       ③ 注销账号（**只有视觉、点击暂无响应** —— 2026-10-04 需求：先保留这一行、功能以后再说；
-          注销链路 2026-09-26 已整体删除，勿擅自接上）。
+       ③ 注销账号（点它进独立注销页 —— 2026-10-04 晚些需求：注销链路按新设计图重建，
+          独立整页 + 成功弹框，见 appCancelPage；不再是仅视觉的空行）。
      昵称 / 性别 / 出生日期三行点开**就地弹层**编辑（见 userSheet()）：
      改名走 PATCH /v1/me 仿真、性别点即改、出生日期用三列滚轮（复用资料引导那套骨架）。 */
   function appUserPage() {
@@ -1770,7 +1779,7 @@
         ${row('出生日期',{end:state.birthday||'未设置',dim:!state.birthday,action:'edit-birthday'})}
       </section>
       <section class="app-card user-card">
-        ${row('注销账号')}
+        ${row('注销账号',{action:'user-cancel'})}
       </section>
       <button class="app-card user-logout" data-action="logout">退出登录</button>
     </div>`;
@@ -1807,6 +1816,55 @@
   function userMetaText(){
     const {y,m,d}=userPicked();
     return `<span>${ageFrom(y,m,d)}岁</span><span>${zodiacOf(m,d)}</span>`;
+  }
+  /* —— 主 App · 注销账号（appCancelPage，2026-10-04 新增：注销链路按设计图重建）——
+     从「用户」页第三张卡的「注销账号」行进（user-cancel），是**独立整页**
+     （appScreen='cancel-account'、无底部 Tab、整页白底、状态栏连着转白）。
+     旧的「注销仿真账户」确认框链路 2026-09-26 已整体删除，本页不是它的回归 —— 形态照设计图重做：
+     ① 页头：左侧圆形返回钮（cancel-back 回「用户」页）+ 居中标题「注销账号」（复用用户页 .user-head 骨架）；
+     ② 正文（左对齐、无卡片）：加粗句「为保证您的权益，请阅读以下内容」+ 两句说明 +
+        「包括并不限于」三条清单 + 加粗句「注销账号，需满足以下条件：」+ 两条条件；
+     ③ 沉底一组：灰色小字「我已阅读并同意《账号注销协议》」（纯文字，不接协议正文）+
+        整宽蓝色胶囊「确认注销」（cancel-submit）。
+     点「确认注销」弹「注销申请成功」弹框（cancelAskSheet，state.cancelAsk）；点「知道了」收起弹框
+     并回首页（cancel-ok）。深色外观下本页固定浅色（同购买页 / 登录页：配色写死在 theme.css）。 */
+  function appCancelPage() {
+    return `<div class="cd-page">
+      <div class="app-page-head user-head cd-head">
+        <button class="user-back" data-action="cancel-back" aria-label="返回">${icon('ArrowLeft')}</button>
+        <h2>注销账号</h2>
+        <span class="user-head-side" aria-hidden="true"></span>
+      </div>
+      <div class="cd-body">
+        <h3>为保证您的权益，请阅读以下内容</h3>
+        <p>注销账号后，您的个人资料、使用记录和所有关联的数据将被永久删除，无法恢复。</p>
+        <p>您将无法再使用本账号，也无法找回当前账号中与账号相关的任何信息，包括并不限于：</p>
+        <p>1、当前账号的个人信息</p>
+        <p>2、当前账号历史缓存图片</p>
+        <p>3、当前账号与微信、苹果等第三方账号的绑定关系</p>
+        <h3>注销账号，需满足以下条件：</h3>
+        <p>1、账号处于正常使用状态，不处于封禁状态</p>
+        <p>2、账号财产已结清，没有未结清权益</p>
+      </div>
+      <div class="cd-foot">
+        <p class="cd-agree">我已阅读并同意《账号注销协议》</p>
+        <button class="cd-submit" data-action="cancel-submit">确认注销</button>
+      </div>
+    </div>`;
+  }
+  /* 「注销申请成功」弹框（state.cancelAsk，挂点见 renderApp 的 .app-shell 一处）：
+     深色蒙层只盖正文区（与其它主 App 覆盖层同一语义，不盖状态栏）；白卡居中，
+     卡内只有标题 / 两行冷静期说明 / 居中胶囊「知道了」一颗按钮（没有 X；Esc 也只收弹框，
+     仍停在注销页，见 keydown 的 Esc 链）。 */
+  function cancelAskSheet() {
+    return `<div class="cd-ask" role="dialog" aria-modal="true" aria-label="注销申请成功">
+      <div class="cd-ask-scrim" aria-hidden="true"></div>
+      <div class="cd-ask-card">
+        <h3>注销申请成功</h3>
+        <p>申请注销后，7天内为账号注销冷静期，7天内再次登录，将视为放弃注销</p>
+        <button class="cd-ask-primary" data-action="cancel-ok">知道了</button>
+      </div>
+    </div>`;
   }
   /* —— 主 App · 会员购买页（appPurchasePage，2026-09-28 新增；2026-09-29 三次需求把页名
      从「商品购买页」改成「会员购买页」（2026-09-29 三次需求）——页面名 / 详情标题 / aria 标签 / README 用新名）——
@@ -2070,9 +2128,10 @@
   const APP_TABS = [['home','首页','home'],['partners','对象','users'],['account','我的','user']];
   const APP_TAB_OF = {home:'home',partners:'partners','partner-edit':'partners',account:'account',profile:'account',feedback:'account','legal-list':'account',purchase:'account'};
   function appTabBar() {
-    /* 「开启键盘」引导流程、首次登录的「资料引导」、会员购买页（2026-09-29 起整页铺满）与
-       两张登录独立页面（「手机号登录」/「一键登录」，2026-09-29 起不再是覆盖层）都没有底部 Tab */
-    if(state.appScreen==='kb-guide'||state.appScreen==='onboard'||state.appScreen==='purchase'||state.appScreen==='login'||state.appScreen==='login-one-tap')return '';
+    /* 「开启键盘」引导流程、首次登录的「资料引导」、会员购买页（2026-09-29 起整页铺满）、
+       注销账号页（2026-10-04 起整页铺满）与两张登录独立页面（「手机号登录」/「一键登录」，
+       2026-09-29 起不再是覆盖层）都没有底部 Tab */
+    if(state.appScreen==='kb-guide'||state.appScreen==='onboard'||state.appScreen==='purchase'||state.appScreen==='cancel-account'||state.appScreen==='login'||state.appScreen==='login-one-tap')return '';
     const glyph = window.LoveCoSystemGlyphs;
     const active = APP_TAB_OF[state.appScreen] || '';
     return `<nav class="app-nav" role="tablist">${APP_TABS.map(([id,label,g])=>`<button data-action="app-tab:${id}" class="${active===id?'active':''}" aria-selected="${active===id}" role="tab">${glyph[g]}${label}</button>`).join('')}</nav>`;
@@ -2091,6 +2150,8 @@
     /* 「用户」（原「个人资料」）：2026-10-04 起也是整页结构（原为 renderModal 里的 sheet 卡片，那份编辑表单已删） */
     if(s==='profile')return appUserPage();
     if(s==='purchase')return appPurchasePage();
+    /* 「注销账号」（2026-10-04 需求）：从「用户」页进的整页（appCancelPage，无底部 Tab） */
+    if(s==='cancel-account')return appCancelPage();
     /* 登录独立页面（2026-09-29 起不再是覆盖层；同日晚些拆成「手机号登录」/「一键登录」两页）：
        同一套 kb-login 组件整页直出 —— 表单形态由 state.kbLogin 决定（openAppLogin 落页时已摆好），
        X / Esc / 登录成功的收尾见 closeAppLogin / finishKbLogin */
@@ -2116,13 +2177,15 @@
       : state.appScreen==='onboard' ? ' guide-lavender'
       /* 会员购买页整页铺满（2026-09-29）：状态栏跟着 Hero 一起转蓝（.guide-purchase，theme.css） */
       : state.appScreen==='purchase' ? ' guide-purchase'
+      /* 注销账号页整页白底（2026-10-04）：状态栏连着一起转白（.guide-cancel，theme.css） */
+      : state.appScreen==='cancel-account' ? ' guide-cancel'
       /* 登录整页淡蓝（2026-09-29，「手机号登录」/「一键登录」两页同一套）：状态栏连着一起转淡蓝（.guide-login，theme.css） */
       : (state.appScreen==='login'||state.appScreen==='login-one-tap') ? ' guide-login' : '';
     const scrollMemo = captureScrolls($('#app'));
     $('#app').innerHTML = `<div class="shell app-workspace">
       <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">主 App 手机模拟器</span></div></header>
       <main class="workspace"><aside class="rail left-rail"><div class="rail-section"><div class="rail-heading"><h2>平台与app形态</h2></div>${deviceSwitchers()}</div>${permissionSection()}<div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}</div></aside>
-        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.kbGuideDemo?LoveCoUI.render('kb-usage-guide', ctx):''}${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${state.userSheet?userSheet():''}${state.appLegal?legalSheet('app-legal-close'):''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div></div></section><aside class="rail right-rail">${pageListSection()}</aside></main>
+        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.kbGuideDemo?LoveCoUI.render('kb-usage-guide', ctx):''}${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${state.userSheet?userSheet():''}${state.cancelAsk?cancelAskSheet():''}${state.appLegal?legalSheet('app-legal-close'):''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div></div></section><aside class="rail right-rail">${pageListSection()}</aside></main>
     </div>`;
     bind();
     /* 引导流程的演示动画：每次重建 DOM 后重新接一遍「拿到手势就开声音」（见 wireGuideVideos） */
@@ -3014,10 +3077,12 @@
     /* 换页一律收起协议正文覆盖层：它只服务于打开它的那一页；
        键盘切换悬浮窗同理 —— 它挂在引导页上，换页不该跟着走；
        iOS 系统支付框也只为当次购买服务，换页一并收起；
-       「用户」页的编辑弹层（state.userSheet）同样只属于那一页，换页一并收起 */
+       「用户」页的编辑弹层（state.userSheet）同样只属于那一页，换页一并收起；
+       注销页的「注销申请成功」弹框（state.cancelAsk）同理，换页一并收起 */
     state.appLegal=false;
     state.iosPaySheet=false;
     state.userSheet='';
+    state.cancelAsk=false;
     state.kbImeSwitch=false;
     /* 键盘选择器（「切换到 LoveCo 键盘」页上的浮层）同理：换页不该跟着走 */
     state.kbSwitchPicker=false;
@@ -4233,9 +4298,11 @@
          （把滚轮停着的那天写回 state.birthday，顺带对上 age 档）是三个落地动作；
          copy-member-id 把会员 ID 写进剪贴板，图标变勾约 1.2 秒后复原（没有别的提示 ——
          轻提示组件已按需求删除）；user-back 返回「我的」。
-       「注销账号」那一行按需求（2026-10-04）只保留视觉、点击暂无动作 —— 注销链路
-       2026-09-26 已整体删除，勿擅自接上。 */
+       「注销账号」那一行点它进独立的注销页（user-cancel → appScreen='cancel-account'，
+       2026-10-04 需求；注销链路 2026-09-26 曾整体删除，现按新设计图重建为
+       「独立页 + 成功弹框」，与旧确认框链路无关）。 */
     if(name==='user-back')return openAppScreen('account');
+    if(name==='user-cancel')return openAppScreen('cancel-account');
     if(name==='edit-nickname'){state.userSheet='nickname';return render();}
     if(name==='edit-gender'){state.userSheet='gender';return render();}
     if(name==='edit-birthday'){initUserPick();state.userSheet='birthday';return render();}
@@ -4258,8 +4325,17 @@
       state.memberIdTimer=setTimeout(()=>{state.memberIdCopied=false;render();},1200);
       return render();
     }
-    /* 「注销仿真账户」链路（delete-account 确认框 → delete-account-confirm）已于 2026-09-26
-       按需求整体删除：「我的」页不再有这个入口，state.deleted 也随之清除，勿补回。 */
+    /* —— 「注销账号」链路的其余动作（2026-10-04 需求，页见 appCancelPage / cancelAskSheet）——
+       cancel-back：注销页返回箭头 → 回「用户」页；
+       cancel-submit：「确认注销」→ 弹「注销申请成功」弹框（7 天冷静期说明）；
+       cancel-ok：弹框唯一按钮「知道了」→ 收起弹框、回首页。 */
+    if(name==='cancel-back')return openAppScreen('profile');
+    if(name==='cancel-submit'){state.cancelAsk=true;return render();}
+    if(name==='cancel-ok'){state.cancelAsk=false;return openAppScreen('home');}
+    /* 旧的「注销仿真账户」确认框链路（delete-account → delete-account-confirm）已于 2026-09-26
+       按需求整体删除：「我的」页当时不再有注销入口、state.deleted 也随之清除；2026-10-04 起
+       注销按新设计图重建为「用户」页入口 → 独立注销页 → 成功弹框（见上面的 user-cancel / cancel-*），
+       旧确认框形态不受影响、勿按旧链路补回。 */
     /* 会员开通覆盖层的三档商品卡：选中即切换 state.kbPlan（主 App 与键盘共用同一个选中态） */
     if(name==='kb-plan'){state.kbPlan=arg;return render();}
     /* 「立即解锁」（会员购买页与会员开通层共用的主按钮）：按平台 / 形态分三路（2026-09-28 需求）——
@@ -4613,7 +4689,7 @@
       /* 主 App 的「开启键盘」引导是流程整页：Esc 不提供出口（引导流程只能走自己的返回 / 完成动作）——
          「切换到 LoveCo 键盘」页上的键盘选择器是这一页自己的浮层，Esc 先把这一层收掉 */
       if(state.appView==='app'&&state.appScreen==='kb-guide'){if(state.kbSwitchPicker){state.kbSwitchPicker=false;render();}return;}
-      if(state.iosPaySheet){closeIosPaySheet();render();return;}if(state.appLegal){state.appLegal=false;render();return;}if(state.userSheet){state.userSheet='';render();return;}if(state.kbLegal){closeKbLegal();render();return;}if(state.kbConsentAsk){closeKbConsentAsk();render();return;}if(state.kbLogin){if(state.appView==='app'&&(state.appScreen==='login'||state.appScreen==='login-one-tap'))closeAppLogin();else closeKbLogin();render();return;}if(state.kbFullAccess){closeKbFullAccess();render();return;}if(state.kbPaywall){closeKbPaywall();render();return;}if(state.modal)closeModal();else if(state.chatPanel)closeChatAnalysis();else if(state.scanPanel)finishScan();else if(state.photoPanel)closePhotoPanel();else if(state.settingsPanel){state.settingsPanel=false;render();}else if(state.kbEditor){closeKbEditor();render();}else if(state.partnerPanel){state.partnerPanel=false;render();}else if(state.freePicker){closeFreePicker();}else if(state.freeChat){closeFreeChat();}else if(state.pending)cancelAI();return;}
+      if(state.iosPaySheet){closeIosPaySheet();render();return;}if(state.appLegal){state.appLegal=false;render();return;}if(state.userSheet){state.userSheet='';render();return;}if(state.cancelAsk){state.cancelAsk=false;render();return;}if(state.kbLegal){closeKbLegal();render();return;}if(state.kbConsentAsk){closeKbConsentAsk();render();return;}if(state.kbLogin){if(state.appView==='app'&&(state.appScreen==='login'||state.appScreen==='login-one-tap'))closeAppLogin();else closeKbLogin();render();return;}if(state.kbFullAccess){closeKbFullAccess();render();return;}if(state.kbPaywall){closeKbPaywall();render();return;}if(state.modal)closeModal();else if(state.chatPanel)closeChatAnalysis();else if(state.scanPanel)finishScan();else if(state.photoPanel)closePhotoPanel();else if(state.settingsPanel){state.settingsPanel=false;render();}else if(state.kbEditor){closeKbEditor();render();}else if(state.partnerPanel){state.partnerPanel=false;render();}else if(state.freePicker){closeFreePicker();}else if(state.freeChat){closeFreeChat();}else if(state.pending)cancelAI();return;}
     if(e.key==='Tab'&&state.modal){
       const nodes=[...document.querySelectorAll('.sheet button:not(:disabled),.sheet input,.sheet textarea,.sheet select,.sheet a[href]')].filter(n=>n.offsetParent!==null);
       if(!nodes.length)return;const first=nodes[0],last=nodes.at(-1);

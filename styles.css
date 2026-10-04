@@ -492,6 +492,17 @@ small{font-size:11px;color:#73847d}
 .user-copy{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
 .user-logout{display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .user-wheel .onb-wheel{margin-top:0}
+/* 「注销账号」页（2026-10-04 需求，appCancelPage）：整页铺满的弹性列 —— 页头（复用 .user-head
+   骨架）+ 可滚正文 + 沉底一组（同意说明行 + 确认注销按钮）；「注销申请成功」弹框铺满正文区、
+   白卡居中、卡内一列居中排。皮肤（配色 / 字号 / 圆角 / 间距）在 theme.css 的同一组。 */
+.cd-page{display:flex;flex-direction:column;min-height:100%}
+.cd-body{flex:1 1 auto}
+.cd-foot{display:flex;flex-direction:column;margin-top:auto}
+.cd-submit{display:flex;align-items:center;justify-content:center;width:100%;border:0;border-radius:999px}
+.cd-ask{position:absolute;inset:0;z-index:6;display:grid;place-items:center}
+.cd-ask-scrim{position:absolute;inset:0}
+.cd-ask-card{position:relative;display:flex;flex-direction:column;text-align:center}
+.cd-ask-primary{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px}
 .mobile-testbar{display:none}
 .dark.phone{background:#222b25;color:#e1e9df}
 /* 宿主 App（微信）自带深色外观，不跟随 .dark 开关，故这里的 .dark 不再覆盖会话区与输入栏 */

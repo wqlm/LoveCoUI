@@ -2384,6 +2384,39 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .user-copy svg { width: 16px; height: 16px; }
 .user-logout { min-height: 52px; margin-top: 20px; color: var(--lc-accent-strong); font-size: 15px; font-weight: 600; }
 .user-logout:hover { background: var(--lc-accent-soft); }
+/* —— 「注销账号」页（2026-10-04 需求）—— 骨架在 styles.css 的 .cd-* 一组，本段只管皮：
+   整页白底 + 状态栏连着转白（.guide-cancel 由 renderApp 挂、.app-main 清零边距让白底通底）；
+   页头复用用户页 .user-head（这里只把内边距放到整页口径）；正文左对齐（加粗小标题 + 说明段落）；
+   底部一组沉底（灰色同意小字 + 整宽蓝色胶囊「确认注销」）。
+   深色外观下本页固定浅色（配色写死、不跟随 .dark —— 同购买页 / 登录页的做法，
+   选择器优先级高于 .dark 那几条）。 */
+.app-phone.guide-cancel { --cd-ink: #1C1C1E; --cd-sub: #48484D; --cd-faint: #8E8E93; --cd-accent: #5766F2; background: #FFF; }
+.app-phone.guide-cancel > .statusbar { background: #FFF; color: #191919; }
+.app-phone.guide-cancel .app-main { width: 100%; padding: 0; }
+/* 令牌挂在手机根上（不是 .cd-page）：「注销申请成功」弹框是 .cd-page 的**兄弟**（挂在 .app-shell
+   上），挂 .cd-page 上弹框里的按钮会取不到 --cd-accent、背景解析失败变透明（白底白字看不见） */
+.cd-page { background: #FFF; color: var(--cd-ink); }
+.cd-head { padding: 10px 16px 8px; }
+.cd-head h2 { color: var(--cd-ink); }
+.cd-head .user-back { color: var(--cd-ink); }
+.cd-body { padding: 8px 20px 24px; }
+.cd-body h3 { font-size: 17px; font-weight: 700; line-height: 1.45; color: var(--cd-ink); }
+.cd-body p { margin-top: 8px; font-size: 15px; line-height: 1.65; color: var(--cd-sub); }
+.cd-body h3:not(:first-child) { margin-top: 22px; }
+.cd-foot { padding: 12px 16px max(12px, env(safe-area-inset-bottom)); }
+.cd-agree { margin-bottom: 12px; font-size: 13px; text-align: center; color: var(--cd-faint); }
+.cd-submit { height: 48px; background: var(--cd-accent); color: #FFF; font-size: 16px; font-weight: 600; }
+.cd-submit:hover { background: #4756E0; }
+/* 「注销申请成功」弹框（见 app.js 的 cancelAskSheet）：深色蒙层 + 居中白卡 —— 卡宽与登录页
+   .kbl-ask 同口径（屏宽 74%、上限 272px），卡内标题 / 两行说明居中，「知道了」胶囊收窄居中；
+   弹入动画只在弹出那一次渲染播放（同 .kbl-ask 的做法，重渲染会重播） */
+.cd-ask-scrim { background: #10101A6B; }
+.cd-ask-card { width: min(272px, 74%); padding: 26px 22px 22px; border-radius: 16px; background: #FFF; box-shadow: 0 18px 44px #10101038; animation: cd-ask-in .2s cubic-bezier(.2, .8, .3, 1) both; }
+.cd-ask-card h3 { font-size: 17px; font-weight: 700; color: var(--cd-ink); }
+.cd-ask-card p { margin-top: 12px; font-size: 15px; line-height: 1.6; color: var(--cd-sub); }
+.cd-ask-primary { align-self: center; min-width: 132px; height: 42px; margin-top: 20px; padding: 0 30px; background: var(--cd-accent); color: #FFF; font-size: 15px; font-weight: 600; }
+.cd-ask-primary:hover { background: #4756E0; }
+@keyframes cd-ask-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
 /* 出生日期弹层的滚轮：选中带换成浅灰（资料引导那一步的白色选中带在白卡弹层上看不出来），
    行文字也改走主题令牌 —— onb 那套颜色写死在淡紫页上，深色外观下在白卡弹层里会看不清；
    其余（scroll-snap 吸附 / 两端 mask 渐隐 / 44px 行高）全部复用 .onb-* 一套 */
