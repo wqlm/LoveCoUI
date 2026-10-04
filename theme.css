@@ -2333,7 +2333,8 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    左右内边距 5px → 4.5px 收一档，视觉上仍是一枚小牌、不喧宾夺主） */
 .member-line { font-size: 11px; color: var(--lc-yellow); }
 .member-line b { font-size: 9px; font-weight: 700; padding: 1.5px 4.5px; border-radius: 5px; background: var(--lc-yellow-soft); }
-.member-banner { margin-bottom: 16px; padding: 14px 16px; border-radius: 14px; background: linear-gradient(115deg, #6577F0, #4C5CE6); color: #fff; }
+/* 2026-10-04 需求：横幅与上方问候行拉开距离（原先只隔问候行的 9px 底内边距，太挤） */
+.member-banner { margin-top: 14px; margin-bottom: 16px; padding: 14px 16px; border-radius: 14px; background: linear-gradient(115deg, #6577F0, #4C5CE6); color: #fff; }
 .member-banner.is-member { background: linear-gradient(115deg, #F7B544, #EE9520); }
 .member-banner .mb-text strong { font-size: 16px; font-weight: 650; }
 /* 横幅内的副文案必须是白字：通用 small 规则把它压成灰字（--lc-muted），在蓝 / 橙底上读不出来 */
