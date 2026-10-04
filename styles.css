@@ -451,9 +451,9 @@ small{font-size:11px;color:#73847d}
 @keyframes vr-wave{from{transform:scaleY(.3)}to{transform:scaleY(1)}}
 /* .plan-grid / .plan* / .plan-benefits 一组已随「会员与积分」整页于 2026-09-26 删除：
    会员开通改走 kb-paywall 组件的三档商品卡（.pw-plans / .pw-plan，见 theme.css） */
-/* .legal-text 归协议正文覆盖层（legalSheet）用 —— 原「协议正文」页面已删除，
-   正文改在主 App 的覆盖层里展示（2026-09-26） */
-.legal-text{white-space:pre-wrap;overflow-wrap:anywhere;font-size:11px;line-height:1.95;color:#61725b}
+/* .legal-text 已删：它只服务主 App 的协议正文覆盖层（legalSheet），该覆盖层 2026-10-04
+   按需求改回整页（appLegalPage）后没有使用者 —— 正文段落改走 .lg-text（见本节 .lg-* 一组，
+   皮肤在 theme.css 的「协议正文页」）；键盘内的协议正文页用的是自己的 .kbl-legal-text */
 .draft-toggle{font-size:10px;background:#fae9df;color:#a77558;padding:4px 7px;border-radius:4px}
 .light-button{font-size:11px;background:#e5ede1;padding:7px 10px;border-radius:5px}
 .device-caption{display:flex;align-items:center;justify-content:center;gap:7px;margin-top:15px;font-size:10px;color:#94a18f}
@@ -508,6 +508,16 @@ small{font-size:11px;color:#73847d}
 .cd-ask-scrim{position:absolute;inset:0}
 .cd-ask-card{position:relative;display:flex;flex-direction:column;text-align:center}
 .cd-ask-primary{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px}
+/* 协议正文页（appLegalPage）与协议中心（appLegalListPage）：2026-10-04 需求 —— 协议由覆盖层
+   改回整页，照设计图重排：链头只有一枚返回箭头，协议名 / 页名改由正文首行的大号标题承担。
+   骨架 = 整页弹性列（链头 + 可滚正文）；协议中心 = 同一链头 + 大标题 + 一张白卡列表
+   （列表行复用 .app-row 骨架）。整体撑满正文一屏高、白底通底，皮肤（字号 / 宋体 / 留白）
+   在 theme.css 的「协议正文页」一组。 */
+.lg-page{display:flex;flex-direction:column;min-height:100%}
+.lg-head{display:flex;align-items:center}
+.lg-back{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.lg-body{flex:1 1 auto}
+.lg-card{overflow:hidden}
 .mobile-testbar{display:none}
 .dark.phone{background:#222b25;color:#e1e9df}
 /* 宿主 App（微信）自带深色外观，不跟随 .dark 开关，故这里的 .dark 不再覆盖会话区与输入栏 */
@@ -521,7 +531,8 @@ small{font-size:11px;color:#73847d}
 .dark .plan.active{background:#40633f}
 .dark .icon-btn:hover{background:#466048}
 .dark .sheet-list-item,.dark .sheet-header,.dark .sheet-footer{border-color:#486044}
-.dark .legal-text{color:#b9cdb2}
+/* .dark .legal-text 随 .legal-text 一并删除（协议正文 2026-10-04 起是整页，配色写死在
+   theme.css 的「协议正文页」一组里，不跟随深色外观） */
 @keyframes slideup{from{transform:translateY(20px);opacity:1}
 to{transform:translateY(0);opacity:1}
 }

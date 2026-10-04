@@ -19,7 +19,7 @@ small, .muted, .brand-tag, .device-top,
 .ai-footnote,
 .kv, .control-line, .char-count,
 .field, .sheet-list-item p,
-.legal-text, .device-caption, .mobile-testbar,
+.device-caption, .mobile-testbar,
 .switch-label, .page-group, .page-detail .kv span { color: var(--lc-muted); }
 a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .topbar { background: var(--lc-surface); border-color: var(--lc-border); height: 68px; }
@@ -2420,7 +2420,8 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .cd-body h3:not(:first-child) { margin-top: 22px; }
 .cd-foot { padding: 12px 16px max(12px, env(safe-area-inset-bottom)); }
 .cd-agree { margin-bottom: 12px; font-size: 13px; text-align: center; color: var(--cd-faint); }
-/* 协议行里的《账号注销协议》是可点文字按钮（2026-10-04 需求：点它打开协议正文覆盖层）——
+/* 协议行里的《账号注销协议》是可点文字按钮（2026-10-04 需求：点它打开协议正文 ——
+   2026-10-04 晚些从覆盖层改成整页，本行行为不变，只是落点从浮层换成了 appScreen='legal'）——
    字号 / 行高随整行，只把颜色压深一档 + 加粗做可点提示（与登录层协议名同一套做法） */
 .cd-agree .cd-legal-link { padding: 0; border: 0; background: none; font: inherit; font-weight: 600; line-height: inherit; color: var(--cd-ink); cursor: pointer; }
 .cd-agree .cd-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
@@ -2436,6 +2437,36 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .cd-ask-primary { align-self: center; min-width: 132px; height: 42px; margin-top: 20px; padding: 0 30px; background: var(--cd-accent); color: #FFF; font-size: 15px; font-weight: 600; }
 .cd-ask-primary:hover { background: #4756E0; }
 @keyframes cd-ask-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+/* —— 协议正文页（appLegalPage）与协议中心（appLegalListPage）（2026-10-04 需求）——
+   照设计图把协议从**覆盖层改回整页**：整页白底（.guide-legal 挂手机根，状态栏连着转白、
+   .app-main 清零边距让白底通底，同注销页 / 购买页的做法）、无底部 Tab（见 appTabBar）。
+   页头**只有一枚返回箭头**（没有页名、没有 X；原 sheet 头那行协议名与页尾那颗整宽「返回」
+   按钮一并去掉），协议名改在正文首行用大号加粗标题承担；「项目内置协议快照；模拟器本身
+   不提供真实付费服务。」那条说明也不再出现在手机里 —— 模拟器口径只留在工作台与 README。
+   正文左对齐、宋体（设计图里标题与正文都是宋体这一路）、行高放宽到 1.95，
+   按空行分段（段间距 12px）；协议中心同一套页头 + 大标题（这一页不排宋体，跟着全站字体走）
+   + 一张白卡列表（行复用 .app-row 骨架，卡内分隔线由 .app-card 那条给）。
+   深色外观下这两页固定浅色（配色写死、不跟随 .dark —— 与购买页 / 登录页 / 注销页同一做法，
+   选择器优先级高于 .dark 那几条）。 */
+.app-phone.guide-legal { --lg-ink: #1C1C1E; --lg-accent: #5766F2; --lg-serif: "Songti SC", "STSong", "Noto Serif SC", "Source Han Serif SC", serif; background: #FFF; }
+.app-phone.guide-legal > .statusbar { background: #FFF; color: #191919; }
+.app-phone.guide-legal .app-main { width: 100%; padding: 0; }
+.lg-page { background: #FFF; color: var(--lg-ink); }
+.lg-head { padding: 6px 10px 2px; }
+.lg-back { width: 38px; height: 38px; border-radius: 50%; color: var(--lg-ink); }
+.lg-back:hover { background: #1919190F; }
+.lg-back svg { width: 20px; height: 20px; }
+.lg-body { padding: 6px 22px 32px; }
+/* 大号协议名 / 页名：设计图里标题在返回箭头之下、左对齐，占两三行的位置 */
+.lg-title { font-size: 27px; font-weight: 700; line-height: 1.38; letter-spacing: .5px; }
+/* 协议正文页（.lg-doc）的标题与正文排宋体 —— 设计图里这两处都是宋体这一路（协议中心是列表页，
+   标题与行都跟着全站字体走）；正文段落按空行分段，段间距 12px */
+.lg-doc .lg-title { font-family: var(--lg-serif); }
+.lg-text { margin-top: 18px; font-family: var(--lg-serif); font-size: 15.5px; line-height: 1.95; color: var(--lg-ink); }
+.lg-text p + p { margin-top: 12px; }
+/* 协议中心：标题下留一档再排白卡（行仍走 .app-row 骨架，字号在手机口径里放大半档） */
+.lg-card { margin-top: 16px; }
+.lg-card .app-row { font-size: 14px; }
 /* 出生日期弹层的滚轮：选中带换成浅灰（资料引导那一步的白色选中带在白卡弹层上看不出来），
    行文字也改走主题令牌 —— onb 那套颜色写死在淡紫页上，深色外观下在白卡弹层里会看不清；
    其余（scroll-snap 吸附 / 两端 mask 渐隐 / 44px 行高）全部复用 .onb-* 一套 */
