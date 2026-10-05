@@ -270,9 +270,10 @@ small{font-size:11px;color:#73847d}
 .pu-plan{position:relative;display:flex;flex-direction:column;align-items:center;border:1px solid transparent;border-radius:12px}
 .pu-plan-badge{display:none;position:absolute;left:50%;transform:translateX(-50%);border-radius:999px;white-space:nowrap}
 .pu-plan.active .pu-plan-badge{display:block}
-.pu-plan-name,.pu-plan-price,.pu-plan-origin{display:block}
+.pu-plan-name,.pu-plan-price,.pu-plan-note{display:block}
 .pu-plan-price i{font-style:normal}
-.pu-plan-origin{text-decoration:line-through}
+/* 现价下面那行小字（2026-10-05 需求：原 `.pu-plan-origin` 的划线原价整行删除、换成
+   cardNote 那句生活化对比，line-through 一并去掉 —— 现在写的是句子、不再是价格） */
 .pu-cap{margin:0}
 /* 屏幕底部那一组：支付方式行（iOS 不渲染这一行）+ 立即解锁 + 协议行 —— margin-top:auto 把整组
    顶到白色主体底部（富余高度落在档位卡与这组之间，见 theme.css 的纵向节奏说明） */

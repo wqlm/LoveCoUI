@@ -1734,7 +1734,9 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu-plan-name { font-size: 12.5px; font-weight: 650; color: var(--pu-sub); }
 .pu-plan-price { margin-top: 5px; font-size: 23px; font-weight: 800; color: #1A5EE8; letter-spacing: .2px; }
 .pu-plan-price i { margin-right: 1px; font-size: 13px; font-weight: 650; }
-.pu-plan-origin { margin-top: 3px; font-size: 10.5px; color: var(--pu-faint); }
+/* 现价下面那行小灰字 = 该档 cardNote（2026-10-05 需求：一顿烧烤 / 一杯奶茶 / 一束鲜花的钱；
+   原先是 `.pu-plan-origin` 的划线原价，划线与 ¥ 前缀一并去掉，字号 / 颜色沿用那一行） */
+.pu-plan-note { margin-top: 3px; font-size: 10.5px; color: var(--pu-faint); }
 /* 续订说明：下面留 18px 的**最小**间距 —— 底部那组（.pu-foot）再往上顶时要靠这段留白兜底 */
 .pu-cap { margin: 13px 4px 18px; font-size: 11px; line-height: 1.5; color: var(--pu-faint); }
 .pu-pay { gap: 11px; padding: 13px 14px; background: #F6F6F8; }
