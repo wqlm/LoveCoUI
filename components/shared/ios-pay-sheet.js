@@ -7,9 +7,11 @@
    ① 大标题「App Store」+ 右上角圆形 X；② 商品卡（LoveCo 图标 + 档位名 + App 名与「12+」评级 +
    「In-App Purchase」+ 价格与计费说明）；③ 卡外一行「Account: …」（仿真 Apple 账户）；
    ④ 底部居中的侧边按钮图形 + 「Confirm with Side Button」。
-   档位名与计费说明随 state.kbPlan 变：永久档为一次性买断（Lifetime / One-time charge，即截图
-   那一档），周 / 季度是自动续订（Weekly / Quarterly，写「Auto-renewable · …」）；价格取
-   ctx.plans（与 kb-paywall 同一张表 PLANS），统一格式化成两位小数。
+   档位名与计费说明随**当前结算档位**变（优先 ctx.checkout = app.js 的 checkoutPlan()，
+   退回 state.kbPlan）：永久档为一次性买断（Lifetime / One-time charge，即截图那一档），
+   其余是自动续订（Weekly / Quarterly / Monthly，写「Auto-renewable · …」）；价格取同一份
+   结算档位（第一个购买页与 kb-paywall 走 PLANS、第二个购买页「L+ 会员」走 PLUS_PLANS，
+   2026-10-05 起），统一格式化成两位小数。
    交互：点 X（ios-pay-close）= 取消购买、只收起这层回会员开通层；点确认区（ios-pay-confirm）
    = 确认支付（真机是双击侧边按钮），走完仿真支付、权益到账并连同会员开通层一起收起
    （见 app.js 的 completePurchase）；点蒙层不关闭（与系统弹窗一致）。
@@ -18,14 +20,21 @@
 LoveCoUI.define('shared', 'ios-pay-sheet', (ctx) => {
   const { esc, ib, state } = ctx;
   const plans = ctx.plans || {};
-  const plan = plans[state.kbPlan] || {};
-  /* 档位在系统弹窗里的商品名与计费说明（照截图那一档的写法；取不到档位就回落到表里的中文名） */
+  /* 当前结算档位优先取 ctx.checkout（app.js 的 checkoutPlan()）—— 主 App 有**两张**购买页，
+     各自一张档位表、各自一个选中态（第一个购买页 / 键盘付费层 = PLANS + state.kbPlan，
+     第二个购买页「L+ 会员」 = PLUS_PLANS + state.pu2Plan，2026-10-05 起）；
+     取不到 ctx.checkout 时退回旧口径（PLANS + state.kbPlan），行为不变。 */
+  const plan = (ctx.checkout && ctx.checkout.key) ? ctx.checkout : (plans[state.kbPlan] || {});
+  const planKey = plan.key || state.kbPlan;
+  /* 档位在系统弹窗里的商品名与计费说明（照截图那一档的写法；取不到档位就回落到表里的中文名）。
+     month 是 2026-10-05 增加的档位（第二个购买页「L+ 会员」的月度会员）。 */
   const MARKETING = {
     permanent: ['Lifetime', 'One-time charge'],
     week: ['Weekly', 'Auto-renewable · 7 days'],
     quarter: ['Quarterly', 'Auto-renewable · 90 days'],
+    month: ['Monthly', 'Auto-renewable · 30 days'],
   };
-  const [name, charge] = MARKETING[state.kbPlan] || [plan.name || '', ''];
+  const [name, charge] = MARKETING[planKey] || [plan.name || '', ''];
   const price = plan.price == null ? '' : `¥${Number(plan.price).toFixed(2)}`;
   const busy = state.paymentBusy ? ' disabled' : '';
   const enter = state.pickerEnter ? ' entering' : '';

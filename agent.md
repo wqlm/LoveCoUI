@@ -27,8 +27,10 @@ LoveCo 键盘交互原型（纯静态 HTML/CSS/JS，无构建）。工作台右�
   字段，重新分类。
 - 键盘形态需覆盖所有交互分支：同一 UI 的不同状态各占一条
   （例：键盘菜单栏的「未选择对象」与「已选择对象」是 `kb-toolbar` 的两种形态）。
-- 主 App 形态覆盖 `appScreens` 集合的 12 个整页（`home` / `account` / `profile` /
-  `cancel-account` / `partners` / `purchase` / `login` / `login-one-tap` / `legal` /
+- 主 App 形态覆盖 `appScreens` 集合的 13 个整页（`home` / `account` / `profile` /
+  `cancel-account` / `partners` / `purchase` / `purchase2`（2026-10-05 新增的第二个会员购买页
+  「L+ 会员」，照设计图 1:1、入口 =「我的」页的会员卡片；第一个购买页 `purchase` 仍在、
+  入口是「会员中心」行）/ `login` / `login-one-tap` / `legal` /
   `about` / `feedback` / `invite`（2026-10-05 新增的「邀请有礼」，保留底部 Tab））+ 2 个整屏流程子页
   （`partner-new` 新增聊天对象 / `partner-edit` 编辑聊天对象，不在集合内）
   + 1 条会员态条目（`account-member`），页面跳转统一走 `openAppScreen()`

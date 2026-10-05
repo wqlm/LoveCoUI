@@ -1779,6 +1779,82 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    颜色直接写死（= --pu-faint） */
 .pu-more { padding: 16px 14px max(22px, env(safe-area-inset-bottom)); background: #FFF; }
 .pu-note { margin: 10px 4px 2px; font-size: 11px; line-height: 1.65; color: #9AA9C4; text-align: justify; }
+/* ——— 第二个会员购买页「L+ 会员」（appPurchasePlusPage，appScreen='purchase2'，2026-10-05 新增）———
+   照用户设计图 1:1 复刻（设计图 513×1080 按 393 宽折算，scale ≈ 1.305）的**浅紫底整页**：
+   固定浅色、不跟随深色外观（与第一个购买页同一条「按图定色」的约定）。
+   量出来的口径 —— 底色 #F1F4FD（到页面底部渐暖白 #FBF7F4，照设计图底部那一段）、左右边距 20px；
+   标题 21px 加粗居中（「L+会员」#7B6BF0）；档位卡高 90px / 圆角 17px，选中那张 2px #8B8CF8 描边 +
+   白→浅紫水平渐变底；「立减」胶囊 24px 高 / #E7E8FE 底 + #7C7CD6 字；永久卡那枚黄色促销胶囊 #FFD738；
+   续订说明 12.5px #B0B1C0（缩进 21px）；支付行 44px 高 / #EDEEF3 / 圆角 12px（logo 25px、
+   与渠道名间距 13px、渠道名 14px —— 图标与切换箭头用与第一个购买页同一套素材 / 图标）；
+   「会员兑换」白胶囊 12px 字；主按钮 260×57 / 全圆角 / linear-gradient(90deg,#5C73F7,#9573FF)；
+   协议行 12px #4A4A4E + 16px 圆形勾选框（勾 9px）。
+   整页铺满与状态栏跟色见下面 .guide-purchase2 两条（Tab 栏不渲染在 app.js，同第一个购买页）。 */
+.pu2-page {
+  --pu2-ink: #17171C;
+  --pu2-hot: #6B6AE8;
+  --pu2-line: #8B8CF8;
+  padding: 0 20px;
+  min-height: 100%;
+  background: linear-gradient(180deg, #F1F4FD 0%, #F2F3FD 84%, #FBF7F4 100%);
+  color: var(--pu2-ink);
+}
+/* 整页铺满两件套（同第一个购买页做法）：app-main 清零边距 + 状态栏跟着浅紫底一起转 */
+.app-phone.guide-purchase2 .app-main { width: 100%; padding: 0; }
+.app-phone.guide-purchase2 > .statusbar { background: #F1F4FD; color: #17171C; }
+/* 居中大标题（照设计图「成为 / L+会员 / ，解锁全部功能」整行居中，「L+会员」紫色） */
+.pu2-title { padding: 8px 0 0; font-size: 21px; font-weight: 800; line-height: 1.35; text-align: center; letter-spacing: .2px; }
+.pu2-title b { color: #7B6BF0; }
+/* 档位卡组：纵向三张、间距 12px（卡内 = 左「名称行 + 价格行」两行 / 右「立减」胶囊垂直居中） */
+.pu2-plans { margin-top: 20px; gap: 12px; }
+.pu2-plan { padding: 15px 26px 14px; border-radius: 17px; background: #FFF; }
+.pu2-plan.active { border-color: var(--pu2-line); background: linear-gradient(90deg, #FFFFFF, #F0F0FE); }
+.pu2-plan-name { gap: 6px; font-size: 15px; font-weight: 700; color: #1B1B20; white-space: nowrap; }
+/* 永久卡那枚黄色促销胶囊（照设计图：「告白季，低至1元/月」） */
+.pu2-plan-promo { padding: 3px 8px; border-radius: 6px; background: #FFD738; font-size: 11px; font-weight: 600; line-height: 1.35; color: #241E12; white-space: nowrap; }
+.pu2-plan-price { margin-top: 4px; font-size: 26px; font-weight: 800; line-height: 1.2; color: var(--pu2-hot); }
+.pu2-plan-price i { margin-right: 1px; font-size: 16px; font-weight: 700; }
+.pu2-plan-price em { margin-left: 8px; font-size: 11px; font-weight: 500; color: #9B9BA6; }
+/* 「立减 ¥xx」胶囊：卡内右端、垂直居中 */
+.pu2-plan-cut { padding: 4px 9px; border-radius: 999px; background: #E7E8FE; font-size: 12px; font-weight: 600; line-height: 1.35; color: #7C7CD6; white-space: nowrap; }
+/* 续订说明：金额取现价（照设计图），永久档换「一次性买断」那支（文案在 app.js） */
+.pu2-cap { margin: 17px 0 0 21px; font-size: 12.5px; line-height: 1.4; color: #B0B1C0; }
+/* 支付方式行（安卓 / 鸿蒙；**iOS 不渲染这一行** —— Apple 内购走系统支付框）：浅灰底整行可点，
+   左起真素材标 → 渠道名 → 右端切换箭头（素材 / 图标与第一个购买页同一套，只有类名不同） */
+.pu2-pay { height: 44px; margin-top: 21px; padding: 0 14px 0 19px; gap: 13px; border-radius: 12px; background: #EDEEF3; }
+.pu2-pay:hover { background: #E7E8EF; }
+.pu2-pay-logo { width: 25px; height: 25px; border-radius: 7px; }
+.pu2-pay-name { font-size: 14px; font-weight: 600; color: #3C3C43; }
+.pu2-pay-switch { width: 14px; height: 14px; color: #9A9ACD; }
+/* 底部组：会员兑换（居中白胶囊）→ 紫渐变主按钮 → 协议行（含勾选框）；下边距留出屏幕底一圈 */
+.pu2-foot { padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+.pu2-redeem { padding: 4px 12px; border-radius: 999px; background: #FAFAFA; font-size: 12px; font-weight: 500; line-height: 1.35; color: #333338; }
+.pu2-redeem:hover { background: #F2F2F6; }
+/* 主按钮：紫渐变胶囊（260×57、居中 —— 照设计图比卡片窄一圈），
+   内容 = 划线原价（半透明白）+ 大号现价 + 「购买 xx 会员」，随所选档位变（文案在 app.js） */
+.pu2-cta { width: 260px; height: 57px; margin: 16px auto 0; gap: 4px; border-radius: 999px; background: linear-gradient(90deg, #5C73F7, #9573FF); color: #FFF; box-shadow: 0 8px 18px #5C73F740; }
+.pu2-cta:hover { box-shadow: 0 10px 22px #5C73F766; }
+.pu2-cta:disabled { background: #D4D2F2; box-shadow: none; }
+.pu2-cta-origin { font-size: 15px; font-weight: 500; color: #FFFFFF9E; text-decoration: line-through; }
+.pu2-cta-price { font-size: 21px; font-weight: 800; }
+.pu2-cta-label { margin-left: 4px; font-size: 17px; font-weight: 700; }
+/* 协议行：居中一行（13px 深灰）+ 左侧圆形勾选框（未勾是浅灰描边圈、勾选后紫底白勾）；
+   协议名与正文同色、加粗一档做可点提示（骨架复用 .pu2-legal-link） */
+.pu2-consent { gap: 8px; margin-top: 10px; font-size: 12px; line-height: 1.4; color: #4A4A4E; }
+/* 协议行文字裹一层 span：勾选框与文字行之间才是 8px 间距，行内（协议名 / 顿号）走正常 inline 流
+   —— 直接平铺的话 flex gap 会把每个文字节点都拆开、顿号两侧会多出空隙 */
+.pu2-consent-text { line-height: inherit; }
+.pu2-check { width: 16px; height: 16px; border: 1.5px solid #C9C5C0; border-radius: 50%; background: transparent; color: #FFF; }
+.pu2-check svg { width: 9px; height: 9px; }
+.pu2-check.on { border-color: #7B6BF0; background: #7B6BF0; }
+.pu2-consent .pu2-legal-link { color: #4A4A4E; }
+.pu2-consent .pu2-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+/* 工作台里的手机只有 335px 宽（< 359px，与键盘那一段同一档断点）：档位卡左右内边距收一档 ——
+   393 宽下卡片文字距左 26px（照设计图），335 宽下不收就会让「永久会员 + 黄色促销胶囊 +
+   立减胶囊」这一行挤不开（名称会折行成两行） */
+@media (max-width: 359px) {
+  .pu2-plan { padding: 15px 16px 14px; }
+}
 /* iOS 系统支付框（ios-pay-sheet 组件）：iOS 上点会员开通层的「立即解锁」就地弹出的**系统级**弹窗
    （App Store 内购确认，照参考截图）—— 挂在手机根节点上、铺满整个手机屏（含键盘与宿主 App），
    自成一层皮肤：**固定系统深色外观**（系统弹窗不跟随键盘的浅色 / 深色皮肤）。
