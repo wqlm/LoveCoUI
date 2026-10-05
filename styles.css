@@ -620,7 +620,9 @@ small{font-size:11px;color:#73847d}
    折角箭头）。骨架只管排布：插画绝对定位钉在卡内设计图量到的位置上、卡名与说明靠
    margin-top:auto 沉到卡底、折角靠 margin-left:auto 贴右。
    皮肤（深色配色 / 字号 / 圆角 / 间距）在 theme.css 的「首页」一组。 */
-.hm-page{display:flex;flex-direction:column;min-height:100%}
+.hm-page{display:flex;flex-direction:column;justify-content:center;position:relative;min-height:100%}
+.hm-msg{position:absolute;top:6px;right:20px;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:0;background:none;color:inherit;cursor:pointer}
+.hm-msg svg{display:block;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5}
 .hm-head{display:flex;align-items:flex-start}
 .hm-head-text{flex:1;min-width:0}
 .hm-title{margin:0}
@@ -638,6 +640,14 @@ small{font-size:11px;color:#73847d}
 .hm-exp-chip svg{display:block}
 .hm-exp-label{flex:1;min-width:0}
 .hm-exp .chev{flex-shrink:0;display:inline-flex;margin-left:auto}
+/* —— 「消息」页（appMessagesPage，2026-10-05 需求）：骨架，配色在 theme.css 的 .ms-* 一组 —— */
+.ms-page{display:flex;flex-direction:column;align-items:stretch}
+.ms-back{flex-shrink:0;align-self:flex-start}
+.ms-title{margin:0}
+.ms-card{margin:0}
+.ms-ic{flex-shrink:0}
+.ms-main{flex:1;min-width:0}
+.ms-name,.ms-sub{display:block}
 .mobile-testbar{display:none}
 .dark.phone{background:#222b25;color:#e1e9df}
 /* 宿主 App（微信）自带深色外观，不跟随 .dark 开关，故这里的 .dark 不再覆盖会话区与输入栏 */

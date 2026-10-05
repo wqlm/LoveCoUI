@@ -1849,9 +1849,11 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-plan-name { gap: 6px; font-size: 15px; font-weight: 700; color: #1B1B20; white-space: nowrap; }
 /* 永久卡那枚黄色促销胶囊（照设计图：「告白季，低至1元/月」） */
 .pu2-plan-promo { padding: 3px 8px; border-radius: 6px; background: #FFD738; font-size: 11px; font-weight: 600; line-height: 1.35; color: #241E12; white-space: nowrap; }
-.pu2-plan-price { margin-top: 6px; font-size: 26px; font-weight: 800; line-height: 1.2; color: var(--pu2-hot); }
+.pu2-plan-price { margin-top: 6px; display: flex; align-items: center; font-size: 26px; font-weight: 800; line-height: 1.2; color: var(--pu2-hot); }
 .pu2-plan-price i { margin-right: 1px; font-size: 16px; font-weight: 700; }
-.pu2-plan-price em { margin-left: 8px; font-size: 11px; font-weight: 500; color: #9B9BA6; }
+/* 价格后面的灰字标语（一束鲜花的钱等）：2026-10-05 四次需求 —— 与价格**垂直居中**对齐（原来
+   inline 基线对齐、整行偏沉），价格行改 flex + align-items:center；min-width:0 允许长标语收窄换行 */
+.pu2-plan-price em { margin-left: 8px; min-width: 0; font-size: 11px; font-weight: 500; line-height: 1.35; color: #9B9BA6; }
 /* 「立减 ¥xx」胶囊：卡内右端、垂直居中 */
 .pu2-plan-cut { padding: 4px 9px; border-radius: 999px; background: #E7E8FE; font-size: 12px; font-weight: 600; line-height: 1.35; color: #7C7CD6; white-space: nowrap; }
 /* 续订说明：金额取现价（照设计图），永久档换「一次性买断」那支（文案在 app.js） */
@@ -2466,7 +2468,9 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    排版是「浅灰画布 + 白色圆角卡片 + 灰色分组标题」：卡片里一行 = .app-row（右端统一折角箭头，
    相邻行之间一条细分隔线）；会员横幅两态共用一套尺寸，只换底色（未开通 = 强调紫蓝，
    已开通 = 会员金橙）。「我的」页问候行下方那行金色会员标识（.member-line）2026-10-05
-   已按需求整行删除、样式随之删掉 —— 横幅内的到期日行走 .mb-text small 那套（与副标题同款）。 */
+   已按需求整行删除、样式随之删掉 —— 横幅内的到期日行走 .mb-text small 那套（与副标题同款），
+   2026-10-05 晚些需求再把它挪到**右侧胶囊列**（.mb-side：胶囊在上、到期日贴其下方右对齐），
+   横幅高度与未开通态保持一致（.is-member 的上下内边距相应收紧补偿）。 */
 .app-hello { padding: 2px 2px 13px; }
 .app-hello .hello-text strong { font-size: 21px; font-weight: 650; }
 .app-hello .hello-text small { margin-top: 3px; font-size: 11px; color: var(--lc-muted); }
@@ -2476,10 +2480,17 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .app-hello > .chev svg { width: 15px; height: 15px; }
 /* 2026-10-04 需求：横幅与上方问候行拉开距离（原先只隔问候行的 9px 底内边距，太挤） */
 .member-banner { margin-top: 14px; margin-bottom: 16px; padding: 14px 16px; border-radius: 14px; background: linear-gradient(115deg, #6577F0, #4C5CE6); color: #fff; }
-.member-banner.is-member { background: linear-gradient(115deg, #F7B544, #EE9520); }
+/* 2026-10-05 晚些需求：到期日行挪进右侧列后，右列（胶囊 32px + 间隙 + 到期日一行）比左侧两行
+   文字高，这里把已开通态的上下内边距各收 7px / 5px 补偿回来 —— 横幅总高度与未开通两行态一致 */
+.member-banner.is-member { background: linear-gradient(115deg, #F7B544, #EE9520); padding-top: 7px; padding-bottom: 9px; }
 .member-banner .mb-text strong { font-size: 16px; font-weight: 650; }
 /* 横幅内的副文案必须是白字：通用 small 规则把它压成灰字（--lc-muted），在蓝 / 橙底上读不出来 */
 .member-banner .mb-text small { margin-top: 2px; font-size: 10.5px; color: rgba(255, 255, 255, .9); }
+/* 2026-10-05 晚些需求：右侧列 .mb-side —— 胶囊在上、到期日（「2026-09-30到期」，有时限会员
+   才渲染）贴在胶囊正下方、右缘与胶囊对齐；到期日行不占左侧文字列的高度。
+   永久会员 / 老存档的右列只有胶囊，无这一行 */
+.member-banner .mb-side { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.member-banner .mb-expiry { font-size: 10.5px; line-height: 1.2; color: rgba(255, 255, 255, .9); }
 .member-banner .mb-cta { padding: 7px 15px; border-radius: 999px; background: #fff; font-size: 12px; font-weight: 600; color: #4C5CE6; }
 .member-banner.is-member .mb-cta { color: #E8901A; }
 .app-section + .app-section { margin-top: 16px; }
@@ -2728,7 +2739,8 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    （与问题反馈页 / 购买页 / 登录页那种「按图定色」的做法一致，选择器优先级高于 .dark 那几条）；
    状态栏连着一起转深色（.guide-home 挂手机根，见 renderApp），底部 Tab 栏也一起换深色皮肤
    （这一页保留 Tab 栏，不像问题反馈页那样整页铺满；深色底栏见本组最后三条）。
-   尺寸 / 位置全按设计图逐个量出来的 CSS px 定（393 基准）：正文左右内边距 20、标语区顶距 44、
+   尺寸 / 位置全按设计图逐个量出来的 CSS px 定（393 基准）：正文左右内边距 20（2026-10-05 晚些
+   需求起整块内容垂直居中、上下内边距对称 24 —— 内容不满一屏时富余高度上下均分）、
    主标语 29/39、副标语 13/19.8 灰字、插画 189 宽（内含透明边、右缘贴正文右缘、与主标语顶对齐）；
    两张卡间距 11 / 高 153 / 圆角 16（卡面 #1B2A45 深蓝与 #2C2925 暖棕），卡内插画绝对定位钉在
    设计图量到的位置上、卡名 17px 与说明 12px 沉在卡底，右上角那枚外链箭头两张卡各一色
@@ -2738,7 +2750,10 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .app-phone.guide-home > .statusbar { background: var(--hm-bg); color: #FFF; }
 .app-phone.guide-home .app-shell { background: var(--hm-bg); }
 .app-phone.guide-home .app-main { width: 100%; padding: 0; }
-.hm-page { padding: 45px 20px 0; background: var(--hm-bg); color: var(--hm-ink); }
+.hm-page { padding: 24px 20px; background: var(--hm-bg); color: var(--hm-ink); }
+/* 右上角信封图标（2026-10-05 晚些需求）：进「消息」页的入口 —— 灰字一档、无底无描边 */
+.hm-msg { color: var(--hm-sub); }
+.hm-msg:active { opacity: .6; }
 .hm-title { font-size: 26px; line-height: 39px; font-weight: 650; color: var(--hm-ink); }
 .hm-sub { margin-top: 11px; font-size: 12px; line-height: 19.8px; color: var(--hm-sub); }
 /* 插画宽度取百分比（189/393 ≈ 48%）：窄机（工作台里 335px 的手机）上跟着缩，
@@ -3240,3 +3255,25 @@ html[data-view="device"] .sheet-footer {
 .onb-next { display: flex; align-items: center; justify-content: center; width: 88px; height: 44px; margin: auto auto 0; border: 0; border-radius: 22px; background: #5B68F5; color: #fff; box-shadow: 0 8px 18px rgba(91, 104, 245, .3); cursor: pointer; }
 .onb-next svg { width: 18px; height: 18px; }
 .onb-next:disabled { background: #DCDDE8; color: #AEB0C2; box-shadow: none; cursor: default; }
+
+/* —— 主 App ·「消息」页（appMessagesPage，2026-10-05 需求）——
+   骨架在 styles.css 的 .ms-* 一组。整页浅色（白底）、**不跟随 .dark**（配色写死，
+   同注销页 / 协议页那种做法，选择器优先级高于 .dark 那几条）；状态栏连着转白
+   （.guide-msg 挂手机根）、.app-main 清零边距让白底通底。尺寸按设计截图量（393 基准）：
+   页头返回钮左缘 20、状态栏下约 14；页名 26px 浅灰加粗；通知卡浅灰底 #F5F6F7、
+   圆角 18、内边距 16/18 —— 白色圆底 48px 内一枚灰时钟图标，标题 16px 加粗 + 说明 13.5px 灰，
+   日期 13px 浅灰钉在右上角。 */
+.app-phone.guide-msg { --ms-ink: #1C1C1E; --ms-sub: #8E8E93; --ms-faint: #B9B9BE; background: #FFF; }
+.app-phone.guide-msg > .statusbar { background: #FFF; color: #191919; }
+.app-phone.guide-msg .app-main { width: 100%; padding: 0; }
+.ms-page { min-height: 100%; background: #FFF; color: var(--ms-ink); padding: 14px 20px 24px; }
+.ms-back { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; padding: 0; border: 0; border-radius: 50%; background: #F2F3F5; color: #3A3A3E; cursor: pointer; }
+.ms-back svg { width: 16px; height: 16px; }
+.ms-title { margin: 18px 0 0; font-size: 26px; line-height: 1.25; font-weight: 650; color: #9A9AA0; }
+.ms-card { position: relative; display: flex; align-items: center; gap: 13px; margin-top: 24px; padding: 16px 18px; border-radius: 18px; background: #F5F6F7; }
+.ms-ic { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background: #FFF; color: var(--ms-sub); }
+.ms-ic svg { width: 24px; height: 24px; }
+.ms-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.ms-name { font-size: 16px; line-height: 1.3; font-weight: 650; color: var(--ms-ink); }
+.ms-sub { font-size: 13.5px; line-height: 1.35; color: var(--ms-sub); }
+.ms-date { position: absolute; top: 17px; right: 18px; font-size: 13px; color: var(--ms-faint); }
