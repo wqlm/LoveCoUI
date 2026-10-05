@@ -12,7 +12,7 @@ LoveCo 键盘交互原型（纯静态 HTML/CSS/JS，无构建）。工作台右�
 - 新增页面 / 组件形态 → 在对应目录（`KB_PAGES` 或 `APP_PAGES`）补一条：
   字段为 `id`（跳转用，与 `setupPage()` 的 case 对应）、`name`（列表显示名）、
   `group`（分类名，两种形态都有 —— 主 App 形态 2026-09-29 起也分组，
-  `APP_PAGES` 十组：首页与我的 / 会员与积分 / 键盘权限 / 登录 / 账户与协议 / 聊天对象 / 开启键盘引导 / 模拟系统设置 / 资料引导 / 演示）、
+  `APP_PAGES` 十组：首页与我的 / 会员中心（2026-10-05 由「会员与积分」改名） / 键盘权限 / 登录 / 账户与协议 / 聊天对象 / 开启键盘引导 / 模拟系统设置 / 资料引导 / 演示）、
   `route`（页面路径）、`trigger`（触发方式）、
   `desc`（页面功能与设计）、`note`（备注，可选）。
   同一组条目在数组里必须连续排列（`pageList()` 靠相邻条目的组名变化插组头）。
@@ -27,9 +27,9 @@ LoveCo 键盘交互原型（纯静态 HTML/CSS/JS，无构建）。工作台右�
   字段，重新分类。
 - 键盘形态需覆盖所有交互分支：同一 UI 的不同状态各占一条
   （例：键盘菜单栏的「未选择对象」与「已选择对象」是 `kb-toolbar` 的两种形态）。
-- 主 App 形态覆盖 `appScreens` 集合的 11 个整页（`home` / `account` / `profile` /
+- 主 App 形态覆盖 `appScreens` 集合的 12 个整页（`home` / `account` / `profile` /
   `cancel-account` / `partners` / `purchase` / `login` / `login-one-tap` / `legal` /
-  `about` / `feedback`）+ 2 个整屏流程子页
+  `about` / `feedback` / `invite`（2026-10-05 新增的「邀请有礼」，保留底部 Tab））+ 2 个整屏流程子页
   （`partner-new` 新增聊天对象 / `partner-edit` 编辑聊天对象，不在集合内）
   + 1 条会员态条目（`account-member`），页面跳转统一走 `openAppScreen()`
   （流程子页在 `setupPage()` 里补编辑对象等运行上下文）。
