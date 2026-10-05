@@ -541,6 +541,37 @@ small{font-size:11px;color:#73847d}
 .about-page{min-height:100%}
 .about-hero{display:flex;flex-direction:column;align-items:center;text-align:center}
 .about-icp{margin-top:auto;text-align:center}
+/* 「邀请有礼」页（appInvitePage，2026-10-05 新增）：整页弹性列 —— 页头（复用用户页 .user-head
+   骨架：返回箭头 + 居中标题）+ 四块主体（渐变 Hero / 填写卡 / 我的邀请卡 / 活动规则卡）。
+   骨架只管排布（Hero 一列、码卡一行两端对齐、填写行 = 输入框 + 领取按钮、阶梯 = 进度条 +
+   三档节点、记录行 = 头像 + 两行文字 + 状态徽标、规则 = 有序列表 + 展开按钮）。
+   皮肤（配色 / 字号 / 圆角 / 间距）在 theme.css 的「邀请有礼页」一组。 */
+.invite-page{min-height:100%}
+.iv-hero{display:flex;flex-direction:column}
+.iv-code-card{display:flex;flex-direction:column}
+.iv-code-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.iv-copy-code{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.iv-copy-msg{display:flex;align-items:center;justify-content:center;width:100%}
+.iv-card{display:flex;flex-direction:column}
+.iv-card-head{display:flex;align-items:baseline;justify-content:space-between}
+.iv-claim-row{display:flex;align-items:stretch}
+.iv-claim-input{flex:1;min-width:0;font:inherit;-webkit-appearance:none}
+.iv-claim-btn{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.iv-claim-error{display:flex;align-items:center}
+.iv-claim-done{display:flex;align-items:flex-start}
+.iv-done-ico{display:inline-flex;flex-shrink:0}
+.iv-done-text{display:flex;flex-direction:column;min-width:0}
+.iv-ladder{display:flex;flex-direction:column}
+.iv-ladder-bar{overflow:hidden}
+.iv-ladder-bar i{display:block}
+.iv-ladder-steps{display:flex}
+.iv-step{flex:1;display:flex;flex-direction:column;align-items:center}
+.iv-friends{display:flex;flex-direction:column}
+.iv-friend{display:flex;align-items:center}
+.iv-avatar{display:grid;place-items:center;flex-shrink:0}
+.iv-friend-text{flex:1;min-width:0;display:flex;flex-direction:column}
+.iv-tag{flex-shrink:0}
+.iv-rules{margin:0}
 .mobile-testbar{display:none}
 .dark.phone{background:#222b25;color:#e1e9df}
 /* 宿主 App（微信）自带深色外观，不跟随 .dark 开关，故这里的 .dark 不再覆盖会话区与输入栏 */

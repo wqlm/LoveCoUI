@@ -2548,6 +2548,69 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .about-name { margin: 13px 0 0; font-size: 20px; font-weight: 650; color: var(--lc-text); }
 .about-version { margin: 5px 0 0; font-size: 12px; color: var(--lc-subtle); }
 .about-icp { margin: auto 0 0; padding: 18px 16px 6px; font-size: 11px; line-height: 1.7; color: var(--lc-subtle); }
+/* —— 「邀请有礼」页（appInvitePage，2026-10-05 新增）——
+   骨架在 styles.css 的 .iv-* 一组。浅色通版、跟随深色外观（走通用画布 + 白卡，与「用户」/
+   「关于」两页同一口径，不另开按图定色皮肤）—— 只有两处固定色（同会员横幅那枚白胶囊的口径，
+   深浅两态都这么显示）：**Hero 的蓝紫渐变**（与「我的」会员横幅同色系 #6577F0→#4C5CE6）与
+   **Hero 里那张白底邀请码卡**（白底 + 品牌蓝大字码）。其余颜色都借 --lc-* 令牌：
+   输入框 / 阶梯块底 = --lc-canvas、边框 = --lc-border、成功绿 = --lc-mint(--soft)、
+   待激活橙 = --lc-yellow(--soft)、校验失败红 = --lc-danger。 */
+.invite-page { --iv-blue: #4C5CE6; --iv-blue-2: #6577F0; }
+.invite-page .iv-hero { margin-top: 2px; padding: 18px 16px 16px; border-radius: 16px; background: linear-gradient(115deg, var(--iv-blue-2), var(--iv-blue)); box-shadow: 0 8px 20px #4C5CE62E; }
+.iv-hero-title { margin: 0; font-size: 17.5px; font-weight: 700; color: #FFF; letter-spacing: .2px; }
+.iv-hero-sub { margin: 6px 0 0; font-size: 11.5px; line-height: 1.5; color: rgba(255, 255, 255, .85); }
+.iv-code-card { margin-top: 14px; padding: 11px 14px 12px; border-radius: 12px; background: #FFF; }
+.iv-code-label { font-size: 10.5px; color: #8A93B8; }
+.iv-code-row { margin-top: 2px; }
+.iv-code { font-size: 24px; font-weight: 800; letter-spacing: 3px; color: var(--iv-blue); }
+.iv-copy-code { height: 32px; padding: 0 15px; border: 0; border-radius: 999px; background: var(--iv-blue); color: #FFF; font-size: 12px; font-weight: 600; }
+.iv-copy-code:hover { background: #4353D6; }
+.iv-copy-msg { height: 40px; margin-top: 12px; border: 1px solid rgba(255, 255, 255, .7); border-radius: 999px; background: rgba(255, 255, 255, .14); color: #FFF; font-size: 13px; font-weight: 600; }
+.iv-copy-msg:hover { background: rgba(255, 255, 255, .22); }
+.iv-card { margin-top: 14px; padding: 14px; }
+.iv-card-title { margin: 0; font-size: 14.5px; font-weight: 650; color: var(--lc-text); }
+.iv-card-sub { margin: 6px 0 0; font-size: 11.5px; line-height: 1.5; color: var(--lc-muted); }
+.iv-count { font-size: 11.5px; color: var(--lc-muted); }
+.iv-claim-row { gap: 9px; margin-top: 12px; }
+.iv-claim-input { height: 44px; padding: 0 13px; border: 1px solid var(--lc-border); border-radius: 11px; background: var(--lc-canvas); color: var(--lc-text); font-size: 15px; letter-spacing: 2px; }
+.iv-claim-input::placeholder { font-size: 13px; letter-spacing: 0; color: var(--lc-subtle); }
+.iv-claim-input:focus { outline: none; border-color: var(--iv-blue); background: var(--lc-surface); }
+.iv-claim-row.err .iv-claim-input { border-color: var(--lc-danger); }
+.iv-claim-btn { width: 84px; border: 0; border-radius: 11px; background: var(--iv-blue); color: #FFF; font-size: 14px; font-weight: 650; }
+.iv-claim-btn:hover { background: #4353D6; }
+.iv-claim-btn:active { transform: scale(.98); }
+.iv-claim-error { gap: 5px; margin: 8px 0 0; font-size: 11.5px; color: var(--lc-danger); }
+.iv-claim-error svg { width: 13px; height: 13px; flex-shrink: 0; }
+.iv-claim-done { gap: 10px; margin-top: 12px; padding: 12px; border-radius: 12px; background: var(--lc-mint-soft); }
+.iv-done-ico { color: var(--lc-mint); }
+.iv-done-ico svg { width: 19px; height: 19px; }
+.iv-done-text strong { font-size: 13.5px; font-weight: 650; color: var(--lc-mint); }
+.iv-done-text small { margin-top: 3px; font-size: 11px; line-height: 1.5; color: var(--lc-muted); }
+.iv-ladder { margin-top: 13px; padding: 12px; border-radius: 12px; background: var(--lc-canvas); }
+.iv-ladder-bar { height: 6px; border-radius: 999px; background: var(--lc-border); }
+.iv-ladder-bar i { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--iv-blue-2), var(--iv-blue)); }
+.iv-ladder-steps { margin-top: 9px; }
+.iv-step b { font-size: 12.5px; font-weight: 650; color: var(--lc-subtle); }
+.iv-step small { margin-top: 2px; font-size: 10.5px; color: var(--lc-subtle); }
+.iv-step.done b, .iv-step.done small { color: var(--iv-blue); }
+.iv-ladder-tip { margin: 11px 0 0; font-size: 11.5px; line-height: 1.55; color: var(--lc-muted); }
+.iv-ladder-tip b { font-weight: 700; color: var(--lc-text); }
+.iv-friends { margin-top: 8px; }
+.iv-friend { gap: 10px; padding: 11px 0; }
+.iv-friend + .iv-friend { border-top: 1px solid var(--lc-border); }
+.iv-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--lc-accent-soft); color: var(--lc-accent-strong); font-size: 13px; font-weight: 650; }
+.iv-friend-text strong { font-size: 13.5px; font-weight: 500; color: var(--lc-text); }
+.iv-friend-text small { margin-top: 2px; font-size: 11px; color: var(--lc-muted); }
+.iv-tag { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
+.iv-tag.done { background: var(--lc-mint-soft); color: var(--lc-mint); }
+.iv-tag.wait { background: var(--lc-yellow-soft); color: var(--lc-yellow); }
+.iv-friends-note { margin: 6px 0 0; padding-top: 10px; border-top: 1px solid var(--lc-border); font-size: 10.5px; line-height: 1.5; color: var(--lc-subtle); }
+.iv-empty { margin: 12px 0 2px; font-size: 11.5px; text-align: center; color: var(--lc-subtle); }
+.iv-rules { margin-top: 10px; padding-left: 18px; }
+.iv-rules li { font-size: 12px; line-height: 1.65; color: var(--lc-muted); }
+.iv-rules li + li { margin-top: 7px; }
+.iv-rules-toggle { align-self: flex-start; margin-top: 11px; padding: 3px 0; border: 0; background: none; font: inherit; font-size: 12px; font-weight: 600; color: var(--iv-blue); cursor: pointer; }
+.iv-rules-toggle:hover { text-decoration: underline; text-underline-offset: 2px; }
 /* 出生日期弹层的滚轮：选中带换成浅灰（资料引导那一步的白色选中带在白卡弹层上看不出来），
    行文字也改走主题令牌 —— onb 那套颜色写死在淡紫页上，深色外观下在白卡弹层里会看不清；
    其余（scroll-snap 吸附 / 两端 mask 渐隐 / 44px 行高）全部复用 .onb-* 一套 */
