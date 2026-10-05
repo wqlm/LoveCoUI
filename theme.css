@@ -2598,9 +2598,7 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .iv-friends { margin-top: 8px; }
 .iv-friend { gap: 10px; padding: 11px 0; }
 .iv-friend + .iv-friend { border-top: 1px solid var(--lc-border); }
-.iv-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--lc-accent-soft); color: var(--lc-accent-strong); font-size: 13px; font-weight: 650; }
-.iv-friend-text strong { font-size: 13.5px; font-weight: 500; color: var(--lc-text); }
-.iv-friend-text small { margin-top: 2px; font-size: 11px; color: var(--lc-muted); }
+.iv-friend-phone { font-size: 13.5px; font-weight: 500; color: var(--lc-text); }
 .iv-tag { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
 .iv-tag.done { background: var(--lc-mint-soft); color: var(--lc-mint); }
 .iv-tag.wait { background: var(--lc-yellow-soft); color: var(--lc-yellow); }

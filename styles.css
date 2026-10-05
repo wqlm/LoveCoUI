@@ -544,7 +544,7 @@ small{font-size:11px;color:#73847d}
 /* 「邀请有礼」页（appInvitePage，2026-10-05 新增）：整页弹性列 —— 页头（复用用户页 .user-head
    骨架：返回箭头 + 居中标题）+ 四块主体（渐变 Hero / 填写卡 / 我的邀请卡 / 活动规则卡）。
    骨架只管排布（Hero 一列、码卡一行两端对齐、填写行 = 输入框 + 领取按钮、阶梯 = 进度条 +
-   三档节点、记录行 = 头像 + 两行文字 + 状态徽标、规则 = 有序列表 + 展开按钮）。
+   三档节点、记录行 = 掩码手机号 + 状态徽标（好友侧没有头像与昵称）、规则 = 有序列表 + 展开按钮）。
    皮肤（配色 / 字号 / 圆角 / 间距）在 theme.css 的「邀请有礼页」一组。 */
 .invite-page{min-height:100%}
 .iv-hero{display:flex;flex-direction:column}
@@ -568,8 +568,7 @@ small{font-size:11px;color:#73847d}
 .iv-step{flex:1;display:flex;flex-direction:column;align-items:center}
 .iv-friends{display:flex;flex-direction:column}
 .iv-friend{display:flex;align-items:center}
-.iv-avatar{display:grid;place-items:center;flex-shrink:0}
-.iv-friend-text{flex:1;min-width:0;display:flex;flex-direction:column}
+.iv-friend-phone{flex:1;min-width:0}
 .iv-tag{flex-shrink:0}
 .iv-rules{margin:0}
 .mobile-testbar{display:none}
