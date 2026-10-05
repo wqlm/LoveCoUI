@@ -510,7 +510,6 @@ small{font-size:11px;color:#73847d}
 .app-hello{display:flex;align-items:center;gap:10px;width:100%;text-align:left}
 .app-hello .hello-text{flex:1;min-width:0;display:flex;flex-direction:column}
 .app-hello>.chev{margin-left:auto;display:inline-flex}
-.member-line{display:inline-flex;align-items:center;gap:6px}
 .member-banner{display:flex;align-items:center;gap:12px;width:100%;text-align:left}
 .member-banner .mb-text{flex:1;min-width:0;display:flex;flex-direction:column}
 .member-banner .mb-cta{flex-shrink:0}

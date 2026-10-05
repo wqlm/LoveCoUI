@@ -1796,12 +1796,14 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    照用户设计图 1:1 复刻（设计图 513×1080 按 393 宽折算，scale ≈ 1.305）的**浅紫底整页**：
    固定浅色、不跟随深色外观（与第一个购买页同一条「按图定色」的约定）。
    量出来的口径 —— 底色 #F1F4FD（到页面底部渐暖白 #FBF7F4，照设计图底部那一段）、左右边距 20px；
-   标题 21px 加粗居中（「L+会员」#7B6BF0）；档位卡圆角 17px（**2026-10-05 需求：内边距由 15/14 加到 19/18
-   （卡高 90px → 约 99px）、卡间距 12px → 18px** —— 原口径在整页里上段挤成一坨、屏幕下方空一大片），选中那张 2px #8B8CF8 描边 +
+   标题 21px 加粗居中（「LoveCo会员」#7B6BF0）、与状态栏之间留 26px；档位卡圆角 17px（卡内边距 15/14、
+   卡高上限 118px、卡间距 18px；2026-10-05 二次需求：内边距 19/18 → 15/14、卡高上限 150px → 118px ——
+   用户反馈「卡片和底下的按钮太大了，高度改小」），选中那张 2px #8B8CF8 描边 +
    白→浅紫水平渐变底；「立减」胶囊 24px 高 / #E7E8FE 底 + #7C7CD6 字；永久卡那枚黄色促销胶囊 #FFD738；
    续订说明 12.5px #B0B1C0（缩进 21px）；支付行 44px 高 / #EDEEF3 / 圆角 12px（logo 25px、
    与渠道名间距 13px、渠道名 14px —— 图标与切换箭头用与第一个购买页同一套素材 / 图标）；
-   「会员兑换」白胶囊 12px 字；主按钮 260×57 / 全圆角 / linear-gradient(90deg,#5C73F7,#9573FF)；
+   「会员兑换」白胶囊 12px 字；主按钮 260×48（2026-10-05 二次需求：57px 收一档）/ 全圆角 /
+   linear-gradient(90deg,#5C73F7,#9573FF)；
    协议行 12px #4A4A4E + 16px 圆形勾选框（勾 9px）。
    整页铺满与状态栏跟色见下面 .guide-purchase2 两条（Tab 栏不渲染在 app.js，同第一个购买页）。 */
 .pu2-page {
@@ -1816,16 +1818,19 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 /* 整页铺满两件套（同第一个购买页做法）：app-main 清零边距 + 状态栏跟着浅紫底一起转 */
 .app-phone.guide-purchase2 .app-main { width: 100%; padding: 0; }
 .app-phone.guide-purchase2 > .statusbar { background: #F1F4FD; color: #17171C; }
-/* 居中大标题（照设计图「成为 / L+会员 / ，解锁全部功能」整行居中，「L+会员」紫色） */
-.pu2-title { padding: 8px 0 0; font-size: 21px; font-weight: 800; line-height: 1.35; text-align: center; letter-spacing: .2px; }
+/* 居中大标题（「成为 / LoveCo会员 / ，解锁无限次AI使用」整行居中，「LoveCo会员」紫色）——
+   2026-10-05 需求：文案由「成为L+会员，解锁全部功能」换成这句，并把与状态栏之间的距离由 8px 加到
+   26px（用户原话「并且距离顶部有一定的距离」） */
+.pu2-title { padding: 26px 0 0; font-size: 21px; font-weight: 800; line-height: 1.35; text-align: center; letter-spacing: .2px; }
 .pu2-title b { color: #7B6BF0; }
 /* 档位卡组：纵向三张、间距 18px（卡内 = 左「名称行 + 价格行」两行 / 右「立减」胶囊垂直居中）——
    2026-10-05 需求：原 12px 间距 + 15/14 内边距在整页里上段挤成一坨、屏幕下方却空着一大片，
-   卡内边距加到 19/18、卡间距加到 18px，把留白匀回卡片区 */
+   卡间距加到 18px，把留白匀回卡片区 */
 .pu2-plans { margin-top: 24px; gap: 18px; }
-/* 卡高上限 150px：三张卡挂 flex-grow 均分页面富余高度（骨架在 styles.css），到上限后多余高度改由
+/* 卡高上限 118px（2026-10-05 二次需求：150px 收到 118px —— 用户反馈「卡片和底下的按钮太大了，高度
+   改小」）：三张卡挂 flex-grow 均分页面富余高度（骨架在 styles.css），到上限后多余高度改由
    .pu2-plans 的 justify-content:center 在卡组内上下均分 */
-.pu2-plan { padding: 19px 26px 18px; max-height: 150px; border-radius: 17px; background: #FFF; }
+.pu2-plan { padding: 15px 26px 14px; max-height: 118px; border-radius: 17px; background: #FFF; }
 .pu2-plan.active { border-color: var(--pu2-line); background: linear-gradient(90deg, #FFFFFF, #F0F0FE); }
 /* 卡顶那枚蓝角标 = 该档 cardBadge（2026-10-05 需求：用户选择占比「85% / 3% / 12% 的用户选择」）——
    与第一个购买页的 .pu-plan-badge 同款皮肤（蓝色渐变胶囊 + 白字 + 蓝色投影、上半颗探出卡顶），
@@ -1854,9 +1859,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-foot { padding-top: 16px; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
 .pu2-redeem { padding: 4px 12px; border-radius: 999px; background: #FAFAFA; font-size: 12px; font-weight: 500; line-height: 1.35; color: #333338; }
 .pu2-redeem:hover { background: #F2F2F6; }
-/* 主按钮：紫渐变胶囊（260×57、居中 —— 照设计图比卡片窄一圈），
+/* 主按钮：紫渐变胶囊（260×48、居中 —— 照设计图比卡片窄一圈；2026-10-05 二次需求：高 57px 收到 48px
+   —— 用户反馈「卡片和底下的按钮太大了，高度改小」；宽度与字号未动），
    内容 = 划线原价（半透明白）+ 大号现价 + 「购买 xx 会员」，随所选档位变（文案在 app.js） */
-.pu2-cta { width: 260px; height: 57px; margin: 16px auto 0; gap: 4px; border-radius: 999px; background: linear-gradient(90deg, #5C73F7, #9573FF); color: #FFF; box-shadow: 0 8px 18px #5C73F740; }
+.pu2-cta { width: 260px; height: 48px; margin: 16px auto 0; gap: 4px; border-radius: 999px; background: linear-gradient(90deg, #5C73F7, #9573FF); color: #FFF; box-shadow: 0 8px 18px #5C73F740; }
 .pu2-cta:hover { box-shadow: 0 10px 22px #5C73F766; }
 .pu2-cta:disabled { background: #D4D2F2; box-shadow: none; }
 .pu2-cta-origin { font-size: 15px; font-weight: 500; color: #FFFFFF9E; text-decoration: line-through; }
@@ -1877,7 +1883,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    393 宽下卡片文字距左 26px（照设计图），335 宽下不收就会让「永久会员 + 黄色促销胶囊 +
    立减胶囊」这一行挤不开（名称会折行成两行） */
 @media (max-width: 359px) {
-  .pu2-plan { padding: 19px 16px 18px; }
+  .pu2-plan { padding: 15px 16px 14px; }
 }
 /* iOS 系统支付框（ios-pay-sheet 组件）：iOS 上点会员开通层的「立即解锁」就地弹出的**系统级**弹窗
    （App Store 内购确认，照参考截图）—— 挂在手机根节点上、铺满整个手机屏（含键盘与宿主 App），
@@ -2450,7 +2456,8 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 /* —— 主 App 底部 Tab 三页（首页 / 对象 / 我的）与对象编辑页的皮肤 ——
    排版是「浅灰画布 + 白色圆角卡片 + 灰色分组标题」：卡片里一行 = .app-row（右端统一折角箭头，
    相邻行之间一条细分隔线）；会员横幅两态共用一套尺寸，只换底色（未开通 = 强调紫蓝，
-   已开通 = 会员金橙），横幅与「LoveCo」小方块用同一套会员色。 */
+   已开通 = 会员金橙）。「我的」页问候行下方那行金色会员标识（.member-line）2026-10-05
+   已按需求整行删除、样式随之删掉 —— 横幅内的到期日行走 .mb-text small 那套（与副标题同款）。 */
 .app-hello { padding: 2px 2px 13px; }
 .app-hello .hello-text strong { font-size: 21px; font-weight: 650; }
 .app-hello .hello-text small { margin-top: 3px; font-size: 11px; color: var(--lc-muted); }
@@ -2458,10 +2465,6 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .app-hello.as-button:hover { background: var(--lc-accent-soft); }
 .app-hello > .chev { color: var(--lc-subtle); }
 .app-hello > .chev svg { width: 15px; height: 15px; }
-/* 会员标识行的小方块：2026-10-03 品牌口径 L+ → LoveCo（名字更长，字号 10px → 9px、
-   左右内边距 5px → 4.5px 收一档，视觉上仍是一枚小牌、不喧宾夺主） */
-.member-line { font-size: 11px; color: var(--lc-yellow); }
-.member-line b { font-size: 9px; font-weight: 700; padding: 1.5px 4.5px; border-radius: 5px; background: var(--lc-yellow-soft); }
 /* 2026-10-04 需求：横幅与上方问候行拉开距离（原先只隔问候行的 9px 底内边距，太挤） */
 .member-banner { margin-top: 14px; margin-bottom: 16px; padding: 14px 16px; border-radius: 14px; background: linear-gradient(115deg, #6577F0, #4C5CE6); color: #fff; }
 .member-banner.is-member { background: linear-gradient(115deg, #F7B544, #EE9520); }
@@ -2722,14 +2725,16 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    设计图量到的位置上、卡名 17px 与说明 12px 沉在卡底，右上角那枚外链箭头两张卡各一色
    （浅蓝 #7AA7FF / 暖沙 #D4B993）；「进入体验台」行 80 高（芯片 64×47 圆角 12、底色 #181B21、
    行名 15px、折角 #6F7580）。 */
-.app-phone.guide-home { --hm-bg: #111318; --hm-card: #1C1F26; --hm-ink: #F2F3F5; --hm-sub: #9AA1AD; --hm-faint: #6F7580; --hm-accent: #4C8DFF; background: var(--hm-bg); }
+.app-phone.guide-home { --hm-bg: #111318; --hm-card: #1C1F26; --hm-ink: #F2F3F5; --hm-sub: #A9AEB8; --hm-faint: #6F7580; --hm-accent: #4C8DFF; background: var(--hm-bg); }
 .app-phone.guide-home > .statusbar { background: var(--hm-bg); color: #FFF; }
 .app-phone.guide-home .app-shell { background: var(--hm-bg); }
 .app-phone.guide-home .app-main { width: 100%; padding: 0; }
-.hm-page { padding: 44px 20px 0; background: var(--hm-bg); color: var(--hm-ink); }
-.hm-title { font-size: 29px; line-height: 39px; font-weight: 650; color: var(--hm-ink); }
-.hm-sub { margin-top: 11px; font-size: 13px; line-height: 19.8px; color: var(--hm-sub); }
-.hm-art { width: 189px; margin-top: 2px; }
+.hm-page { padding: 45px 20px 0; background: var(--hm-bg); color: var(--hm-ink); }
+.hm-title { font-size: 26px; line-height: 39px; font-weight: 650; color: var(--hm-ink); }
+.hm-sub { margin-top: 11px; font-size: 12px; line-height: 19.8px; color: var(--hm-sub); }
+/* 插画宽度取百分比（189/393 ≈ 48%）：窄机（工作台里 335px 的手机）上跟着缩，
+   主标语那两行才不会被挤得折行（26px 的「自然一点。」要 130px，393 下正文宽 353 正好够） */
+.hm-art { width: 48%; margin-top: 2px; }
 .hm-cards { gap: 11px; margin-top: 24px; }
 .hm-card { flex: 1 1 0; min-width: 0; height: 153px; padding: 16px; border-radius: 16px; }
 .hm-card.is-analyze { background: #1B2A45; }
@@ -2739,11 +2744,11 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .hm-card-go { top: 18px; right: 19px; width: 13px; height: 13px; color: #7AA7FF; }
 .hm-card.is-talk .hm-card-go { color: #D4B993; }
 .hm-card-title { font-size: 17px; line-height: 1.2; font-weight: 650; color: var(--hm-ink); }
-.hm-card-sub { margin-top: 8px; font-size: 12px; line-height: 1.2; color: var(--hm-sub); }
+.hm-card-sub { margin-top: 8px; font-size: 11.5px; line-height: 1.2; color: var(--hm-sub); }
 .hm-exp { height: 80px; margin-top: 12px; padding: 0 19px 0 17px; border-radius: 16px; background: var(--hm-card); }
 .hm-exp-chip { width: 64px; height: 47px; border-radius: 12px; background: #181B21; color: #363B45; }
 .hm-exp-chip svg { width: 51px; height: 34px; }
-.hm-exp-label { margin-left: 14px; font-size: 15px; font-weight: 650; color: var(--hm-ink); }
+.hm-exp-label { margin-left: 14px; font-size: 14px; font-weight: 650; color: var(--hm-ink); }
 .hm-exp .chev { color: var(--hm-faint); }
 .hm-exp .chev svg { width: 14px; height: 14px; }
 /* 首页的底部 Tab 栏：与页面同深（底色 #1C1F26、上边线 #2A2E36），选中 = 强调蓝、未选中 = 灰字，
