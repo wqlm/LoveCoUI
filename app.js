@@ -442,11 +442,11 @@
      cardBadge = 档位卡顶部浮的那枚蓝角标，说的是用户选择占比（永久 85% / 季度 3% / 月度 12% 的用户选择，
      2026-10-05 需求加的 —— 与第一个购买页 PLANS 的 cardBadge 同一套做法、同一套样式：仍只在选中的卡
      上显示，键盘付费层不渲染它）。 */
-     const PLUS_PLANS = {
-     permanent:{name:'永久会员',price:'128',origin:'218',cut:'90',days:0,sub:'用与TA吃一顿饭的钱换终身的从容',promo:'告白季，低至1元/月',cardBadge:'85%的用户选择'},
-     quarter:{name:'季度会员',price:'98',origin:'128',cut:'30',days:90,sub:'一束鲜花的钱',promo:'',cardBadge:'3%的用户选择'},
-     month:{name:'月度会员',price:'48',origin:'58',cut:'10',days:30,sub:'一杯咖啡的钱',promo:'',cardBadge:'12%的用户选择'},
-     };
+  const PLUS_PLANS = {
+    permanent:{name:'永久会员',price:'128',origin:'218',cut:'90',days:0,sub:'用与TA吃一顿饭的钱换终身的从容',promo:'告白季，低至1元/月',cardBadge:'85%的用户选择'},
+    quarter:{name:'季度会员',price:'98',origin:'128',cut:'30',days:90,sub:'一束鲜花的钱',promo:'',cardBadge:'3%的用户选择'},
+    month:{name:'月度会员',price:'48',origin:'58',cut:'10',days:30,sub:'一杯咖啡的钱',promo:'',cardBadge:'12%的用户选择'},
+  };
   const samples = [
     {id:'s1',name:'与林间的聊天',time:'14:32',messages:['今天有点累，感觉什么都没做好。','要不要一起出来走走？','好呀，但我可能不太想说话。']},
     {id:'s2',name:'周末计划',time:'昨天',messages:['周末有什么安排？','还没想好，你呢？','发现了一家新开的书店。']},
@@ -1412,11 +1412,50 @@
      购买页的协议行仍在读它们）。 */
   const ABOUT_LEGAL_KEYS = ['terms','privacy','collection','sharing'];
 
-  /* 首页（空白模板）：原首页的四段内容 —— 问候行 / 会员横幅 /「快捷开始」（含去键盘问 AI、
-     分析聊天截图、键盘设置三条入口）/「我的对象」头像条 /「账户概览」—— 已按需求全部删除，
-     只留整页骨架（.app-content.app-page），不渲染任何元素，等按新设计重做。 */
+  /* 首页（2026-10-05 按设计图重做）：三块 ——
+     ① **标语区** —— 两行大号主标语「让表达，自然一点。」+ 两行灰字副标语「回复有灵感，
+        聊天有分寸。」+ 右侧双人插画（assets/illustrations/conversation_garden_v3.png）；
+     ② **两张功能卡** —— 分析表达（深蓝卡面 + 放大镜插画）/ 自由对话（暖棕卡面 + 摊开的书插画），
+        每张卡右上角一枚外链箭头、卡名下方一行灰字说明；
+     ③ **「进入体验台」一行** —— 左侧键位图芯片 + 行名 + 折角箭头。
+     设计图上还有的**「帮你回」模块与「好用，也要顺手」小节标题（连右侧「设置 ›」）按需求不做**，
+     「进入体验台」下面那句「已就绪，聊天时切换即可用」也不做 —— 不要再当遗漏补回来。
+     三处入口都是「离开主 App、回键盘形态」：分析表达 → 键盘选择器（选聊天截图后立即分析）、
+     自由对话 → 键盘「问AI」页、进入体验台 → 干净键盘页（动作 home-analyze / home-free-talk /
+     home-keyboard；主 App 内回键盘的入口因此又有了，见「需求记录」2026-10-05 一条）。
+     整页深色**按图定色、不跟随 .dark**（与问题反馈页 / 购买页那种做法一致）：状态栏连着一起
+     转深色（.guide-home 挂手机根，见 renderApp），底部 Tab 栏在首页也换深色皮肤
+     （见 theme.css 的 .app-phone.guide-home 一组）。 */
   function appHomePage() {
-    return `<div class="app-content app-page"></div>`;
+    const glyph = window.LoveCoSystemGlyphs;
+    return `<div class="app-content app-page hm-page">
+      <header class="hm-head">
+        <div class="hm-head-text">
+          <h1 class="hm-title">让表达，<br>自然一点。</h1>
+          <p class="hm-sub">回复有灵感，<br>聊天有分寸。</p>
+        </div>
+        <img class="hm-art" src="assets/illustrations/conversation_garden_v3.png" alt="">
+      </header>
+      <div class="hm-cards">
+        <button class="hm-card is-analyze" data-action="home-analyze">
+          <img class="hm-card-art" src="assets/illustrations/analyze_tone_v1.png" alt="">
+          <i class="hm-card-go" aria-hidden="true">${glyph.upRight}</i>
+          <strong class="hm-card-title">分析表达</strong>
+          <small class="hm-card-sub">读懂语气与情绪</small>
+        </button>
+        <button class="hm-card is-talk" data-action="home-free-talk">
+          <img class="hm-card-art" src="assets/illustrations/open_ideas_v3.png" alt="">
+          <i class="hm-card-go" aria-hidden="true">${glyph.upRight}</i>
+          <strong class="hm-card-title">自由对话</strong>
+          <small class="hm-card-sub">聊一聊，找灵感</small>
+        </button>
+      </div>
+      <button class="hm-exp" data-action="home-keyboard">
+        <span class="hm-exp-chip" aria-hidden="true">${glyph.kbdTiles}</span>
+        <span class="hm-exp-label">进入体验台</span>
+        <i class="chev" aria-hidden="true">${icon('ArrowRight')}</i>
+      </button>
+    </div>`;
   }
   /* —— 开启键盘引导流程（appScreen='kb-guide'，kbGuidePage 三态）——
      进入主 App 时键盘未开启（permissions.kbEnabled=false）就走这条流程。
@@ -2331,12 +2370,16 @@
     </div>${note}`;
   }
   /* —— 主 App ·「会员购买2」（appPurchaseCopyPage，2026-10-05 新增；appScreen='purchase-copy'）——
-     **第一个购买页（appPurchasePage）的拷贝**：渲染、商品表、选中态、动作与样式全部与它一致 ——
+     **第一个购买页（appPurchasePage）的拷贝**：渲染、商品表、选中态、动作与骨架全部与它一致
+     （**视觉从 2026-10-05 二次需求起分头**：本页档位卡里「一顿烧烤的钱」与现价**整体对调** ——
+     生活化那句拿到高亮大字、现价退成小灰字，`.pu-copy-lead` / `.pu-copy-sub` 见 theme.css）——
      商品取 PLANS + state.kbPlan（与键盘付费引导层共用同一张表与同一个选中态，kb-plan 动作切档）、
      支付渠道走 purchase-pay（进页由 openAppScreen 摆回首选支付宝）、主按钮走同一条 purchase 分路
      （iOS 就地弹 iOS 系统支付框、安卓 / 鸿蒙一键到账）、协议名点开协议正文整页（kb-legal:*，
      返回箭头 / Esc 回本页且所选档位与渠道都留着）、右上角 X 回「我的」（purchase-close）；
-     皮肤沿用 .pu-* 骨架（styles.css）与 .guide-purchase 蓝色整页（theme.css）—— 本页**无新增 CSS**。
+     皮肤沿用 .pu-* 骨架（styles.css）与 .guide-purchase 蓝色整页（theme.css）—— 骨架零新增，
+     只在 theme.css 补了两条本页专属的修饰类 `.pu-copy-lead` / `.pu-copy-sub`（档位卡那两行对调用，
+     见下面 cards 那段注释），它们只出现在本函数的渲染里、不会漏到第一个购买页。
      入口：**app 内暂无入口**（「会员中心」行仍进第一个购买页、会员卡片进「L+ 会员」页），
      只能从工作台右栏「页面列表」点入（APP_PAGES 的 purchase-copy 条目 → setupPage → openAppScreen）
      —— 等这一页的设计定稿后再按需求接入口（暂不接，勿顺手往「我的」页加行）。
@@ -2349,11 +2392,17 @@
     const plan = PLANS[state.kbPlan] || {};
     const FEATS = ['LoveCo 帮回复，不限次','上传聊天截图，LoveCo 帮你读懂TA','自定义聊天对象，回复更具针对性','设置关系阶段，LoveCo 帮你把控聊天分寸'];
     const feats = FEATS.map(txt=>`<li><span>${esc(txt)}</span></li>`).join('');
+    /* 档位卡四行：角标 + 档位名 + 生活化对比 + 现价。
+       2026-10-05 二次需求（用户原话「一顿烧烤的钱与价格样式进行互换，高亮放大一顿烧烤的钱」）：
+       本页把两行**整体对调** —— cardNote（一顿烧烤的钱）上移一槽、拿走价格原来的高亮大字，
+       现价退到下面一行的小灰字（`.pu-copy-lead` / `.pu-copy-sub`，见 theme.css）。
+       第一页（appPurchasePage）与键盘付费层**不跟着动**，两条从这里起在视觉上分头；
+       DOM 顺序也换了（note 在前、price 在后），两行的 margin-top 由新类换回各自的槽位。 */
     const cards = Object.entries(PLANS).map(([id,p])=>`<button type="button" class="pu-plan${state.kbPlan===id?' active':''}" data-action="kb-plan:${id}" aria-pressed="${state.kbPlan===id}">
       <span class="pu-plan-badge">${esc(p.cardBadge || p.badge)}</span>
       <span class="pu-plan-name">${esc(p.name)}</span>
-      <span class="pu-plan-price"><i>¥</i>${esc(p.price)}</span>
-      <span class="pu-plan-note">${esc(p.cardNote || '')}</span>
+      <span class="pu-plan-note pu-copy-lead">${esc(p.cardNote || '')}</span>
+      <span class="pu-plan-price pu-copy-sub"><i>¥</i>${esc(p.price)}</span>
     </button>`).join('');
     const cap = state.kbPlan==='permanent' ? '一次性买断，永久有效，无需续订'
       : `到期后 ¥${plan.origin}/${plan.days===7?'周':'季度'}自动续订，可随时取消`;
@@ -2854,6 +2903,8 @@
       : state.appScreen==='legal' ? ' guide-legal'
       /* 「问题反馈」页整页深色（2026-10-04 需求：sheet 卡片改整页）：状态栏连着一起转深色（.guide-feedback） */
       : state.appScreen==='feedback' ? ' guide-feedback'
+      /* 首页深色（2026-10-05 按设计图重做）：状态栏连着一起转深色，底部 Tab 栏同时换深色皮肤（.guide-home） */
+      : (state.appScreen==='home') ? ' guide-home'
       /* 登录整页淡蓝（2026-09-29，「手机号登录」/「一键登录」两页同一套）：状态栏连着一起转淡蓝（.guide-login，theme.css） */
       : (state.appScreen==='login'||state.appScreen==='login-one-tap') ? ' guide-login' : '';
     const scrollMemo = captureScrolls($('#app'));
@@ -4633,6 +4684,15 @@
       if(!state.loggedIn){openAppLogin();return;}
       return openAppScreen(arg);
     }
+    /* 首页三处入口（2026-10-05 首页重做）：三处都是「离开主 App、回键盘形态」——
+       分析表达 → 键盘选择器（「选择聊天截图」面板，选完点「立即分析」走聊天分析链路）、
+       自由对话 → 键盘「问AI」页（kb-free-chat）、进入体验台 → 干净键盘页（只回到键盘）。
+       出口统一走 returnKeyboard()（与左栏 App形态切换同一条路：收起键盘上的各层、落常驻键盘），
+       再按各自落点补一步 —— 与「原首页那两条键盘入口」同一套做法（那两条随首页清空删除，
+       本轮按新设计重做后回来了）。 */
+    if(name==='home-analyze'){returnKeyboard();return openPhotoPanel();}
+    if(name==='home-free-talk'){returnKeyboard();return openFreeChat();}
+    if(name==='home-keyboard')return returnKeyboard();
     if(name==='app-membership'){if(needLogin())return;return openAppScreen('purchase');}
     /* 「我的」页的会员卡片（memberBanner，2026-10-05 需求）→ **第二个会员购买页「L+ 会员」**
        （openAppScreen('purchase2')，选中档位 / 勾选框 / 支付渠道由它摆成默认态）；

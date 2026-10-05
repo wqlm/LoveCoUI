@@ -613,6 +613,29 @@ small{font-size:11px;color:#73847d}
 .iv-friend-phone{flex:1;min-width:0}
 .iv-tag{flex-shrink:0}
 .iv-rules{margin:0}
+/* 主 App 首页（appHomePage，2026-10-05 按设计图重做）：整页一列 —— ① 标语区（左文字块 +
+   右插画，顶对齐）② 两张功能卡（等高、横向两列）③「进入体验台」一行（键位图芯片 + 行名 +
+   折角箭头）。骨架只管排布：插画绝对定位钉在卡内设计图量到的位置上、卡名与说明靠
+   margin-top:auto 沉到卡底、折角靠 margin-left:auto 贴右。
+   皮肤（深色配色 / 字号 / 圆角 / 间距）在 theme.css 的「首页」一组。 */
+.hm-page{display:flex;flex-direction:column;min-height:100%}
+.hm-head{display:flex;align-items:flex-start}
+.hm-head-text{flex:1;min-width:0}
+.hm-title{margin:0}
+.hm-sub{margin:0}
+.hm-art{display:block;flex-shrink:0}
+.hm-cards{display:flex}
+.hm-card{position:relative;display:flex;flex-direction:column;align-items:flex-start;text-align:left;font:inherit;color:inherit;cursor:pointer;border:0}
+.hm-card-art{position:absolute;display:block}
+.hm-card-go{position:absolute;display:inline-flex}
+.hm-card-go svg{display:block;width:100%;height:100%}
+.hm-card-title{margin-top:auto}
+.hm-card-sub{display:block}
+.hm-exp{display:flex;align-items:center;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;border:0}
+.hm-exp-chip{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+.hm-exp-chip svg{display:block}
+.hm-exp-label{flex:1;min-width:0}
+.hm-exp .chev{flex-shrink:0;display:inline-flex;margin-left:auto}
 .mobile-testbar{display:none}
 .dark.phone{background:#222b25;color:#e1e9df}
 /* 宿主 App（微信）自带深色外观，不跟随 .dark 开关，故这里的 .dark 不再覆盖会话区与输入栏 */

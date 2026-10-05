@@ -1737,6 +1737,17 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 /* 现价下面那行小灰字 = 该档 cardNote（2026-10-05 需求：一顿烧烤 / 一杯奶茶 / 一束鲜花的钱；
    原先是 `.pu-plan-origin` 的划线原价，划线与 ¥ 前缀一并去掉，字号 / 颜色沿用那一行） */
 .pu-plan-note { margin-top: 3px; font-size: 10.5px; color: var(--pu-faint); }
+/* 「会员购买2」（purchase-copy）专属：档位卡里**「一顿烧烤的钱」与现价整体对调**（2026-10-05
+   二次需求，用户原话「一顿烧烤的钱与价格样式进行互换，高亮放大一顿烧烤的钱」）——
+   .pu-copy-lead = cardNote 那句生活化对比拿走价格原来的位置与高亮大字（深蓝、800），
+   .pu-copy-sub = 现价退到下面那行、穿原来那行小灰字的衣服。两个修饰类只出现在
+   appPurchaseCopyPage 的渲染里，第一个购买页 / 键盘付费层不受影响（两页从这次起视觉分头）。
+   字号止步 13.5px：三张卡都是 6 个汉字，卡内容宽约 84–108px（工作台 335px 手机框 → device
+   393px），14px 起在最窄的那台上就会折成两行；letter-spacing 收 -.2px 再多留一点余量。
+   margin-top 两行互换（DOM 里 note 在前、price 在后）：lead 拿价格原来的 5px、sub 拿 3px。 */
+.pu-plan-note.pu-copy-lead { margin-top: 5px; font-size: 13.5px; font-weight: 800; color: #1A5EE8; letter-spacing: -.2px; }
+.pu-plan-price.pu-copy-sub { margin-top: 3px; font-size: 10.5px; font-weight: 400; color: var(--pu-faint); letter-spacing: 0; }
+.pu-plan-price.pu-copy-sub i { margin-right: 1px; font-size: 10.5px; font-weight: 400; }
 /* 续订说明：下面留 18px 的**最小**间距 —— 底部那组（.pu-foot）再往上顶时要靠这段留白兜底 */
 .pu-cap { margin: 13px 4px 18px; font-size: 11px; line-height: 1.5; color: var(--pu-faint); }
 .pu-pay { gap: 11px; padding: 13px 14px; background: #F6F6F8; }
@@ -2417,8 +2428,10 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .app-phone .app-content > .sheet .sheet-header h2 { font-size: 18px; }
 .app-phone .app-content > .sheet .sheet-footer { padding: 10px 12px 12px; }
 .app-phone .app-nav { position: static; inset: auto; z-index: auto; flex: 0 0 56px; width: 100%; height: 56px; gap: 0; padding: 5px 6px max(5px, env(safe-area-inset-bottom)); backdrop-filter: none; }
-.app-phone .app-nav button { min-width: 0; flex: 1; flex-direction: column; font-size: 10px; gap: 2px; border-radius: 10px; }
-.app-phone .app-nav svg { width: 19px; height: 19px; }
+/* 手机内是「图标在上、文字在下」的竖排：图形 24px、图与字之间 6px（2026-10-05 首页设计图
+   里量到的口径 —— 图形墨迹 17.4px、与 10px 文字之间留 11px 墨迹间距，换成盒模型就是这一组） */
+.app-phone .app-nav button { min-width: 0; flex: 1; flex-direction: column; font-size: 10px; gap: 6px; border-radius: 10px; }
+.app-phone .app-nav svg { width: 24px; height: 24px; }
 .app-main { width: min(680px, calc(100% - 32px)); margin: 0 auto; flex: 1; padding: 30px 0 96px; }
 .app-content { width: 100%; }
 .app-content > .sheet { position: static; width: 100%; max-height: none; border-radius: 14px; box-shadow: 0 8px 30px #26213212; overflow: hidden; }
@@ -2698,6 +2711,46 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .iv-rules li + li { margin-top: 7px; }
 .iv-rules-toggle { align-self: flex-start; margin-top: 11px; padding: 3px 0; border: 0; background: none; font: inherit; font-size: 12px; font-weight: 600; color: var(--iv-blue); cursor: pointer; }
 .iv-rules-toggle:hover { text-decoration: underline; text-underline-offset: 2px; }
+/* —— 首页（appHomePage，2026-10-05 按设计图重做的深色整页）——
+   骨架在 styles.css 的 .hm-* 一组。**深色是这一页自己的皮**：配色写死、不跟随 .dark
+   （与问题反馈页 / 购买页 / 登录页那种「按图定色」的做法一致，选择器优先级高于 .dark 那几条）；
+   状态栏连着一起转深色（.guide-home 挂手机根，见 renderApp），底部 Tab 栏也一起换深色皮肤
+   （这一页保留 Tab 栏，不像问题反馈页那样整页铺满；深色底栏见本组最后三条）。
+   尺寸 / 位置全按设计图逐个量出来的 CSS px 定（393 基准）：正文左右内边距 20、标语区顶距 44、
+   主标语 29/39、副标语 13/19.8 灰字、插画 189 宽（内含透明边、右缘贴正文右缘、与主标语顶对齐）；
+   两张卡间距 11 / 高 153 / 圆角 16（卡面 #1B2A45 深蓝与 #2C2925 暖棕），卡内插画绝对定位钉在
+   设计图量到的位置上、卡名 17px 与说明 12px 沉在卡底，右上角那枚外链箭头两张卡各一色
+   （浅蓝 #7AA7FF / 暖沙 #D4B993）；「进入体验台」行 80 高（芯片 64×47 圆角 12、底色 #181B21、
+   行名 15px、折角 #6F7580）。 */
+.app-phone.guide-home { --hm-bg: #111318; --hm-card: #1C1F26; --hm-ink: #F2F3F5; --hm-sub: #9AA1AD; --hm-faint: #6F7580; --hm-accent: #4C8DFF; background: var(--hm-bg); }
+.app-phone.guide-home > .statusbar { background: var(--hm-bg); color: #FFF; }
+.app-phone.guide-home .app-shell { background: var(--hm-bg); }
+.app-phone.guide-home .app-main { width: 100%; padding: 0; }
+.hm-page { padding: 44px 20px 0; background: var(--hm-bg); color: var(--hm-ink); }
+.hm-title { font-size: 29px; line-height: 39px; font-weight: 650; color: var(--hm-ink); }
+.hm-sub { margin-top: 11px; font-size: 13px; line-height: 19.8px; color: var(--hm-sub); }
+.hm-art { width: 189px; margin-top: 2px; }
+.hm-cards { gap: 11px; margin-top: 24px; }
+.hm-card { flex: 1 1 0; min-width: 0; height: 153px; padding: 16px; border-radius: 16px; }
+.hm-card.is-analyze { background: #1B2A45; }
+.hm-card.is-talk { background: #2C2925; }
+.hm-card-art { left: 26px; top: 23px; height: 52px; width: auto; }
+.hm-card.is-talk .hm-card-art { left: 21px; top: 16px; height: 69px; }
+.hm-card-go { top: 18px; right: 19px; width: 13px; height: 13px; color: #7AA7FF; }
+.hm-card.is-talk .hm-card-go { color: #D4B993; }
+.hm-card-title { font-size: 17px; line-height: 1.2; font-weight: 650; color: var(--hm-ink); }
+.hm-card-sub { margin-top: 8px; font-size: 12px; line-height: 1.2; color: var(--hm-sub); }
+.hm-exp { height: 80px; margin-top: 12px; padding: 0 19px 0 17px; border-radius: 16px; background: var(--hm-card); }
+.hm-exp-chip { width: 64px; height: 47px; border-radius: 12px; background: #181B21; color: #363B45; }
+.hm-exp-chip svg { width: 51px; height: 34px; }
+.hm-exp-label { margin-left: 14px; font-size: 15px; font-weight: 650; color: var(--hm-ink); }
+.hm-exp .chev { color: var(--hm-faint); }
+.hm-exp .chev svg { width: 14px; height: 14px; }
+/* 首页的底部 Tab 栏：与页面同深（底色 #1C1F26、上边线 #2A2E36），选中 = 强调蓝、未选中 = 灰字，
+   选中项不再铺淡紫底（设计图里只有颜色变化）；三种 Tab 图形 / 字号 / 排布沿用通用那套 */
+.app-phone.guide-home .app-nav { background: #1C1F26; border-top: 1px solid #2A2E36; }
+.app-phone.guide-home .app-nav button { color: var(--hm-faint); }
+.app-phone.guide-home .app-nav button.active, .app-phone.guide-home .app-nav button:hover { color: var(--hm-accent); background: transparent; }
 /* 出生日期弹层的滚轮：选中带换成浅灰（资料引导那一步的白色选中带在白卡弹层上看不出来），
    行文字也改走主题令牌 —— onb 那套颜色写死在淡紫页上，深色外观下在白卡弹层里会看不清；
    其余（scroll-snap 吸附 / 两端 mask 渐隐 / 44px 行高）全部复用 .onb-* 一套 */
