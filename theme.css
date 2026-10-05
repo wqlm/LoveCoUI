@@ -1796,9 +1796,11 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    照用户设计图 1:1 复刻（设计图 513×1080 按 393 宽折算，scale ≈ 1.305）的**浅紫底整页**：
    固定浅色、不跟随深色外观（与第一个购买页同一条「按图定色」的约定）。
    量出来的口径 —— 底色 #F1F4FD（到页面底部渐暖白 #FBF7F4，照设计图底部那一段）、左右边距 20px；
-   标题 21px 加粗居中（「LoveCo会员」#7B6BF0）、与状态栏之间留 26px；档位卡圆角 17px（卡内边距 15/14、
-   卡高上限 118px、卡间距 18px；2026-10-05 二次需求：内边距 19/18 → 15/14、卡高上限 150px → 118px ——
-   用户反馈「卡片和底下的按钮太大了，高度改小」），选中那张 2px #8B8CF8 描边 +
+   标题 21px 加粗居中（「LoveCo会员」#7B6BF0）、与状态栏之间留 40px（初版 26px，三次需求再往下 14px）；
+   **左上角一枚 28px 圆形叉号**（白底 90%、叉 15px `var(--pu2-hot)`，同第一个购买页右上角那枚 .pu-close；
+   2026-10-05 三次需求补的可见出口）；档位卡圆角 17px（卡内边距 15/14、
+   卡高上限 **102px**、卡间距 18px；2026-10-05 二次需求：内边距 19/18 → 15/14、卡高上限 150px → 118px ——
+   用户反馈「卡片和底下的按钮太大了，高度改小」；三次需求 118px → 102px），选中那张 2px #8B8CF8 描边 +
    白→浅紫水平渐变底；「立减」胶囊 24px 高 / #E7E8FE 底 + #7C7CD6 字；永久卡那枚黄色促销胶囊 #FFD738；
    续订说明 12.5px #B0B1C0（缩进 21px）；支付行 44px 高 / #EDEEF3 / 圆角 12px（logo 25px、
    与渠道名间距 13px、渠道名 14px —— 图标与切换箭头用与第一个购买页同一套素材 / 图标）；
@@ -1818,19 +1820,26 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 /* 整页铺满两件套（同第一个购买页做法）：app-main 清零边距 + 状态栏跟着浅紫底一起转 */
 .app-phone.guide-purchase2 .app-main { width: 100%; padding: 0; }
 .app-phone.guide-purchase2 > .statusbar { background: #F1F4FD; color: #17171C; }
+/* 左上角那枚圆形叉号（2026-10-05 三次需求补的可见出口，p2-close 回「我的」）—— 与第一个购买页右上角
+   那枚 .pu-close 同一颗（白底 90% + 浅紫投影 + 15px 叉），只是本页放在左上角（骨架在 styles.css） */
+.pu2-close { width: 28px; height: 28px; background: rgba(255, 255, 255, .9); color: var(--pu2-hot); box-shadow: 0 2px 8px #6B6AE826; }
+.pu2-close:hover { background: #FFF; }
+.pu2-close svg { width: 15px; height: 15px; }
 /* 居中大标题（「成为 / LoveCo会员 / ，解锁无限次AI使用」整行居中，「LoveCo会员」紫色）——
    2026-10-05 需求：文案由「成为L+会员，解锁全部功能」换成这句，并把与状态栏之间的距离由 8px 加到
-   26px（用户原话「并且距离顶部有一定的距离」） */
-.pu2-title { padding: 26px 0 0; font-size: 21px; font-weight: 800; line-height: 1.35; text-align: center; letter-spacing: .2px; }
+   26px（用户原话「并且距离顶部有一定的距离」）；**三次需求再往下一点** —— 26px → **40px**，
+   也让左上角那枚叉号（占 38–66px）与标题行（68px 起）不打架 */
+.pu2-title { padding: 40px 0 0; font-size: 21px; font-weight: 800; line-height: 1.35; text-align: center; letter-spacing: .2px; }
 .pu2-title b { color: #7B6BF0; }
 /* 档位卡组：纵向三张、间距 18px（卡内 = 左「名称行 + 价格行」两行 / 右「立减」胶囊垂直居中）——
    2026-10-05 需求：原 12px 间距 + 15/14 内边距在整页里上段挤成一坨、屏幕下方却空着一大片，
    卡间距加到 18px，把留白匀回卡片区 */
 .pu2-plans { margin-top: 24px; gap: 18px; }
-/* 卡高上限 118px（2026-10-05 二次需求：150px 收到 118px —— 用户反馈「卡片和底下的按钮太大了，高度
-   改小」）：三张卡挂 flex-grow 均分页面富余高度（骨架在 styles.css），到上限后多余高度改由
+/* 卡高上限 102px（2026-10-05 二次需求：150px → 118px；三次需求再收一档 118px → 102px ——
+   用户反馈「卡片和底下的按钮太大了，高度改小」/「卡片可以再收小一点」）：三张卡挂 flex-grow
+   均分页面富余高度（骨架在 styles.css），到上限后多余高度改由
    .pu2-plans 的 justify-content:center 在卡组内上下均分 */
-.pu2-plan { padding: 15px 26px 14px; max-height: 118px; border-radius: 17px; background: #FFF; }
+.pu2-plan { padding: 15px 26px 14px; max-height: 102px; border-radius: 17px; background: #FFF; }
 .pu2-plan.active { border-color: var(--pu2-line); background: linear-gradient(90deg, #FFFFFF, #F0F0FE); }
 /* 卡顶那枚蓝角标 = 该档 cardBadge（2026-10-05 需求：用户选择占比「85% / 3% / 12% 的用户选择」）——
    与第一个购买页的 .pu-plan-badge 同款皮肤（蓝色渐变胶囊 + 白字 + 蓝色投影、上半颗探出卡顶），

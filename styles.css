@@ -304,8 +304,11 @@ small{font-size:11px;color:#73847d}
    高度下上百 px），上段挤成一坨、下方空一片；现在 .pu2-plans 与三张 .pu2-plan 都挂 flex-grow:1，
    多出来的高度由卡片组自己吃掉（卡片变高、内容仍垂直居中），页面上不留大段空白。
    窗口矮 / 内容超屏时各段退回内容高度（min-content 保护）、整页照常滚动。 */
-.pu2-page{display:flex;flex-direction:column;min-height:100%}
+.pu2-page{position:relative;display:flex;flex-direction:column;min-height:100%}
 .pu2-title{margin:0}
+/* 左上角那枚圆形叉号（2026-10-05 三次需求补的可见出口，p2-close 动作）：absolute 浮在标题上方左侧、
+   不占文档流（标题整行居中的口径不变），骨架同第一个购买页右上角那枚 .pu-close（视觉在 theme.css） */
+.pu2-close{position:absolute;top:10px;left:14px;display:flex;align-items:center;justify-content:center;border:0;border-radius:50%;cursor:pointer}
 .pu2-plans{display:flex;flex-direction:column;flex-grow:1;justify-content:center}
 .pu2-plan{position:relative;display:flex;flex-grow:1;width:100%;align-items:center;justify-content:space-between;border:2px solid transparent;font:inherit;color:inherit;text-align:left;cursor:pointer}
 /* 卡顶那枚蓝角标 = 该档 cardBadge（用户选择占比，2026-10-05 需求）：absolute + 默认 display:none、
