@@ -302,6 +302,7 @@
        主 App 的购买都走这一整页（「我的」横幅 / 额度不足 / 键盘安卓·鸿蒙跳转过来，见 gotoAppPurchase）。
        purchasePay 是支付渠道（2026-09-29 三次需求）：安卓 / 鸿蒙那一行**首选支付宝**、点一下切到
        微信支付、再点切回来（'alipay' | 'wechat'，只存内存不落库 —— 每次进页都回到首选支付宝）；
+       三张购买页（含「会员购买2」那张拷贝，purchase-copy）共用这一份渠道态；
        iOS 不渲染这一行（Apple 内购走系统支付框，页面里不摆渠道行 —— 2026-09-29 五次需求），
        这个字段只在安卓 / 鸿蒙参与渲染。
        协议行**无勾选框**（2026-09-29 五次需求：原 state.purchaseAgreed + purchase-agree 动作 +
@@ -437,12 +438,15 @@
      days 供到账时算会员到期日（永久档 0 = 永久，与 PLANS 同一口径，见 checkoutPlan / completePurchase）；
      promo 是永久卡档位名右边那枚黄色促销胶囊（其余两档没有），sub 是价格后面那句灰色标语
      （2026-10-05 需求：三档都填 —— 永久档由「一次购买，终身免费」换成「用与TA吃一顿饭的钱换终身的从容」，
-     季度 / 月度新增「一束鲜花的钱」「一杯咖啡的钱」，与第一个购买页 cardNote 同一套生活化对比口径）。 */
-  const PLUS_PLANS = {
-    permanent:{name:'永久会员',price:'128',origin:'218',cut:'90',days:0,sub:'用与TA吃一顿饭的钱换终身的从容',promo:'告白季，低至1元/月'},
-    quarter:{name:'季度会员',price:'98',origin:'128',cut:'30',days:90,sub:'一束鲜花的钱',promo:''},
-    month:{name:'月度会员',price:'48',origin:'58',cut:'10',days:30,sub:'一杯咖啡的钱',promo:''},
-  };
+     季度 / 月度新增「一束鲜花的钱」「一杯咖啡的钱」，与第一个购买页 cardNote 同一套生活化对比口径）；
+     cardBadge = 档位卡顶部浮的那枚蓝角标，说的是用户选择占比（永久 85% / 季度 3% / 月度 12% 的用户选择，
+     2026-10-05 需求加的 —— 与第一个购买页 PLANS 的 cardBadge 同一套做法、同一套样式：仍只在选中的卡
+     上显示，键盘付费层不渲染它）。 */
+     const PLUS_PLANS = {
+     permanent:{name:'永久会员',price:'128',origin:'218',cut:'90',days:0,sub:'用与TA吃一顿饭的钱换终身的从容',promo:'告白季，低至1元/月',cardBadge:'85%的用户选择'},
+     quarter:{name:'季度会员',price:'98',origin:'128',cut:'30',days:90,sub:'一束鲜花的钱',promo:'',cardBadge:'3%的用户选择'},
+     month:{name:'月度会员',price:'48',origin:'58',cut:'10',days:30,sub:'一杯咖啡的钱',promo:'',cardBadge:'12%的用户选择'},
+     };
   const samples = [
     {id:'s1',name:'与林间的聊天',time:'14:32',messages:['今天有点累，感觉什么都没做好。','要不要一起出来走走？','好呀，但我可能不太想说话。']},
     {id:'s2',name:'周末计划',time:'昨天',messages:['周末有什么安排？','还没想好，你呢？','发现了一家新开的书店。']},
@@ -723,7 +727,8 @@
     {id:'account',group:'首页与我的',name:'我的',route:'/account',trigger:'主 App 底部 Tab 第三项「我的」',desc:'按设计图重做的「我的」页，自上而下：① 问候行（**未登录时改显示「立即登录」占位**（2026-10-04 需求），点它由 needLogin 拦到登录页；已登录显示**「你好 + 手机号掩码」**（「你好 138****8000」，取 state.phone，2026-10-04 晚些需求：原先是「你好，昵称」，逗号也不要了）+ 折角箭头，点它进用户页；已开通会员时下面多一行金色会员标识「LoveCo 会员到期日 2026-09-30」，永久档写「永久会员」）；② 会员横幅（未开通蓝底「成为 LoveCo 会员 / 解锁无限次AI使用」，已开通橙底「LoveCo 会员 / 已解锁无限次AI使用」，右侧白胶囊「立即查看」进**第二个会员购买页「L+ 会员」**（**2026-10-05 需求：会员卡片改走新页**（未开通蓝底 / 已开通橙底都进，`app-membership-plus` 动作）；此前它与「会员中心」行同一个落点、都进第一个购买页；2026-09-28 起主 App 的购买走整页购买页、不再弹键盘同款的会员开通覆盖层）—— **2026-10-03 需求：会员文案的品牌口径从「L+」改成「LoveCo」**（横幅两态 + 会员标识小方块，界面里不再出现 L+，见 `memberBanner` / `appAccountPage`）—— **2026-10-05 需求：会员权益口径从「解锁全部高级功能」改成「解锁无限次AI使用」**（横幅两态副标题 + 会员标识行那两处「已解锁…」，主 App 界面里不再出现「全部高级功能」，见 `memberBanner` / `memberBadgeText`））；③「**账户**」卡片两行（2026-10-04 需求：这一组按需求加回、排在「支持」之上 —— 「会员中心」→ **第一个会员购买页**（2026-10-05 需求：原「会员与积分」行改名「会员中心」）（`app-membership` 动作；**2026-10-05 起与会员卡片分头** —— 卡片改走新的「L+ 会员」页 purchase2，这一行仍是第一个购买页；原「会员与积分」整页 2026-09-26 已删，这里不重建那页）；「邀请有礼」→ **「邀请有礼」整页**（2026-10-05 起 —— 邀请码功能页已按需求做出，原「即将上线」轻提示撤掉；`invite` 动作 → `openAppScreen`（appScreen 取 invite），未登录先由 needLogin 拦到登录页，见本目录 `invite` 条目））；④「支持」卡片两行（**2026-10-04 晚些需求：栏目名由「客户支持」改「支持」**，两行也随之换过一轮）：「反馈与建议」→ 问题反馈页（类型默认「功能问题」）；**「联系客服」排在它下面**（2026-10-04 再改）→ 就地弹**「联系客服」弹层**（`sheet` 通用底部卡片，**卡内只剩一行「客服邮箱」** `support@loveco.gasairea.com`，**点整行即复制、复制完立刻收起弹层**（2026-10-04 晚些需求：不再有「图标变勾 1.2 秒后复原」那一下 —— 弹层收起了看不到，所以复制图标常驻）；**不显示客服微信、也不显示服务时间** —— 这两行 2026-10-04 再改按需求删掉；这一行不读登录态，未登录也弹得开）。**原首行「键盘内容投诉与举报」已按本轮需求整行删除**（它原先进问题反馈页并把类型预选成「投诉与举报」；问题类型里那颗胶囊仍在，只是不再有入口预选它）；⑤「隐私与协议」卡片（**2026-10-04 再改：栏目名由「相关协议」改「隐私与协议」**；用户协议 / 隐私政策 / 个人信息收集清单 / 第三方信息共享清单，各自打开对应协议正文整页；卡片原末行「协议中心」2026-10-04 晚些按需求删除）；⑥「更多」卡片一行（关于 LoveCo，副说明写版本号 `Version 1.9.0`）—— **2026-10-04 需求：设计图里「关于 Lovekey 键盘 / 这是一款可以帮你聊天的键盘输入法」与「Version 1.9.0 / 上线一些新人设」两行并成这一行**（品牌改 LoveCo、版本号挪进本行副说明、原独立版本条目不再出现；**2026-10-04 晚些这一行接上了落地页** —— 点它进**「关于 LoveCo」整页**（appScreen 取 about，见本目录里的 `about` 条目；此前当轮它还是纯展示行 —— `appRowSub` 不给 action 即静态行））。**2026-10-04 需求：原「账户」卡片一行（退出登录）整组删除** —— 同日再按需求把这一组加回来（见上面 ③），现在的两行是「会员与积分」「邀请有礼」，**不再有「退出登录」那一行**（退出登录仍从「用户」页页尾那颗卡进）。设计图里右上角的邮箱图标（消息通知）、「基础设置 · 键盘基础预设」与「消息提醒 · 消息通知」两组按需求不呈现（键盘设置页面与入口已于 2026-09-26 整体删除）。2026-09-26 另删三行入口：「在线客服」「我的订单」「兑换积分」（对应页面一并删除）；同日晚些时候卡片下方那枚「注销仿真账户」文字按钮也删除（连同确认框链路，页面至此没有任何注销类入口）。**2026-10-03 修复：本列表点入现场摆成未开通态** —— 点「我的」时先把会员态复位（`member=false` / `memberExpiry=null`，不落库），否则从「我的 · 已开通会员」切回来时页面仍是会员态、看着像没切过去（见 `setupPage()`）',note:'「我的」不再有键盘设置入口（该页面已删除）；注销入口已删，页面内不再有「需先清空会员 / 积分才能操作」的前置条件；**这一页未登录也进得来**（2026-10-04 需求：未登录点「我的」Tab 不再被登录页挡下 —— 先正常进页、0.5 秒后按蜂窝网络开关补弹「一键登录」/「手机号登录」独立页面，页内问候行显示「立即登录」；见 action 的 app-tab 分支与 ACCOUNT_LOGIN_DELAY_MS）'},
     {id:'account-member',group:'首页与我的',name:'我的 · 已开通会员',route:'/account（会员态）',trigger:'本列表点入（现场摆上会员标识与到期日 2026-09-30，不落库）；真实链路里购买会员到账后也是这一形态',desc:'「我的」页的会员态：问候行下方多一行金色会员标识（小方块「LoveCo」+「会员到期日 2026-09-30」，永久档写「永久会员 · 已解锁无限次AI使用」），会员横幅同时换成橙底「LoveCo 会员 / 已解锁无限次AI使用」，其余分区（账户 / 支持 / 隐私与协议 / 更多）与未开通时完全一致 —— **「账户」组 2026-10-04 曾整组删除、同日再按需求加回**（两行 = 会员中心 → **第一个购买页** / 邀请有礼 → **「邀请有礼」整页**，2026-10-05 起）。**2026-10-03 需求：条目名由「我的 · 已开通 L+ 会员」改名「我的 · 已开通会员」、页面内容里的「L+」一并改成「LoveCo」**',note:'会员到期日与会员标识一起持久化：购买后写入（主 App 两张购买页与键盘内共用同一条到账链路 completePurchase —— 第一个购买页 / 键盘付费层按 PLANS 算（永久档落 0 = 永久、周 / 季度档按 7 / 90 天），第二个购买页「L+ 会员」按 PLUS_PLANS 算（永久 0、季度 90 天、月度 30 天，见 checkoutPlan），到账后两张购买页看到的都是同一份会员态）；老存档只有会员标识、没有到期信息时不硬编日期，只说「已解锁无限次AI使用」（**2026-10-05 需求：原「已解锁全部高级功能」**）；点入这条会把会员态**现场摆上**（不落库），点回「我的」条目即复位成未开通态（2026-10-03 用户反馈修复，两条互为对方形态的入口）'},
     {id:'purchase',group:'会员中心',name:'会员购买页',route:'/account/purchase',trigger:'「我的」·「账户」组的「会员中心」行（**2026-10-05 起「我的」页的会员卡片不再落这一页** —— 会员横幅「立即查看」改走新的第二个购买页「L+ 会员」，未开通蓝底 / 已开通橙底都进新页；两页并存）；主 App 内额度不足发起生成被拦时也落这一页；键盘安卓 / 鸿蒙点「立即解锁」同样跳到这里（gotoAppPurchase）。本列表点入即静态查看',desc:'**参考竞品（恋爱回复键盘）购买页布局重做的整页购买页**（2026-09-28 需求），主 App 的购买原先都走这一页 —— **2026-10-05 起「我的」页的会员卡片改走第二个购买页「L+ 会员」（purchase2）**，本页的入口 = 「会员中心」行 / 主 App 额度不足 / 键盘安卓·鸿蒙跳转（键盘内的付费引导层 kb-paywall 回归键盘形态专属）。**功能**：三档商品卡点选切换档位（state.kbPlan，与键盘付费引导层共用同一张表 PLANS 与同一个选中态）→「立即解锁」按平台 / 形态分路：iOS 就地弹 iOS 系统支付框（确认后才到账）、安卓 / 鸿蒙一键到账（completePurchase）；购买到账后「我的」页的横幅转橙底。**已是会员也照常进、不做状态拦截**（2026-09-29 四次需求：原「置灰的『已解锁会员权益』按钮 + 续订说明换『会员权益生效中』」两条已删，会员重买即续期）。协议行**没有勾选框**（2026-09-29 五次需求：与键盘付费引导层一致，购买不再前置勾选 —— 原圆形勾选框与「未勾选抖动拦截」整套删除）；协议名点开协议正文（2026-10-04 需求：主 App 侧是**整页** —— 进 appScreen=legal 的协议正文页、返回箭头 / Esc 回本页且所选档位与支付渠道都留着，原先是压在本页之上的键盘同款覆盖层 kb-legal）；右上角 X 回「我的」。**支付渠道可切**（2026-09-29 三次需求，安卓 / 鸿蒙）：那一行**首选支付宝**，点行内任意处切到微信支付、再点切回来（右侧换向图标就是入口；只存内存、每次进页回到首选支付宝，试付进行中不给切）；两个标都是 assets/ 里的真素材（支付宝支付.png / 微信支付.png，2026-09-29 四、五次需求换的）。**iOS 不渲染这一行**（2026-09-29 五次需求：Apple 内购走系统支付框，页面里不再摆「Apple 账户 · App Store 内购」）。**《自动续费协议》条件显示**（口径已与需求方确认）：**渠道 + 档位**两个条件同时满足才出现 —— 渠道停在首选支付宝上（切到微信支付即隐藏；iOS 按首选渠道处理）且选的是周 / 季度档（永久档一次性买断不显示）；隐藏时那句话里的「、」一起去掉，只留《会员协议》（《会员协议》始终显示）。**设计**：固定蓝色浅色皮肤（不跟随深色外观）；2026-09-29 起整页铺满整个屏幕 —— 上下左右无边距、盖住底部 Tab 栏（appTabBar 不渲染）、状态栏连着 Hero 一起转蓝（.guide-purchase），右上角 X 是唯一出口（同日二次需求从左上角挪到右上角）。**同日二次需求再重排纵向节奏**（用户反馈「上面太拥挤了，下面又太空了，不协调」；393×852 实测旧版 Hero 仅 208px、正文到 y=520 结束、底下 332px 全空）：整页是弹性列，富余高度按 **2:1** 分给 Hero 与白色主体 —— Hero 里的标题块**上下居中**（顶部不再挤，蓝白分界下移到 y≈437）、主体里「支付方式行 + 立即解锁 + 协议行」这组（`.pu-foot`）用 `margin-top:auto` **钉在屏幕底部**（协议行贴屏底、下半屏不再空）；尺寸整体放大一档（清单 13.5px / 行距 9px、现价 23px、支付行 52px、主按钮 48px，大标题封顶 24px —— 再大这句就会在窄手机里折行把「」拆开）；窗口矮 / 内容超屏时 Hero 与主体都退回内容高度、整页照常滚动。整页两段 —— ① **蓝色渐变 Hero**：右上角白底圆形 X，两行标题（小字「解锁无限次AI使用」14px + 大号加粗「LoveCo会员「限时特惠」」24px），下接**四条纯文字**权益清单（13.5px 文案：LoveCo 帮回复，不限次 / 上传聊天截图，LoveCo 帮你读懂TA / 自定义聊天对象，回复更具针对性 / 设置关系阶段，LoveCo 帮你把控聊天分寸 —— 同日二次需求删去白色图标章与红色「新上线」小标、「幽默、高情商，海量人设免费使用」「会员专享，定制专属人设」两条删除、两条文案按需求改写；同日三次需求小标题「解锁高情商回复键盘」改「解锁无限次AI使用」、清单加回一条「自定义聊天对象，回复更具针对性」（在「设置关系阶段」上面）、另两条里的「AI」改「LoveCo」）；② **白色主体**：三档商品卡横向等分（档位名 + 大号蓝色现价 + 现价下方那行生活化小字 = 该档 **cardNote**：一顿烧烤的钱 / 一杯奶茶的钱 / 一束鲜花的钱 —— **2026-10-05 需求：原先那行划线原价（¥576 / ¥48 / ¥128）整行删掉**，连「¥」前缀与 line-through 一起没（写的不是价格），键盘层的划线原价未动；选中的那张蓝描边浅蓝底、顶部浮一枚渐变蓝角标 = 该档 **cardBadge**：85% / 12% / 3% 的用户选择，2026-10-05 需求从「一次性买断 / 畅享 N 天」改来）→ 随档位变的续订说明（永久档「一次性买断，永久有效」/ 周·季度「到期后 ¥xx/期自动续订，可随时取消」，**金额取划线原价** = 周 ¥48/周、季度 ¥128/季度，2026-10-04 需求；此前报的是当期的优惠价 9.9 / 98）→ 浅灰支付方式行（**只有安卓 / 鸿蒙渲染**，可点切换 = 首选支付宝（真素材标 assets/支付宝支付.png +「支付宝」）、点一下切到微信支付（真素材标 assets/微信支付.png +「微信支付」）、再点切回来，右侧换向图标是入口；iOS 不渲染这一行）→ 整宽蓝色渐变胶囊「立即解锁」（48px 高、蓝投影、**右上角一枚红色角标、文案随所选档位变** = 该档 badge（2026-09-29 六次需求；与键盘付费层那颗 pw-cta-tag 同源）、**整颗一跳一跳** —— 与键盘付费引导层同一套 pw-cta-bounce）→ 底部**纯文字协议行**（没有勾选框，2026-09-29 五次需求删）。原右上角白描边「平台专属」角标（文案随运行平台变）已按 2026-09-29 需求删除；**首屏之外再压一段自动续订说明**（2026-09-29 三次需求照设计图补入、同日七次需求改落位：**只有 iOS 的周 / 季度档**渲染 —— **无底框**的 11px 浅灰小字两端对齐（2026-10-04 需求：原先那个浅灰圆角底框整个去掉、只留浅灰字；首屏 / 第二屏之间夹着的那条灰条也去掉 —— 它是 .pu-note 的 margin-top 从 .pu-more 顶边溢出露出的手机底色，给 .pu-more 补 16px 上内边距挡住合并后两屏白底连成一片），iTunes 自动续订 / 到期前 24 小时扣费 / 取消方式 / 试用规则；永久档与安卓 / 鸿蒙不出现）。它整段沉在**第二屏**（七次需求：原先排在协议行下方、与首屏同处一列，页面只比一屏高出一点点、这段在屏幕底边露出半截；现在排在首屏 .pu-page 之外的 .pu-more 里 —— 首屏默认正好占满屏幕、这段一点不露，往下滑一段才看得到；滚动容器是 .app-main 的 overflow:auto；实测（工作台 335px 手机）首屏 648 / 整页 879 可滚 231px、滚到底说明全文可见），永久档 / 安卓 / 鸿蒙刚好一屏不滚',note:'商品只有一张表 PLANS（永久 / 周 / 季度）：本页与键盘付费引导层共用，改档位 / 价格 / badge 两处同时变；自动续订说明文案也是两处共用的同一段（app.js 的 RENEWAL_NOTE，经 uiContext 传给 kb-paywall，改文案只改这一处）；支付方式行是仿真切换（真机上支付渠道由系统 / SDK 决定，这里只演选中态与《自动续费协议》的联动）；iOS 上点「立即解锁」先弹 iOS 系统支付框、确认才到账，且 iOS 不渲染支付方式行'},
-    {id:'purchase2',group:'会员中心',name:'会员购买页 · L+ 会员',route:'/account/purchase2',trigger:'「我的」页的**会员卡片**（会员横幅右侧白胶囊「立即查看」，未开通蓝底 / 已开通橙底都进；2026-10-05 起这张卡片的入口从第一个购买页改到这里 —— 「账户」组的「会员中心」行仍是第一个购买页，两页并存）；未登录先由 needLogin 拦到「手机号登录」页。本列表点入即静态查看（选中档位 / 勾选框 / 支付渠道由 openAppScreen 摆成默认态：季度 / 未勾选 / 支付宝）',desc:'**第二个会员购买页**（2026-10-05 新增，照用户设计图 1:1 复刻；第一个购买页 purchase 不动、仍由「会员中心」行进）—— 它是「L+ 会员」价目体系：永久 / 季度 / 月度三档，与第一个购买页（永久 / 周 / 季度）**各自一张表、各自一个选中态**（PLUS_PLANS + state.pu2Plan 对 PLANS + state.kbPlan，见 checkoutPlan；到账链路 completePurchase 两边共用）。**功能**：① 三档商品卡点选切换（默认选中季度档，照设计图）；②「会员兑换」胶囊 → 轻提示「会员兑换即将开放」（原型里没有兑换落地页，占位反馈）；③ 支付方式行**与第一个购买页同一套**（安卓 / 鸿蒙渲染、首选支付宝，点行内任意处切到微信支付再点切回 —— 右侧那枚换向图标就是入口；只存内存、每次进页回到首选支付宝），**iOS 不渲染这一行**（Apple 内购走系统支付框）；④ 紫渐变主按钮「¥218 ¥128 购买永久会员」/「¥128 ¥98 购买季度会员」/「¥58 ¥48 购买月度会员」（划线原价 + 大号现价 + 购买 xx 会员，随所选档位变；划线价 = 现价 + 立减额）—— 点它按平台分路：iOS 就地弹 iOS 系统支付框（在支付框里确认才到账）、安卓 / 鸿蒙一键到账（completePurchase），到账后「我的」横幅转橙底（永久档落「永久会员」、季度 / 月度按 90 / 30 天算到期日）；⑤ 协议行**带圆形勾选框**（点它翻 state.pu2Agreed，只做视觉切换，**购买不前置勾选** —— 与项目既定口径一致）；协议名点开协议正文整页（返回箭头 / Esc 回本页且所选档位与渠道都留着），《自动续费协议》的条件与第一个购买页同一条（渠道停在首选支付宝 + 非永久档；iOS 按首选渠道算，切到微信支付或选永久档只剩《会员协议》）；⑥ 本页**没有可见的返回 / 关闭按钮**（照设计图顶部只有标题），出口走 Esc（回「我的」）。**设计**：固定浅色皮肤、不跟随深色外观；**整页铺满整个屏幕**（状态栏跟着浅紫底一起转，.guide-purchase2，底部 Tab 栏不渲染）。纵向：标题 / 档位卡 / 续订说明 / 支付方式行自上而下排，「会员兑换 + 主按钮 + 协议行」一组用 margin-top:auto 钉在屏幕底部（与第一个购买页同一套节奏；去掉评价区后中间那段留白落在支付行与底部组之间）。自上而下——① 居中大标题「成为**L+会员**，解锁全部功能」（黑字 21px 加粗，「L+会员」四字紫色）；② 三张**纵向排列**的档位卡（高 90px、圆角 17px、白底）：档位名（15px 加粗）+（永久卡）黄色促销胶囊「告白季，低至1元/月」、大号紫色现价（26px，¥ 小一号）+ 价格右侧灰色生活化标语（11px，**2026-10-05 需求：三档都有** —— 永久「用与TA吃一顿饭的钱换终身的从容」（替换原「一次购买，终身免费」）/ 季度「一束鲜花的钱」/ 月度「一杯咖啡的钱」），卡片右端一枚「立减 ¥90 / ¥30 / ¥10」浅紫胶囊（#E7E8FE 底、紫灰字、垂直居中）；选中的那张**紫描边（#8B8CF8）+ 白色→浅紫水平渐变底**；③ 档位下方一行浅灰紫续订说明「到期后 ¥98/季度续订，可随时取消」（**金额取现价**，永久档换「一次性买断，永久有效，无需续订」）；④ 浅灰支付行（#EDEEF3、高 44px、圆角 12px）：左起支付宝真素材标（25px 圆角方图）→「支付宝」深灰字（16px）→ 右端浅紫切换箭头；⑤ 底部组：居中「会员兑换」白胶囊（12px 深灰字）→ 居中**紫渐变胶囊主按钮**（260×57px、linear-gradient(90deg,#5C73F7,#9573FF)、左起半透明白划线原价 + 大号白现价 + 「购买 xx 会员」白字）→ 居中协议行（**17px 圆形勾选框**（浅灰描边，勾选后紫底白勾）+ 13px 深灰字「我已阅读并同意《自动续费协议》《会员协议》，协议名为可点文字」）。**「好评如潮」评价区按本轮需求不呈现**（设计图里有，需求原话「好评如潮去掉」）。',note:'档位表 PLUS_PLANS 与第一个购买页 / 键盘付费层的 PLANS **各自独立**（两边商品体系不同：这里是永久 / 季度 / 月度，那边是永久 / 周 / 季度）—— 改价只改各自那张表；两页的选中态也各自独立（state.pu2Plan / state.kbPlan），结算档位由 checkoutPlan() 按当前页面分派、到账共用 completePurchase；iOS 系统支付框的商品名 / 价格走 ctx.checkout（本月度档 = Monthly / Auto-renewable · 30 days）；「会员兑换」是纯占位（原「兑换积分」页 2026-09-26 已按需求删除，勿据此补回那一页）；协议行勾选框只做视觉（购买不前置勾选，与键盘付费层 / 第一个购买页一致）'},
+    {id:'purchase2',group:'会员中心',name:'会员购买页 · L+ 会员',route:'/account/purchase2',trigger:'「我的」页的**会员卡片**（会员横幅右侧白胶囊「立即查看」，未开通蓝底 / 已开通橙底都进；2026-10-05 起这张卡片的入口从第一个购买页改到这里 —— 「账户」组的「会员中心」行仍是第一个购买页，两页并存）；未登录先由 needLogin 拦到「手机号登录」页。本列表点入即静态查看（选中档位 / 勾选框 / 支付渠道由 openAppScreen 摆成默认态：季度 / 未勾选 / 支付宝）',desc:'**第二个会员购买页**（2026-10-05 新增，照用户设计图 1:1 复刻；第一个购买页 purchase 不动、仍由「会员中心」行进）—— 它是「L+ 会员」价目体系：永久 / 季度 / 月度三档，与第一个购买页（永久 / 周 / 季度）**各自一张表、各自一个选中态**（PLUS_PLANS + state.pu2Plan 对 PLANS + state.kbPlan，见 checkoutPlan；到账链路 completePurchase 两边共用）。**功能**：① 三档商品卡点选切换（默认选中季度档，照设计图）；②「会员兑换」胶囊 → 轻提示「会员兑换即将开放」（原型里没有兑换落地页，占位反馈）；③ 支付方式行**与第一个购买页同一套**（安卓 / 鸿蒙渲染、首选支付宝，点行内任意处切到微信支付再点切回 —— 右侧那枚换向图标就是入口；只存内存、每次进页回到首选支付宝），**iOS 不渲染这一行**（Apple 内购走系统支付框）；④ 紫渐变主按钮「¥218 ¥128 购买永久会员」/「¥128 ¥98 购买季度会员」/「¥58 ¥48 购买月度会员」（划线原价 + 大号现价 + 购买 xx 会员，随所选档位变；划线价 = 现价 + 立减额）—— 点它按平台分路：iOS 就地弹 iOS 系统支付框（在支付框里确认才到账）、安卓 / 鸿蒙一键到账（completePurchase），到账后「我的」横幅转橙底（永久档落「永久会员」、季度 / 月度按 90 / 30 天算到期日）；⑤ 协议行**带圆形勾选框**（点它翻 state.pu2Agreed，只做视觉切换，**购买不前置勾选** —— 与项目既定口径一致）；协议名点开协议正文整页（返回箭头 / Esc 回本页且所选档位与渠道都留着），《自动续费协议》的条件与第一个购买页同一条（渠道停在首选支付宝 + 非永久档；iOS 按首选渠道算，切到微信支付或选永久档只剩《会员协议》）；⑥ 本页**没有可见的返回 / 关闭按钮**（照设计图顶部只有标题），出口走 Esc（回「我的」）。**设计**：固定浅色皮肤、不跟随深色外观；**整页铺满整个屏幕**（状态栏跟着浅紫底一起转，.guide-purchase2，底部 Tab 栏不渲染）。纵向：标题 / 档位卡 / 续订说明 / 支付方式行自上而下排，「会员兑换 + 主按钮 + 协议行」一组用 margin-top:auto 钉在屏幕底部（与第一个购买页同一套节奏；去掉评价区后中间那段留白落在支付行与底部组之间）。自上而下——① 居中大标题「成为**L+会员**，解锁全部功能」（黑字 21px 加粗，「L+会员」四字紫色）；② 三张**纵向排列**的档位卡（高 90px、圆角 17px、白底）：档位名（15px 加粗）+（永久卡）黄色促销胶囊「告白季，低至1元/月」、大号紫色现价（26px，¥ 小一号）+ 价格右侧灰色生活化标语（11px，**2026-10-05 需求：三档都有** —— 永久「用与TA吃一顿饭的钱换终身的从容」（替换原「一次购买，终身免费」）/ 季度「一束鲜花的钱」/ 月度「一杯咖啡的钱」），卡片右端一枚「立减 ¥90 / ¥30 / ¥10」浅紫胶囊（#E7E8FE 底、紫灰字、垂直居中）；卡顶浮一枚蓝色渐变角标 = 该档 `cardBadge`（用户选择占比「85% / 3% / 12% 的用户选择」，**2026-10-05 需求加的** —— 与第一个购买页同款、同口径：**只在选中的卡上显示**）；选中的那张**紫描边（#8B8CF8）+ 白色→浅紫水平渐变底**；③ 档位下方一行浅灰紫续订说明「到期后 ¥98/季度续订，可随时取消」（**金额取现价**，永久档换「一次性买断，永久有效，无需续订」）；④ 浅灰支付行（#EDEEF3、高 44px、圆角 12px）：左起支付宝真素材标（25px 圆角方图）→「支付宝」深灰字（16px）→ 右端浅紫切换箭头；⑤ 底部组：居中「会员兑换」白胶囊（12px 深灰字）→ 居中**紫渐变胶囊主按钮**（260×57px、linear-gradient(90deg,#5C73F7,#9573FF)、左起半透明白划线原价 + 大号白现价 + 「购买 xx 会员」白字）→ 居中协议行（**17px 圆形勾选框**（浅灰描边，勾选后紫底白勾）+ 13px 深灰字「我已阅读并同意《自动续费协议》《会员协议》，协议名为可点文字」）。**「好评如潮」评价区按本轮需求不呈现**（设计图里有，需求原话「好评如潮去掉」）。',note:'档位表 PLUS_PLANS 与第一个购买页 / 键盘付费层的 PLANS **各自独立**（两边商品体系不同：这里是永久 / 季度 / 月度，那边是永久 / 周 / 季度）—— 改价只改各自那张表；两页的选中态也各自独立（state.pu2Plan / state.kbPlan），结算档位由 checkoutPlan() 按当前页面分派、到账共用 completePurchase；iOS 系统支付框的商品名 / 价格走 ctx.checkout（本月度档 = Monthly / Auto-renewable · 30 days）；「会员兑换」是纯占位（原「兑换积分」页 2026-09-26 已按需求删除，勿据此补回那一页）；协议行勾选框只做视觉（购买不前置勾选，与键盘付费层 / 第一个购买页一致）'},
+    {id:'purchase-copy',group:'会员中心',name:'会员购买2',route:'/account/purchase-copy',trigger:'**app 内暂无入口**（2026-10-05 新增时的暂态：第一个购买页的拷贝，等这一页的设计定稿再接入口 —— 「会员中心」行仍进第一个购买页、「我的」页的会员卡片仍进「L+ 会员」页，两处都不落这一页），**只能从本列表点入**（setupPage 走 openAppScreen("purchase-copy")，进页把支付渠道摆回首选支付宝）；Esc / 右上角 X 都回「我的」（未登录时 Esc 走 closeModal 的兜底回首页）',desc:'**第一个购买页（「会员购买页」）的拷贝**（2026-10-05 新增，appScreen="purchase-copy"）—— 渲染、商品、动作与样式与它逐项一致，只有路由与入口不同：商品取 PLANS + state.kbPlan（与键盘付费引导层共用同一张表与同一个选中态）、支付渠道走 purchase-pay（进页回首选支付宝）、主按钮走同一条 purchase 分路（iOS 就地弹 iOS 系统支付框、安卓 / 鸿蒙一键到账 completePurchase，到账后「我的」横幅转橙底）、协议名点开协议正文整页（返回箭头 / Esc 回本页且所选档位与渠道都留着）。**功能**：① 三档商品卡点选切档位（永久 / 周 / 季度，默认永久）；② 安卓 / 鸿蒙那一行点任意处切支付宝 ↔ 微信支付（iOS 不渲染这一行）；③ 右上角 X 回「我的」（本页铺满整页、X 是页内唯一可见出口，Esc 同一条出口）；④ 已是会员也照常进、不做状态拦截（与第一个购买页同一口径）。**设计**：与第一个购买页**完全相同**（无新增 CSS，两页共用一套样式）—— 固定蓝色浅色皮肤、不跟随深色外观；整页铺满整个屏幕（盖住底部 Tab 栏、状态栏连着 Hero 一起转蓝，.guide-purchase）；纵向两段 = 蓝色渐变 Hero（右上角白底圆形 X、两行标题「解锁无限次AI使用 / LoveCo会员「限时特惠」」、四条纯文字权益清单）+ 白色主体（三档商品卡横向等分：档位名 + 大号现价 + 生活化小字「一顿烧烤的钱 / 一杯奶茶的钱 / 一束鲜花的钱」，选中那张蓝描边浅蓝底、顶部浮蓝色角标「85% / 12% / 3% 的用户选择」→ 随档位变的续订说明 → 底部一组 .pu-foot 由 margin-top:auto 钉在屏幕底部：支付方式行 + 整宽蓝色渐变胶囊「立即解锁」（右上角红色角标随档位变、整颗一跳一跳）+ 纯文字协议行（无勾选框））；富余高度按 2:1 分给 Hero 与主体、Hero 标题块上下居中；iOS 的周 / 季度档那段自动续订说明仍沉在首屏之外的 .pu-more 里（往下滑才见）。',note:'2026-10-05 需求：用户要求「拷贝会员购买页、命名为会员购买2，app 暂时不添加入口，只能从页面列表中打开」—— 本条目就是那张拷贝页（appPurchaseCopyPage / appScreen="purchase-copy"），**暂态**：入口以后再按需求接；两页从这里开始各自演进（改动本页不影响第一个购买页 —— 即使眼下逐行相同，也别把两条当重复合并 / 删掉）。结算档位走 checkoutPlan()：它只在 appScreen==="purchase2" 时换 PLUS_PLANS，本页与第一个购买页同走 PLANS + state.kbPlan'},
     /* 「键盘权限」「登录」两组里的两条**键盘同款覆盖层**（2026-09-29 起登记进主 App 目录）：
        都是主 App 状态检查链的组成部分（真实链路会弹）—— 勿据此把「登录 LoveCo」整页补回。
        同日补登记的第三条「会员开通覆盖层」（app-paywall）已按需求从目录删除：主 App 2026-09-28 起
@@ -1335,6 +1340,8 @@
      主 App 的购买入口（「会员中心」行 / 额度不足 / 键盘安卓·鸿蒙跳转）落到这一页；
      2026-10-05 再补一个整页 `purchase2`「L+ 会员」（appPurchasePlusPage，照设计图 1:1）——
      「我的」页的会员卡片走它（两页各有各的档位表与选中态，结算档位见 checkoutPlan）。
+     同日又补一条 `purchase-copy`「会员购买2」（appPurchaseCopyPage）—— 第一个购买页的**拷贝**，
+     **app 内暂无入口、只能从页面列表点入**（等后续设计定稿再接入口；见该函数头注释）。
      键盘内的付费引导层（kb-paywall）随之回归键盘形态专属。
      2026-09-29 再按需求把登录改回**独立页面**（用户原话「手机号登录 不是覆盖层，而是独立的页面」）：
      appScreen='login'、同一套 kb-login 组件整页直出（见 openAppLogin / closeAppLogin / appScreenContent），
@@ -1346,7 +1353,7 @@
      「请阅读并同意以下条款」弹框（kb-login 组件的 .kbl-ask，见 askKbConsent）；键盘形态照旧抖。
      2026-10-04 晚些再补一个整页：`about`「关于 LoveCo」（appAboutPage，从「我的」·「更多」进）——
      它是协议正文的上一层（本页里点协议名也进 legal，返回箭头回本页，见 openAppLegal）。 */
-    const appScreens = new Set(['home','account','profile','cancel-account','feedback','legal','about','partners','purchase','purchase2','login','login-one-tap','invite']);
+    const appScreens = new Set(['home','account','profile','cancel-account','feedback','legal','about','partners','purchase','purchase2','purchase-copy','login','login-one-tap','invite']);
   /* —— 主 App：底部 Tab 三页（首页 / 对象 / 我的）——
      主 App 形态的骨架 = 页面正文 + 底部 Tab 栏（首页 / 对象 / 我的，见 appTabBar）。
      **顶部没有导航栏**：状态栏之下直接就是正文，「我的」拿问候行当页头、「对象」拿
@@ -2323,6 +2330,60 @@
       </section>
     </div>${note}`;
   }
+  /* —— 主 App ·「会员购买2」（appPurchaseCopyPage，2026-10-05 新增；appScreen='purchase-copy'）——
+     **第一个购买页（appPurchasePage）的拷贝**：渲染、商品表、选中态、动作与样式全部与它一致 ——
+     商品取 PLANS + state.kbPlan（与键盘付费引导层共用同一张表与同一个选中态，kb-plan 动作切档）、
+     支付渠道走 purchase-pay（进页由 openAppScreen 摆回首选支付宝）、主按钮走同一条 purchase 分路
+     （iOS 就地弹 iOS 系统支付框、安卓 / 鸿蒙一键到账）、协议名点开协议正文整页（kb-legal:*，
+     返回箭头 / Esc 回本页且所选档位与渠道都留着）、右上角 X 回「我的」（purchase-close）；
+     皮肤沿用 .pu-* 骨架（styles.css）与 .guide-purchase 蓝色整页（theme.css）—— 本页**无新增 CSS**。
+     入口：**app 内暂无入口**（「会员中心」行仍进第一个购买页、会员卡片进「L+ 会员」页），
+     只能从工作台右栏「页面列表」点入（APP_PAGES 的 purchase-copy 条目 → setupPage → openAppScreen）
+     —— 等这一页的设计定稿后再按需求接入口（暂不接，勿顺手往「我的」页加行）。
+     出口与第一个购买页同一套：右上角 X / Esc（Esc 走 closeModal —— 已登录回「我的」、未登录回首页）。
+     以后改动这一页不必回头动第一个购买页 —— 两页从这里开始各自演进（本函数是拷贝的独立副本，
+     即使眼下与 appPurchasePage 逐行相同，也别按「重复代码」合并回一个函数、别顺手删掉它）。
+     行内的取舍细节（纵向节奏 2:1、.pu-foot 钉底、iOS 不渲染支付行、续订说明落在首屏之外…）
+     见 appPurchasePage 的头注释，此处不重复。 */
+  function appPurchaseCopyPage() {
+    const plan = PLANS[state.kbPlan] || {};
+    const FEATS = ['LoveCo 帮回复，不限次','上传聊天截图，LoveCo 帮你读懂TA','自定义聊天对象，回复更具针对性','设置关系阶段，LoveCo 帮你把控聊天分寸'];
+    const feats = FEATS.map(txt=>`<li><span>${esc(txt)}</span></li>`).join('');
+    const cards = Object.entries(PLANS).map(([id,p])=>`<button type="button" class="pu-plan${state.kbPlan===id?' active':''}" data-action="kb-plan:${id}" aria-pressed="${state.kbPlan===id}">
+      <span class="pu-plan-badge">${esc(p.cardBadge || p.badge)}</span>
+      <span class="pu-plan-name">${esc(p.name)}</span>
+      <span class="pu-plan-price"><i>¥</i>${esc(p.price)}</span>
+      <span class="pu-plan-note">${esc(p.cardNote || '')}</span>
+    </button>`).join('');
+    const cap = state.kbPlan==='permanent' ? '一次性买断，永久有效，无需续订'
+      : `到期后 ¥${plan.origin}/${plan.days===7?'周':'季度'}自动续订，可随时取消`;
+    const channel = state.purchasePay==='wechat' ? 'wechat' : 'alipay';
+    const payLogo = ch => ch==='alipay'
+      ? `<span class="pu-pay-logo ali" aria-hidden="true"><img src="assets/支付宝支付.png" alt=""></span>`
+      : `<span class="pu-pay-logo wx" aria-hidden="true"><img src="assets/微信支付.png" alt=""></span>`;
+    const pay = state.platform==='ios' ? ''
+      : `<button type="button" class="pu-pay" data-action="purchase-pay" aria-label="切换支付方式（当前${channel==='alipay'?'支付宝':'微信支付'}）">${payLogo(channel)}<span class="pu-pay-name">${channel==='alipay'?'支付宝':'微信支付'}</span><i class="pu-pay-switch" aria-hidden="true">${icon('Switch')}</i></button>`;
+    const legalLink = (key,label)=>`<button type="button" class="pu-legal-link" data-action="kb-legal:${key}">${esc(label)}</button>`;
+    const renewing = state.kbPlan!=='permanent' && (state.platform==='ios' || channel==='alipay');
+    const note = state.platform==='ios' && state.kbPlan!=='permanent'
+      ? `<div class="pu-more"><p class="pu-note">${esc(RENEWAL_NOTE)}</p></div>` : '';
+    return `<div class="pu-page">
+      <section class="pu-hero">
+        <button type="button" class="pu-close" data-action="purchase-close" aria-label="关闭会员购买页">${icon('Close')}</button>
+        <h2 class="pu-hero-title"><span>解锁无限次AI使用</span><strong>LoveCo会员「限时特惠」</strong></h2>
+        <ul class="pu-feats">${feats}</ul>
+      </section>
+      <section class="pu-body">
+        <div class="pu-plans">${cards}</div>
+        <p class="pu-cap">${esc(cap)}</p>
+        <div class="pu-foot">
+          ${pay}
+          <button type="button" class="pu-cta" data-action="purchase" ${state.paymentBusy?'disabled':''}>立即解锁<span class="pu-cta-badge">${esc(plan.badge || '')}</span></button>
+          <p class="pu-consent">我已阅读并同意${renewing?legalLink('renewal','《自动续费协议》')+'、':''}${legalLink('membership','《会员协议》')}</p>
+        </div>
+      </section>
+    </div>${note}`;
+  }
   /* —— 主 App · 第二个会员购买页「L+ 会员」（appPurchasePlusPage，2026-10-05 新增）——
      appScreen='purchase2'；入口是「我的」页的**会员卡片**（memberBanner → app-membership-plus 动作）——
      第一个购买页（appPurchasePage）仍由「账户」组的「会员中心」行进，两页并存、各自有自己的档位表
@@ -2334,6 +2395,8 @@
         钱换终身的从容」（替换原「一次购买，终身免费」）/ 季度「一束鲜花的钱」/ 月度「一杯咖啡的钱」，
         就占原永久档副文案那个位置），右侧一枚「立减 ¥xx」浅紫胶囊
         垂直居中；选中的那张紫描边 + 白色→浅紫水平渐变底（默认选中季度档，照设计图）；
+        卡顶浮一枚蓝角标 = 该档 cardBadge（用户选择占比「85% / 3% / 12% 的用户选择」，2026-10-05
+        需求加的 —— 与第一个购买页同款同口径：只在选中的卡上显示，键盘付费层不渲染）；
      ③ 随档位变的续订说明（永久「一次性买断…」/ 季度·月度「到期后 ¥xx/期续订，可随时取消」，
         金额取**现价** —— 照设计图那行「到期后 ¥98/季度续订」＝现价，与第一个购买页取划线原价的口径不同）；
      ④ 支付方式行（**与第一个购买页同一套**：只有安卓 / 鸿蒙渲染，首选支付宝、点行内任意处切到微信
@@ -2355,8 +2418,11 @@
   function appPurchasePlusPage() {
     const plan = PLUS_PLANS[state.pu2Plan] || PLUS_PLANS.quarter;
     /* 三张套餐卡：档位名（永久卡带黄色促销胶囊）一行、价格行（现价大号紫色 + 永久卡灰色副文案）
-       一行，右侧「立减 ¥xx」胶囊垂直居中（布局全在 CSS 的 .pu2-* 一组） */
+       一行，右侧「立减 ¥xx」胶囊垂直居中（布局全在 CSS 的 .pu2-* 一组）；
+       卡顶那枚蓝角标 = 该档 cardBadge（用户选择占比，2026-10-05 需求；与第一个购买页同款 —— 只
+       在选中的卡上显示，见 CSS 的 .pu2-plan.active .pu2-plan-badge） */
     const cards = Object.entries(PLUS_PLANS).map(([id,p])=>`<button type="button" class="pu2-plan${state.pu2Plan===id?' active':''}" data-action="p2-plan:${id}" aria-pressed="${state.pu2Plan===id}">
+      <span class="pu2-plan-badge">${esc(p.cardBadge || '')}</span>
       <span class="pu2-plan-main">
         <span class="pu2-plan-name">${esc(p.name)}${p.promo?`<i class="pu2-plan-promo">${esc(p.promo)}</i>`:''}</span>
         <span class="pu2-plan-price"><i>¥</i>${esc(p.price)}${p.sub?`<em>${esc(p.sub)}</em>`:''}</span>
@@ -2702,16 +2768,17 @@
   /* 底部 Tab 栏：首页 / 对象 / 我的。子页保留父 Tab 的选中态（对象的新增 / 编辑算「对象」，
      其余账户类子页算「我的」），登录页不属于任何 Tab，不点亮。 */
   const APP_TABS = [['home','首页','home'],['partners','对象','users'],['account','我的','user']];
-  const APP_TAB_OF = {home:'home',partners:'partners','partner-edit':'partners',account:'account',profile:'account',feedback:'account',about:'account',purchase:'account',purchase2:'account',invite:'account'};
+  const APP_TAB_OF = {home:'home',partners:'partners','partner-edit':'partners',account:'account',profile:'account',feedback:'account',about:'account',purchase:'account',purchase2:'account','purchase-copy':'account',invite:'account'};
   function appTabBar() {
     /* 「开启键盘」引导流程、首次登录的「资料引导」、两张会员购买页（第一个 2026-09-29 起整页铺满、
-       第二个「L+ 会员」2026-10-05 新增、同样铺满）、
+       第二个「L+ 会员」2026-10-05 新增、同样铺满）与它们的拷贝「会员购买2」（purchase-copy，
+       2026-10-05 新增、只能从页面列表点入）、
        注销账号页（2026-10-04 起整页铺满）、协议正文页（2026-10-04 起整页铺满，
        照设计图只有一枚返回箭头、页尾也没有返回按钮）、       「问题反馈」页（2026-10-04 起整页铺满，
        设计图里没有底部 Tab）、「关于 LoveCo」页（2026-10-04 晚些新增，同设计图没有底部 Tab）
        与两张登录独立页面（「手机号登录」/「一键登录」，
        2026-09-29 起不再是覆盖层）都没有底部 Tab */
-    if(state.appScreen==='kb-guide'||state.appScreen==='onboard'||state.appScreen==='purchase'||state.appScreen==='purchase2'||state.appScreen==='cancel-account'||state.appScreen==='legal'||state.appScreen==='feedback'||state.appScreen==='about'||state.appScreen==='login'||state.appScreen==='login-one-tap')return '';
+    if(state.appScreen==='kb-guide'||state.appScreen==='onboard'||state.appScreen==='purchase'||state.appScreen==='purchase2'||state.appScreen==='purchase-copy'||state.appScreen==='cancel-account'||state.appScreen==='legal'||state.appScreen==='feedback'||state.appScreen==='about'||state.appScreen==='login'||state.appScreen==='login-one-tap')return '';
     const glyph = window.LoveCoSystemGlyphs;
     const active = APP_TAB_OF[state.appScreen] || '';
     return `<nav class="app-nav" role="tablist">${APP_TABS.map(([id,label,g])=>`<button data-action="app-tab:${id}" class="${active===id?'active':''}" aria-selected="${active===id}" role="tab">${glyph[g]}${label}</button>`).join('')}</nav>`;
@@ -2736,6 +2803,9 @@
     if(s==='purchase')return appPurchasePage();
     /* 第二个会员购买页「L+ 会员」（2026-10-05 新增）：入口是「我的」页的会员卡片，见 appPurchasePlusPage */
     if(s==='purchase2')return appPurchasePlusPage();
+    /* 「会员购买2」（2026-10-05 新增）：第一个购买页的拷贝、app 内暂无入口，只从页面列表点入，
+       见 appPurchaseCopyPage */
+    if(s==='purchase-copy')return appPurchaseCopyPage();
     /* 「注销账号」（2026-10-04 需求）：从「用户」页进的整页（appCancelPage，无底部 Tab） */
     if(s==='cancel-account')return appCancelPage();
     /* 「协议正文」（2026-10-04 需求：原 sheet 覆盖层 → 整页，无底部 Tab；原「协议中心」列表页
@@ -2774,6 +2844,8 @@
       : state.appScreen==='purchase' ? ' guide-purchase'
       /* 第二个会员购买页「L+ 会员」整页铺满（2026-10-05）：状态栏跟着浅紫底一起转（.guide-purchase2） */
       : state.appScreen==='purchase2' ? ' guide-purchase2'
+      /* 「会员购买2」是第一个购买页的拷贝（2026-10-05）：整页铺满与蓝色皮肤都沿用 .guide-purchase */
+      : state.appScreen==='purchase-copy' ? ' guide-purchase'
       /* 注销账号页整页白底（2026-10-04）：状态栏连着一起转白（.guide-cancel，theme.css） */
       : state.appScreen==='cancel-account' ? ' guide-cancel'
       /* 协议正文页整页白底（2026-10-04 需求：覆盖层改整页）：状态栏同样转白（.guide-legal） */
@@ -3720,7 +3792,7 @@
        「首选支付宝、只存内存、每次进页回默认」的口径一致；2026-10-05 补上这句显式复位，此前靠的
        是「默认值恰为 alipay」的隐式行为）；第二个购买页（「L+ 会员」，2026-10-05 新增）另外把
        选中档位摆回季度、协议勾选框摆回未勾选（照设计图的默认态）。 */
-    if(screen==='purchase'||screen==='purchase2')state.purchasePay='alipay';
+    if(screen==='purchase'||screen==='purchase2'||screen==='purchase-copy')state.purchasePay='alipay';
     if(screen==='purchase2'){state.pu2Plan='quarter';state.pu2Agreed=false;}
     state.appView='app'; state.appScreen=screen; state.modal=screen; state.modalData=data; render();
     /* 「问题反馈」页进来**不自动聚焦描述框**：设计图上没有键盘（原 sheet 卡片会自动聚焦，
