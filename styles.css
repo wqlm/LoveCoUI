@@ -613,6 +613,7 @@ small{font-size:11px;color:#73847d}
 .hm-page{display:flex;flex-direction:column;justify-content:center;position:relative;min-height:100%}
 .hm-msg{position:absolute;top:4px;right:16px;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:0;background:none;color:inherit;cursor:pointer}
 .hm-msg svg{display:block;width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6}
+.hm-dot{position:absolute;display:block;border-radius:50%}
 .hm-head{display:flex;align-items:flex-start}
 .hm-head-text{flex:1;min-width:0}
 .hm-title{margin:0}

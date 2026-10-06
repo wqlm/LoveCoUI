@@ -2767,7 +2767,7 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    坐标按 44×44 按钮里那枚 28px 图标量出（信封墨迹在 24 视框里占 x 2.8–21.2 / y 5–19，
    放大后右上角约在按钮坐标 (32.7, 13.8)）：红点中心落在信封右上角顶点上。
    骨架（absolute / 圆形）在 styles.css；**尺寸写在本文件的原因同 .hm-msg svg 那条**。 */
-.hm-dot { top: 8px; right: 7px; width: 8px; height: 8px; background: #FF453A; box-shadow: 0 0 0 2px var(--hm-bg); }
+.hm-dot { top: 9px; right: 8px; width: 8px; height: 8px; background: #FF453A; box-shadow: 0 0 0 2px var(--hm-bg); }
 .hm-title { font-size: 26px; line-height: 39px; font-weight: 650; color: var(--hm-ink); }
 .hm-sub { margin-top: 11px; font-size: 12px; line-height: 19.8px; color: var(--hm-sub); }
 /* 插画宽度取百分比（189/393 ≈ 48%）：窄机（工作台里 335px 的手机）上跟着缩，
