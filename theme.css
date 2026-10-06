@@ -2745,14 +2745,12 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    **Hero 里那张白底邀请码卡**（白底 + 品牌蓝大字码）。其余颜色都借 --lc-* 令牌：
    输入框 / 阶梯块底 = --lc-canvas、边框 = --lc-border、成功绿 = --lc-mint(--soft)、
    校验失败红 = --lc-danger。（两条状态徽标现在是本页固定色，见下。）
-   **2026-10-06 需求（当天七轮）**：两条状态标签（已到账 / 待激活）第一轮嫌绿黄土气、
+   **2026-10-06 需求（当天四轮）**：两条状态标签（已到账 / 待激活）第一轮嫌绿黄土气、
    第二轮嫌换得太轻（底色近乎白、看不出变化）、第三轮嫌「浅彩底 + 深色字」整体太丑改
-   「实心彩底 + 白字」，第四轮再嫌黄的那枚丑换中性灰实心，第五轮嫌灰太深再往浅调，
-   第六轮浅灰改银，第七轮银再往浅调 —— **定稿：绿 = #12A56A（翡翠）实心 + 白字；
-   待激活 = #CCCCCC（浅银底）+ #4A4A54（深灰字）**，见下方 .iv-tag 两条（本页固定
-   色，不走 --lc-*-soft 令牌 —— 那对令牌的语义是「浅色背景」，另供 .iv-claim-done /
-   .avatar / .page-detail-note 等用；待激活弃黄换灰、再往浅调、再转银，也避开黄色系
-   本身难做高级的问题）。
+   「实心彩底 + 白字」，第四轮再嫌黄的那枚丑 —— **定稿：绿 = #12A56A（翡翠）、
+   待激活 = #75757F（中性灰），都是实心底 + 白字**，见下方 .iv-tag 两条（本页固定色，
+   不走 --lc-*-soft 令牌 —— 那对令牌的语义是「浅色背景」，另供 .iv-claim-done /
+   .avatar / .page-detail-note 等用；待激活弃黄换灰，也避开黄色系本身难做高级的问题）。
    令牌第三轮的提亮保留（薄荷底 #C9F2DE + 翡翠字 #0B8A57、杏金底 #FFE8C6 + 琥珀字
    #B8700C，见 tokens.css），本页绿卡（.iv-claim-done）等借 mint 对令牌的地方跟着变，
    深浅两态仍是通用令牌。 */
@@ -2801,15 +2799,14 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .iv-friend + .iv-friend { border-top: 1px solid var(--lc-border); }
 .iv-friend-phone { font-size: 13.5px; font-weight: 500; color: var(--lc-text); }
 .iv-tag { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-/* 2026-10-06 定稿（当天七轮）：绿那枚「实心彩底 + 白字」（第三轮定）；待激活那枚
-   「浅底 + 深灰字」—— 第四轮黄换中性灰实心，第五轮嫌灰太深再往浅调，第六轮浅灰
-   改银，第七轮银再往浅调：#CCCCCC 浅银底 + #4A4A54 深灰字（对比度约 5.5:1；实心
-   #75757F + 白字在更浅的底上压不住白字，所以底色往浅调时字随底色转深）。
-   两枚配色都是本页固定色（同 Hero 蓝紫渐变、白底邀请码卡那两处的口径），不走
-   --lc-*-soft 令牌 —— 那对令牌的语义是「浅色背景」，另供 .iv-claim-done / .avatar /
+/* 2026-10-06 定稿：两枚状态标签「实心底 + 白字」—— 绿 #12A56A（第三轮定）、
+   待激活 #75757F 中性灰（第四轮定：黄的那枚被嫌丑，换中性灰避开黄色系、也更贴
+   「等待中」的语义；灰压得住白字，#75757F vs #FFF 对比度约 4.5:1）。
+   实心色是本页固定色（同 Hero 蓝紫渐变、白底邀请码卡那两处的口径），不走 --lc-*-soft
+   令牌 —— 那对令牌的语义是「浅色背景」，另供 .iv-claim-done / .avatar /
    .page-detail-note 等用。 */
 .iv-tag.done { background: #12A56A; color: #FFF; }
-.iv-tag.wait { background: #CCCCCC; color: #4A4A54; }
+.iv-tag.wait { background: #75757F; color: #FFF; }
 .iv-friends-note { margin: 6px 0 0; padding-top: 10px; border-top: 1px solid var(--lc-border); font-size: 10.5px; line-height: 1.5; color: var(--lc-subtle); }
 .iv-empty { margin: 12px 0 2px; font-size: 11.5px; text-align: center; color: var(--lc-subtle); }
 .iv-rules { margin-top: 10px; padding-left: 18px; }
@@ -3453,18 +3450,22 @@ html[data-view="device"] .sheet-footer {
    （那时输入行是键盘的一块），底部弹窗态仍适用（卡片浮在弹窗上方、弹窗照旧贴底）。 */
 .keyboard.free-chat.aai-bar { height: auto; }
 .keyboard.free-chat.aai-bar.aai-kb { height: calc(var(--lc-keyboard-height) + var(--lc-free-row-height) + var(--lc-free-extra, 0px)); }
-/* 常驻输入栏的「悬浮卡片」形态（2026-10-06 再晚些需求，照豆包的输入栏）：只在**没调出键盘**
-   时生效。输入区底色转白（与聊天记录同底，卡片靠阴影浮起来）并去掉键盘那条顶边线；
-   卡片本体 = .free-input-row 换上白底 / 24 圆角 / 柔影 / 左右 16 外边距，行内元素改成**垂直居中**
-   （卡片内不再有「贴底对齐」的上下文），元素尺寸与字号都不动；卡片里的 textarea 去掉自己的
-   白底 / 边框、padding 收窄到 7/6（文字直接写在卡片上）；卡片与屏幕底之间留 18px（记在
-   .kb-free-chat 的 padding-bottom 上，弹窗态同样成立：空出来的是白底、弹窗照旧贴底）。
-   缩略图行 / 快捷栏在常驻态也不画分隔线（参考图里这一带没有线，卡片靠阴影浮起就够分区）。 */
-.keyboard.free-chat.aai-bar:not(.aai-kb) { background: #FFF; border-top-color: transparent; }
-.keyboard.free-chat.aai-bar:not(.aai-kb) .kb-free-chat { background: #FFF; padding-bottom: 18px; }
-.keyboard.free-chat.aai-bar:not(.aai-kb) .free-thumbs,
-.keyboard.free-chat.aai-bar:not(.aai-kb) .free-chips { border-bottom: 0; }
-.keyboard.free-chat.aai-bar:not(.aai-kb) .free-input-row {
+/* 常驻输入栏的「悬浮卡片」形态（2026-10-06 再晚些需求，照豆包的输入栏）：输入区底色转白
+   （与聊天记录同底，卡片靠阴影浮起来）并去掉键盘那条顶边线；卡片本体 = .free-input-row
+   换上白底 / 24 圆角 / 柔影 / 左右 16 外边距，行内元素改成**垂直居中**（卡片内不再有
+   「贴底对齐」的上下文），元素尺寸与字号都不动；卡片里的 textarea 去掉自己的白底 / 边框、
+   padding 收窄到 7/6（文字直接写在卡片上）。
+   **卡片形态在调出键盘后照旧（2026-10-06 需求）**：点输入框调出键盘以前会退回「键盘上的一行」
+   （灰底、输入框自带白底 8 圆角），与收起键盘时的输入栏是两副样子；现在两种状态都是这张白卡，
+   卡片与下方的留白由 .kb-free-chat 的 padding-bottom 给 —— 收起键盘时是屏幕底（18px）、
+   调出键盘时是键盘顶（12px，见下一条）。弹窗态同样成立：空出来的是白底、弹窗照旧贴底。
+   缩略图行 / 快捷栏也不再画分隔线（参考图里这一带没有线，卡片靠阴影浮起就够分区）。 */
+.keyboard.free-chat.aai-bar { background: #FFF; border-top-color: transparent; }
+.keyboard.free-chat.aai-bar .kb-free-chat { background: #FFF; padding-bottom: 18px; }
+.keyboard.free-chat.aai-bar.aai-kb .kb-free-chat { padding-bottom: 12px; }
+.keyboard.free-chat.aai-bar .free-thumbs,
+.keyboard.free-chat.aai-bar .free-chips { border-bottom: 0; }
+.keyboard.free-chat.aai-bar .free-input-row {
   align-items: center;
   gap: 6px;
   min-height: 50px;
@@ -3474,7 +3475,7 @@ html[data-view="device"] .sheet-footer {
   background: #FFF;
   box-shadow: 0 2px 8px #1D1D261A, 0 12px 28px #1D1D261F;
 }
-.keyboard.free-chat.aai-bar:not(.aai-kb) .free-input {
+.keyboard.free-chat.aai-bar .free-input {
   height: 34px;
   padding: 7px 6px;
   border-color: transparent;
