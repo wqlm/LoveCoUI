@@ -27,7 +27,8 @@ LoveCo 键盘交互原型（纯静态 HTML/CSS/JS，无构建）。工作台右�
   字段，重新分类。
 - 键盘形态需覆盖所有交互分支：同一 UI 的不同状态各占一条
   （例：键盘菜单栏的「未选择对象」与「已选择对象」是 `kb-toolbar` 的两种形态）。
-- 主 App 形态覆盖 `appScreens` 集合的 13 个整页（`home` / `account` / `profile` /
+- 主 App 形态覆盖 `appScreens` 集合的 15 个整页（`home` / `messages`（2026-10-05 新增的「消息」整页）/
+  `app-ai`（2026-10-06 新增的「问AI（AI 咨询师）」聊天整页 —— 首页三处入口都进这一页）/ `account` / `profile` /
   `cancel-account` / `partners` / `purchase` / `purchase2-copy`（2026-10-06 新增的「会员购买页 · 新」，
   第二个购买页的**拷贝** —— 原页 `purchase2`（原页名也曾叫「会员购买页 · 新」）与第一个购买页的拷贝
   `purchase-copy`「会员购买2」均**2026-10-06 已按需求整页删除**，勿再补回；**同日晚些需求本页

@@ -1843,13 +1843,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    （原 left:50% + translateX(-50%) 改成 right:12px、贴卡右上角） */
 .pu2-plan-badge { top: -11px; padding: 4px 11px; background: linear-gradient(90deg, #5E96F8, #1E6BF5); color: #FFF; font-size: 11px; font-weight: 600; line-height: 1.5; box-shadow: 0 3px 8px #1E6BF54D; }
 .pu2-plan-name { gap: 6px; font-size: 15px; font-weight: 700; color: #1B1B20; white-space: nowrap; }
-/* 档位名右侧那枚促销胶囊（照设计图：「告白季，低至1元/月」）—— 2026-10-06 晚些需求起
-   三档都挂「低至xx元/每日」（app.js 的 PLUS_PLANS promo），默认（永久档）仍是这枚黄色 */
+/* 档位名右侧那枚促销胶囊（照设计图：「告白季，低至1元/月」）—— **只有永久档挂**这枚黄色
+   （2026-10-06 再晚些需求：原「三档都挂」口径收回 —— 季度 / 周的「低至xx元/每日」删除，
+   .silver / .copper 两条修饰类随之删掉、勿再补回，promo 数据见 app.js 的 PLUS_PLANS） */
 .pu2-plan-promo { padding: 3px 8px; border-radius: 6px; background: #FFD738; font-size: 11px; font-weight: 600; line-height: 1.35; color: #241E12; white-space: nowrap; }
-/* 促销胶囊的档位底色（2026-10-06 晚些需求）：季度挂**银色**、周挂**红铜色** ——
-   非永久档由 app.js 的 promoTone 追加对应修饰类 */
-.pu2-plan-promo.silver { background: linear-gradient(135deg, #F2F4F8, #C6CBD5); color: #414954; }
-.pu2-plan-promo.copper { background: linear-gradient(135deg, #F6CDA6, #C0713F); color: #43200E; }
 .pu2-plan-price { margin-top: 6px; display: flex; align-items: center; font-size: 26px; font-weight: 800; line-height: 1.2; color: var(--pu2-hot); }
 .pu2-plan-price i { margin-right: 1px; font-size: 16px; font-weight: 700; }
 /* 价格后面的灰字标语（一束鲜花的钱等）：2026-10-05 四次需求 —— 与价格**垂直居中**对齐（原来
@@ -1932,17 +1929,17 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    购买页本身固定浅色，弹框配色写死（同 .cd-ask 一套做法） */
 .pu2-ask { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; }
 .pu2-ask-scrim { position: absolute; inset: 0; background: #10101A6B; }
-.pu2-ask-card { position: relative; display: flex; flex-direction: column; width: min(272px, 74%); padding: 26px 22px 22px; border-radius: 16px; background: #FFF; box-shadow: 0 18px 44px #10101038; text-align: center; animation: pu2-ask-in .2s cubic-bezier(.2, .8, .3, 1) both; }
-.pu2-ask-card h3 { font-size: 17px; font-weight: 700; color: #17171C; }
-.pu2-ask-card p { margin-top: 12px; font-size: 13px; line-height: 1.6; color: #5B5B66; }
-.pu2-ask-links { font-size: 12.5px; line-height: 1.7; }
-.pu2-ask-links .pu2-legal-link { margin-right: 6px; font-weight: 600; color: #5B6BE8; }
-.pu2-ask-links .pu2-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
-.pu2-ask-btns { display: flex; gap: 10px; margin-top: 20px; }
-.pu2-ask-btn { display: inline-flex; flex: 1; align-items: center; justify-content: center; height: 42px; border: 0; border-radius: 999px; font-size: 15px; font-weight: 600; cursor: pointer; }
-.pu2-ask-no { background: #F1F2F6; color: #6A6A74; }
+/* 2026-10-06 再晚些需求照新样式简化：无标题无说明段 —— 卡内只有一句左对齐的协议文案
+   （「我已阅读并同意《…》《…》」，协议名蓝色可点）+ 「取消 / 同意」两颗圆角矩形按钮 */
+.pu2-ask-card { position: relative; display: flex; flex-direction: column; width: min(296px, 82%); padding: 26px 24px 22px; border-radius: 16px; background: #FFF; box-shadow: 0 18px 44px #10101038; text-align: left; animation: pu2-ask-in .2s cubic-bezier(.2, .8, .3, 1) both; }
+.pu2-ask-text { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.65; color: #17171C; }
+.pu2-ask-text .pu2-legal-link { font-weight: 600; color: #5B6BE8; }
+.pu2-ask-text .pu2-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+.pu2-ask-btns { display: flex; gap: 12px; margin-top: 38px; }
+.pu2-ask-btn { display: inline-flex; flex: 1; align-items: center; justify-content: center; height: 46px; border: 0; border-radius: 14px; font-size: 15.5px; font-weight: 600; cursor: pointer; }
+.pu2-ask-no { background: #F1F2F6; color: #7B7B85; }
 .pu2-ask-no:hover { background: #E8E9EF; }
-.pu2-ask-yes { background: linear-gradient(90deg, #5C73F7, #9573FF); color: #FFF; box-shadow: 0 6px 16px #6B6AE84D; }
+.pu2-ask-yes { background: #5B67E8; color: #FFF; }
 .pu2-ask-yes:hover { filter: brightness(1.05); }
 @keyframes pu2-ask-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
 /* iOS 系统支付框（ios-pay-sheet 组件）：iOS 上点会员开通层的「立即解锁」就地弹出的**系统级**弹窗

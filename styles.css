@@ -653,6 +653,41 @@ small{font-size:11px;color:#73847d}
 .ms-ic{flex-shrink:0}
 .ms-main{flex:1;min-width:0}
 .ms-name,.ms-sub{display:block}
+/* —— 主 App「问AI」页（appAiPage，2026-10-06 需求）：骨架，配色 / 字号在 theme.css 的
+   .aai-* 一组 —— 整页弹性列：顶部菜单栏定高、聊天记录吃满富余高度自己滚（#aai-thread）、
+   下半是键盘问AI页（固定高、贴底，与键盘形态同一套高度换算）；
+   历史抽屉盖在整页上（含键盘），右缘留一层透明点击层收抽屉 */
+.aai-page{position:relative;flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
+.aai-top{flex-shrink:0;display:flex;align-items:center;gap:14px;padding:13px 16px 12px}
+.aai-top-gap{flex:1}
+.aai-menu,.aai-new,.aai-close,.aai-side-back{display:grid;place-items:center;background:none;border:0;padding:0;cursor:pointer}
+.aai-thread{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;gap:12px;padding:6px 16px 16px}
+.aai-msg{display:flex;flex-direction:column}
+.aai-msg.is-user{align-items:flex-end}
+.aai-msg.is-ai{align-items:stretch}
+.aai-bubble{border-radius:14px;padding:12px 16px}
+.aai-user-text{max-width:78%;border-radius:14px;padding:9px 12px}
+.aai-shot{display:block;width:158px;aspect-ratio:3/4;border-radius:12px;overflow:hidden}
+.aai-shot .shot-chat{width:100%;height:100%}
+.aai-typing{display:inline-flex;gap:5px;align-items:center;width:max-content;padding:14px 16px}
+.aai-typing i{width:7px;height:7px;border-radius:50%;animation:aai-typing 1s ease-in-out infinite}
+.aai-typing i:nth-child(2){animation-delay:.15s}
+.aai-typing i:nth-child(3){animation-delay:.3s}
+@keyframes aai-typing{0%,100%{opacity:.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-2px)}}
+.aai-empty{margin:auto;text-align:center;display:grid;gap:8px;padding:0 24px}
+.aai-empty p{margin:0}
+.aai-empty small{line-height:1.6}
+.aai-drawer{position:absolute;inset:0;z-index:12}
+.aai-drawer-scrim{position:absolute;inset:0;background:transparent;border:0;padding:0;cursor:default}
+.aai-side{position:absolute;top:0;bottom:0;left:0;width:min(78%,300px);display:flex;flex-direction:column;animation:aai-side-in .22s ease-out both}
+@keyframes aai-side-in{from{transform:translateX(-26px);opacity:0}to{transform:translateX(0);opacity:1}}
+.aai-side-head{display:flex;align-items:center;justify-content:space-between;padding:14px 16px 8px}
+.aai-side-new{display:flex;align-items:center;gap:9px;border:0;background:none;padding:11px 16px 12px;cursor:pointer;font-size:15px;text-align:left}
+.aai-side-plus{display:grid;place-items:center;width:20px;height:20px;border-radius:50%;flex-shrink:0}
+.aai-side-list{display:grid;gap:2px;align-content:start;padding:10px 10px 16px;overflow-y:auto;flex:1;min-height:0}
+.aai-side-item{display:flex;align-items:center;gap:9px;border:0;background:none;border-radius:10px;padding:10px;cursor:pointer;text-align:left;font-size:15px}
+.aai-side-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.aai-side-ic{display:grid;place-items:center;flex-shrink:0}
 .mobile-testbar{display:none}
 .dark.phone{background:#222b25;color:#e1e9df}
 /* 宿主 App（微信）自带深色外观，不跟随 .dark 开关，故这里的 .dark 不再覆盖会话区与输入栏 */
