@@ -621,8 +621,8 @@ small{font-size:11px;color:#73847d}
    margin-top:auto 沉到卡底、折角靠 margin-left:auto 贴右。
    皮肤（深色配色 / 字号 / 圆角 / 间距）在 theme.css 的「首页」一组。 */
 .hm-page{display:flex;flex-direction:column;justify-content:center;position:relative;min-height:100%}
-.hm-msg{position:absolute;top:6px;right:20px;display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;padding:0;border:0;background:none;color:inherit;cursor:pointer}
-.hm-msg svg{display:block;width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.5}
+.hm-msg{position:absolute;top:4px;right:16px;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:0;background:none;color:inherit;cursor:pointer}
+.hm-msg svg{display:block;width:28px;height:28px;fill:none;stroke:currentColor;stroke-width:1.6}
 .hm-head{display:flex;align-items:flex-start}
 .hm-head-text{flex:1;min-width:0}
 .hm-title{margin:0}
