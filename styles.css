@@ -617,6 +617,31 @@ small{font-size:11px;color:#73847d}
 .iv-friend-phone{flex:1;min-width:0}
 .iv-tag{flex-shrink:0}
 .iv-rules{margin:0}
+/* 主 App「优惠券」页（appCouponPage，2026-10-06 新增）：整页一列 —— 页头（复用 .user-head 骨架：
+   返回箭头 + 居中标题）+ 三段分段（.cp-tabs）+ 券卡列表（.cp-list）+ 底部「使用说明」卡
+   （.cp-note，壳复用 .app-card）。骨架只管排布：券卡 = 左侧竖排面额块 + 右侧内容块
+   （标题 / 有效期 / 靠 margin-top:auto 沉底的按钮或状态徽标），中间那条虚线分隔与上下两个
+   半圆缺口由 .cp-body 的边框与两个伪元素给（缺口是画布色的圆，被卡片的 overflow:hidden 裁出边）。
+   皮肤（配色 / 字号 / 圆角 / 间距）在 theme.css 的「优惠券页」一组。 */
+.cp-page{min-height:100%}
+.cp-tabs{display:flex}
+.cp-tab{flex:1 1 0;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:4px;border:0;background:none;font:inherit;cursor:pointer}
+.cp-tab i{font-style:normal}
+.cp-list{flex:1 1 auto;display:flex;flex-direction:column}
+.cp-card{display:flex;align-items:stretch;overflow:hidden}
+.cp-amount{flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.cp-amount b{display:inline-flex;align-items:baseline}
+.cp-amount b i{font-style:normal}
+.cp-amount span{display:block}
+.cp-body{flex:1 1 auto;min-width:0;position:relative;display:flex;flex-direction:column}
+.cp-title{margin:0}
+.cp-valid{margin:0}
+.cp-foot{margin-top:auto;display:flex;justify-content:flex-end;align-items:center}
+.cp-use{border:0;cursor:pointer}
+.cp-tag{flex-shrink:0}
+.cp-empty{display:flex;justify-content:center}
+.cp-note-title{margin:0}
+.cp-rules{margin:0;padding-left:18px}
 /* 主 App 首页（appHomePage，2026-10-05 按设计图重做）：整页一列 —— ① 标语区（左文字块 +
    右插画，顶对齐）② 两张功能卡（等高、横向两列）③「进入体验台」一行（键位图芯片 + 行名 +
    折角箭头）。骨架只管排布：插画绝对定位钉在卡内设计图量到的位置上、卡名与说明靠

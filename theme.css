@@ -58,8 +58,15 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .avatar { background: var(--lc-yellow-soft); color: var(--lc-yellow); }
 .avatar.coral { background: var(--lc-pink-soft); color: var(--lc-pink); }
 .avatar.blue { background: var(--lc-blue-soft); color: var(--lc-blue); }
+/* 头像位出图时**一律白底垫一层**（2026-10-06 需求：图片背景默认白色填充）：默认头像插画
+   assets/avatars/default.png 是透明底的浅灰线稿，直接落在 .avatar 的黄色软底上会透出一圈橙色 ——
+   白底垫在图下面，浅灰人形照样看得清。候选头像那些都是 jpg（本来不透明），这条只影响那张透明底插画；
+   深浅两外观都是白底，不跟令牌走 —— 图本身是白底才自然。 */
+.avatar img { background: #FFF; }
 /* 「不选择」占位头像（core/kit.js 的 noneAvatar）：虚线空槽 + 中性用户图标，
-   表示没有具体聊天对象 —— 与真实对象头像（插画 / 首字彩块）明确区分；取令牌色，深色外观自动跟随 */
+   表示没有具体聊天对象 —— 与真实对象头像（插画 / 首字彩块）明确区分；取令牌色，深色外观自动跟随。
+   2026-10-06 晚些需求起「不选择」行改用默认头像插画（noneAvatar 传入图片 → .avatar.none-img，
+   不带 none 类，因此没有虚线空槽），对象编辑器的「上传头像」槽仍是无图的虚线空槽 */
 .avatar.none { background: var(--lc-canvas); border: 1.5px dashed var(--lc-border); color: var(--lc-muted); }
 .avatar.none svg { width: 16px; height: 16px; }
 .avatar { border-radius: 8px; }
@@ -1893,6 +1900,26 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-offer-code { position: absolute; top: 50%; right: 10px; width: 15px; height: 32px; transform: translateY(-50%); background: repeating-linear-gradient(90deg, #F5B9BF 0 1.5px, transparent 1.5px 4px); }
 .pu2-offer-cta { display: flex; align-items: center; justify-content: center; width: 86%; height: 46px; margin: 28px auto 0; border: 0; border-radius: 999px; background: linear-gradient(90deg, #4C60F8, #FA6076); color: #FFF; font-size: 17px; font-weight: 700; box-shadow: 0 10px 22px #5C5CE84D; cursor: pointer; }
 .pu2-offer-cta:hover { filter: brightness(1.04); }
+/* —— 首页「限时特惠」悬浮卡（offerBadge / state.offerBadge，2026-10-06 需求）——
+   放弃「永久会员立减优惠」挽留弹窗后，优惠资格再留 3 分钟；首页浮出这颗**可拖动的卡**
+   兜住（页见 app.js 的 offerBadge()，拖动见 bindOfferBadge）。挂点在手机根（同 .pu2-ask /
+   .rd-* 一处，铺满整机的浮层一串里），**只在首页渲染**、层级 5（压住 68 高的底部 Tab 栏、
+   让开 z-index 6 的各弹层）。照参考图的浮标结构重绘（深红标题条 + 粉色卡身 + 倒计时），
+   标题文案换成本产品的「限时特惠」：
+   · 整枚卡 116×82、圆角 14、粉→洋红对角渐变（#FF5C8A → #FE2CCF）+ 柔和投影，
+     默认钉在右下（right 14 / bottom 84 —— 84 = 底部 Tab 68 + 16 的呼吸），
+     拖动后由内联的 left / top 接管（JS 里四边各留 8、下边让开 Tab 栏）；
+   · 顶部深红标题条 #BD0262（高 24）：居中白字 12px 700、字距 1px；
+   · 卡身两行居中：毫秒倒计时 18px 800 白字（等宽数字 tabular-nums，格式 MM:SS:mmm）
+     + 下面一行 10px「点击立即支付」（白字 85%）；
+   · touch-action:none 让拖动不被浏览器当成滚动；cursor 按住变 grabbing。
+   配色写死（与首页那套「按图定色、不跟随 .dark」一致）：首页是深色的，这颗卡要跳出来。 */
+.ofb { position: absolute; right: 14px; bottom: 84px; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 116px; height: 82px; border-radius: 14px; background: linear-gradient(135deg, #FF5C8A 0%, #FF3FA8 52%, #FE2CCF 100%); box-shadow: 0 10px 24px #2A0A1B45, 0 2px 6px #2A0A1B2E; color: #FFF; cursor: grab; touch-action: none; user-select: none; animation: ofb-in .26s cubic-bezier(.2, .8, .3, 1) both; }
+.ofb:active { cursor: grabbing; }
+.ofb-label { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: center; height: 24px; border-radius: 14px 14px 0 0; background: #BD0262; font-size: 12px; font-weight: 700; letter-spacing: 1px; }
+.ofb-time { margin-top: 22px; font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+.ofb-hint { font-size: 10px; font-weight: 500; color: #FFFFFFD9; }
+@keyframes ofb-in { from { opacity: 0; transform: translateY(14px) scale(.94); } to { opacity: 1; transform: none; } }
 /* —— 「会员购买页 · 新」的「兑换码」半屏弹层（redeemSheet / state.redeemSheet，2026-10-06 需求）——
    骨架在 styles.css（.rd-* 一组：贴底半屏卡 + 滑入动画，挂点在手机根、同协议确认框一处 —— 铺满整机含状态栏）；
    购买页本身固定浅色，弹层配色也写死（同 .pu2-ask 一套口径，不跟随 .dark）：
@@ -2814,6 +2841,48 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .iv-rules li + li { margin-top: 7px; }
 .iv-rules-toggle { align-self: flex-start; margin-top: 11px; padding: 3px 0; border: 0; background: none; font: inherit; font-size: 12px; font-weight: 600; color: var(--iv-blue); cursor: pointer; }
 .iv-rules-toggle:hover { text-decoration: underline; text-underline-offset: 2px; }
+/* —— 优惠券页（appCouponPage，2026-10-06 新增）——
+   骨架在 styles.css 的 .cp-* 一组。**浅色通版、跟随深色外观**（走通用画布 + 白卡，同「邀请有礼」
+   页那套，不另开按图定色皮肤）；整页铺满、没有底部 Tab（见 appTabBar），页头复用 .user-head。
+   纵向：页头 → 三段分段控件 → 券卡列表（flex:1 自己吸收富余高度）→ 底部「使用说明」白卡。
+   券卡 = 左侧品牌紫渐变面额块（92 宽、纵向居中）+ 右侧内容块：中间一条 1px 虚线分隔
+   （.cp-body 的 border-left），分隔线上下各挖一个 10px 半圆缺口（.cp-body 的两个伪元素、
+   画布色，卡片 overflow:hidden 裁出边缘）；右下角沉底那颗 = 可用券「去使用」按钮 /
+   失效券的状态徽标（实心灰底白字，同「邀请有礼」页 .iv-tag 的配色口径）。 */
+.cp-tabs { gap: 3px; padding: 3px; border-radius: 10px; background: color-mix(in srgb, var(--lc-border) 55%, transparent); }
+.cp-tab { height: 30px; border-radius: 8px; font-size: 12.5px; color: var(--lc-muted); }
+.cp-tab i { font-size: 11px; color: var(--lc-subtle); }
+.cp-tab.on { background: var(--lc-surface); color: var(--lc-accent-strong); font-weight: 650; box-shadow: 0 1px 3px #2621321F; }
+.cp-tab.on i { color: var(--lc-accent-strong); }
+.cp-list { gap: 10px; padding-top: 12px; }
+.cp-card { min-height: 86px; border-radius: 14px; background: var(--lc-surface); box-shadow: 0 1px 2px #2621320A; }
+.cp-amount { width: 92px; padding: 12px 0; background: linear-gradient(160deg, #6577F0, #4C5CE6); color: #FFF; }
+.cp-amount b { font-size: 22px; font-weight: 800; letter-spacing: .3px; }
+.cp-amount b i { font-size: 14px; font-weight: 700; }
+.cp-amount span { margin-top: 2px; font-size: 10.5px; color: rgba(255, 255, 255, .85); }
+.cp-body { padding: 12px 12px 11px; border-left: 1px dashed var(--lc-border); }
+/* 分隔线上下那两个半圆缺口：画布色的圆，中心压在虚线上（.cp-body 已 position:relative） */
+.cp-body::before,
+.cp-body::after { content: ""; position: absolute; left: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--lc-canvas); }
+.cp-body::before { top: 22px; }
+.cp-body::after { bottom: 22px; }
+.cp-title { font-size: 14px; font-weight: 650; color: var(--lc-text); }
+.cp-valid { margin-top: 4px; font-size: 11px; color: var(--lc-subtle); }
+.cp-foot { padding-top: 10px; }
+.cp-use { height: 28px; padding: 0 14px; border-radius: 999px; background: var(--lc-accent); color: #FFF; font-size: 12px; font-weight: 600; }
+.cp-use:hover { background: var(--lc-accent-strong); }
+.cp-use:active { transform: scale(.98); }
+.cp-tag { padding: 4px 10px; border-radius: 999px; background: #75757F; color: #FFF; font-size: 11px; font-weight: 600; }
+/* 失效券（已使用 / 已过期）：面额块与标题一起转灰，与可用券一眼分得开 */
+.cp-card.is-dead .cp-amount { background: color-mix(in srgb, var(--lc-border) 60%, var(--lc-surface)); color: var(--lc-muted); }
+.cp-card.is-dead .cp-amount span { color: var(--lc-subtle); }
+.cp-card.is-dead .cp-title { color: var(--lc-subtle); }
+.cp-empty { padding: 30px 0; font-size: 12px; color: var(--lc-subtle); }
+.cp-note { margin-top: 14px; padding: 14px; }
+.cp-note-title { font-size: 14.5px; font-weight: 650; color: var(--lc-text); }
+.cp-rules { margin-top: 10px; padding-left: 18px; }
+.cp-rules li { font-size: 12px; line-height: 1.65; color: var(--lc-muted); }
+.cp-rules li + li { margin-top: 7px; }
 /* —— 首页（appHomePage，2026-10-05 按设计图重做的深色整页）——
    骨架在 styles.css 的 .hm-* 一组。**深色是这一页自己的皮**：配色写死、不跟随 .dark
    （与问题反馈页 / 购买页 / 登录页那种「按图定色」的做法一致，选择器优先级高于 .dark 那几条）；
