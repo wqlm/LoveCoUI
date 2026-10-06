@@ -2520,11 +2520,11 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    已按需求整行删除、样式随之删掉 —— 横幅内的到期日行走 .mb-text small 那套（与副标题同款），
    2026-10-05 晚些需求再把它挪到**右侧胶囊列**（.mb-side：胶囊在上、到期日贴其下方右对齐），
    横幅高度与未开通态保持一致（.is-member 的上下内边距相应收紧补偿）。 */
-.app-hello { padding: 2px 2px 13px; }
+/* 2026-10-06 需求：问候行离状态栏太近，上内边距从 2px 加到 14px 往下压一压 */
+.app-hello { padding: 14px 2px 13px; }
 .app-hello .hello-text strong { font-size: 21px; font-weight: 650; }
 .app-hello .hello-text small { margin-top: 3px; font-size: 11px; color: var(--lc-muted); }
-.app-hello.as-button { padding: 2px 2px 9px; border-radius: 12px; }
-.app-hello.as-button:hover { background: var(--lc-accent-soft); }
+.app-hello.as-button { padding: 14px 2px 9px; border-radius: 12px; }
 .app-hello > .chev { color: var(--lc-subtle); }
 .app-hello > .chev svg { width: 15px; height: 15px; }
 /* 2026-10-04 需求：横幅与上方问候行拉开距离（原先只隔问候行的 9px 底内边距，太挤） */
@@ -2558,17 +2558,16 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .partner-open:active { background: var(--lc-accent-soft); }
 .app-card > .app-row:not(:first-child) { border-top: 1px solid var(--lc-border); }
 .app-row { min-height: 47px; padding: 12px 14px; font-size: 13.5px; }
-.app-row:hover { background: var(--lc-accent-soft); }
 .app-row .chev { color: var(--lc-subtle); }
 .app-row .chev svg { width: 13px; height: 13px; }
 .app-row-end { font-size: 11.5px; color: var(--lc-subtle); }
 /* 「我的」页「更多」组的两行式一行（标题 + 版本号副说明，见 appRowSub）：上标题取正文色、
    字重与同页其它行的标签同一档（PingFang 的 Medium 收在 500），
    下副说明走全局 small 的灰字、再比标签小两档并留 3px 行距。
-   .app-row-static 是纯展示行（「关于 LoveCo」还没有落地页）：不 hover、也没有按下反馈 */
+   .app-row-static 是纯展示行：无 action 不可点（2026-10-06 需求删除 .app-row 悬停高亮后
+   它也不再需要 hover 透明那条兜底，规则一并删除） */
 .app-row-text strong { font-size: 13.5px; font-weight: 500; color: var(--lc-text); }
 .app-row-text small { margin-top: 3px; font-size: 11px; }
-.app-row-static:hover { background: transparent; }
 .app-page-head { padding: 2px 2px 7px; }
 .app-page-head h2 { font-size: 20px; font-weight: 650; }
 .app-page-head .text-button { padding: 4px 0; font-size: 12px; color: var(--lc-accent-strong); }
@@ -3339,3 +3338,64 @@ html[data-view="device"] .sheet-footer {
 .ms-name { font-size: 14.5px; line-height: 1.3; font-weight: 650; color: var(--ms-ink); }
 .ms-sub { font-size: 12px; line-height: 1.35; color: var(--ms-sub); }
 .ms-date { position: absolute; top: 13px; right: 14px; font-size: 11.5px; color: var(--ms-faint); }
+
+/* —— 主 App「问AI」页（appAiPage，2026-10-06 需求）：皮肤一组（骨架 .aai-* 在 styles.css）——
+   按三张设计截图定稿（393 基准）：
+   ① 顶部菜单栏 —— 底 #F4F1F8（按图取样）、墨 #29232F（汉堡与 17px 加粗标题）、新对话图标蓝
+      #3B82F6、X 灰 #67646F，栏底一条 #ECEAF1 分隔线；状态栏连着同底色（.guide-ai 两条）。
+   ② 聊天记录白底：AI 回复浅灰大卡 #F7F7F7（正文 15px/1.75、小节标题 16px 加粗 —— 走
+      mdHtml 的 h4/p/ul/ol/blockquote/hr），用户文字气泡 #ECECF1；截图卡 = shot() 的深色
+      聊天卡（158×~211，圆角 12、细描边）。
+   ③ 历史抽屉白底：⊕ 新对话黑圆白加号；当前会话整行浅蓝底 #E5EEFC、图标转蓝 #3B82F6。
+   ④ 下半 = 键盘里的问AI页 —— 皮肤全部沿用键盘那套（.keyboard / .kb-free-chat / .free-picker），
+      这里只管嵌入（贴底、不参与压缩）。
+   整页固定浅色、不跟随 .dark（同消息页 / 购买页的约定）。 */
+.app-phone.guide-ai { background: #FFF; }
+.app-phone.guide-ai > .statusbar { background: #F4F1F8; color: #191919; }
+.app-phone.guide-ai .app-main { width: 100%; padding: 0; overflow: hidden; display: flex; flex-direction: column; }
+.aai-top { background: #F4F1F8; border-bottom: 1px solid #ECEAF1; }
+.aai-name { font-size: 17px; font-weight: 700; color: #29232F; }
+.aai-menu { color: #29232F; }
+.aai-new { color: #3B82F6; }
+.aai-close { color: #67646F; }
+/* 图形尺寸一律写在本文件（无分层规则压过分层里的任何选择器，见「svg 图标尺寸」的坑） */
+.aai-menu svg, .aai-new svg { width: 24px; height: 24px; }
+.aai-close svg { width: 22px; height: 22px; }
+.aai-thread { background: #FFF; }
+.aai-bubble { background: #F7F7F7; color: #1C1C1E; }
+.aai-user-text { background: #ECECF1; color: #1C1C1E; font-size: 15px; line-height: 1.6; }
+.aai-shot { border: 1px solid #E4E4E9; background: #141417; }
+.aai-typing { background: #F7F7F7; }
+.aai-typing i { background: #B5B5BE; }
+.aai-empty p { font-size: 16px; font-weight: 650; color: #1C1C1E; }
+.aai-empty small { font-size: 13px; color: #8E8E93; }
+/* AI 卡内的 markdown（mdHtml 输出 h4/p/ul/ol/blockquote/hr）—— 对齐设计截图的
+   「对话解读 / 版本N」小节节奏 */
+.aai-md h4 { margin: 2px 0 7px; font-size: 16px; font-weight: 700; color: #1C1C1E; }
+.aai-md h4:first-child { margin-top: 0; }
+.aai-md p { margin: 0 0 10px; font-size: 15px; line-height: 1.75; }
+.aai-md p:last-child { margin-bottom: 0; }
+.aai-md ul, .aai-md ol { margin: 0 0 10px; padding-left: 22px; }
+.aai-md li { font-size: 15px; line-height: 1.7; margin-bottom: 6px; }
+.aai-md li .ca-md-sub { color: #3C3C43; }
+.aai-md blockquote { margin: 0 0 10px; padding: 2px 0 2px 12px; border-left: 3px solid #D8D8DE; color: #3C3C43; }
+.aai-md blockquote p { margin: 0 0 4px; }
+.aai-md blockquote p:last-child { margin-bottom: 0; }
+.aai-md hr { border: 0; border-top: 1px solid #E3E3E8; margin: 12px 0; }
+/* 历史抽屉 */
+.aai-side { background: #FFF; color: #1C1C1E; box-shadow: 6px 0 24px #1D1D2612; }
+.aai-side-head strong { font-size: 17px; font-weight: 700; color: #1C1C1E; }
+.aai-side-back { color: #8E8E93; }
+.aai-side-back svg { width: 20px; height: 20px; }
+.aai-side-new { font-weight: 600; color: #1C1C1E; }
+.aai-side-plus { background: #1C1C1E; color: #FFF; }
+.aai-side-list { border-top: 1px solid #F0F0F3; }
+.aai-side-item { color: #1C1C1E; }
+.aai-side-ic { color: #8E8E93; }
+.aai-side-ic svg { width: 18px; height: 18px; }
+.aai-side-item.on { background: #E5EEFC; }
+.aai-side-item.on .aai-side-ic { color: #3B82F6; }
+/* 嵌入的键盘（下半）：贴底、不参与压缩；键区 / 问AI输入行 / 平台底栏的皮肤全部沿用
+   键盘形态那一套（.keyboard / .kb-free-chat），高度换算也照旧（--lc-free-extra 记在 .phone 上，
+   两种形态读同一份） */
+.aai-page .keyboard { flex-shrink: 0; width: 100%; }
