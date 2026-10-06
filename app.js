@@ -444,6 +444,16 @@
        跨天自动失效、当天点 x 又能再领一次。 */
     pu2Offer:false, pu2OfferLeft:180, pu2OfferTimer:null,
     offerDate: saved.offerDate || '', offerClaimed: saved.offerClaimed === true,
+    /* 首页「限时特惠」**悬浮卡**（state.offerBadge，2026-10-06 需求，页见 offerBadge()）：
+       「永久会员立减优惠」挽留弹窗被放弃（弹窗右上角 x / Esc，见 leaveOfferSheet）后，
+       **优惠资格再保留 3 分钟** —— 回到首页就浮出这颗卡（回「我的」那一次也照样起跳，
+       等切回首页才显形）。点它 = 直接调起支付（payFromOfferBadge），拖它 = 自己挪位置。
+       offerBadge 是这颗卡的开关（内存）；offerBadgeEnds 是到期时刻（时间戳，内存）；
+       offerBadgeTimer 是那枚毫秒倒计时的定时器（只改卡上那一串数字、不整页重渲染）；
+       offerBadgePos 是拖过之后的位置（{x,y}，相对手机左上角的 px；null = 默认贴右下，
+       只在松手时记一次、不落库 —— 刷新回默认位）。
+       归零 = 整枚卡自动消失、优惠资格到此作废（当天再进购买页仍能再领一次）。 */
+    offerBadge:false, offerBadgeEnds:0, offerBadgeTimer:null, offerBadgePos:null,
     /* iOS 系统支付框（state.iosPaySheet，ios-pay-sheet 组件）：iOS 上点会员开通层的「立即解锁」
        就地弹出的 App Store 内购确认弹窗（系统级、铺满整机）—— 只在 iOS 出现；取消 / 支付成功 /
        切形态 / 换页都会收起。开着时 Esc 与它自己的 X 同一条出口（试付进行中不可关）。 */
@@ -888,7 +898,7 @@
     {id:'kb-ios-pay',group:'会员中心',name:'iOS 系统支付框（App Store 内购确认）',route:'键盘 / 主 App › 系统级弹层（挂在手机根节点、铺满整机；iOS 平台专属）',trigger:'iOS 平台下点「立即解锁」就地弹出（2026-10-06 起会员购买页的主按钮同为这句 —— 第二页原「购买 xx 会员」已统一）（键盘的会员开通覆盖层与主 App **会员购买页**上都会弹；正常链路里由额度不足打开键盘付费引导层 / 「会员中心」行与「我的」页会员卡片打开会员购买页「会员购买页 · 新」/ 主 App 额度不足同样落那一页，见同组两条目）。本列表点入＝现场摆成「iOS + 额度过期 + 在会员开通层里点过『立即解锁』」那一刻（平台切 iOS 落库，额度不落库）',desc:'iOS 上点会员开通层的「立即解锁」**不跳转、也不当场到账**，就地弹出这层系统弹窗（App Store 内购确认，照参考截图 1:1）—— 弹窗里确认后才走完仿真支付、权益到账。**功能**：① 点底部确认区（真机是双击侧边按钮）= 确认支付：走完仿真支付（purchase 链路）、会员当场生效，支付框与下面的会员开通层一起收起回原处（键盘形态回键盘、主 App 形态停原页）；② 点右上角圆形 X = 取消购买：只收起支付框、回会员开通层（额度仍是 0，可再点一次）；③ 点蒙层不关闭（与 iOS 的系统弹窗一致）；试付进行中两个出口都不可点。商品随选中档位变：永久档「**Lifetime** / One-time charge」（一次性买断、即截图那一档）、周「**Weekly** / Auto-renewable · 7 days」、季度「**Quarterly** / Auto-renewable · 90 days」、月度「**Monthly** / Auto-renewable · 30 days」（月度档 2026-10-05 起短暂挂在第二个购买页、**2026-10-06 晚些需求起已改成周档** —— 键 week 走上面「Weekly · 7 days」那行，见 purchase2-copy 条目（purchase2 页 2026-10-06 已删）），价格取**当前结算档位**（ctx.checkout —— 第一个购买页 / 键盘付费层取 PLANS、「会员购买页 · 新」取 PLUS_PLANS，见 checkoutPlan），统一格式化成两位小数（¥128.00 / ¥9.90 / ¥98.00 / ¥48.00）。**设计**：系统级弹窗（不属于键盘、也不属于 LoveCo）—— 挂在手机根节点上、铺满**整个手机屏**（含键盘与宿主 App），层级压过按住说话遮罩，是手机内的最高层。**固定系统深色外观**（不跟随键盘的浅色 / 深色皮肤）：整屏盖一层黑色半透明蒙层；屏幕右上角两行白色提示「**Double Click / to Pay**」（iOS 的「双击侧边按钮」提示，浮在蒙层之上、带文字投影）；底部一块深色 sheet —— 占屏幕下方约三分之二（min-height 66%）、顶部 18px 大圆角 + 向上投影，自上而下：① 大标题「**App Store**」（24px 粗体白字）+ 右上角深灰圆形 X（32px）；② 商品卡（深灰 #2C2C2E 圆角 14px）：LoveCo 图标（52px 圆角 12px，取 assets/brand）+ 档位名（16px 600 白字）+ 一行灰字「LoveCo 键盘-恋爱聊天键盘&AI智能聊天回复神器」+「12+」评级小框 + 一行灰字「In-App Purchase」+ 下半价格（19px 600 白字）与计费说明（12px 灰字）；③ 卡外一行灰字「Account: 649924325@qq.com」（仿真 Apple 账户，与 App 内登录无关）；④ 底部居中的确认区（沉在 sheet 底边之上）：侧边按钮指示图形（46px：蓝圆底 + 白色手机轮廓 + 右侧边按钮 + 指向它的箭头）与「Confirm with Side Button」文字（13px 灰字）。弹入动画：蒙层淡入（0.24s）+ sheet 从底部滑入（0.34s cubic-bezier(.32,.72,0,1)），只在打开那一次渲染播放',note:'只在 iOS 出现：安卓 / 鸿蒙的键盘形态点「立即解锁」不弹它、而是跳转主 App 的会员页（见「会员开通覆盖层」条目），安卓 / 鸿蒙的主 App 形态则一键到账；Esc 与 X 同一条出口（取消购买、不到账）；「Account」与商品名映射（Lifetime / Weekly / Quarterly）是这层弹窗的仿真数据（组件 MARKETING 表 + PLANS）；层级 50（z-index），是手机内最高的一层'},
       ];
   const APP_PAGES = [
-    {id:'home',group:'首页与我的',name:'首页',route:'/home',trigger:'主 App 底部 Tab 第一项「首页」；登录成功后也落在这里（进入主 App 的状态检查链 —— 键盘权限 → 键盘完全访问 → 登录状态 —— 都通过才停在这一页，见 appEntryGuards）',desc:'**2026-10-05 按设计图重做的深色首页**（原「空白模板」形态作废；设计图里的「帮你回」模块与「好用，也要顺手」小节标题（含右侧「设置 ›」）按需求不做，「进入体验台」下面那句「已就绪，聊天时切换即可用」也不做 —— 勿当遗漏补回）。**功能**：三块内容、四条入口 —— ① **标语区**（纯展示，无交互）；② **两张功能卡**：**分析表达**（读懂语气与情绪 → **2026-10-06 起进主 App「AI 咨询师」页**，动作 home-analyze）/ **自由对话**（聊一聊，找灵感 → 同样进「AI 咨询师」页，动作 home-free-talk）；③ **「进入体验台」一行**（**2026-10-06 起同样进「AI 咨询师」页**，动作 home-keyboard —— 三处入口同一落点，见本目录 app-ai 条目）；④ **右上角信封图标**（2026-10-05 晚些需求：进「消息」整页，动作 home-msg —— 见本目录 messages 条目；**2026-10-06 需求：信箱有未读消息时，信封右上角浮一枚小红点** —— state.msgUnread 默认 true、点信封进消息页即置已读、返回首页红点熄灭，页面内存不落库；8px 圆点 #FF453A + 2px 与页底同色描边，中心压在信封图形右上角顶点上；骨架 .hm-dot 在 styles.css、尺寸与配色在 theme.css 首页一组）。三处出口 **2026-10-06 起都是「进主 App「AI 咨询师」页」**（同一条 openAppAi 出口；原先「离开主 App、回键盘形态」（returnKeyboard）的走向作废 —— 主 App 内不再有回键盘的入口）。**设计**：整页深色 **按图定色、不跟随 .dark**（底色 #111318，与问题反馈页同一套做法），状态栏与底部 Tab 栏一起转深色（.guide-home 挂手机根，见 renderApp；底栏那三条深色规则在 theme.css 首页一组末尾）；正文左右内边距 20、**整块内容垂直居中**（2026-10-05 晚些需求：内容不满一屏时富余高度上下均分，不再全部挤在顶部），主标语 26px / 行高 39px 两行（#F2F3F5）、副标语 12px / 行高 19.8px 两行灰字（#A9AEB8），右侧插画 conversation_garden_v3（宽 48%、右缘贴正文右缘、与主标语顶对齐）；两张卡等宽两列（间距 11、高 153、圆角 16），卡面 **#1B2A45** 深蓝 / **#2C2925** 暖棕，卡内插画绝对定位钉在设计图量到的位置上（分析表达用新素材 analyze_tone_v1、自由对话复用 open_ideas_v3），卡名 17px 与说明 11.5px 沉在卡底，右上角那枚外链箭头两卡各一色（#7AA7FF / #D4B993）；「进入体验台」行 80 高（芯片 64×47 / 键位图 kbdTiles / 行名 14px / 折角 #6F7580）；右上角信封图标是描边图形（system-glyphs 的 envelope，#A9AEB8、图形 28px（2026-10-05 反馈「太小」从 22 放大一档；注意尺寸必须写在 theme.css 无分层规则里才生效，见 .hm-msg svg），钉在正文右上角）。',note:'设计图里「帮你回」模块与「好用，也要顺手」小节没做，内容因此比设计图短 —— 正文按设计图的自上而下节奏排（标语 → 间距 24 → 两张卡 → 间距 12 → 体验台行），2026-10-05 晚些需求起整块内容垂直居中、留白上下均分（此前按顶部对齐、底部留白是删掉那两块后的必然结果），勿以「下面太空」为由把内容补回来。「进入体验台」行在设计图里是「行名 + 已就绪…说明」两行一起居中，说明删掉后行名单独在行内垂直居中。设计图底部 Tab 第二项写的是「关系」，原型仍是「对象」（Tab 名与「对象」页同源，未改）。'},
+    {id:'home',group:'首页与我的',name:'首页',route:'/home',trigger:'主 App 底部 Tab 第一项「首页」；登录成功后也落在这里（进入主 App 的状态检查链 —— 键盘权限 → 键盘完全访问 → 登录状态 —— 都通过才停在这一页，见 appEntryGuards）',desc:'**2026-10-05 按设计图重做的深色首页**（原「空白模板」形态作废；设计图里的「帮你回」模块与「好用，也要顺手」小节标题（含右侧「设置 ›」）按需求不做，「进入体验台」下面那句「已就绪，聊天时切换即可用」也不做 —— 勿当遗漏补回）。**功能**：三块内容、四条入口 —— ① **标语区**（纯展示，无交互）；② **两张功能卡**：**分析表达**（读懂语气与情绪 → **2026-10-06 起进主 App「AI 咨询师」页**，动作 home-analyze）/ **自由对话**（聊一聊，找灵感 → 同样进「AI 咨询师」页，动作 home-free-talk）；③ **「进入体验台」一行**（**2026-10-06 起同样进「AI 咨询师」页**，动作 home-keyboard —— 三处入口同一落点，见本目录 app-ai 条目）；④ **右上角信封图标**（2026-10-05 晚些需求：进「消息」整页，动作 home-msg —— 见本目录 messages 条目；**2026-10-06 需求：信箱有未读消息时，信封右上角浮一枚小红点** —— state.msgUnread 默认 true、点信封进消息页即置已读、返回首页红点熄灭，页面内存不落库；8px 圆点 #FF453A + 2px 与页底同色描边，中心压在信封图形右上角顶点上；骨架 .hm-dot 在 styles.css、尺寸与配色在 theme.css 首页一组）。三处出口 **2026-10-06 起都是「进主 App「AI 咨询师」页」**（同一条 openAppAi 出口；原先「离开主 App、回键盘形态」（returnKeyboard）的走向作废 —— 主 App 内不再有回键盘的入口）；⑤ **「限时特惠」悬浮卡**（2026-10-06 需求，见下一行与 `offerBadge()`）：**放弃「永久会员立减优惠」挽留弹窗**（弹窗右上角 x / Esc）那一刻起，**优惠资格再保留 3 分钟**，本页浮出这颗**可以拖动的卡**（点它 = 直接调起支付）。**设计**：整页深色 **按图定色、不跟随 .dark**（底色 #111318，与问题反馈页同一套做法），状态栏与底部 Tab 栏一起转深色（.guide-home 挂手机根，见 renderApp；底栏那三条深色规则在 theme.css 首页一组末尾）；正文左右内边距 20、**整块内容垂直居中**（2026-10-05 晚些需求：内容不满一屏时富余高度上下均分，不再全部挤在顶部），主标语 26px / 行高 39px 两行（#F2F3F5）、副标语 12px / 行高 19.8px 两行灰字（#A9AEB8），右侧插画 conversation_garden_v3（宽 48%、右缘贴正文右缘、与主标语顶对齐）；两张卡等宽两列（间距 11、高 153、圆角 16），卡面 **#1B2A45** 深蓝 / **#2C2925** 暖棕，卡内插画绝对定位钉在设计图量到的位置上（分析表达用新素材 analyze_tone_v1、自由对话复用 open_ideas_v3），卡名 17px 与说明 11.5px 沉在卡底，右上角那枚外链箭头两卡各一色（#7AA7FF / #D4B993）；「进入体验台」行 80 高（芯片 64×47 / 键位图 kbdTiles / 行名 14px / 折角 #6F7580）；右上角信封图标是描边图形（system-glyphs 的 envelope，#A9AEB8、图形 28px（2026-10-05 反馈「太小」从 22 放大一档；注意尺寸必须写在 theme.css 无分层规则里才生效，见 .hm-msg svg），钉在正文右上角）。',note:'设计图里「帮你回」模块与「好用，也要顺手」小节没做，内容因此比设计图短 —— 正文按设计图的自上而下节奏排（标语 → 间距 24 → 两张卡 → 间距 12 → 体验台行），2026-10-05 晚些需求起整块内容垂直居中、留白上下均分（此前按顶部对齐、底部留白是删掉那两块后的必然结果），勿以「下面太空」为由把内容补回来。「进入体验台」行在设计图里是「行名 + 已就绪…说明」两行一起居中，说明删掉后行名单独在行内垂直居中。设计图底部 Tab 第二项写的是「关系」，原型仍是「对象」（Tab 名与「对象」页同源，未改）。'},
     {id:'messages',group:'首页与我的',name:'消息',route:'/messages',trigger:'首页右上角的信封图标（home-msg）；本列表点入（不落库）',desc:'**2026-10-05 按设计截图新增的独立整页**（首页右上角信封图标进来；无底部 Tab、整页浅色、状态栏连着转白 —— .guide-msg 挂手机根，同注销页 / 协议页那套做法）。**功能**：一条静态通知 ——「续费提醒：您的LoveCo会员将于5天后自动续期」（**2026-10-06 需求：原「您的L+会员…」**），右上角日期「09月25日」；卡内文案是**静态演示**（原型没有消息中心的数据结构，不接 state.memberExpiry 现算，勿据此当 bug 改成动态）。返回钮 / Esc 都回首页。**未读态（2026-10-06 需求）只有最小一版**：state.msgUnread —— 首页信封小红点读它，点信封进本页即置已读（红点熄灭）；本页自身不渲染任何未读标记（进来 / 停留 / 返回都不改本页内容）。**设计**：整页白底；**2026-10-06 需求：「消息」二字挪进页头顶栏（菜单栏）** —— 页头复用主 App 统一的 .app-page-head.user-head（返回箭头 + 居中「消息」标题同一行，同「用户 / 注销账号 / 问题反馈 / 关于 / 邀请有礼」页；标题 17px 加粗、返回钮 32px 圆底，颜色钉在页面墨色 #1C1C1E 上、不跟随 .dark），原「圆形返回钮独立一行 + 下方大号浅灰页名（21px、#9A9AA0、左对齐）」的排布作废；通知卡浅灰底 #F5F6F7、圆角 16、内边距 13/14 —— 左侧白色圆底（38px）内一枚灰时钟图标（icons 的 Clock，18px），中间标题「续费提醒」（14.5px 加粗 #1C1C1E）+ 说明「您的LoveCo会员将于5天后自动续期」（12px #8E8E93，单行），右上角日期「09月25日」（11.5px #B9B9BE）。**2026-10-05 反馈「文字图片、icon 太大了」整体收小一档**（原 26 / 34 / 48 / 24 / 16 / 13.5 / 13）',note:'消息页只有这一条静态提醒，没有消息列表数据；未读态 2026-10-06 需求起只有最小一版（state.msgUnread：首页信封红点读它、点信封进本页即置已读，本页不渲染未读标记）；后续若接真实消息中心，从这张卡开始扩'},
     {id:'app-ai',group:'首页与我的',name:'AI 咨询师',route:'/ai',trigger:'**首页三处入口都进这一页（2026-10-06 需求，三处同一落点）**：功能卡「分析表达」（home-analyze）/ 功能卡「自由对话」（home-free-talk）/「进入体验台」行（home-keyboard）；本列表点入（不落库）',desc:'**2026-10-06 按设计截图新增的整页**（**同日晚些需求：页面列表条目名由「问AI（AI 咨询师）」改名「AI 咨询师」**，与页内顶栏标题一致 —— 键盘形态的「问AI」页不受影响）：主 App 内与「AI 咨询师」的聊天页（无底部 Tab；整页固定浅色、状态栏连着转 #F4F1F8 浅紫灰 —— .guide-ai 挂手机根，同消息页那套做法；不跟随 .dark）。**功能**：① **顶部菜单栏** —— 左起汉堡「三」开/收**历史抽屉**、标题「AI 咨询师」、右端**新对话**（方框笔）与 **X**（关页面回首页；Esc 同一条出口 —— 抽屉开着时 Esc 只收抽屉，再按才退页面）。② **聊天记录（上半，自己滚）** —— 用户消息靠右：文字是灰底气泡、发出去的聊天截图是圆角卡（core/kit.js 的 shot() 现画，与键盘选图同一套画法）；AI 回复是靠左的浅灰大圆角卡，内容按 markdown 排版（「## 对话解读」→ 分析段 →「## 版本N（策略名）」三版建议 → 结尾「要不要我再写个更简短的版本？」）。发送后先出「正在输入」三点气泡、约 1.1s 后 AI 回复接在同一条记录里。**发送链路与键盘共用一条**：下半键盘的任何发送入口（键区蓝键 / 输入行右端蓝色发送按钮 / 快捷栏短语 / Enter / 按住说话松手）走同一条 sendFreeChat —— 主 App 形态分流到 appAiSend：带截图或快捷栏点了「帮我回」→ 聊天分析那条结构（对话解读 + 三版本，文案沿用 makeBrief / makeIdeas），纯文字提问 → AI通用回复（REVIEW_ANSWER / REVIEW_THINKING 的 markdown）；未登录发送被 needLogin 拦到「手机号登录」页；输入行左端头像（没设自定义头像时 = 2026-10-06 统一切换的那张默认头像插画）：**「AI 咨询师」页里从底部弹出对象列表**（2 行图片高度的窗口，选完即收，见 aiSheetHtml），其余主 App 形态仍进「对象」页（主 App 没有键盘覆盖层的管理页）。③ **历史抽屉（点汉堡）** —— 左侧白色面板（约 78% 宽）盖住整页（含键盘），被盖住的页面不压暗、右缘露出的部分是一层透明点击层（点了收抽屉）；面板自上而下：标题行「对话」+ 右端收起箭头、「⊕ 新对话」一行（开一条空会话并置为当前、收抽屉）、分隔线、会话列表（气泡图标 + 会话名「新对话」，**当前会话整行浅蓝底 #E5EEFC、图标转蓝 #3B82F6**；点行切换会话并收抽屉）。会话数据只在页面内存（state.aiThreads / aiThread）：首次进页摆一条**内置演示会话**（照设计截图那轮问答：AI 早前的一轮建议 → 用户发出聊天截图 → AI 的对话解读 + 三版本）+ 两条历史空会话；新对话 / 切换即时生效，刷新回到内置演示。④ **下半 = 贴底的输入栏（2026-10-06 晚些需求重做的三形态，见 aiKeyboardArea）**：默认只有**常驻输入栏** —— 同一块 kb-free-chat 但**不出「问AI」标题栏**，占位文案固定「输入或按住说话」；**2026-10-06 再晚些需求照豆包的输入栏把这一形态重做成悬浮卡片** —— 整行收进一张白色圆角卡片（头像 / 输入框 / 语音 / 图片都在卡内，输入区底色随之转白、缩略图行 / 快捷栏也不再画分隔线；**2026-10-06 需求：调出键盘后这张白卡照旧** —— 不再退回「键盘上的一行」（原来会变回灰底、输入框自带白底 8 圆角），卡片与下方键盘之间留 12px；开底部弹窗时卡片仍浮在弹窗上方、弹窗照旧贴底）；头像 / 输入框 / 语音 / 图片按钮全可用，Enter 也能发送，高度随内容（输入两行时卡片跟着长高）；**上方那行快捷栏常驻**，缩略图行只在附图时出现；**键盘不再常驻，点输入框才从底部调出「当前键盘」**（state.aaiKb）：当前输入法就是 LoveCo（permissions.ime=loveco 且键盘已启用）时是问AI 页那一套（标题栏「问AI」+ 圆形 X、缩略图行 / 快捷栏 / 提问输入行 + 键区 + 平台底栏 —— 键区打字 / 候选词栏 / 输入框三行长高 / 按住说话全部与键盘形态一致；标题栏的 X = 收键盘回输入栏，页面不退），否则是**系统键盘**（.kbsw-sys 的系统英文键盘，与「切换到 LoveCo 键盘」页同一套画法，高度 = 键区那一档）；点聊天记录区收键盘；**点图片**从底部弹出「2 行图片高度」的截图窗口（**贴底升起、把输入行顶到它上面** —— 与调出键盘同一形态，2026-10-06 晚些需求二改、原「输入栏上方弹出」作废；高度由 paintAaiSheet 实测 = 2 行卡片 + 行距 + 内边距，内部可滚；相册权限两档引导照旧，选图后输入行右端变蓝色发送按钮）；**点头像**从底部弹出同高的**对象列表**（**同样贴底升起、把输入行顶上去**；首行「不选择」，单选、选完即收，输入行左端头像随之更新）；Esc 按层退：历史抽屉 → 弹窗 / 调出的键盘 → 页面。**设计**：整页白底；顶部菜单栏 52px、底 #F4F1F8（按设计图取样）、栏底一条 #ECEAF1 分隔线 —— 汉堡 / 标题墨色 #29232F（标题 17px 加粗）、新对话图标蓝 #3B82F6、X 灰 #67646F；AI 卡底 #F7F7F7、圆角 14、内边距 12/16、正文 15px/1.75 #1C1C1E、小节标题（h4）16px 加粗；用户文字气泡 #ECECF1；三点气泡同 AI 卡底、圆点 #B5B5BE 起伏；抽屉白底 + 右缘投影、⊕ 新对话黑圆白加号、列表行高约 40px；**常驻输入卡**（2026-10-06 再晚些需求）：白底、圆角 16、一行时高 50、内边距 8/12/8/8、阴影 0 2px 8px #1D1D261A + 0 12px 28px #1D1D261F、距屏幕底 18（**2026-10-06 需求：调出键盘时卡片照旧，卡片与键盘顶之间留 12**；**2026-10-06 同日晚些需求：圆角由 24 收到 16** —— 24 在 50 高的卡上是半个卡高的胶囊、被点名「有点丑」，按参考图（豆包输入栏 153px 高 / 圆角 45px，折 2.748 约 16）改成圆角长方形，卡高与留白都不动），卡内 textarea 透明底 / 无边框（文字直接写在卡上）。骨架 .aai-* 在 styles.css、皮肤在 theme.css「问AI页」一组',note:'发送不接积分 / 额度检查（键盘那条 generate() 的额度链路不在这一支上）；会话与抽屉都是页面内存、不落库；页面里没有「回键盘形态」的入口 —— 回键盘走工作台左栏的 App形态切换'},
     {id:'account',group:'首页与我的',name:'我的',route:'/account',trigger:'主 App 底部 Tab 第三项「我的」',desc:'按设计图重做的「我的」页，自上而下：① 问候行（**未登录时改显示「立即登录」占位**（2026-10-04 需求），点它由 needLogin 拦到登录页；已登录显示**「你好 + 手机号掩码」**（「你好 138****8000」，取 state.phone，2026-10-04 晚些需求：原先是「你好，昵称」，逗号也不要了；**2026-10-06 需求：上内边距 2 → 14px 离状态栏远一档，且本页问候行与各组行不再有悬停蓝色高亮（.app-hello.as-button:hover / .app-row:hover 已删）；同日晚些需求：问候行与下方会员横幅的间距太大 —— 问候行再往下压（上内边距 14 → 18px、底内边距 9 → 7px），横幅 margin-top 14 → 8px，两块空隙 23 → 15px**）+ 折角箭头，点它进用户页。**2026-10-05 需求：已开通会员时问候行下方那行金色会员标识（小方块「LoveCo」+「会员到期日 2026-09-30」，永久档写「永久会员」）整行删除** —— 到期日信息改由会员横幅内的一行承担）；② 会员横幅（未开通蓝底「成为 LoveCo 会员 / 解锁无限次AI使用」，已开通橙底「LoveCo 会员 / 已解锁无限次AI使用 / 2026-09-30到期（右对齐）」，右侧白胶囊「升级会员」进**第二个会员购买页「L+ 会员」**（**2026-10-05 需求：胶囊文案原「立即查看」，同日再按需求改「升级会员」（已开通态；未开通蓝底态仍是「立即解锁」）；已开通态在「已解锁无限次AI使用」下方补一行到期日「2026年9月30日到期」→ **2026-10-05 晚些需求改「2026-09-30到期」**（年月日补零、短横分隔、**右对齐**、与右侧胶囊留 8px；永久 / 老存档不显示）；**永久会员形态**（memberExpiry === 0）标题写「LoveCo 永久会员」、不收升级按钮、不显示到期日行 —— 见 `memberBanner` / `memberExpiryText`，左栏「模拟 › 永久会员」开关可一键摆出这一态；会员卡片落这一页**（未开通蓝底 / 已开通橙底都进，`app-membership-plus` 动作）；**2026-10-06 起「会员中心」行也落这一页、两处同一落点**（第一个购买页 purchase 同日已按需求整页删除，勿再补回）；2026-09-28 起主 App 的购买走整页购买页、不再弹键盘同款的会员开通覆盖层）—— **2026-10-03 需求：会员文案的品牌口径从「L+」改成「LoveCo」**（横幅两态 + 会员标识小方块，界面里不再出现 L+，见 `memberBanner` / `appAccountPage`）—— **2026-10-05 需求：会员权益口径从「解锁全部高级功能」改成「解锁无限次AI使用」**（横幅两态副标题 + 会员标识行那两处「已解锁…」，主 App 界面里不再出现「全部高级功能」，见 `memberBanner` / `memberBadgeText`））；③「**账户**」卡片两行（2026-10-04 需求：这一组按需求加回、排在「支持」之上 —— 「会员中心」→ **第一个会员购买页**（2026-10-05 需求：原「会员与积分」行改名「会员中心」）（`app-membership` 动作；**2026-10-05 起与会员卡片分头** —— 卡片改走「会员购买页 · 新」purchase2-copy（原「L+ 会员」页 purchase2 2026-10-06 已按需求整页删除），这一行仍是第一个购买页；原「会员与积分」整页 2026-09-26 已删，这里不重建那页）；「邀请有礼」→ **「邀请有礼」整页**（2026-10-05 起 —— 邀请码功能页已按需求做出，原「即将上线」轻提示撤掉；`invite` 动作 → `openAppScreen`（appScreen 取 invite），未登录先由 needLogin 拦到登录页，见本目录 `invite` 条目））；④「支持」卡片两行（**2026-10-04 晚些需求：栏目名由「客户支持」改「支持」**，两行也随之换过一轮）：「反馈与建议」→ 问题反馈页（类型默认「功能问题」）；**「联系客服」排在它下面**（2026-10-04 再改）→ 就地弹**「联系客服」弹层**（`sheet` 通用底部卡片，**卡内只剩一行「客服邮箱」** `support@loveco.gasairea.com`，**点整行即复制、复制完立刻收起弹层**（2026-10-04 晚些需求：不再有「图标变勾 1.2 秒后复原」那一下 —— 弹层收起了看不到，所以复制图标常驻）；**不显示客服微信、也不显示服务时间** —— 这两行 2026-10-04 再改按需求删掉；这一行不读登录态，未登录也弹得开）。**原首行「键盘内容投诉与举报」已按本轮需求整行删除**（它原先进问题反馈页并把类型预选成「投诉与举报」；问题类型里那颗胶囊仍在，只是不再有入口预选它）；⑤「隐私与协议」卡片（**2026-10-04 再改：栏目名由「相关协议」改「隐私与协议」**；用户协议 / 隐私政策 / 个人信息收集清单 / 第三方信息共享清单，各自打开对应协议正文整页；卡片原末行「协议中心」2026-10-04 晚些按需求删除）；⑥「更多」卡片一行（关于 LoveCo，副说明写版本号 `Version 1.9.0`）—— **2026-10-04 需求：设计图里「关于 Lovekey 键盘 / 这是一款可以帮你聊天的键盘输入法」与「Version 1.9.0 / 上线一些新人设」两行并成这一行**（品牌改 LoveCo、版本号挪进本行副说明、原独立版本条目不再出现；**2026-10-04 晚些这一行接上了落地页** —— 点它进**「关于 LoveCo」整页**（appScreen 取 about，见本目录里的 `about` 条目；此前当轮它还是纯展示行 —— `appRowSub` 不给 action 即静态行）；**2026-10-06 需求：行下副说明版本号「Version 1.9.0」删掉，这行退回普通单行 `appRow`**）。**2026-10-04 需求：原「账户」卡片一行（退出登录）整组删除** —— 同日再按需求把这一组加回来（见上面 ③），现在的两行是「会员与积分」「邀请有礼」，**不再有「退出登录」那一行**（退出登录仍从「用户」页页尾那颗卡进）。设计图里右上角的邮箱图标（消息通知）、「基础设置 · 键盘基础预设」与「消息提醒 · 消息通知」两组按需求不呈现（键盘设置页面与入口已于 2026-09-26 整体删除）。2026-09-26 另删三行入口：「在线客服」「我的订单」「兑换积分」（对应页面一并删除）；同日晚些时候卡片下方那枚「注销仿真账户」文字按钮也删除（连同确认框链路，页面至此没有任何注销类入口）。**2026-10-03 修复：本列表点入现场摆成未开通态** —— 点「我的」时先把会员态复位（`member=false` / `memberExpiry=null`，不落库），否则从「我的 · 已开通会员」切回来时页面仍是会员态、看着像没切过去（见 `setupPage()`）。**2026-10-06 需求：卡片内 item 之间的分隔线 1px → 半像素**（用户原话「我的、我的 · 已开通会员页面 item 的分隔线 再细一点」；视网膜屏 DPR 2 下 = 1 物理像素、正好是原来的一半；实现不能用 `border-top: 0.5px` —— Chrome 会把不足 1px 的边框宽度取整回 1px、白改，改成行顶挂一条 1px 伪元素再 `transform: scaleY(0.5)` 压半，见 theme.css 的 `.app-card > .app-row:not(:first-child)`；同套 `.app-row` 列表一起生效：「我的」/「我的 · 已开通会员」两个形态 +「用户」页）',note:'「我的」不再有键盘设置入口（该页面已删除）；注销入口已删，页面内不再有「需先清空会员 / 积分才能操作」的前置条件；**这一页未登录也进得来**（2026-10-04 需求：未登录点「我的」Tab 不再被登录页挡下 —— 先正常进页、0.5 秒后按蜂窝网络开关补弹「一键登录」/「手机号登录」独立页面，页内问候行显示「立即登录」；见 action 的 app-tab 分支与 ACCOUNT_LOGIN_DELAY_MS）'},
@@ -2827,9 +2837,114 @@
      自动弹出的那一次（pu2Launch）回首页，其余回「我的」；本层与倒计时一并收起。 */
   function leaveOfferSheet() {
     closeOfferSheet();
+    /* 放弃优惠 ≠ 优惠立刻作废（2026-10-06 需求）：**资格再保留 3 分钟**，回到的那一页
+       当场起跳 —— 首页上浮出那颗可拖动的「限时特惠」卡（见 offerBadge / startOfferBadge） */
+    startOfferBadge();
     const back = state.pu2Launch ? 'home' : 'account';
     state.pu2Launch = false;
     return openAppScreen(back);
+  }
+  /* —— 首页「限时特惠」悬浮卡（offerBadge / state.offerBadge，2026-10-06 需求）——
+     入口 = 「永久会员立减优惠」挽留弹窗被放弃的那一刻（leaveOfferSheet）：用户关掉弹窗
+     仍不想买，就把**优惠资格再留 3 分钟**，用首页上一颗**可以拖动的悬浮卡**兜住 ——
+     参考图是另一款产品的同款浮标（深红标题条「甜蜜助攻卡」+ 粉色卡身 + 倒计时），
+     这里照它的结构重绘，标题文案换成本产品的「**限时特惠**」。
+     结构与配色（皮肤见 theme.css 的 .ofb 一组）：
+     ① 整枚卡 116×82、**圆角 14**、粉→洋红对角渐变（#FF5C8A → #FE2CCF）+ 柔和投影，
+        默认**贴右下**（距右 14、距底 84 —— 让开 68 高的底部 Tab 栏），拖动后按坐标定位；
+     ② 顶部**深红标题条**（#BD0262，高 24）：居中白字「限时特惠」（12px 700、字距 1px）；
+     ③ 卡身两行居中：**毫秒倒计时**（18px 800 白字、等宽数字，格式 `MM:SS:mmm`，
+        默认从「03:00:000」起跳）+ 下面一行小字「点击立即支付」（10px、白字 85%）；
+     ④ **可以拖**：按住即跟着手指 / 鼠标走，松手停在原地（不出屏、不压状态栏与 Tab 栏）；
+        拖过的那一下不算点击（阈值 4px），松手也不重渲染（只改内联样式 + 记坐标）；
+     ⑤ **点一下 = 直接调起支付**（payFromOfferBadge，不进购买页再按一次「立即解锁」）；
+     ⑥ 倒计时归零 / 已是会员 = 整枚卡自动消失（优惠资格作废）。
+     只在**主 App 首页**渲染（renderApp 的浮层一串；切到别的 Tab / 页就不画，定时器照走）。 */
+  const OFFER_BADGE_MS = 180000;      /* 3 分钟 */
+  const OFFER_BADGE_TICK_MS = 47;     /* 毫秒那一位要肉眼可见地跳：约每帧多一点点 */
+  const OFFER_BADGE_LABEL = '限时特惠';
+  const OFFER_BADGE_HINT = '点击立即支付';
+  /* 剩余毫秒：按到期时刻现算（定时器被节流也不走慢） */
+  const offerBadgeLeft = () => Math.max(0, state.offerBadgeEnds - Date.now());
+  /* `MM:SS:mmm` —— 例 03:00:000（用户需求指定的这一格式，秒后是三位毫秒） */
+  function offerBadgeClock(ms) {
+    const s = Math.floor(ms/1000);
+    return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}:${String(ms%1000).padStart(3,'0')}`;
+  }
+  function stopOfferBadgeTimer() { if(state.offerBadgeTimer){clearInterval(state.offerBadgeTimer);state.offerBadgeTimer=null;} }
+  /* 整枚卡收摊（归零 / 已成会员）：开关、坐标与定时器一起清 */
+  function stopOfferBadge() { state.offerBadge=false; state.offerBadgePos=null; stopOfferBadgeTimer(); }
+  /* 起跳：只在放弃弹窗那一刻调一次（已是会员不摆这颗卡） */
+  function startOfferBadge() {
+    if(state.member)return;
+    state.offerBadge=true; state.offerBadgePos=null;
+    state.offerBadgeEnds=Date.now()+OFFER_BADGE_MS;
+    stopOfferBadgeTimer();
+    state.offerBadgeTimer=setInterval(tickOfferBadge,OFFER_BADGE_TICK_MS);
+  }
+  /* 每格只改卡上那一枚数字（不整页重渲染 —— 重建 DOM 会把正在拖的那一下打断）；
+     归零 = 收摊 + 重渲染（卡消失）。 */
+  function tickOfferBadge() {
+    if(state.member){stopOfferBadge();render();return;}
+    const left=offerBadgeLeft();
+    if(left<=0){stopOfferBadge();render();return;}
+    const el=document.getElementById('ofb-time');
+    if(el)el.textContent=offerBadgeClock(left);
+  }
+  function offerBadge() {
+    const pos=state.offerBadgePos;
+    return `<div class="ofb" id="ofb-badge"${pos?` style="left:${pos.x}px;top:${pos.y}px;right:auto;bottom:auto;"`:''} role="button" tabindex="0" aria-label="${esc(OFFER_BADGE_LABEL)}，${esc(OFFER_BADGE_HINT)}">
+      <span class="ofb-label">${esc(OFFER_BADGE_LABEL)}</span>
+      <b class="ofb-time" id="ofb-time">${offerBadgeClock(offerBadgeLeft())}</b>
+      <span class="ofb-hint">${esc(OFFER_BADGE_HINT)}</span>
+    </div>`;
+  }
+  /* 拖动（bindOfferBadge 挂的事件）+ 点击：两者互斥（拖过不算点），
+     所以这颗卡**不挂 data-action**（click 由 bindOfferBadge 自己接管）。 */
+  function bindOfferBadge() {
+    const el=document.getElementById('ofb-badge');
+    if(!el)return;
+    const phone=el.closest('.app-phone');
+    if(!phone)return;
+    let pid=null,sx=0,sy=0,ox=0,oy=0,moved=false;
+    el.addEventListener('pointerdown',e=>{
+      if(e.button)return;
+      const r=el.getBoundingClientRect(), p=phone.getBoundingClientRect();
+      pid=e.pointerId; sx=e.clientX; sy=e.clientY; ox=r.left-p.left; oy=r.top-p.top; moved=false;
+      try{el.setPointerCapture(e.pointerId);}catch(_){/* 捕获失败不影响拖动 */}
+    });
+    el.addEventListener('pointermove',e=>{
+      if(e.pointerId!==pid)return;
+      const dx=e.clientX-sx, dy=e.clientY-sy;
+      if(!moved && Math.abs(dx)<4 && Math.abs(dy)<4)return;
+      moved=true;
+      /* 不出屏、不压状态栏与底部 Tab 栏（68）：四边各留 8 */
+      const maxX=phone.clientWidth-el.offsetWidth-8, maxY=phone.clientHeight-el.offsetHeight-76;
+      const x=Math.max(8,Math.min(maxX,ox+dx)), y=Math.max(8,Math.min(maxY,oy+dy));
+      el.style.left=`${x}px`; el.style.top=`${y}px`; el.style.right='auto'; el.style.bottom='auto';
+    });
+    el.addEventListener('pointerup',e=>{
+      if(e.pointerId!==pid)return;
+      pid=null;
+      if(!moved)return;
+      /* 松手才把坐标记进 state（拖动中不重渲染，避免整页重建把这一下打断） */
+      state.offerBadgePos={x:parseFloat(el.style.left)||0,y:parseFloat(el.style.top)||0};
+    });
+    el.addEventListener('pointercancel',()=>{pid=null;});
+    el.addEventListener('click',()=>{ if(!moved)action('offer-badge'); });
+  }
+  /* 点这颗卡 = **直接调起支付**（2026-10-06 需求）—— 与弹窗里那颗「领取优惠」
+     （offer-claim）同一条分路：记下优惠（永久档随即按 ¥128 显示）、落到「会员购买页 · 新」、
+     再按下它的「立即解锁」（未勾协议先弹协议确认框，点「同意」即继续：
+     iOS 弹 iOS 系统支付框 / 安卓·鸿蒙一键到账）。
+     **倒计时不因此停下** —— 协议框点「取消」回到购买页、再回首页，浮卡照旧在。 */
+  function payFromOfferBadge() {
+    if(state.paymentBusy)return;
+    state.offerClaimed=true; persist();
+    openAppScreen('purchase2-copy');
+    if(!state.pu2Agreed){state.pu2Ask=true;return render();}
+    if(state.platform==='ios')return openIosPaySheet();
+    return completePurchase();
   }
   function pu2OfferSheet() {
     const benefits = OFFER_BENEFITS.map(t=>`<li><i class="pu2-offer-check" aria-hidden="true">${icon('Check')}</i>${esc(t)}</li>`).join('');
@@ -3580,7 +3695,7 @@
     $('#app').innerHTML = `<div class="shell app-workspace">
       <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">主 App 手机模拟器</span></div></header>
       <main class="workspace"><aside class="rail left-rail"><div class="rail-section"><div class="rail-heading"><h2>平台与app形态</h2></div>${deviceSwitchers()}</div>${permissionSection()}<div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}</div></aside>
-        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.kbGuideDemo?LoveCoUI.render('kb-usage-guide', ctx):''}${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${voiceHoldOverlay()}${state.userSheet?userSheet():''}${state.cancelAsk?cancelAskSheet():''}${state.pu2Ask?pu2AskSheet():''}${state.pu2Offer?pu2OfferSheet():''}${state.redeemSheet?redeemSheet():''}${state.supportSheet?supportSheet():''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}${state.toast?`<div class="app-toast" role="status" aria-live="polite">${esc(state.toast)}</div>`:''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div></div></section><aside class="rail right-rail">${pageListSection()}</aside></main>
+        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.kbGuideDemo?LoveCoUI.render('kb-usage-guide', ctx):''}${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${voiceHoldOverlay()}${state.offerBadge&&!state.member&&state.appScreen==='home'?offerBadge():''}${state.userSheet?userSheet():''}${state.cancelAsk?cancelAskSheet():''}${state.pu2Ask?pu2AskSheet():''}${state.pu2Offer?pu2OfferSheet():''}${state.redeemSheet?redeemSheet():''}${state.supportSheet?supportSheet():''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}${state.toast?`<div class="app-toast" role="status" aria-live="polite">${esc(state.toast)}</div>`:''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div></div></section><aside class="rail right-rail">${pageListSection()}</aside></main>
     </div>`;
     bind();
     /* 引导流程的演示动画：每次重建 DOM 后重新接一遍「拿到手势就开声音」（见 wireGuideVideos） */
@@ -4713,7 +4828,8 @@
     state.genderSet = false;
     /* 主 App 侧的弹层 / 一次性标记一并复位（见上面 ② 的注释）—— 待弹的那 1 秒定时器也撤掉
        （这一轮是一次新的「打开 App」，走完引导落到首页时由 launchPaywall 重新排） */
-    state.pu2Ask = false; closeOfferSheet(); state.redeemSheet = false;
+    /* 首页「限时特惠」悬浮卡也一并收摊（新设备不该带着上一轮的 3 分钟资格） */
+    state.pu2Ask = false; closeOfferSheet(); stopOfferBadge(); state.redeemSheet = false;
     state.supportSheet = false; state.userSheet = ''; state.cancelAsk = false;
     state.iosPaySheet = false; state.launchPaywallShown = false; state.pu2Enter = false; state.pu2Launch = false;
     state.firstLaunchOffer = false;
@@ -6254,6 +6370,9 @@
                    关层后按下与 p2-buy 同一条分路（未勾协议先弹协议确认框 —— 点「同意」
                    即勾上并继续；已勾选直接 iOS 弹系统支付框 / 安卓·鸿蒙一键到账）。 */
     if(name==='offer-close')return leaveOfferSheet();
+    /* 首页那颗「限时特惠」悬浮卡：点一下 = 直接调起支付（见 payFromOfferBadge）——
+       拖动不触发（bindOfferBadge 里拖过的那一下不算点击） */
+    if(name==='offer-badge')return payFromOfferBadge();
     if(name==='offer-claim'){
       if(state.paymentBusy)return;
       closeOfferSheet();
@@ -6374,6 +6493,8 @@
   }
   function bind() {
     document.querySelectorAll('[data-action]').forEach(node=>node.addEventListener('click',()=>action(node.dataset.action)));
+    /* 首页「限时特惠」悬浮卡的拖动与点击（它不挂 data-action，见 bindOfferBadge） */
+    bindOfferBadge();
     bindKbLoginInputs();
     bindKbSwitchPage();
     /* 出生日期滚轮的两处挂点（不在这一页 / 这一层时查不到列，各自空跑）：
