@@ -30,9 +30,9 @@ LoveCo 键盘交互原型（纯静态 HTML/CSS/JS，无构建）。工作台右�
 - 主 App 形态覆盖 `appScreens` 集合的 14 个整页（`home` / `account` / `profile` /
   `cancel-account` / `partners` / `purchase` / `purchase2`（2026-10-05 新增的第二个会员购买页
   「L+ 会员」，照设计图 1:1、入口 =「我的」页的会员卡片；第一个购买页 `purchase` 仍在、
-  入口是「会员中心」行）/ `purchase-copy`（2026-10-05 新增的「会员购买2」—— 第一个购买页的
-  **拷贝**，渲染 / 商品 / 动作 / 样式与它一致；**app 内暂无入口、只能从页面列表点入**，
-  等设计定稿再接入口，勿顺手给它接入口）/ `login` / `login-one-tap` / `legal` /
+  入口是「会员中心」行）/ `purchase2-copy`（2026-10-06 新增的「会员购买页 · 新2」，第二个购买页
+  的**拷贝**，同样**app 内暂无入口、只能从页面列表点入**；**2026-10-06 已按需求整页删除
+  `purchase-copy`「会员购买2」—— 第一个购买页的那张拷贝，勿再补回）/ `login` / `login-one-tap` / `legal` /
   `about` / `feedback` / `invite`（2026-10-05 新增的「邀请有礼」，保留底部 Tab））+ 2 个整屏流程子页
   （`partner-new` 新增聊天对象 / `partner-edit` 编辑聊天对象，不在集合内）
   + 1 条会员态条目（`account-member`），页面跳转统一走 `openAppScreen()`

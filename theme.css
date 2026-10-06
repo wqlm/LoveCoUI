@@ -1737,17 +1737,8 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 /* 现价下面那行小灰字 = 该档 cardNote（2026-10-05 需求：一顿烧烤 / 一杯奶茶 / 一束鲜花的钱；
    原先是 `.pu-plan-origin` 的划线原价，划线与 ¥ 前缀一并去掉，字号 / 颜色沿用那一行） */
 .pu-plan-note { margin-top: 3px; font-size: 10.5px; color: var(--pu-faint); }
-/* 「会员购买2」（purchase-copy）专属：档位卡里**「一顿烧烤的钱」与现价整体对调**（2026-10-05
-   二次需求，用户原话「一顿烧烤的钱与价格样式进行互换，高亮放大一顿烧烤的钱」）——
-   .pu-copy-lead = cardNote 那句生活化对比拿走价格原来的位置与高亮大字（深蓝、800），
-   .pu-copy-sub = 现价退到下面那行、穿原来那行小灰字的衣服。两个修饰类只出现在
-   appPurchaseCopyPage 的渲染里，第一个购买页 / 键盘付费层不受影响（两页从这次起视觉分头）。
-   字号止步 13.5px：三张卡都是 6 个汉字，卡内容宽约 84–108px（工作台 335px 手机框 → device
-   393px），14px 起在最窄的那台上就会折成两行；letter-spacing 收 -.2px 再多留一点余量。
-   margin-top 两行互换（DOM 里 note 在前、price 在后）：lead 拿价格原来的 5px、sub 拿 3px。 */
-.pu-plan-note.pu-copy-lead { margin-top: 5px; font-size: 13.5px; font-weight: 800; color: #1A5EE8; letter-spacing: -.2px; }
-.pu-plan-price.pu-copy-sub { margin-top: 3px; font-size: 10.5px; font-weight: 400; color: var(--pu-faint); letter-spacing: 0; }
-.pu-plan-price.pu-copy-sub i { margin-right: 1px; font-size: 10.5px; font-weight: 400; }
+/* 「会员购买2」（purchase-copy，第一个购买页的拷贝）专属的 .pu-copy-lead / .pu-copy-sub 两条修饰类
+   连同该页一起按 2026-10-06 需求删除（勿再补回，也别把「两行对调」的视觉合回第一个购买页）。 */
 /* 续订说明：下面留 18px 的**最小**间距 —— 底部那组（.pu-foot）再往上顶时要靠这段留白兜底 */
 .pu-cap { margin: 13px 4px 18px; font-size: 11px; line-height: 1.5; color: var(--pu-faint); }
 .pu-pay { gap: 11px; padding: 13px 14px; background: #F6F6F8; }
@@ -1856,6 +1847,16 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-plan-price em { margin-left: 8px; min-width: 0; font-size: 11px; font-weight: 500; line-height: 1.35; color: #9B9BA6; }
 /* 「立减 ¥xx」胶囊：卡内右端、垂直居中 */
 .pu2-plan-cut { padding: 4px 9px; border-radius: 999px; background: #E7E8FE; font-size: 12px; font-weight: 600; line-height: 1.35; color: #7C7CD6; white-space: nowrap; }
+/* ——— 「会员购买页 · 新2」（appPurchasePlusCopyPage）2026-10-06 需求的档位卡布局分头 ———
+   三条只服务拷贝页（卡上挂的 .pu2-plan-v2 修饰类），「会员购买页 · 新」维持原布局勿动：
+   ① 右端「立减 ¥xx」胶囊整枚去掉（拷贝页的卡不再渲染 .pu2-plan-cut，无需 CSS）；
+   ② 现价移到卡片**右端**（.pu2-plan-right 右对齐纵排），下面挂划线原价 .pu2-plan-origin；
+   ③ 原价格后面的灰标语左移、退到档位名下面一行（.pu2-plan-sub）—— 字号行高沿用原
+   .pu2-plan-price em 的口径，只是从价格右侧换到名称下方 */
+.pu2-plan-v2 .pu2-plan-sub { margin-top: 6px; min-width: 0; font-size: 11px; font-weight: 500; line-height: 1.35; color: #9B9BA6; }
+.pu2-plan-v2 .pu2-plan-right { display: flex; flex-direction: column; align-items: flex-end; margin-left: 12px; }
+.pu2-plan-v2 .pu2-plan-price { margin-top: 0; }
+.pu2-plan-v2 .pu2-plan-origin { margin-top: 2px; font-size: 11px; font-weight: 500; line-height: 1.35; color: #B6B7C6; text-decoration: line-through; }
 /* 续订说明：金额取现价（照设计图），永久档换「一次性买断」那支（文案在 app.js） */
 .pu2-cap { margin: 22px 0 0 21px; font-size: 12.5px; line-height: 1.4; color: #B0B1C0; }
 /* 支付方式行（安卓 / 鸿蒙；**iOS 不渲染这一行** —— Apple 内购走系统支付框）：浅灰底整行可点，
@@ -1872,8 +1873,11 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-redeem:hover { background: #F2F2F6; }
 /* 主按钮：紫渐变胶囊（260×48、居中 —— 照设计图比卡片窄一圈；2026-10-05 二次需求：高 57px 收到 48px
    —— 用户反馈「卡片和底下的按钮太大了，高度改小」；宽度与字号未动），
-   内容 = 划线原价（半透明白）+ 大号现价 + 「立即解锁」（2026-10-06 需求：原「购买 xx 会员」随档位变，
-   现改成固定「立即解锁」—— 与第一个购买页 / 键盘付费引导层同一句）。
+   内容：**2026-10-06 晚些需求起两页同一支** —— 只剩居中的「立即解锁」+ 右上角红角标（原「划线原价 +
+   大号现价 + 立即解锁」里前两段删掉；**2026-10-06 需求：原「购买 xx 会员」随档位变，现改成固定
+   「立即解锁」—— 与第一个购买页 / 键盘付费引导层同一句**）。「会员购买页 · 新2」拷贝页同日同步这一改版
+   （用户原话「把这些更改同步变更到 会员购买页 · 新2」），因此 .pu2-cta-origin / .pu2-cta-price 两条
+   **已无处渲染、随之删除**（勿再补回；第一个购买页那两条是 .pu-cta-*，与本页无关）。
    **整颗一跳一跳**（2026-10-06 需求：与键盘付费引导层那颗「立即解锁」同一套节奏 —— 1.4s 一个来回、
    scale 1 ↔ 1.055 + 紫色投影同步加深；不复用 pw-cta-bounce 是因为它的 keyframes 里写死了蓝色投影，
    本页是紫渐变，故单独一支 pu2-cta-bounce）；试付进行中（:disabled）停下 */
@@ -1884,9 +1888,14 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 }
 .pu2-cta:hover { box-shadow: 0 10px 22px #5C73F766; }
 .pu2-cta:disabled { background: #D4D2F2; box-shadow: none; animation: none; }
-.pu2-cta-origin { font-size: 15px; font-weight: 500; color: #FFFFFF9E; text-decoration: line-through; }
-.pu2-cta-price { font-size: 21px; font-weight: 800; }
-.pu2-cta-label { margin-left: 4px; font-size: 17px; font-weight: 700; }
+.pu2-cta-label { font-size: 17px; font-weight: 700; }
+/* 「立即解锁」右上角那枚**红角标**（2026-10-06 晚些需求，照用户设计图）：文案随档位变 = plan.badge
+   （永久「一次性买断」/ 季度「畅享 90 天」/ 周「畅享 7 天」）—— 与第一个购买页 .pu-cta-badge 同一套
+   做法、同一颗红（#EE3F4E，--pu-tag 的字面值，本页没有那组变量）：右侧让开 18px 落到胶囊右端的弧线上、
+   上半颗探出顶边 10px（19px 高 → 上下各露一半），letter-spacing 归零；角标跟着按钮一起跳（就在按钮里），
+   试付进行中随按钮一起变灰 */
+.pu2-cta-badge { right: 18px; top: -10px; height: 19px; padding: 0 9px; background: #EE3F4E; color: #FFF; font-size: 10px; font-weight: 600; line-height: 19px; letter-spacing: 0; box-shadow: 0 3px 8px #EE3F4E45; }
+.pu2-cta:disabled .pu2-cta-badge { background: #C9CFDA; box-shadow: none; }
 /* 协议行：居中一行（13px 深灰）+ 左侧圆形勾选框（未勾是浅灰描边圈、勾选后紫底白勾）；
    协议名与正文同色、加粗一档做可点提示（骨架复用 .pu2-legal-link） */
 .pu2-consent { gap: 8px; margin-top: 10px; font-size: 12px; line-height: 1.4; color: #4A4A4E; }
