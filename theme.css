@@ -2537,10 +2537,12 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .app-content > .sheet .sheet-header .icon-btn { display: none; }
 .app-content > .sheet .sheet-handle { display: none; }
 /* 底部 Tab 栏：首页 / 对象 / 我的（图形见 components/shared/system-glyphs.js 的 home / users / user），
-   选中项整块取强调色（与设计图一致），未选中是灰字；手机内是 flex 尾部固定高度（见 .app-phone .app-nav） */
+   选中态只染图标（2026-10-06 需求：整块底色高亮删掉，文字保持灰字、只有图标取强调色）；
+   手机内是 flex 尾部固定高度（见 .app-phone .app-nav） */
 .app-nav { position: fixed; z-index: 4; bottom: 0; left: 0; right: 0; height: 68px; display: flex; justify-content: center; gap: 8px; padding: 8px 16px max(8px, env(safe-area-inset-bottom)); background: color-mix(in srgb, var(--lc-surface) 94%, transparent); border-top: 1px solid var(--lc-border); backdrop-filter: blur(14px); }
 .app-nav button { min-width: 112px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 8px; color: var(--lc-muted); background: transparent; }
-.app-nav button.active, .app-nav button:hover { color: var(--lc-accent-strong); background: var(--lc-accent-soft); }
+.app-nav button.active, .app-nav button:hover { color: var(--lc-muted); }
+.app-nav button.active svg, .app-nav button:hover svg { color: var(--lc-accent-strong); }
 @media (max-width: 640px) {
   .app-main { width: calc(100% - 20px); padding-top: 18px; }
   .app-nav button { min-width: 0; flex: 1; font-size: 12px; }
@@ -2876,6 +2878,9 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .app-phone.guide-home .app-nav { background: #1C1F26; border-top: 1px solid #2A2E36; }
 .app-phone.guide-home .app-nav button { color: var(--hm-faint); }
 .app-phone.guide-home .app-nav button.active, .app-phone.guide-home .app-nav button:hover { color: var(--hm-accent); background: transparent; }
+/* 通用 .app-nav 的「选中只染图标」svg 规则（2026-10-06）会漏进这里把图标染紫 ——
+   补一条 svg 例外压回强调蓝（本页选中态仍是图标 + 文字同取强调蓝，见上） */
+.app-phone.guide-home .app-nav button.active svg, .app-phone.guide-home .app-nav button:hover svg { color: var(--hm-accent); }
 /* 出生日期弹层的滚轮：选中带换成浅灰（资料引导那一步的白色选中带在白卡弹层上看不出来），
    行文字也改走主题令牌 —— onb 那套颜色写死在淡紫页上，深色外观下在白卡弹层里会看不清；
    其余（scroll-snap 吸附 / 两端 mask 渐隐 / 44px 行高）全部复用 .onb-* 一套 */
