@@ -1872,10 +1872,18 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-redeem:hover { background: #F2F2F6; }
 /* 主按钮：紫渐变胶囊（260×48、居中 —— 照设计图比卡片窄一圈；2026-10-05 二次需求：高 57px 收到 48px
    —— 用户反馈「卡片和底下的按钮太大了，高度改小」；宽度与字号未动），
-   内容 = 划线原价（半透明白）+ 大号现价 + 「购买 xx 会员」，随所选档位变（文案在 app.js） */
-.pu2-cta { width: 260px; height: 48px; margin: 16px auto 0; gap: 4px; border-radius: 999px; background: linear-gradient(90deg, #5C73F7, #9573FF); color: #FFF; box-shadow: 0 8px 18px #5C73F740; }
+   内容 = 划线原价（半透明白）+ 大号现价 + 「立即解锁」（2026-10-06 需求：原「购买 xx 会员」随档位变，
+   现改成固定「立即解锁」—— 与第一个购买页 / 键盘付费引导层同一句）。
+   **整颗一跳一跳**（2026-10-06 需求：与键盘付费引导层那颗「立即解锁」同一套节奏 —— 1.4s 一个来回、
+   scale 1 ↔ 1.055 + 紫色投影同步加深；不复用 pw-cta-bounce 是因为它的 keyframes 里写死了蓝色投影，
+   本页是紫渐变，故单独一支 pu2-cta-bounce）；试付进行中（:disabled）停下 */
+.pu2-cta { width: 260px; height: 48px; margin: 16px auto 0; gap: 4px; border-radius: 999px; background: linear-gradient(90deg, #5C73F7, #9573FF); color: #FFF; box-shadow: 0 8px 18px #5C73F740; animation: pu2-cta-bounce 1.4s ease-in-out infinite; }
+@keyframes pu2-cta-bounce {
+  0%, 100% { transform: scale(1); box-shadow: 0 8px 18px #5C73F740; }
+  50% { transform: scale(1.055); box-shadow: 0 12px 26px #5C73F766; }
+}
 .pu2-cta:hover { box-shadow: 0 10px 22px #5C73F766; }
-.pu2-cta:disabled { background: #D4D2F2; box-shadow: none; }
+.pu2-cta:disabled { background: #D4D2F2; box-shadow: none; animation: none; }
 .pu2-cta-origin { font-size: 15px; font-weight: 500; color: #FFFFFF9E; text-decoration: line-through; }
 .pu2-cta-price { font-size: 21px; font-weight: 800; }
 .pu2-cta-label { margin-left: 4px; font-size: 17px; font-weight: 700; }
