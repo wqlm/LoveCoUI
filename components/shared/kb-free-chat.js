@@ -83,5 +83,9 @@ LoveCoUI.define('shared', 'kb-free-chat', (ctx) => {
     ${button}
   </div>`;
 
-  return `<div class="kb-free-chat">${state.typing ? LoveCoUI.render('kb-candidates', ctx) : title}${thumbs}${chips}${input}</div>`;
+  /* 标题栏（与打字时的候选词栏）属于键盘形态：主 App「AI 咨询师」页在「开启键盘」关闭时
+     也复用这块输入区当**常驻输入栏**（app.js 的 appAiPage 出 .aai-bar）—— 那时下面没有键盘，
+     页面自己的顶栏管退出，这行「问AI」+ X 没有意义，不渲染（只出缩略图行 / 快捷栏 / 输入行）。 */
+  const head = state.permissions.kbEnabled ? (state.typing ? LoveCoUI.render('kb-candidates', ctx) : title) : '';
+  return `<div class="kb-free-chat">${head}${thumbs}${chips}${input}</div>`;
 });
