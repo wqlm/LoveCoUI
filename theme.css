@@ -1878,7 +1878,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .rd-cta { height: 48px; border-radius: 999px; background: linear-gradient(90deg, #5C73F7, #9573FF); color: #FFF; font-size: 17px; font-weight: 700; box-shadow: 0 8px 18px #5C73F740; }
 .rd-cta:hover { filter: brightness(1.04); }
 .rd-cta:disabled { background: #D4D2F2; box-shadow: none; }
-.rd-done-ico { color: #0C7C58; }
+.rd-done-ico { color: #0B5C42; }
 .rd-done-ico svg { width: 56px; height: 56px; }
 .rd-done-title { margin: 14px 0 0; font-size: 18px; font-weight: 700; color: #17171C; }
 .rd-done-main { margin: 8px 0 0; font-size: 15px; font-weight: 650; color: #7B6BF0; }
@@ -2680,9 +2680,11 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    **Hero 里那张白底邀请码卡**（白底 + 品牌蓝大字码）。其余颜色都借 --lc-* 令牌：
    输入框 / 阶梯块底 = --lc-canvas、边框 = --lc-border、成功绿 = --lc-mint(--soft)、
    待激活黄 = --lc-yellow(--soft)、校验失败红 = --lc-danger。
-   **2026-10-06 需求**：两条状态标签（已到账 / 待激活）的绿与黄嫌土气，令牌整体升级为
-   翡翠绿 #0C7C58/#EDF8F3 与蜂蜜金 #9C5F06/#FDF3D9（见 tokens.css）—— 本页不止标签，
-   绿卡（.iv-claim-done）与阶梯等借同一对令牌的地方一起换色，深浅两态仍是通用令牌。 */
+   **2026-10-06 需求（当天两次）**：两条状态标签（已到账 / 待激活）的绿与黄先嫌土气、
+   再嫌换得太轻（底色近乎白、看不出变化），令牌第二轮升级为「明显可见的浅彩底 +
+   更深的同色系字」：绿 = 薄荷底 #C7EEDC + 深翡翠字 #0B5C42、黄 = 蜜黄底 #FBE0A1 +
+   深琥珀字 #7A4A00（见 tokens.css）—— 本页不止标签，绿卡（.iv-claim-done）与阶梯等
+   借同一对令牌的地方一起换色，深浅两态仍是通用令牌。 */
 .invite-page { --iv-blue: #4C5CE6; --iv-blue-2: #6577F0; }
 .invite-page .iv-hero { margin-top: 2px; padding: 18px 16px 16px; border-radius: 16px; background: linear-gradient(115deg, var(--iv-blue-2), var(--iv-blue)); box-shadow: 0 8px 20px #4C5CE62E; }
 .iv-hero-title { margin: 0; font-size: 17.5px; font-weight: 700; color: #FFF; letter-spacing: .2px; }
