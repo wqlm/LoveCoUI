@@ -27,13 +27,15 @@ LoveCo 键盘交互原型（纯静态 HTML/CSS/JS，无构建）。工作台右�
   字段，重新分类。
 - 键盘形态需覆盖所有交互分支：同一 UI 的不同状态各占一条
   （例：键盘菜单栏的「未选择对象」与「已选择对象」是 `kb-toolbar` 的两种形态）。
-- 主 App 形态覆盖 `appScreens` 集合的 15 个整页（`home` / `messages`（2026-10-05 新增的「消息」整页）/
+- 主 App 形态覆盖 `appScreens` 集合的 14 个整页（`home` / `messages`（2026-10-05 新增的「消息」整页）/
   `app-ai`（2026-10-06 新增的「AI 咨询师」聊天整页 —— 首页三处入口都进这一页）/ `account` / `profile` /
-  `cancel-account` / `partners` / `purchase` / `purchase2-copy`（2026-10-06 新增的「会员购买页 · 新」，
+  `cancel-account` / `partners` / `purchase2-copy`（2026-10-06 新增的「会员购买页 · 新」，
   第二个购买页的**拷贝** —— 原页 `purchase2`（原页名也曾叫「会员购买页 · 新」）与第一个购买页的拷贝
   `purchase-copy`「会员购买2」均**2026-10-06 已按需求整页删除**，勿再补回；**同日晚些需求本页
-  由「会员购买页 · 新2」改名回「会员购买页 · 新」**；2026-10-06 起
-  「我的」页的会员卡片落 `purchase2-copy`，也能从页面列表点入 —— 页内另有同日需求新增的
+  由「会员购买页 · 新2」改名回「会员购买页 · 新」**；**2026-10-06 起它是主 App 唯一的会员购买页**
+  —— 第一个购买页 `purchase`（`appPurchasePage()`）同日也已按需求整页删除、勿再补回，它原先的三处
+  入口（「我的」·「账户」组「会员中心」行 / 主 App 额度不足 / 键盘安卓·鸿蒙跳转 `gotoAppPurchase()`）
+  加上「我的」页会员卡片（`app-membership-plus`）**四处入口都落 `purchase2-copy`**，也能从页面列表点入 —— 页内另有同日需求新增的
   「兑换码」**半屏弹层**（`redeemSheet` / `state.redeemSheet`，骨架 `.rd-*` 在 styles.css /
   皮肤在 theme.css、已用码落库 `redeemUsed`；演示码 LOVECO7 / LOVECO30 / LOVECO365；
   2026-10-06 再晚些需求：说明句与规则小字删掉、无效文案简化「兑换码无效或已过期」、

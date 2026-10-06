@@ -10,8 +10,9 @@
    档位名与计费说明随**当前结算档位**变（优先 ctx.checkout = app.js 的 checkoutPlan()，
    退回 state.kbPlan）：永久档为一次性买断（Lifetime / One-time charge，即截图那一档），
    其余是自动续订（Weekly / Quarterly / Monthly，写「Auto-renewable · …」）；价格取同一份
-   结算档位（第一个购买页与 kb-paywall 走 PLANS、「会员购买页 · 新」purchase2-copy 走
-   PLUS_PLANS —— 2026-10-05 起；该页 2026-10-06 由原第二个购买页的拷贝页改名而来），
+   结算档位（kb-paywall 走 PLANS、「会员购买页 · 新」purchase2-copy 走
+   PLUS_PLANS —— 2026-10-05 起；**2026-10-06 起主 App 只剩 purchase2-copy 这一张购买页**，
+   第一个购买页 purchase 与第二个 purchase2 当日都已按需求整页删除），
    统一格式化成两位小数。
    交互：点 X（ios-pay-close）= 取消购买、只收起这层回会员开通层；点确认区（ios-pay-confirm）
    = 确认支付（真机是双击侧边按钮），走完仿真支付、权益到账并连同会员开通层一起收起
@@ -21,9 +22,10 @@
 LoveCoUI.define('shared', 'ios-pay-sheet', (ctx) => {
   const { esc, ib, state } = ctx;
   const plans = ctx.plans || {};
-  /* 当前结算档位优先取 ctx.checkout（app.js 的 checkoutPlan()）—— 主 App 有**两张**购买页，
-     各自一张档位表、各自一个选中态（第一个购买页 / 键盘付费层 = PLANS + state.kbPlan，
-     「会员购买页 · 新」purchase2-copy = PLUS_PLANS + state.pu2Plan，2026-10-05 起）；
+  /* 当前结算档位优先取 ctx.checkout（app.js 的 checkoutPlan()）—— 会员购买页与键盘付费层
+     各自一张档位表、各自一个选中态（**2026-10-06 起主 App 只有「会员购买页 · 新」一张购买页**
+     purchase2-copy = PLUS_PLANS + state.pu2Plan；键盘付费层 kb-paywall = PLANS + state.kbPlan，
+     第一个购买页 purchase 走的也是这一支、该页 2026-10-06 已按需求整页删除）；
      取不到 ctx.checkout 时退回旧口径（PLANS + state.kbPlan），行为不变。 */
   const plan = (ctx.checkout && ctx.checkout.key) ? ctx.checkout : (plans[state.kbPlan] || {});
   const planKey = plan.key || state.kbPlan;

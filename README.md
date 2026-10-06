@@ -351,7 +351,7 @@ iOS 上点「立即解锁」（键盘的会员开通覆盖层 / 主 App 会员�
 | 蒙层 | 整屏黑色半透明（`#0000007A`）；**点它不关闭**（与 iOS 的系统弹窗一致） |
 | 右上角提示 | 两行白色小字「Double Click / to Pay」（iOS 的「双击侧边按钮」提示，带文字投影，浮在蒙层之上） |
 | sheet 标题行 | 大标题「App Store」（24px 粗体白字）+ 右上角深灰圆形 X（取消购买：只收起支付框回会员层，不到账） |
-| 商品卡 | 深灰圆角卡：LoveCo 图标（52px）+ 档位名（**Lifetime** / **Weekly** / **Quarterly** / **Monthly**（2026-10-05 新增，第一个购买页 / 键盘付费层的月度档；**第二个购买页「L+ 会员」的月度档 2026-10-06 已改周档**，走 `week` 那条「Weekly · 7 days」），随**当前结算档位** `ctx.checkout`（`checkoutPlan()`——第一个购买页 / 键盘付费层取 `PLANS` + `state.kbPlan`、第二个购买页取 `PLUS_PLANS` + `state.pu2Plan`）变）+ 一行灰字「LoveCo 键盘-恋爱聊天键盘&AI智能聊天回复神器」+「12+」评级小框 + 一行灰字「In-App Purchase」+ 下半价格（结算档位的价格格式化到两位小数：¥128.00 / ¥9.90 / ¥98.00 / ¥48.00）与计费说明（永久档「One-time charge」，订阅档「Auto-renewable · 7 days / 90 days / 30 days」） |
+| 商品卡 | 深灰圆角卡：LoveCo 图标（52px）+ 档位名（**Lifetime** / **Weekly** / **Quarterly** / **Monthly**（2026-10-05 新增，第一个购买页 / 键盘付费层的月度档；**第二个购买页「L+ 会员」的月度档 2026-10-06 已改周档**，走 `week` 那条「Weekly · 7 days」），随**当前结算档位** `ctx.checkout`（`checkoutPlan()`——键盘付费层取 `PLANS` + `state.kbPlan`；**2026-10-06 起主 App 只剩「会员购买页 · 新」一张购买页**，它取 `PLUS_PLANS` + `state.pu2Plan`；第二页原 `purchase2`「L+ 会员」当日已按需求整页删除，勿再补回）变）+ 一行灰字「LoveCo 键盘-恋爱聊天键盘&AI智能聊天回复神器」+「12+」评级小框 + 一行灰字「In-App Purchase」+ 下半价格（结算档位的价格格式化到两位小数：¥128.00 / ¥9.90 / ¥98.00 / ¥48.00）与计费说明（永久档「One-time charge」，订阅档「Auto-renewable · 7 days / 90 days / 30 days」） |
 | Account 行 | 卡外一行灰字「Account: 649924325@qq.com」（仿真 Apple 账户，与 App 内登录无关） |
 | 确认区 | 紧跟在「Account」行下方（固定留一段：24px 外边距 + 8px 内边距 ≈ 32px 视觉间距，2026-09-28 按反馈收窄 —— 原先它沉在 sheet 底边，屏越高与上方空得越多、实测到 179px）、水平居中：侧边按钮指示图形（46px：蓝圆底 + 白色手机轮廓 + 右侧边按钮 + 指向它的箭头）+「Confirm with Side Button」（13px 灰字）；点它 = 确认支付（真机是双击侧边按钮） |
 

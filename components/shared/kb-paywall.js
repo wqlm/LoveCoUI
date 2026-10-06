@@ -2,9 +2,10 @@
    键盘形态：发起 AI 生成时额度不足（左栏「模拟 › 模拟额度耗尽」打开：积分清零且非会员）
    被拦下后，就地铺满**整个键盘区域**（菜单栏 / 键区 / 底栏一并盖住；键盘高度不额外拉高，
    就是常规键盘那一块：250px，矮窗口 210px），从下往上滑入。
-   2026-09-28 起主 App 的购买改走**会员购买页**（app.js 的 appPurchasePage 整页，参考竞品购买页
-   布局）：「我的」会员横幅 / 主 App 额度不足 / 键盘安卓·鸿蒙跳转（gotoAppPurchase）都落那一页，
-   这一层不再在主 App 形态出现。
+   2026-09-28 起主 App 的购买改走**会员购买页**（**2026-10-06 起就是「会员购买页 · 新」**
+   purchase2-copy / appPurchasePlusCopyPage —— 第一个购买页 purchase 与第二个 purchase2 当日
+   都已按需求整页删除）：「我的」会员横幅 /「账户」组「会员中心」行 / 主 App 额度不足 /
+   键盘安卓·鸿蒙跳转（gotoAppPurchase）四处入口都落那一页，这一层不再在主 App 形态出现。
    商品仍与主 App 共用同一张表（app.js 的 PLANS）与同一个选中档位（state.kbPlan）。
    形态自上而下：右上角圆形 X → 两行居中标题「成为LoveCo会员，/ 无限次使用AI功能～」→
    三档商品卡（永久会员 ¥128 / 周会员 ¥9.9 / 季度会员 ¥98，卡内自上而下档位名 + ¥ 现价 +
@@ -43,7 +44,8 @@ LoveCoUI.define('shared', 'kb-paywall', (ctx) => {
   /* 与选图面板同一套「从下往上弹出」：只在这一层新弹出的那次渲染播放（app.js 的 pickerEnter） */
   const enter = state.pickerEnter ? ' entering' : '';
   /* 自动续订说明（照设计图文案）—— 文案由 app.js 统一提供（RENEWAL_NOTE 经 uiContext 传来，
-     与主 App 会员购买页同一段，2026-09-29 三次需求起组件不再自带一份）：
+     主 App 会员购买页曾共用这一段、该页 2026-10-06 已按需求整页删除；
+     2026-09-29 三次需求起组件不再自带一份）：
      文案是 iOS 场景的，只在 iOS 渲染；永久会员（一次性买断）整段连同《续费协议》一起不出现。 */
   const RENEWAL_NOTE = ctx.renewalNote || '';
   const renewing = state.kbPlan !== 'permanent';
