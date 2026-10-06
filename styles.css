@@ -569,11 +569,15 @@ small{font-size:11px;color:#73847d}
    .fb-submit{display:flex;align-items:center;justify-content:center;width:100%;border:0}
 /* 「关于 LoveCo」页（appAboutPage，2026-10-04 晚些按设计图新增）：整页弹性列 ——
    页头（复用用户页 .user-head 骨架：返回箭头 + 居中标题）+ 品牌区（图标 / 应用名 / 版本号
-   一列居中）+「隐私与协议」卡片（行复用 .app-row，与「我的」页同一套）+ 页尾备案信息。
-   整页撑满正文一屏高（min-height:100%）：备案信息靠 margin-top:auto 沉到正文底。
+   一列居中）+ 页尾备案信息。整页撑满正文一屏高（min-height:100%）：备案信息靠
+   margin-top:auto 沉到正文底。
+   2026-10-06 需求（用户原话「关于 LoveCo页面删除 隐私与协议，然后 icon 和版本号居中」）：
+   品牌区之下那张「隐私与协议」卡片（行复用 .app-row）整块删除；品牌区随之 flex:1
+   **吃掉卡片腾出来的高度并在其中纵向居中**（justify-content:center）—— 图标 / 应用名 /
+   版本号落在正文区的视觉中心，不再挤在页头下方、把下半屏留空。
    皮肤（图标尺寸 / 字号 / 灰字色）在 theme.css 的「关于页」一组。 */
 .about-page{min-height:100%}
-.about-hero{display:flex;flex-direction:column;align-items:center;text-align:center}
+.about-hero{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 .about-icp{margin-top:auto;text-align:center}
 /* 「邀请有礼」页（appInvitePage，2026-10-05 新增）：整页弹性列 —— 页头（复用用户页 .user-head
    骨架：返回箭头 + 居中标题）+ 四块主体（渐变 Hero / 填写卡 / 我的邀请卡 / 活动规则卡）。
