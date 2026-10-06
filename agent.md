@@ -43,7 +43,10 @@ LoveCo 键盘交互原型（纯静态 HTML/CSS/JS，无构建）。工作台右�
   **同日更晚些需求（本轮）**：三档改价（永久 ¥168/¥840、季度 ¥88/¥148、周划价 ¥28）+
   新增「永久会员立减优惠」挽留弹窗（点购买页叉号 / Esc **每天第一次**弹：3 分钟倒计时、
   「领取优惠」记下优惠后永久档按 ¥128 显示并直接进入支付、弹窗 x = 放弃优惠退出）
-  —— 见 README 组件表与「需求记录」）/ `login` / `login-one-tap` / `legal` /
+  —— 见 README 组件表与「需求记录」；**同日再晚些需求（本轮）**：打开 App 落到首页后**等 1 秒**、
+  **从底部整页滑出**（`launchPaywall` 的 `LAUNCH_PAYWALL_DELAY_MS` 定时器 + 根节点 `.entering`
+  的 `pu2-page-up` 滑入），且**自动弹出的这一次点叉号 / Esc 直接回首页**（`state.pu2Launch`
+  —— 不走「每天第一次先弹挽留弹窗」那条；手动入口进来仍照旧））/ `login` / `login-one-tap` / `legal` /
   `about` / `feedback` / `invite`（2026-10-05 新增的「邀请有礼」，保留底部 Tab））+ 2 个整屏流程子页
   （`partner-new` 新增聊天对象 / `partner-edit` 编辑聊天对象，不在集合内）
   + 1 条会员态条目（`account-member`），页面跳转统一走 `openAppScreen()`

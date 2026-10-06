@@ -264,6 +264,12 @@ small{font-size:11px;color:#73847d}
    多出来的高度由卡片组自己吃掉（卡片变高、内容仍垂直居中），页面上不留大段空白。
    窗口矮 / 内容超屏时各段退回内容高度（min-content 保护）、整页照常滚动。 */
 .pu2-page{position:relative;display:flex;flex-direction:column;min-height:100%}
+/* 「打开 App 落到首页 → 等 1 秒自动弹出购买页」那次进场的滑入动画（2026-10-06 需求）：
+   整页自底部升起（transform 位移，不动布局），曲线与 kb-login / 兑换码弹层那条一致。
+   .entering 由 state.pu2Enter 只挂打开那一次渲染（appPurchasePlusCopyPage 根节点），
+   动画只播一遍 —— 页内任何一次重渲染（切档位 / 勾协议 / 开兑换码弹层…）都不带这个类。 */
+.pu2-page.entering{animation:pu2-page-up .3s cubic-bezier(.32,.72,0,1) both}
+@keyframes pu2-page-up{from{transform:translateY(100%)}}
 .pu2-title{margin:0}
 /* 左上角那枚圆形叉号（2026-10-05 三次需求补的可见出口，p2-close 动作）：absolute 浮在标题上方左侧、
    不占文档流（标题整行居中的口径不变），骨架同已删除的第一个购买页右上角那枚 .pu-close（视觉在 theme.css） */
