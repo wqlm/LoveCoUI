@@ -1,14 +1,15 @@
 /* 问AI（与 AI 对话）页的键盘顶部 —— 取代键盘模式的菜单栏。三端共用。
    入口：键盘菜单栏相册（图片）图标左侧的气泡按钮（data-action="free-chat"）。
    出口：标题栏右侧的 X（data-action="close-free-chat"）或 Esc —— 收起这一页回干净键盘页。
-   结构自上而下（①④ 常驻，②③ 只在选中过图片时出现）：
+   结构自上而下（①③④ 常驻，② 只在选中过图片时出现）：
      ① 标题栏「问AI」+ 右侧 X（高度 = --lc-toolbar-height，**顶替菜单栏**；
         打字时这一行换成候选词栏，同高，键盘不跳）—— 只在 LoveCo 键盘形态出现：
         主 App「AI 咨询师」页的常驻输入栏形态不出这一行（点输入框调出 LoveCo 键盘后才出）
      ② 已选图片缩略图行：最多 3 张，每张左上角压一枚 X（点了移出），未满 3 张时跟一枚「+」继续挑；
         ② 与 ③、③ 与 ④ 之间各有一条分隔线（整行铺满，见 theme.css 的 .free-thumbs / .free-chips）
-     ③ 快捷栏：一行预设问题（帮我回 / 这样回复如何 / 我最后一轮回复的如何，见 app.js 的
-        FREE_SHORTCUTS），**点一下立即发送** —— 点哪条决定结果结构：「帮我回」→ 聊天分析
+     ③ 快捷栏（**常驻**，2026-10-06 晚些需求；此前只在选中过图片时出现）：一行预设问题
+        （帮我回 / 这样回复如何 / 我最后一轮回复的如何，见 app.js 的 FREE_SHORTCUTS），
+        **点一下立即发送** —— 点哪条决定结果结构：「帮我回」→ 聊天分析
         （关系简报 + 三组建议），其余 → AI通用回复（见 app.js 的 pickFreeShortcut / sendFreeChat）。
         三条在窄机上放不下，这一行可左右滑（横向滚动、滚动条隐藏，见 .free-chips）；按钮文字不带箭头符号
      ④ 提问输入行：圆形头像 + 提问输入框（state.freeText）+ 右端两枚按钮（自左向右）——
@@ -54,9 +55,12 @@ LoveCoUI.define('shared', 'kb-free-chat', (ctx) => {
      已选中再点即取消）；未满 3 张时跟一枚「+」继续挑（free-picker-add，展开选择器）。 */
   const picked = state.selectedPhotos.map(id => photos().find(s => s.id === id)).filter(Boolean);
   const thumbs = picked.length ? `<div class="free-thumbs">${picked.map(s => `<button type="button" class="free-thumb" data-action="photo:${esc(s.id)}" title="移除这张截图" aria-label="移除「${esc(s.name)}」">${shot(s)}<i class="free-thumb-x" aria-hidden="true">${icon('Close')}</i></button>`).join('')}${picked.length >= 3 ? '' : `<button type="button" class="free-thumb-add" data-action="free-picker-add" title="再选一张截图" aria-label="再选一张截图">${icon('Plus')}</button>`}</div>` : '';
-  /* 快捷栏：**点一下立即发送**（见 app.js 的 pickFreeShortcut）—— 没有选中态、不加箭头符号，
-     按钮上只留那句短语；点哪条决定结果结构，所以 title 直接写「立即发送」 */
-  const chips = picked.length ? `<div class="free-chips">${freeShortcuts.map(q => `<button type="button" class="free-chip" data-action="free-shortcut:${q.id}" title="立即发送「${esc(q.label)}」">${esc(q.label)}</button>`).join('')}</div>` : '';
+  /* 快捷栏（2026-10-06 晚些需求：**常驻** —— 不再等选中过图片才出现，这一行与有没有附图无关）：
+     **点一下立即发送**（见 app.js 的 pickFreeShortcut）—— 没有选中态、不加箭头符号，
+     按钮上只留那句短语；点哪条决定结果结构，所以 title 直接写「立即发送」。
+     窄机上三条放不下时这一行**可左右滑**（横向滚动、滚动条隐藏，见 theme.css 的 .free-chips）；
+     常驻之后会出现「既没打字、也没附图」就点它的情况，那一处的兜底见 pickFreeShortcut。 */
+  const chips = `<div class="free-chips">${freeShortcuts.map(q => `<button type="button" class="free-chip" data-action="free-shortcut:${q.id}" title="立即发送「${esc(q.label)}」">${esc(q.label)}</button>`).join('')}</div>`;
 
   /* 发送按钮里的箭头：圆头竖杆 + 两条撇，画在 24 的视图里（stroke 2.4 → 撑到 17px 约 1.7px 粗）。
      icons.js 是生成物，这种一次性图形就地内联（与 system-glyphs.js 里那几个图形同一套做法）；
