@@ -1683,17 +1683,25 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    照用户设计图 1:1 复刻（设计图 513×1080 按 393 宽折算，scale ≈ 1.305）的**浅紫底整页**：
    固定浅色、不跟随深色外观（与已删除的第一个购买页同一条「按图定色」的约定）。
    量出来的口径 —— 底色 #F1F4FD（到页面底部渐暖白 #FBF7F4，照设计图底部那一段）、左右边距 20px；
-   标题 21px 加粗居中（「LoveCo会员」#7B6BF0）、与状态栏之间留 40px（初版 26px，三次需求再往下 14px）；
+   标题 21px 加粗居中（「LoveCo会员」#7B6BF0）、与状态栏之间留 50px（初版 26px，2026-10-05 三次需求
+   到 40px；**2026-10-06 晚些需求「X 与标题挨着太近」再到 50px**，X（10–38px）与标题首行文字间距
+   拉开到 ~15px）；
    **左上角一枚 28px 圆形叉号**（白底 90%、叉 15px `var(--pu2-hot)`，同已删除的第一个购买页右上角那枚 .pu-close；
-   2026-10-05 三次需求补的可见出口）；档位卡圆角 17px（卡内边距 15/14、
+   2026-10-05 三次需求补的可见出口）；档位卡圆角 17px（卡内边距 **12/12**、
    卡高上限 **102px**、卡间距 18px；2026-10-05 二次需求：内边距 19/18 → 15/14、卡高上限 150px → 118px ——
-   用户反馈「卡片和底下的按钮太大了，高度改小」；三次需求 118px → 102px），选中那张 2px #8B8CF8 描边 +
+   用户反馈「卡片和底下的按钮太大了，高度改小」；三次需求 118px → 102px；**2026-10-06 晚些需求
+   「整页一屏放下」内边距再收 15/14 → 12/12、现价 26 → 24px**），选中那张 2px #8B8CF8 描边 +
    白→浅紫水平渐变底；「立减」胶囊 24px 高 / #E7E8FE 底 + #7C7CD6 字；永久卡那枚黄色促销胶囊 #FFD738；
-   续订说明 12.5px #B0B1C0（缩进 21px）；支付行 44px 高 / #EDEEF3 / 圆角 12px（logo 25px、
+   续订说明 12.5px #B0B1C0（缩进 21px、上边距 22 → 12px）；支付行 44px 高 / #EDEEF3 / 圆角 12px
+   （上边距 24 → 16px、logo 25px、
    与渠道名间距 13px、渠道名 14px —— 图标与切换箭头用与已删除的第一个购买页同一套素材 / 图标）；
    「会员兑换」白胶囊 12px 字；主按钮 260×48（2026-10-05 二次需求：57px 收一档）/ 全圆角 /
-   linear-gradient(90deg,#5C73F7,#9573FF)；
-   协议行 12px #4A4A4E + 16px 圆形勾选框（勾 9px）。
+   linear-gradient(90deg,#5C73F7,#9573FF)（上边距 16 → 12px）；
+   协议行 12px #4A4A4E + 16px 圆形勾选框（勾 9px；上边距 10 → 8px）。
+   **2026-10-06 晚些需求（整页一屏放下）**：工作台 335 宽手机（内容总高一度 672px、协议行被裁到
+   折叠线下）按上列数字整体收一档后内容总高 ≈ 597px，650–874px 全区间手机高度都一屏放下；
+   富余高度照旧由卡组吸收（卡片长高到 102px 上限、多余在卡组内上下均分）——
+   各处上边距明细见下面各条的注释。
    整页铺满与状态栏跟色见下面 .guide-purchase2 两条（Tab 栏不渲染在 app.js，同已删除的第一个购买页）。 */
 .pu2-page {
   --pu2-ink: #17171C;
@@ -1714,19 +1722,22 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-close svg { width: 15px; height: 15px; }
 /* 居中大标题（「成为 / LoveCo会员 / ，解锁无限次AI使用」整行居中，「LoveCo会员」紫色）——
    2026-10-05 需求：文案由「成为L+会员，解锁全部功能」换成这句，并把与状态栏之间的距离由 8px 加到
-   26px（用户原话「并且距离顶部有一定的距离」）；**三次需求再往下一点** —— 26px → **40px**，
-   也让左上角那枚叉号（占 38–66px）与标题行（68px 起）不打架 */
-.pu2-title { padding: 40px 0 0; font-size: 21px; font-weight: 800; line-height: 1.35; text-align: center; letter-spacing: .2px; }
+   26px（用户原话「并且距离顶部有一定的距离」）；三次需求再往下一点 —— 26px → 40px；
+   **2026-10-06 晚些需求再往下**：左上角那枚叉号（占 10–38px）与标题首行文字（≈53px 起）
+   视觉间距只剩 ~6px、用户反馈「挨着太近」，40px → **50px**（视觉间距拉开到 ~15px） */
+.pu2-title { padding: 50px 0 0; font-size: 21px; font-weight: 800; line-height: 1.35; text-align: center; letter-spacing: .2px; }
 .pu2-title b { color: #7B6BF0; }
 /* 档位卡组：纵向三张、间距 18px（卡内 = 左「名称行 + 价格行」两行 / 右「立减」胶囊垂直居中）——
    2026-10-05 需求：原 12px 间距 + 15/14 内边距在整页里上段挤成一坨、屏幕下方却空着一大片，
-   卡间距加到 18px，把留白匀回卡片区 */
-.pu2-plans { margin-top: 24px; gap: 18px; }
+   卡间距加到 18px，把留白匀回卡片区；**2026-10-06 晚些需求（整页一屏放下）上边距 24 → 18px** */
+.pu2-plans { margin-top: 18px; gap: 18px; }
 /* 卡高上限 102px（2026-10-05 二次需求：150px → 118px；三次需求再收一档 118px → 102px ——
    用户反馈「卡片和底下的按钮太大了，高度改小」/「卡片可以再收小一点」）：三张卡挂 flex-grow
    均分页面富余高度（骨架在 styles.css），到上限后多余高度改由
-   .pu2-plans 的 justify-content:center 在卡组内上下均分 */
-.pu2-plan { padding: 15px 26px 14px; max-height: 102px; border-radius: 17px; background: #FFF; }
+   .pu2-plans 的 justify-content:center 在卡组内上下均分。
+   **2026-10-06 晚些需求（整页一屏放下）：卡内边距 15/14 → 12/12**（卡的最小高度随之
+   ~77 → ~70px，矮窗口下三张卡能整体收进一屏） */
+.pu2-plan { padding: 12px 26px 12px; max-height: 102px; border-radius: 17px; background: #FFF; }
 .pu2-plan.active { border-color: var(--pu2-line); background: linear-gradient(90deg, #FFFFFF, #F0F0FE); }
 /* 卡顶那枚蓝角标 = 该档 cardBadge（2026-10-05 需求：用户选择占比「85% / 3% / 12% 的用户选择」）——
    与已删除的第一个购买页的 .pu-plan-badge 同款皮肤（蓝色渐变胶囊 + 白字 + 蓝色投影、上半颗探出卡顶），
@@ -1740,8 +1751,8 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    （2026-10-06 再晚些需求：原「三档都挂」口径收回 —— 季度 / 周的「低至xx元/每日」删除，
    .silver / .copper 两条修饰类随之删掉、勿再补回，promo 数据见 app.js 的 PLUS_PLANS） */
 .pu2-plan-promo { padding: 3px 8px; border-radius: 6px; background: #FFD738; font-size: 11px; font-weight: 600; line-height: 1.35; color: #241E12; white-space: nowrap; }
-.pu2-plan-price { margin-top: 6px; display: flex; align-items: center; font-size: 26px; font-weight: 800; line-height: 1.2; color: var(--pu2-hot); }
-.pu2-plan-price i { margin-right: 1px; font-size: 16px; font-weight: 700; }
+.pu2-plan-price { margin-top: 6px; display: flex; align-items: center; font-size: 24px; font-weight: 800; line-height: 1.2; color: var(--pu2-hot); }
+.pu2-plan-price i { margin-right: 1px; font-size: 15px; font-weight: 700; }
 /* 价格后面的灰字标语（一束鲜花的钱等）：2026-10-05 四次需求 —— 与价格**垂直居中**对齐（原来
    inline 基线对齐、整行偏沉），价格行改 flex + align-items:center；min-width:0 允许长标语收窄换行 */
 .pu2-plan-price em { margin-left: 8px; min-width: 0; font-size: 11px; font-weight: 500; line-height: 1.35; color: #9B9BA6; }
@@ -1755,22 +1766,24 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    .pu2-plan-price em 的口径，只是从价格右侧换到名称下方。
    2026-10-06 晚些需求：.pu2-plan-right 改 **align-items:center** —— 划线原价与上方的现价
    **居中对齐**（原先两行都右对齐） */
-.pu2-plan-v2 .pu2-plan-sub { margin-top: 6px; min-width: 0; font-size: 11px; font-weight: 500; line-height: 1.35; color: #9B9BA6; }
+.pu2-plan-v2 .pu2-plan-sub { margin-top: 4px; min-width: 0; font-size: 11px; font-weight: 500; line-height: 1.35; color: #9B9BA6; }
 .pu2-plan-v2 .pu2-plan-right { display: flex; flex-direction: column; align-items: center; margin-left: 12px; }
 .pu2-plan-v2 .pu2-plan-price { margin-top: 0; }
 .pu2-plan-v2 .pu2-plan-origin { margin-top: 2px; font-size: 11px; font-weight: 500; line-height: 1.35; color: #B6B7C6; text-decoration: line-through; }
-/* 续订说明：金额取现价（照设计图），永久档换「一次性买断」那支（文案在 app.js） */
-.pu2-cap { margin: 22px 0 0 21px; font-size: 12.5px; line-height: 1.4; color: #B0B1C0; }
+/* 续订说明：金额取现价（照设计图），永久档换「一次性买断」那支（文案在 app.js）——
+   **2026-10-06 晚些需求（整页一屏放下）上边距 22 → 12px** */
+.pu2-cap { margin: 12px 0 0 21px; font-size: 12.5px; line-height: 1.4; color: #B0B1C0; }
 /* 支付方式行（安卓 / 鸿蒙；**iOS 不渲染这一行** —— Apple 内购走系统支付框）：浅灰底整行可点，
    左起真素材标 → 渠道名 → 右端切换箭头（素材 / 图标与已删除的第一个购买页同一套，只有类名不同） */
-.pu2-pay { height: 44px; margin-top: 24px; padding: 0 14px 0 19px; gap: 13px; border-radius: 12px; background: #EDEEF3; }
+.pu2-pay { height: 44px; margin-top: 16px; padding: 0 14px 0 19px; gap: 13px; border-radius: 12px; background: #EDEEF3; }
 .pu2-pay:hover { background: #E7E8EF; }
 .pu2-pay-logo { width: 25px; height: 25px; border-radius: 7px; }
 .pu2-pay-name { font-size: 14px; font-weight: 600; color: #3C3C43; }
 .pu2-pay-switch { width: 14px; height: 14px; color: #9A9ACD; }
-/* 底部组：会员兑换（居中白胶囊）→ 紫渐变主按钮 → 协议行（含勾选框）；上边距固定 16px 留一圈呼吸
-   （2026-10-05 需求：卡组吸收富余高度后，避免续订说明 / 支付行紧贴「会员兑换」）、下边距留出屏幕底一圈 */
-.pu2-foot { padding-top: 16px; padding-bottom: max(24px, env(safe-area-inset-bottom)); }
+/* 底部组：会员兑换（居中白胶囊）→ 紫渐变主按钮 → 协议行（含勾选框）；上边距固定 12px 留一圈呼吸
+   （2026-10-05 需求：卡组吸收富余高度后，避免续订说明 / 支付行紧贴「会员兑换」；2026-10-06 晚些
+   需求整页一屏放下，16 → 12px）、下边距留出屏幕底一圈（同日需求 24 → 16px） */
+.pu2-foot { padding-top: 12px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
 .pu2-redeem { padding: 4px 12px; border-radius: 999px; background: #FAFAFA; font-size: 12px; font-weight: 500; line-height: 1.35; color: #333338; }
 .pu2-redeem:hover { background: #F2F2F6; }
 /* 主按钮：紫渐变胶囊（260×48、居中 —— 照设计图比卡片窄一圈；2026-10-05 二次需求：高 57px 收到 48px
@@ -1783,7 +1796,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    **整颗一跳一跳**（2026-10-06 需求：与键盘付费引导层那颗「立即解锁」同一套节奏 —— 1.4s 一个来回、
    scale 1 ↔ 1.055 + 紫色投影同步加深；不复用 pw-cta-bounce 是因为它的 keyframes 里写死了蓝色投影，
    本页是紫渐变，故单独一支 pu2-cta-bounce）；试付进行中（:disabled）停下 */
-.pu2-cta { width: 260px; height: 48px; margin: 16px auto 0; gap: 4px; border-radius: 999px; background: linear-gradient(90deg, #5C73F7, #9573FF); color: #FFF; box-shadow: 0 8px 18px #5C73F740; animation: pu2-cta-bounce 1.4s ease-in-out infinite; }
+.pu2-cta { width: 260px; height: 48px; margin: 12px auto 0; gap: 4px; border-radius: 999px; background: linear-gradient(90deg, #5C73F7, #9573FF); color: #FFF; box-shadow: 0 8px 18px #5C73F740; animation: pu2-cta-bounce 1.4s ease-in-out infinite; }
 @keyframes pu2-cta-bounce {
   0%, 100% { transform: scale(1); box-shadow: 0 8px 18px #5C73F740; }
   50% { transform: scale(1.055); box-shadow: 0 12px 26px #5C73F766; }
@@ -1800,7 +1813,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-cta:disabled .pu2-cta-badge { background: #C9CFDA; box-shadow: none; }
 /* 协议行：居中一行（13px 深灰）+ 左侧圆形勾选框（未勾是浅灰描边圈、勾选后紫底白勾）；
    协议名与正文同色、加粗一档做可点提示（骨架复用 .pu2-legal-link） */
-.pu2-consent { gap: 8px; margin-top: 10px; font-size: 12px; line-height: 1.4; color: #4A4A4E; }
+.pu2-consent { gap: 8px; margin-top: 8px; font-size: 12px; line-height: 1.4; color: #4A4A4E; }
 /* 协议行文字裹一层 span：勾选框与文字行之间才是 8px 间距，行内（协议名 / 顿号）走正常 inline 流
    —— 直接平铺的话 flex gap 会把每个文字节点都拆开、顿号两侧会多出空隙 */
 .pu2-consent-text { line-height: inherit; }
@@ -1813,7 +1826,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    393 宽下卡片文字距左 26px（照设计图），335 宽下不收就会让「永久会员 + 黄色促销胶囊 +
    立减胶囊」这一行挤不开（名称会折行成两行） */
 @media (max-width: 359px) {
-  .pu2-plan { padding: 15px 16px 14px; }
+  .pu2-plan { padding: 12px 14px 12px; }
 }
 /* —— 「会员购买页 · 新」的协议确认框（pu2AskSheet，state.pu2Ask，2026-10-06 晚些需求）——
    骨架同「注销申请成功」弹框那套（.cd-ask：深色蒙层只盖正文区、白卡居中，见 styles.css），
@@ -1865,7 +1878,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .rd-cta { height: 48px; border-radius: 999px; background: linear-gradient(90deg, #5C73F7, #9573FF); color: #FFF; font-size: 17px; font-weight: 700; box-shadow: 0 8px 18px #5C73F740; }
 .rd-cta:hover { filter: brightness(1.04); }
 .rd-cta:disabled { background: #D4D2F2; box-shadow: none; }
-.rd-done-ico { color: #27796B; }
+.rd-done-ico { color: #0C7C58; }
 .rd-done-ico svg { width: 56px; height: 56px; }
 .rd-done-title { margin: 14px 0 0; font-size: 18px; font-weight: 700; color: #17171C; }
 .rd-done-main { margin: 8px 0 0; font-size: 15px; font-weight: 650; color: #7B6BF0; }
@@ -2666,7 +2679,10 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    深浅两态都这么显示）：**Hero 的蓝紫渐变**（与「我的」会员横幅同色系 #6577F0→#4C5CE6）与
    **Hero 里那张白底邀请码卡**（白底 + 品牌蓝大字码）。其余颜色都借 --lc-* 令牌：
    输入框 / 阶梯块底 = --lc-canvas、边框 = --lc-border、成功绿 = --lc-mint(--soft)、
-   待激活橙 = --lc-yellow(--soft)、校验失败红 = --lc-danger。 */
+   待激活黄 = --lc-yellow(--soft)、校验失败红 = --lc-danger。
+   **2026-10-06 需求**：两条状态标签（已到账 / 待激活）的绿与黄嫌土气，令牌整体升级为
+   翡翠绿 #0C7C58/#EDF8F3 与蜂蜜金 #9C5F06/#FDF3D9（见 tokens.css）—— 本页不止标签，
+   绿卡（.iv-claim-done）与阶梯等借同一对令牌的地方一起换色，深浅两态仍是通用令牌。 */
 .invite-page { --iv-blue: #4C5CE6; --iv-blue-2: #6577F0; }
 .invite-page .iv-hero { margin-top: 2px; padding: 18px 16px 16px; border-radius: 16px; background: linear-gradient(115deg, var(--iv-blue-2), var(--iv-blue)); box-shadow: 0 8px 20px #4C5CE62E; }
 .iv-hero-title { margin: 0; font-size: 17.5px; font-weight: 700; color: #FFF; letter-spacing: .2px; }
@@ -2745,6 +2761,13 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .hm-msg { color: var(--hm-sub); }
 .hm-msg svg { width: 28px; height: 28px; }
 .hm-msg:active { opacity: .6; }
+/* 信封的未读小红点（2026-10-06 需求）：有未读消息（state.msgUnread）时浮在信封图形右上角，
+   点信封进「消息」页即熄灭（见 home-msg 动作）。8px 圆点、iOS 深色档的系统红 #FF453A、
+   外圈 2px 与页底同色的描边（--hm-bg）把点从信封描边上「托」出来；
+   坐标按 44×44 按钮里那枚 28px 图标量出（信封墨迹在 24 视框里占 x 2.8–21.2 / y 5–19，
+   放大后右上角约在按钮坐标 (32.7, 13.8)）：红点中心落在信封右上角顶点上。
+   骨架（absolute / 圆形）在 styles.css；**尺寸写在本文件的原因同 .hm-msg svg 那条**。 */
+.hm-dot { top: 8px; right: 7px; width: 8px; height: 8px; background: #FF453A; box-shadow: 0 0 0 2px var(--hm-bg); }
 .hm-title { font-size: 26px; line-height: 39px; font-weight: 650; color: var(--hm-ink); }
 .hm-sub { margin-top: 11px; font-size: 12px; line-height: 19.8px; color: var(--hm-sub); }
 /* 插画宽度取百分比（189/393 ≈ 48%）：窄机（工作台里 335px 的手机）上跟着缩，
@@ -3339,14 +3362,17 @@ html[data-view="device"] .sheet-footer {
 /* 「AI 咨询师」页的底部区（2026-10-06 晚些需求重做）：默认只有贴底常驻的输入栏
    （kb-free-chat 不出「问AI」标题栏、只出输入区），高度随内容 —— 缩略图行 / 快捷栏 / 多行输入
    都算在里面；点输入框调出「当前键盘」时（.aai-kb）按键盘那一档算高，高度公式与
-   .keyboard.free-chat 相同（标题栏顶替菜单栏、输入行与 extra 另加），键区高度不变。 */
+   .keyboard.free-chat 相同（标题栏顶替菜单栏、输入行与 extra 另加），键区高度不变。
+   底部弹窗（图片 / 对象）打开时 section 里是「输入区 + 弹窗」两块的 auto 高（弹窗贴底）——
+   与 .aai-kb（输入区 + 键区）同一种「面板在下、输入区被顶上去」的形态。 */
 .keyboard.free-chat.aai-bar { height: auto; }
 .keyboard.free-chat.aai-bar.aai-kb { height: calc(var(--lc-keyboard-height) + var(--lc-free-row-height) + var(--lc-free-extra, 0px)); }
 /* 系统键盘（.kbsw-sys，与「切换到 LoveCo 键盘」页同一套画法）：高度 = 键区那一档，
    接在输入行下方（整块 section 的高度因此 = 输入行 + 键盘） */
 .aai-sys { flex: 0 0 auto; height: var(--lc-keyboard-height); }
-/* 底部弹窗（图片网格 / 对象列表）：输入行上方那块「2 行图片高度」的窗口 ——
-   高度由 app.js 的 paintAaiSheet 实测写进 --aai-sheet-h，从下往上滑入；两个弹窗各自可滚 */
+/* 底部弹窗（图片网格 / 对象列表）：**贴底**那块「2 行图片高度」的窗口（2026-10-06 晚些需求，
+   与调出键盘同一形态：面板占屏幕底、输入区被顶到它上面）—— 高度由 app.js 的 paintAaiSheet
+   实测写进 --aai-sheet-h，从下往上滑入；两个弹窗各自可滚 */
 .aai-sheet {
   flex: 0 0 auto;
   height: var(--aai-sheet-h, 320px);
