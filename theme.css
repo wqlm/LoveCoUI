@@ -1859,6 +1859,40 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-ask-yes { background: #5B67E8; color: #FFF; }
 .pu2-ask-yes:hover { filter: brightness(1.05); }
 @keyframes pu2-ask-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+/* —— 「会员购买页 · 新」的「永久会员立减优惠」挽留弹窗（pu2OfferSheet / state.pu2Offer，
+   2026-10-06 需求）—— 与上面 .pu2-ask 同一处置口径（骨架 + 皮肤整体写在本文档：
+   铺在 .app-shell 上、深色蒙层居中卡），购买页固定浅色、配色写死、不跟随 .dark。
+   照用户参考图重绘：卡片 = 浅紫垂直渐变（#CAD5FD → 近白）+ 22px 大圆角、宽 82%
+   （393 屏 ≈323px）；自上而下：右上角 28px 圆形 x（半透明白底 + 灰紫叉）→ 标题
+   「确定放弃永久会员立减优惠？」（20px 800 蓝 #577CFF、居中）→ **3 分钟倒计时一行**
+   （红 #FF4E60 + 14px 时钟图标 + 等宽数字 02:59，参考图没有、本轮需求自加）→
+   权益四条（15px 蓝圆白勾 + 14px 蓝字 #4F72FF、行距约 25px）→ 双色块（高 96、圆角 14：
+   左块红对角渐变 #FF4D60 → #FF9AA5 + 两行白字「永久会员 / 立减优惠」；右块米→粉对角
+   渐变 + 深灰「立减 ¥40」+ 右端一条条形码装饰纹）→「领取优惠」紫粉渐变胶囊
+   （#4C60F8 → #FA6076、高 46、宽 73%，与参考图同款双色渐变）。 */
+.pu2-offer { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; }
+.pu2-offer-scrim { position: absolute; inset: 0; background: #10101A6B; }
+.pu2-offer-card { position: relative; width: 82%; padding: 0 24px 20px; border-radius: 22px; background: linear-gradient(180deg, #CAD5FD 0%, #DEE5FD 42%, #F1F4FE 74%, #FCFDFF 100%); box-shadow: 0 18px 44px #10101038; animation: pu2-ask-in .2s cubic-bezier(.2, .8, .3, 1) both; }
+.pu2-offer-close { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .6); color: #8181A0; cursor: pointer; }
+.pu2-offer-close:hover { background: #FFF; }
+.pu2-offer-close svg { width: 13px; height: 13px; }
+.pu2-offer-title { margin: 0; padding-top: 38px; font-size: 20px; font-weight: 800; line-height: 1.35; color: #577CFF; text-align: center; letter-spacing: .2px; }
+.pu2-offer-timer { display: flex; align-items: center; justify-content: center; gap: 4px; margin: 13px 0 0; font-size: 13px; font-weight: 700; color: #FF4E60; }
+.pu2-offer-timer svg { width: 14px; height: 14px; }
+.pu2-offer-timer b { font-size: 14.5px; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+.pu2-offer-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0 0; padding: 0; list-style: none; }
+.pu2-offer-list li { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; line-height: 1.1; color: #4F72FF; }
+.pu2-offer-check { display: grid; place-items: center; flex-shrink: 0; width: 15px; height: 15px; border-radius: 50%; background: #5B76FB; color: #FFF; }
+.pu2-offer-check svg { width: 9px; height: 9px; }
+.pu2-offer-deal { display: flex; gap: 4px; height: 96px; margin-top: 26px; }
+.pu2-offer-left { display: flex; flex: 1 1 0; flex-direction: column; align-items: center; justify-content: center; gap: 5px; border-radius: 14px; background: linear-gradient(135deg, #FF4D60, #FF9AA5); color: #FFF; font-size: 16px; font-weight: 700; letter-spacing: 1px; }
+.pu2-offer-right { position: relative; display: flex; flex: 1.4 1 0; align-items: center; justify-content: center; border-radius: 14px; background: linear-gradient(135deg, #FBE0D4, #FEF3EE 55%, #FFD6D8); }
+.pu2-offer-cut { display: flex; align-items: baseline; font-size: 27px; font-weight: 800; color: #3E3936; }
+.pu2-offer-cut span { margin-right: 4px; font-size: 15px; font-weight: 700; }
+.pu2-offer-cut i { margin-right: 1px; font-size: 16px; font-style: normal; font-weight: 700; }
+.pu2-offer-code { position: absolute; top: 50%; right: 10px; width: 15px; height: 32px; transform: translateY(-50%); background: repeating-linear-gradient(90deg, #F5B9BF 0 1.5px, transparent 1.5px 4px); }
+.pu2-offer-cta { display: flex; align-items: center; justify-content: center; width: 86%; height: 46px; margin: 28px auto 0; border: 0; border-radius: 999px; background: linear-gradient(90deg, #4C60F8, #FA6076); color: #FFF; font-size: 17px; font-weight: 700; box-shadow: 0 10px 22px #5C5CE84D; cursor: pointer; }
+.pu2-offer-cta:hover { filter: brightness(1.04); }
 /* —— 「会员购买页 · 新」的「兑换码」半屏弹层（redeemSheet / state.redeemSheet，2026-10-06 需求）——
    骨架在 styles.css（.rd-* 一组：贴底半屏卡 + 滑入动画，挂点在手机根、同协议确认框一处 —— 铺满整机含状态栏）；
    购买页本身固定浅色，弹层配色也写死（同 .pu2-ask 一套口径，不跟随 .dark）：
