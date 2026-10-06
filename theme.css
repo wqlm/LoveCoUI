@@ -1786,6 +1786,17 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-foot { padding-top: 12px; padding-bottom: max(16px, env(safe-area-inset-bottom)); }
 .pu2-redeem { padding: 4px 12px; border-radius: 999px; background: #FAFAFA; font-size: 12px; font-weight: 500; line-height: 1.35; color: #333338; }
 .pu2-redeem:hover { background: #F2F2F6; }
+/* ——— iOS 上「不摆内容、只留占位」的两块（2026-10-06 需求）———
+   用户反馈「iOS 的会员购买页布局与安卓不同步，虽然 iOS 会少支付渠道和兑换码，但其他地方的元素
+   大小、布局应当保持一致」：支付方式行（.pu2-pay）与兑换码胶囊（.pu2-redeem）**三端渲染同一份
+   DOM**（app.js 不再按平台分叉渲染），iOS 上只把内容置成不可见 —— visibility:hidden 同时
+   保住占位高度（页面纵向节奏不变）、断掉点击与键盘聚焦、把这两块从无障碍树里摘掉；
+   与「Android 不渲染键盘底栏、改用等高留白」同一套做法（见本文件
+   .phone[data-platform="android"] .keyboard .kb-body 一条）。
+   此前 iOS 由 app.js 直接不渲染这两块、省下的约 84px（支付行 44 + 上边距 16 / 兑换码 24）
+   被卡组吸收：卡片被撑高、三张卡在卡组内居中后推离标题，页面下半截整体错位。 */
+.phone[data-platform="ios"] .pu2-page .pu2-pay,
+.phone[data-platform="ios"] .pu2-page .pu2-redeem { visibility: hidden; pointer-events: none; }
 /* 主按钮：紫渐变胶囊（260×48、居中 —— 照设计图比卡片窄一圈；2026-10-05 二次需求：高 57px 收到 48px
    —— 用户反馈「卡片和底下的按钮太大了，高度改小」；宽度与字号未动），
    内容：**2026-10-06 晚些需求起两页同一支** —— 只剩居中的「立即解锁」+ 右上角红角标（原「划线原价 +
@@ -2504,10 +2515,22 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .app-card-list .sheet-list-item { padding: 0; }
 .partner-open:active { background: var(--lc-accent-soft); }
 /* 2026-10-06 需求（用户原话「我的、我的 · 已开通会员页面 item 的分隔线 再细一点」）：
-   行分隔线 1px → **0.5px**（DPR 2 的视网膜屏上 = 1 物理像素，正好是 1px 的一半）。
-   行与行之间仍是一条连续细线、颜色不变（--lc-border）；同套 .app-row 列表
-   （「我的」/「我的 · 已开通会员」两个形态 +「用户」/「关于 LoveCo」页）一起生效。 */
-.app-card > .app-row:not(:first-child) { border-top: 0.5px solid var(--lc-border); }
+   行分隔线由 1px 收到**半像素**（视网膜屏 DPR 2 下 = 1 物理像素，正好是原来的一半）。
+   实现不能用 `border-top: 0.5px`：Chrome 会把不足 1px 的边框宽度向上取整回 1px
+   （实测 computed 1px、渲染与 1px 完全一致，等于白改），0.5px 高的元素同样被取整；
+   只有 `transform: scaleY(0.5)` 压得下去 —— 行顶挂一条 1px 高的伪元素再压成 0.5px，
+   实测渲染 1 物理像素满色细线。线的颜色 / 位置不变（--lc-border、贴在行顶、左右铺满），
+   同套 .app-row 列表一起生效：「我的」/「我的 · 已开通会员」两个形态 +「用户」页。 */
+.app-card > .app-row:not(:first-child) { border-top: 0; position: relative; }
+.app-card > .app-row:not(:first-child)::before {
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: 0;
+  height: 1px;
+  background: var(--lc-border);
+  transform: scaleY(0.5);
+  transform-origin: top left;
+}
 .app-row { min-height: 47px; padding: 12px 14px; font-size: 13.5px; }
 .app-row .chev { color: var(--lc-subtle); }
 .app-row .chev svg { width: 13px; height: 13px; }
@@ -2670,11 +2693,13 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    同 .user-logout 的做法）。
    2026-10-06 需求：「隐私与协议」卡片整块删除（那一套 .app-section / .app-card / .app-row
    沿用「我的」页的骨架，这里不再挂）；品牌区改成在页头与备案行之间纵向居中（骨架里的
-   flex:1 + justify-content:center），**内边距成对**（14px 上下、不留 24px 的下内边距 ——
-   带下内边距会让居中整组在视觉上偏上 5px）。
+   flex:1 + justify-content:center）。
+   **2026-10-06 需求追加「位置在往上移一移」**：居中基准之上再抬 48px —— 下内边距 14 → 110px
+   （上下内边距不再成对，这一条就是那点上移；居中在内容盒里算，下内边距多出来的 96px 让整组
+   上移其一半）。
    本页不写死配色、深浅两态都走通用令牌（与协议页 / 注销页那几页「按图定色」不同）。 */
 .about-head { padding: 2px 0 10px; }
-.about-hero { padding: 14px 0; }
+.about-hero { padding: 14px 0 110px; }
 .about-icon { width: 72px; height: 72px; border-radius: 18px; box-shadow: 0 6px 18px #2621321F; }
 .about-name { margin: 13px 0 0; font-size: 20px; font-weight: 650; color: var(--lc-text); }
 .about-version { margin: 5px 0 0; font-size: 12px; color: var(--lc-subtle); }
@@ -2685,15 +2710,16 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    深浅两态都这么显示）：**Hero 的蓝紫渐变**（与「我的」会员横幅同色系 #6577F0→#4C5CE6）与
    **Hero 里那张白底邀请码卡**（白底 + 品牌蓝大字码）。其余颜色都借 --lc-* 令牌：
    输入框 / 阶梯块底 = --lc-canvas、边框 = --lc-border、成功绿 = --lc-mint(--soft)、
-   待激活黄 = --lc-yellow(--soft)、校验失败红 = --lc-danger。
-   **2026-10-06 需求（当天三轮）**：两条状态标签（已到账 / 待激活）的绿与黄先嫌土气、
-   再嫌换得太轻（底色近乎白、看不出变化）、最后嫌「浅彩底 + 深色字」整体太丑 —— 令牌
-   第一轮升翡翠绿 / 蜂蜜金、第二轮升薄荷底 / 蜜黄底后仍被否，**第三轮定稿改成「实心彩底
-   + 白字」**：绿 = #12A56A（翡翠）、黄 = #E88410（琥珀金），见下方 .iv-tag 两条
-   （本页固定色，不走 --lc-*-soft 令牌 —— 那对令牌的语义是「浅色背景」，另供
-   .iv-claim-done / .avatar / .page-detail-note 等用）。令牌本身同步第三轮提亮：
-   薄荷底 #C9F2DE + 翡翠字 #0B8A57、杏金底 #FFE8C6 + 琥珀字 #B8700C（见 tokens.css），
-   本页绿卡（.iv-claim-done）与阶梯等借同一对令牌的地方跟着变，深浅两态仍是通用令牌。 */
+   校验失败红 = --lc-danger。（两条状态徽标现在是本页固定色，见下。）
+   **2026-10-06 需求（当天四轮）**：两条状态标签（已到账 / 待激活）第一轮嫌绿黄土气、
+   第二轮嫌换得太轻（底色近乎白、看不出变化）、第三轮嫌「浅彩底 + 深色字」整体太丑改
+   「实心彩底 + 白字」，第四轮再嫌黄的那枚丑 —— **定稿：绿 = #12A56A（翡翠）、
+   待激活 = #75757F（中性灰），都是实心底 + 白字**，见下方 .iv-tag 两条（本页固定色，
+   不走 --lc-*-soft 令牌 —— 那对令牌的语义是「浅色背景」，另供 .iv-claim-done /
+   .avatar / .page-detail-note 等用；待激活弃黄换灰，也避开黄色系本身难做高级的问题）。
+   令牌第三轮的提亮保留（薄荷底 #C9F2DE + 翡翠字 #0B8A57、杏金底 #FFE8C6 + 琥珀字
+   #B8700C，见 tokens.css），本页绿卡（.iv-claim-done）等借 mint 对令牌的地方跟着变，
+   深浅两态仍是通用令牌。 */
 .invite-page { --iv-blue: #4C5CE6; --iv-blue-2: #6577F0; }
 .invite-page .iv-hero { margin-top: 2px; padding: 18px 16px 16px; border-radius: 16px; background: linear-gradient(115deg, var(--iv-blue-2), var(--iv-blue)); box-shadow: 0 8px 20px #4C5CE62E; }
 .iv-hero-title { margin: 0; font-size: 17.5px; font-weight: 700; color: #FFF; letter-spacing: .2px; }
@@ -2739,11 +2765,14 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .iv-friend + .iv-friend { border-top: 1px solid var(--lc-border); }
 .iv-friend-phone { font-size: 13.5px; font-weight: 500; color: var(--lc-text); }
 .iv-tag { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-/* 2026-10-06 第三轮需求：两枚状态标签改「实心彩底 + 白字」（前两轮的浅彩底 + 深色字都被否）。
-   实心色是本页固定色（同 Hero 蓝紫渐变、白底邀请码卡那两处的口径），不走 --lc-*-soft 令牌 ——
-   那对令牌的语义是「浅色背景」，另供 .iv-claim-done / .avatar / .page-detail-note 等用。 */
+/* 2026-10-06 定稿：两枚状态标签「实心底 + 白字」—— 绿 #12A56A（第三轮定）、
+   待激活 #75757F 中性灰（第四轮定：黄的那枚被嫌丑，换中性灰避开黄色系、也更贴
+   「等待中」的语义；灰压得住白字，#75757F vs #FFF 对比度约 4.5:1）。
+   实心色是本页固定色（同 Hero 蓝紫渐变、白底邀请码卡那两处的口径），不走 --lc-*-soft
+   令牌 —— 那对令牌的语义是「浅色背景」，另供 .iv-claim-done / .avatar /
+   .page-detail-note 等用。 */
 .iv-tag.done { background: #12A56A; color: #FFF; }
-.iv-tag.wait { background: #E88410; color: #FFF; }
+.iv-tag.wait { background: #75757F; color: #FFF; }
 .iv-friends-note { margin: 6px 0 0; padding-top: 10px; border-top: 1px solid var(--lc-border); font-size: 10.5px; line-height: 1.5; color: var(--lc-subtle); }
 .iv-empty { margin: 12px 0 2px; font-size: 11.5px; text-align: center; color: var(--lc-subtle); }
 .iv-rules { margin-top: 10px; padding-left: 18px; }

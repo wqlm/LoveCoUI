@@ -575,6 +575,8 @@ small{font-size:11px;color:#73847d}
    品牌区之下那张「隐私与协议」卡片（行复用 .app-row）整块删除；品牌区随之 flex:1
    **吃掉卡片腾出来的高度并在其中纵向居中**（justify-content:center）—— 图标 / 应用名 /
    版本号落在正文区的视觉中心，不再挤在页头下方、把下半屏留空。
+   **同日追加需求「位置在往上移一移」**：居中基准之上再抬 48px —— 不在这层做（骨架只管
+   「占满 + 居中」），由皮肤里 .about-hero 的下内边距（14px 0 110px）承担。
    皮肤（图标尺寸 / 字号 / 灰字色）在 theme.css 的「关于页」一组。 */
 .about-page{min-height:100%}
 .about-hero{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
