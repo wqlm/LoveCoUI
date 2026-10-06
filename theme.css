@@ -1942,6 +1942,41 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-ask-yes { background: #5B67E8; color: #FFF; }
 .pu2-ask-yes:hover { filter: brightness(1.05); }
 @keyframes pu2-ask-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+/* —— 「会员购买页 · 新」的「兑换码」半屏弹层（redeemSheet / state.redeemSheet，2026-10-06 需求）——
+   骨架在 styles.css（.rd-* 一组：贴底半屏卡 + 滑入动画，挂点在手机根、同协议确认框一处 —— 铺满整机含状态栏）；
+   购买页本身固定浅色，弹层配色也写死（同 .pu2-ask 一套口径，不跟随 .dark）：
+   抓手 36×4 浅灰、标题 17px 加粗居中、右上角 28px 圆形 X（浅灰底 + 中灰叉）；
+   说明 12.5px 灰字；输入框整宽 52px 高、浅灰底、圆角 14、居中 18px 加粗大写字（字距 3px）
+   —— 聚焦转白底 + 1.5px 紫内描边、校验失败转红内描边（红即邀请页同一颗 --lc-danger 的字面值）；
+   校验行 12px 红字 + 13px 警告图标；「立即兑换」紫渐变胶囊（与 .pu2-cta 同一支渐变）、
+   空输入置灰不可点（#D4D2F2，同 .pu2-cta:disabled）；规则小字 11px 浅灰居中；
+   成功态绿勾 56px（--lc-mint 浅色态的字面值）+ 标题 18px + 「会员时长 +N 天」15px 品牌紫 + 到期日 12px 灰。
+   注：图形尺寸必须写在本文件 —— styles.css 在 layer(base) 里，会被无分层的 svg 全局尺寸压住
+   （同 .hm-msg svg 那条的口径）。 */
+.rd-scrim { background: #10101A6B; }
+.rd-card { padding: 0 24px max(20px, env(safe-area-inset-bottom)); border-radius: 20px 20px 0 0; background: #FFF; box-shadow: 0 -14px 40px #1010102E; }
+.rd-handle { width: 36px; height: 4px; margin: 12px auto 0; border-radius: 999px; background: #E4E5EC; }
+.rd-head { margin-top: 12px; }
+.rd-title { margin: 0; font-size: 17px; font-weight: 700; color: #17171C; }
+.rd-close { width: 28px; height: 28px; background: #F3F4F8; color: #6E6E78; }
+.rd-close:hover { background: #E9EAF1; }
+.rd-close svg { width: 13px; height: 13px; }
+.rd-sub { margin: 8px 0 0; font-size: 12.5px; line-height: 1.5; color: #9B9BA6; text-align: center; }
+.rd-input { height: 52px; margin-top: 20px; padding: 0 14px; border: 0; border-radius: 14px; background: #F3F4F8; color: #17171C; font-size: 18px; font-weight: 700; letter-spacing: 3px; text-align: center; }
+.rd-input::placeholder { font-size: 13px; font-weight: 400; letter-spacing: 0; color: #B0B1C0; }
+.rd-input:focus { outline: none; background: #FFF; box-shadow: inset 0 0 0 1.5px #7B6BF0; }
+.rd-input.err { background: #FFF; box-shadow: inset 0 0 0 1.5px #BF5364; }
+.rd-error { gap: 5px; margin: 10px 0 0; font-size: 12px; color: #BF5364; }
+.rd-error svg { width: 13px; height: 13px; flex-shrink: 0; }
+.rd-cta { height: 48px; border-radius: 999px; background: linear-gradient(90deg, #5C73F7, #9573FF); color: #FFF; font-size: 17px; font-weight: 700; box-shadow: 0 8px 18px #5C73F740; }
+.rd-cta:hover { filter: brightness(1.04); }
+.rd-cta:disabled { background: #D4D2F2; box-shadow: none; }
+.rd-note { margin: 12px 0 0; font-size: 11px; line-height: 1.5; color: #B0B1C0; }
+.rd-done-ico { color: #27796B; }
+.rd-done-ico svg { width: 56px; height: 56px; }
+.rd-done-title { margin: 14px 0 0; font-size: 18px; font-weight: 700; color: #17171C; }
+.rd-done-main { margin: 8px 0 0; font-size: 15px; font-weight: 650; color: #7B6BF0; }
+.rd-done-sub { margin: 6px 0 0; font-size: 12px; color: #9B9BA6; }
 /* iOS 系统支付框（ios-pay-sheet 组件）：iOS 上点会员开通层的「立即解锁」就地弹出的**系统级**弹窗
    （App Store 内购确认，照参考截图）—— 挂在手机根节点上、铺满整个手机屏（含键盘与宿主 App），
    自成一层皮肤：**固定系统深色外观**（系统弹窗不跟随键盘的浅色 / 深色皮肤）。
