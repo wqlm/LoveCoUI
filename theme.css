@@ -1878,7 +1878,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .rd-cta { height: 48px; border-radius: 999px; background: linear-gradient(90deg, #5C73F7, #9573FF); color: #FFF; font-size: 17px; font-weight: 700; box-shadow: 0 8px 18px #5C73F740; }
 .rd-cta:hover { filter: brightness(1.04); }
 .rd-cta:disabled { background: #D4D2F2; box-shadow: none; }
-.rd-done-ico { color: #0B5C42; }
+.rd-done-ico { color: #0B8A57; }
 .rd-done-ico svg { width: 56px; height: 56px; }
 .rd-done-title { margin: 14px 0 0; font-size: 18px; font-weight: 700; color: #17171C; }
 .rd-done-main { margin: 8px 0 0; font-size: 15px; font-weight: 650; color: #7B6BF0; }
@@ -2503,7 +2503,11 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    所以行上也不画头像描边的选中态。 */
 .app-card-list .sheet-list-item { padding: 0; }
 .partner-open:active { background: var(--lc-accent-soft); }
-.app-card > .app-row:not(:first-child) { border-top: 1px solid var(--lc-border); }
+/* 2026-10-06 需求（用户原话「我的、我的 · 已开通会员页面 item 的分隔线 再细一点」）：
+   行分隔线 1px → **0.5px**（DPR 2 的视网膜屏上 = 1 物理像素，正好是 1px 的一半）。
+   行与行之间仍是一条连续细线、颜色不变（--lc-border）；同套 .app-row 列表
+   （「我的」/「我的 · 已开通会员」两个形态 +「用户」/「关于 LoveCo」页）一起生效。 */
+.app-card > .app-row:not(:first-child) { border-top: 0.5px solid var(--lc-border); }
 .app-row { min-height: 47px; padding: 12px 14px; font-size: 13.5px; }
 .app-row .chev { color: var(--lc-subtle); }
 .app-row .chev svg { width: 13px; height: 13px; }
@@ -2662,13 +2666,15 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 /* —— 「关于 LoveCo」页（appAboutPage，2026-10-04 晚些按设计图新增）——
    骨架在 styles.css 的 .about-* 一组。页头复用用户页 .user-head（返回钮 + 17px 居中标题，
    这里只把内边距放到整页口径）；品牌区：图标 72px 圆角方块（带浅投影）+ 应用名 20px 加粗 +
-   灰字版本号 12px，一列居中；**「隐私与协议」卡片直接沿用「我的」页那一套
-   .app-section / .app-card / .app-row**（同一档行高 47px、字号 13.5px、右端折角箭头，
-   行首**没有图标** —— 需求原话「与外层的 item 样式一致，不需要左边的图标」）；
-   页尾备案信息沉在正文底（灰字 11px 居中，与手机底边留 20px，同 .user-logout 的做法）。
+   灰字版本号 12px，一列居中；页尾备案信息沉在正文底（灰字 11px 居中，与手机底边留 20px，
+   同 .user-logout 的做法）。
+   2026-10-06 需求：「隐私与协议」卡片整块删除（那一套 .app-section / .app-card / .app-row
+   沿用「我的」页的骨架，这里不再挂）；品牌区改成在页头与备案行之间纵向居中（骨架里的
+   flex:1 + justify-content:center），**内边距成对**（14px 上下、不留 24px 的下内边距 ——
+   带下内边距会让居中整组在视觉上偏上 5px）。
    本页不写死配色、深浅两态都走通用令牌（与协议页 / 注销页那几页「按图定色」不同）。 */
 .about-head { padding: 2px 0 10px; }
-.about-hero { padding: 14px 0 24px; }
+.about-hero { padding: 14px 0; }
 .about-icon { width: 72px; height: 72px; border-radius: 18px; box-shadow: 0 6px 18px #2621321F; }
 .about-name { margin: 13px 0 0; font-size: 20px; font-weight: 650; color: var(--lc-text); }
 .about-version { margin: 5px 0 0; font-size: 12px; color: var(--lc-subtle); }
@@ -2680,11 +2686,14 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    **Hero 里那张白底邀请码卡**（白底 + 品牌蓝大字码）。其余颜色都借 --lc-* 令牌：
    输入框 / 阶梯块底 = --lc-canvas、边框 = --lc-border、成功绿 = --lc-mint(--soft)、
    待激活黄 = --lc-yellow(--soft)、校验失败红 = --lc-danger。
-   **2026-10-06 需求（当天两次）**：两条状态标签（已到账 / 待激活）的绿与黄先嫌土气、
-   再嫌换得太轻（底色近乎白、看不出变化），令牌第二轮升级为「明显可见的浅彩底 +
-   更深的同色系字」：绿 = 薄荷底 #C7EEDC + 深翡翠字 #0B5C42、黄 = 蜜黄底 #FBE0A1 +
-   深琥珀字 #7A4A00（见 tokens.css）—— 本页不止标签，绿卡（.iv-claim-done）与阶梯等
-   借同一对令牌的地方一起换色，深浅两态仍是通用令牌。 */
+   **2026-10-06 需求（当天三轮）**：两条状态标签（已到账 / 待激活）的绿与黄先嫌土气、
+   再嫌换得太轻（底色近乎白、看不出变化）、最后嫌「浅彩底 + 深色字」整体太丑 —— 令牌
+   第一轮升翡翠绿 / 蜂蜜金、第二轮升薄荷底 / 蜜黄底后仍被否，**第三轮定稿改成「实心彩底
+   + 白字」**：绿 = #12A56A（翡翠）、黄 = #E88410（琥珀金），见下方 .iv-tag 两条
+   （本页固定色，不走 --lc-*-soft 令牌 —— 那对令牌的语义是「浅色背景」，另供
+   .iv-claim-done / .avatar / .page-detail-note 等用）。令牌本身同步第三轮提亮：
+   薄荷底 #C9F2DE + 翡翠字 #0B8A57、杏金底 #FFE8C6 + 琥珀字 #B8700C（见 tokens.css），
+   本页绿卡（.iv-claim-done）与阶梯等借同一对令牌的地方跟着变，深浅两态仍是通用令牌。 */
 .invite-page { --iv-blue: #4C5CE6; --iv-blue-2: #6577F0; }
 .invite-page .iv-hero { margin-top: 2px; padding: 18px 16px 16px; border-radius: 16px; background: linear-gradient(115deg, var(--iv-blue-2), var(--iv-blue)); box-shadow: 0 8px 20px #4C5CE62E; }
 .iv-hero-title { margin: 0; font-size: 17.5px; font-weight: 700; color: #FFF; letter-spacing: .2px; }
@@ -2730,8 +2739,11 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .iv-friend + .iv-friend { border-top: 1px solid var(--lc-border); }
 .iv-friend-phone { font-size: 13.5px; font-weight: 500; color: var(--lc-text); }
 .iv-tag { padding: 4px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; white-space: nowrap; }
-.iv-tag.done { background: var(--lc-mint-soft); color: var(--lc-mint); }
-.iv-tag.wait { background: var(--lc-yellow-soft); color: var(--lc-yellow); }
+/* 2026-10-06 第三轮需求：两枚状态标签改「实心彩底 + 白字」（前两轮的浅彩底 + 深色字都被否）。
+   实心色是本页固定色（同 Hero 蓝紫渐变、白底邀请码卡那两处的口径），不走 --lc-*-soft 令牌 ——
+   那对令牌的语义是「浅色背景」，另供 .iv-claim-done / .avatar / .page-detail-note 等用。 */
+.iv-tag.done { background: #12A56A; color: #FFF; }
+.iv-tag.wait { background: #E88410; color: #FFF; }
 .iv-friends-note { margin: 6px 0 0; padding-top: 10px; border-top: 1px solid var(--lc-border); font-size: 10.5px; line-height: 1.5; color: var(--lc-subtle); }
 .iv-empty { margin: 12px 0 2px; font-size: 11.5px; text-align: center; color: var(--lc-subtle); }
 .iv-rules { margin-top: 10px; padding-left: 18px; }
