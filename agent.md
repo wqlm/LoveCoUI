@@ -35,8 +35,10 @@ LoveCo 键盘交互原型（纯静态 HTML/CSS/JS，无构建）。工作台右�
   由「会员购买页 · 新2」改名回「会员购买页 · 新」**；2026-10-06 起
   「我的」页的会员卡片落 `purchase2-copy`，也能从页面列表点入 —— 页内另有同日需求新增的
   「兑换码」**半屏弹层**（`redeemSheet` / `state.redeemSheet`，骨架 `.rd-*` 在 styles.css /
-  皮肤在 theme.css、已用码落库 `redeemUsed`；演示码 LOVECO7 / LOVECO30 / LOVECO365，
-  见 README 组件表与「需求记录」）/ `login` / `login-one-tap` / `legal` /
+  皮肤在 theme.css、已用码落库 `redeemUsed`；演示码 LOVECO7 / LOVECO30 / LOVECO365；
+  2026-10-06 再晚些需求：说明句与规则小字删掉、无效文案简化「兑换码无效或已过期」、
+  有效码点「立即兑换」随机成功 / 失败（失败一行「抱歉，兑换失败」）—— 见 README 组件表与
+  「需求记录」）/ `login` / `login-one-tap` / `legal` /
   `about` / `feedback` / `invite`（2026-10-05 新增的「邀请有礼」，保留底部 Tab））+ 2 个整屏流程子页
   （`partner-new` 新增聊天对象 / `partner-edit` 编辑聊天对象，不在集合内）
   + 1 条会员态条目（`account-member`），页面跳转统一走 `openAppScreen()`

@@ -248,61 +248,17 @@ small{font-size:11px;color:#73847d}
 .kb-paywall .pw-legal-link{padding:0;border:0;background:none;font:inherit;font-weight:600;line-height:inherit;cursor:pointer}
 .kb-paywall .pw-cta{position:relative;flex-shrink:0;border:0;border-radius:999px}
 .kb-paywall .pw-cta-tag{position:absolute;border-radius:6px}
-/* 主 App · 会员购买页（appPurchasePage，2026-09-28 新增时叫「商品购买页」；2026-09-29 改名 +
-   改蓝色、X 挪右上角、重排纵向节奏、支付行改可点切换）：
-   整页购买页的骨架 —— 蓝色渐变皮肤与配色在 theme.css 的 .pu-* 一组；商品与 kb-paywall
-   共用 PLANS / state.kbPlan，样式独立（那边浅紫蓝、这边照参考截图走蓝色）。
-   权益清单的图标章（.pu-feat-ico）、「平台专属」角标（.pu-hero-badge）与「新上线」小标
-   （.pu-feat-tag）均已随 2026-09-29 两次需求删除，骨架规则一并清理 */
-/* 纵向节奏（2026-09-29 按反馈重排：此前 Hero 挤在顶部、正文到半屏就结束、下半个屏幕全空）：
-   .pu-page 是一列弹性布局，富余高度按 2:1 分给 Hero 与白色主体 —— Hero 里的两行标题 + 权益清单
-   **整块上下居中**（多出来的高度变成上下留白，顶部不再拥挤）；主体里的支付方式行 + 主按钮 + 协议行
-   这一组用 margin-top:auto 钉在**屏幕底部**（主体内的富余高度全落到卡片与支付行之间的一段留白上，
-   下半屏不再空着）。窗口矮 / 内容超屏时两者都退回内容高度，整页照常滚动。 */
-.pu-page{display:flex;flex-direction:column;min-height:100%}
-.pu-hero{position:relative;flex:2 0 auto;display:flex;flex-direction:column;justify-content:center}
-.pu-close{position:absolute;top:12px;right:12px;display:flex;align-items:center;justify-content:center;border-radius:50%}
-.pu-hero-title span,.pu-hero-title strong{display:block}
-.pu-feats{list-style:none;margin:0;padding:0}
-.pu-feats li{display:flex;align-items:center}
-.pu-body{flex:1 1 auto;display:flex;flex-direction:column;border-radius:18px 18px 0 0}
-.pu-plans{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
-.pu-plan{position:relative;display:flex;flex-direction:column;align-items:center;border:1px solid transparent;border-radius:12px}
-.pu-plan-badge{display:none;position:absolute;left:50%;transform:translateX(-50%);border-radius:999px;white-space:nowrap}
-.pu-plan.active .pu-plan-badge{display:block}
-.pu-plan-name,.pu-plan-price,.pu-plan-note{display:block}
-.pu-plan-price i{font-style:normal}
-/* 现价下面那行小字（2026-10-05 需求：原 `.pu-plan-origin` 的划线原价整行删除、换成
-   cardNote 那句生活化对比，line-through 一并去掉 —— 现在写的是句子、不再是价格） */
-.pu-cap{margin:0}
-/* 屏幕底部那一组：支付方式行（iOS 不渲染这一行）+ 立即解锁 + 协议行 —— margin-top:auto 把整组
-   顶到白色主体底部（富余高度落在档位卡与这组之间，见 theme.css 的纵向节奏说明） */
-.pu-foot{display:flex;flex-direction:column;margin-top:auto}
-/* 第二屏：自动续订说明（iOS 周 / 季度档）**排在首屏（.pu-page）之后**，自己不带 flex ——
-   首屏是最少一屏高（.pu-page 的 min-height:100%）+ 内部弹性分配，默认正好占满屏幕，
-   这段整个沉在屏幕下方、默认一点不露，往下滑才看到（皮肤在 theme.css 的 .pu-more / .pu-note） */
-/* 支付方式行：可点的 <button>（点一下切渠道），这里的按钮重置对任何宿主都适用 */
-.pu-pay{display:flex;width:100%;align-items:center;border:0;border-radius:12px;font:inherit;color:inherit;text-align:left}
-.pu-pay[data-action]{cursor:pointer}
-.pu-pay-logo{display:flex;align-items:center;justify-content:center;flex-shrink:0;border-radius:50%}
-.pu-pay-logo svg{width:60%;height:60%}
-.pu-pay-name{flex:1}
-.pu-pay-switch{display:flex;flex-shrink:0}
-.pu-pay-switch svg{width:100%;height:100%}
-/* 「立即解锁」+ 按钮右上角那枚**红色角标**（2026-09-29 六次需求，照参考截图）——角标钉在按钮的
-   相对定位里、上半颗探出按钮顶边（具体的 right / top 偏移与尺寸在 theme.css），文案随档位变（plan.badge） */
-.pu-cta{position:relative;width:100%;border:0;border-radius:999px}
-.pu-cta-badge{position:absolute;border-radius:999px;white-space:nowrap}
-/* 协议行：纯文字一行居中（没有勾选框 —— 2026-09-29 五次需求删掉圆形勾选框与未勾选抖动） */
-.pu-consent{display:flex;align-items:center;justify-content:center}
-.pu-legal-link{padding:0;border:0;background:none;font:inherit;font-weight:600;line-height:inherit;cursor:pointer}
+/* —— 第一个会员购买页（appPurchasePage / appScreen='purchase'）的骨架 ——
+   **2026-10-06 已随该页整页删除**（.pu-page / .pu-hero / .pu-close / .pu-feats / .pu-plan* /
+   .pu-cap / .pu-foot / .pu-pay* / .pu-cta* / .pu-consent / .pu-legal-link 一组规则全部删净，
+   勿再补回）；配色那半在 theme.css 的同一段注释里也一并删除。 */
 /* 「会员购买页 · 新」（appPurchasePlusCopyPage，appScreen='purchase2-copy'，2026-10-06 新增；
    2026-10-06 晚些需求由「会员购买页 · 新2」改名 —— 原页已删、名字由本页继承）——
    原第二个购买页「会员购买页 · 新」（appPurchasePlusPage / appScreen='purchase2'）2026-10-06
    已按需求整页删除（勿再补回），这组骨架由本页独享。
    骨架（配色 / 尺寸全在 theme.css 的 .pu2-* 一组）。纵向：一列弹性布局，标题 / 档位卡组 / 续订说明 /
    支付方式行自上而下排，「会员兑换 + 主按钮 + 协议行」这一组（.pu2-foot）用 margin-top:auto 钉在
-   屏幕底部 —— 与第一个购买页（.pu-page / .pu-foot）同一套节奏。
+   屏幕底部 —— 与已删除的第一个购买页（.pu-page / .pu-foot）同一套节奏。
    **2026-10-05 需求：留白由卡组自己吸收** —— 原来中间那段空白整块落在续订说明与底部组之间（真机
    高度下上百 px），上段挤成一坨、下方空一片；现在 .pu2-plans 与三张 .pu2-plan 都挂 flex-grow:1，
    多出来的高度由卡片组自己吃掉（卡片变高、内容仍垂直居中），页面上不留大段空白。
@@ -310,12 +266,12 @@ small{font-size:11px;color:#73847d}
 .pu2-page{position:relative;display:flex;flex-direction:column;min-height:100%}
 .pu2-title{margin:0}
 /* 左上角那枚圆形叉号（2026-10-05 三次需求补的可见出口，p2-close 动作）：absolute 浮在标题上方左侧、
-   不占文档流（标题整行居中的口径不变），骨架同第一个购买页右上角那枚 .pu-close（视觉在 theme.css） */
+   不占文档流（标题整行居中的口径不变），骨架同已删除的第一个购买页右上角那枚 .pu-close（视觉在 theme.css） */
 .pu2-close{position:absolute;top:10px;left:14px;display:flex;align-items:center;justify-content:center;border:0;border-radius:50%;cursor:pointer}
 .pu2-plans{display:flex;flex-direction:column;flex-grow:1;justify-content:center}
 .pu2-plan{position:relative;display:flex;flex-grow:1;width:100%;align-items:center;justify-content:space-between;border:2px solid transparent;font:inherit;color:inherit;text-align:left;cursor:pointer}
 /* 卡顶那枚蓝角标 = 该档 cardBadge（用户选择占比，2026-10-05 需求）：absolute + 默认 display:none、
-   只在选中的卡上显示 —— 与第一个购买页的 .pu-plan-badge 同一套做法（视觉在 theme.css 的 .pu2-plan-badge） */
+   只在选中的卡上显示 —— 与已删除的第一个购买页的 .pu-plan-badge 同一套做法（视觉在 theme.css 的 .pu2-plan-badge） */
 .pu2-plan-badge{display:none;position:absolute;right:12px;border-radius:999px;white-space:nowrap}
 .pu2-plan.active .pu2-plan-badge{display:block}
 .pu2-plan-main{display:flex;flex-direction:column;min-width:0}
@@ -326,7 +282,7 @@ small{font-size:11px;color:#73847d}
 .pu2-plan-price em{font-style:normal}
 .pu2-plan-cut{flex-shrink:0}
 .pu2-cap{margin:0}
-/* 支付方式行：可点的 <button>（点一下切渠道，与第一个购买页共用 purchase-pay 动作） */
+/* 支付方式行：可点的 <button>（点一下切渠道，与已删除的第一个购买页共用 purchase-pay 动作） */
 .pu2-pay{display:flex;width:100%;align-items:center;border:0;font:inherit;color:inherit;text-align:left;cursor:pointer}
 .pu2-pay-logo{display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
 .pu2-pay-logo img{display:block;width:100%;height:100%;object-fit:contain}
@@ -349,21 +305,23 @@ small{font-size:11px;color:#73847d}
    挂在手机根（同协议确认框那个挂点，见 renderApp 的浮层一串 —— 铺满整机含状态栏）、贴底对齐：
    .rd-card 高半屏（50%）、顶部大圆角、从底部滑上来（.entering 只在打开那一次渲染挂上，
    见 p2-redeem —— 提交后切成功态重渲染不再重播）。两态共用一列弹性布局：
-   输入态 = 抓手 + 标题行（居中标题 + 右上角 X）+ 说明 + 大号输入框 + 校验行 + 沉底按钮 + 规则小字；
+   输入态 = 抓手 + 标题行（居中标题 + 右上角 X）+ 大号输入框 + 校验行 + 沉底按钮；
    成功态 = 勾 + 标题 + 两行文案（.rd-done 吃满富余、内容居中）+ 沉底按钮。
-   两态的按钮都靠 .rd-cta 的 margin-top:auto 钉在卡片底部。皮肤在 theme.css 的「兑换码弹层」一组。 */
+   两态的按钮都靠 .rd-cta 的 margin-top:auto 钉在卡片底部。
+   **2026-10-06 再晚些需求**：原「说明行（.rd-sub）+ 底部规则小字（.rd-note）」两处提示
+   按需求删掉（骨架规则也一并删除），输入框上方改吃富余（margin-top:auto，见 theme.css 的
+   .rd-input）—— 让「输入框 + 校验行」这一组在标题与沉底按钮之间大致居中。
+   皮肤在 theme.css 的「兑换码弹层」一组。 */
 .rd-sheet{position:absolute;inset:0;z-index:7;display:flex;align-items:flex-end}
 .rd-scrim{position:absolute;inset:0}
 .rd-card{position:relative;display:flex;flex-direction:column;width:100%;height:50%}
 .rd-handle{flex-shrink:0}
 .rd-head{position:relative;display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .rd-close{position:absolute;right:0;display:flex;align-items:center;justify-content:center;padding:0;border:0;border-radius:50%;cursor:pointer}
-.rd-sub{margin:0;flex-shrink:0}
 .rd-input{width:100%;flex-shrink:0;font:inherit;-webkit-appearance:none}
 .rd-error{display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .rd-cta{display:flex;align-items:center;justify-content:center;width:100%;flex-shrink:0;margin-top:auto;border:0;font:inherit;cursor:pointer}
 .rd-cta:disabled{cursor:default}
-.rd-note{margin:0;flex-shrink:0;text-align:center}
 .rd-done{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
 .rd-done-ico{display:inline-flex}
 .rd-done-title,.rd-done-main,.rd-done-sub{margin:0}
