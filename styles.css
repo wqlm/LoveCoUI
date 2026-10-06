@@ -296,7 +296,10 @@ small{font-size:11px;color:#73847d}
 /* 协议行：纯文字一行居中（没有勾选框 —— 2026-09-29 五次需求删掉圆形勾选框与未勾选抖动） */
 .pu-consent{display:flex;align-items:center;justify-content:center}
 .pu-legal-link{padding:0;border:0;background:none;font:inherit;font-weight:600;line-height:inherit;cursor:pointer}
-/* 第二个会员购买页「L+ 会员」（appPurchasePlusPage，appScreen='purchase2'，2026-10-05 新增）——
+/* 「会员购买页 · 新」（appPurchasePlusCopyPage，appScreen='purchase2-copy'，2026-10-06 新增；
+   2026-10-06 晚些需求由「会员购买页 · 新2」改名 —— 原页已删、名字由本页继承）——
+   原第二个购买页「会员购买页 · 新」（appPurchasePlusPage / appScreen='purchase2'）2026-10-06
+   已按需求整页删除（勿再补回），这组骨架由本页独享。
    骨架（配色 / 尺寸全在 theme.css 的 .pu2-* 一组）。纵向：一列弹性布局，标题 / 档位卡组 / 续订说明 /
    支付方式行自上而下排，「会员兑换 + 主按钮 + 协议行」这一组（.pu2-foot）用 margin-top:auto 钉在
    屏幕底部 —— 与第一个购买页（.pu-page / .pu-foot）同一套节奏。
@@ -313,7 +316,7 @@ small{font-size:11px;color:#73847d}
 .pu2-plan{position:relative;display:flex;flex-grow:1;width:100%;align-items:center;justify-content:space-between;border:2px solid transparent;font:inherit;color:inherit;text-align:left;cursor:pointer}
 /* 卡顶那枚蓝角标 = 该档 cardBadge（用户选择占比，2026-10-05 需求）：absolute + 默认 display:none、
    只在选中的卡上显示 —— 与第一个购买页的 .pu-plan-badge 同一套做法（视觉在 theme.css 的 .pu2-plan-badge） */
-.pu2-plan-badge{display:none;position:absolute;left:50%;transform:translateX(-50%);border-radius:999px;white-space:nowrap}
+.pu2-plan-badge{display:none;position:absolute;right:12px;border-radius:999px;white-space:nowrap}
 .pu2-plan.active .pu2-plan-badge{display:block}
 .pu2-plan-main{display:flex;flex-direction:column;min-width:0}
 .pu2-plan-name{display:flex;align-items:center}
@@ -333,8 +336,10 @@ small{font-size:11px;color:#73847d}
 /* 屏幕底部那一组：会员兑换 + 主按钮 + 协议行 —— margin-top:auto 把整组顶到页面底部 */
 .pu2-foot{display:flex;flex-direction:column;margin-top:auto}
 .pu2-redeem{align-self:center;border:0;font:inherit;cursor:pointer}
-.pu2-cta{display:flex;align-items:center;justify-content:center;border:0;font:inherit;cursor:pointer}
+/* 主按钮是红角标（.pu2-cta-badge，2026-10-06 需求）的定位基准：相对定位 —— 视觉在 theme.css */
+.pu2-cta{display:flex;align-items:center;justify-content:center;position:relative;border:0;font:inherit;cursor:pointer}
 .pu2-cta:disabled{cursor:default}
+.pu2-cta-badge{position:absolute;border-radius:999px;white-space:nowrap}
 .pu2-consent{display:flex;align-items:center;justify-content:center}
 /* 协议行那枚圆形勾选框：只做视觉切换（购买不前置勾选），勾选后画一枚白勾（icon('Check')） */
 .pu2-check{display:grid;place-items:center;flex-shrink:0;padding:0;cursor:pointer}
@@ -640,10 +645,10 @@ small{font-size:11px;color:#73847d}
 .hm-exp-chip svg{display:block}
 .hm-exp-label{flex:1;min-width:0}
 .hm-exp .chev{flex-shrink:0;display:inline-flex;margin-left:auto}
-/* —— 「消息」页（appMessagesPage，2026-10-05 需求）：骨架，配色在 theme.css 的 .ms-* 一组 —— */
+/* —— 「消息」页（appMessagesPage，2026-10-05 需求）：骨架，配色在 theme.css 的 .ms-* 一组 ——
+   页头 2026-10-06 起复用全局 .app-page-head.user-head（返回箭头 + 居中标题），原 .ms-back /
+   .ms-title 两条骨架随之删除 */
 .ms-page{display:flex;flex-direction:column;align-items:stretch}
-.ms-back{flex-shrink:0;align-self:flex-start}
-.ms-title{margin:0}
 .ms-card{margin:0}
 .ms-ic{flex-shrink:0}
 .ms-main{flex:1;min-width:0}

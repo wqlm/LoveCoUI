@@ -1783,7 +1783,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    颜色直接写死（= --pu-faint） */
 .pu-more { padding: 16px 14px max(22px, env(safe-area-inset-bottom)); background: #FFF; }
 .pu-note { margin: 10px 4px 2px; font-size: 11px; line-height: 1.65; color: #9AA9C4; text-align: justify; }
-/* ——— 第二个会员购买页「L+ 会员」（appPurchasePlusPage，appScreen='purchase2'，2026-10-05 新增）———
+/* ——— 「会员购买页 · 新」（appPurchasePlusCopyPage，appScreen='purchase2-copy'，2026-10-06 新增）———
+   原第二个购买页 purchase2（appPurchasePlusPage，原页名「会员购买页 · 新」）2026-10-06
+   已按需求整页删除（勿再补回），这组皮肤由本页独享；
+   **同日晚些需求本页由「会员购买页 · 新2」改回「会员购买页 · 新」这个名字**。
    照用户设计图 1:1 复刻（设计图 513×1080 按 393 宽折算，scale ≈ 1.305）的**浅紫底整页**：
    固定浅色、不跟随深色外观（与第一个购买页同一条「按图定色」的约定）。
    量出来的口径 —— 底色 #F1F4FD（到页面底部渐暖白 #FBF7F4，照设计图底部那一段）、左右边距 20px；
@@ -1835,11 +1838,18 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 /* 卡顶那枚蓝角标 = 该档 cardBadge（2026-10-05 需求：用户选择占比「85% / 3% / 12% 的用户选择」）——
    与第一个购买页的 .pu-plan-badge 同款皮肤（蓝色渐变胶囊 + 白字 + 蓝色投影、上半颗探出卡顶），
    尺寸按第二页的字号节奏放大一档；位置同样按「上半颗探出」定：高 24.5px、top:-11px（卡内 13.5px /
-   卡外 11px）—— 卡组 gap 18px 里还留 7px，不顶到上一张卡 */
+   卡外 11px）—— 卡组 gap 18px 里还留 7px，不顶到上一张卡。
+   **2026-10-06 晚些需求：水平位置由居中改右对齐** —— 水平定位在 styles.css 的骨架里
+   （原 left:50% + translateX(-50%) 改成 right:12px、贴卡右上角） */
 .pu2-plan-badge { top: -11px; padding: 4px 11px; background: linear-gradient(90deg, #5E96F8, #1E6BF5); color: #FFF; font-size: 11px; font-weight: 600; line-height: 1.5; box-shadow: 0 3px 8px #1E6BF54D; }
 .pu2-plan-name { gap: 6px; font-size: 15px; font-weight: 700; color: #1B1B20; white-space: nowrap; }
-/* 永久卡那枚黄色促销胶囊（照设计图：「告白季，低至1元/月」） */
+/* 档位名右侧那枚促销胶囊（照设计图：「告白季，低至1元/月」）—— 2026-10-06 晚些需求起
+   三档都挂「低至xx元/每日」（app.js 的 PLUS_PLANS promo），默认（永久档）仍是这枚黄色 */
 .pu2-plan-promo { padding: 3px 8px; border-radius: 6px; background: #FFD738; font-size: 11px; font-weight: 600; line-height: 1.35; color: #241E12; white-space: nowrap; }
+/* 促销胶囊的档位底色（2026-10-06 晚些需求）：季度挂**银色**、周挂**红铜色** ——
+   非永久档由 app.js 的 promoTone 追加对应修饰类 */
+.pu2-plan-promo.silver { background: linear-gradient(135deg, #F2F4F8, #C6CBD5); color: #414954; }
+.pu2-plan-promo.copper { background: linear-gradient(135deg, #F6CDA6, #C0713F); color: #43200E; }
 .pu2-plan-price { margin-top: 6px; display: flex; align-items: center; font-size: 26px; font-weight: 800; line-height: 1.2; color: var(--pu2-hot); }
 .pu2-plan-price i { margin-right: 1px; font-size: 16px; font-weight: 700; }
 /* 价格后面的灰字标语（一束鲜花的钱等）：2026-10-05 四次需求 —— 与价格**垂直居中**对齐（原来
@@ -1847,14 +1857,16 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-plan-price em { margin-left: 8px; min-width: 0; font-size: 11px; font-weight: 500; line-height: 1.35; color: #9B9BA6; }
 /* 「立减 ¥xx」胶囊：卡内右端、垂直居中 */
 .pu2-plan-cut { padding: 4px 9px; border-radius: 999px; background: #E7E8FE; font-size: 12px; font-weight: 600; line-height: 1.35; color: #7C7CD6; white-space: nowrap; }
-/* ——— 「会员购买页 · 新2」（appPurchasePlusCopyPage）2026-10-06 需求的档位卡布局分头 ———
-   三条只服务拷贝页（卡上挂的 .pu2-plan-v2 修饰类），「会员购买页 · 新」维持原布局勿动：
-   ① 右端「立减 ¥xx」胶囊整枚去掉（拷贝页的卡不再渲染 .pu2-plan-cut，无需 CSS）；
-   ② 现价移到卡片**右端**（.pu2-plan-right 右对齐纵排），下面挂划线原价 .pu2-plan-origin；
+/* ——— 「会员购买页 · 新」（appPurchasePlusCopyPage）2026-10-06 需求的档位卡布局分头 ———
+   这些只服务本页（卡上挂的 .pu2-plan-v2 修饰类；原页 purchase2 已按需求整页删除、勿再补回）：
+   ① 右端「立减 ¥xx」胶囊整枚去掉（本页的卡不再渲染 .pu2-plan-cut，无需 CSS）；
+   ② 现价移到卡片**右端**（.pu2-plan-right 纵排），下面挂划线原价 .pu2-plan-origin；
    ③ 原价格后面的灰标语左移、退到档位名下面一行（.pu2-plan-sub）—— 字号行高沿用原
-   .pu2-plan-price em 的口径，只是从价格右侧换到名称下方 */
+   .pu2-plan-price em 的口径，只是从价格右侧换到名称下方。
+   2026-10-06 晚些需求：.pu2-plan-right 改 **align-items:center** —— 划线原价与上方的现价
+   **居中对齐**（原先两行都右对齐） */
 .pu2-plan-v2 .pu2-plan-sub { margin-top: 6px; min-width: 0; font-size: 11px; font-weight: 500; line-height: 1.35; color: #9B9BA6; }
-.pu2-plan-v2 .pu2-plan-right { display: flex; flex-direction: column; align-items: flex-end; margin-left: 12px; }
+.pu2-plan-v2 .pu2-plan-right { display: flex; flex-direction: column; align-items: center; margin-left: 12px; }
 .pu2-plan-v2 .pu2-plan-price { margin-top: 0; }
 .pu2-plan-v2 .pu2-plan-origin { margin-top: 2px; font-size: 11px; font-weight: 500; line-height: 1.35; color: #B6B7C6; text-decoration: line-through; }
 /* 续订说明：金额取现价（照设计图），永久档换「一次性买断」那支（文案在 app.js） */
@@ -1875,7 +1887,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    —— 用户反馈「卡片和底下的按钮太大了，高度改小」；宽度与字号未动），
    内容：**2026-10-06 晚些需求起两页同一支** —— 只剩居中的「立即解锁」+ 右上角红角标（原「划线原价 +
    大号现价 + 立即解锁」里前两段删掉；**2026-10-06 需求：原「购买 xx 会员」随档位变，现改成固定
-   「立即解锁」—— 与第一个购买页 / 键盘付费引导层同一句**）。「会员购买页 · 新2」拷贝页同日同步这一改版
+   「立即解锁」—— 与第一个购买页 / 键盘付费引导层同一句**）。「会员购买页 · 新」拷贝页同日同步这一改版
    （用户原话「把这些更改同步变更到 会员购买页 · 新2」），因此 .pu2-cta-origin / .pu2-cta-price 两条
    **已无处渲染、随之删除**（勿再补回；第一个购买页那两条是 .pu-cta-*，与本页无关）。
    **整颗一跳一跳**（2026-10-06 需求：与键盘付费引导层那颗「立即解锁」同一套节奏 —— 1.4s 一个来回、
@@ -1913,6 +1925,26 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 @media (max-width: 359px) {
   .pu2-plan { padding: 15px 16px 14px; }
 }
+/* —— 「会员购买页 · 新」的协议确认框（pu2AskSheet，state.pu2Ask，2026-10-06 晚些需求）——
+   骨架同「注销申请成功」弹框那套（.cd-ask：深色蒙层只盖正文区、白卡居中，见 styles.css），
+   这里挂点在 .app-shell 上：未勾选协议点「立即解锁」、或切换档位卡时弹出；
+   点「同意并继续」= 勾上协议 + 立即调起支付（iOS 弹 iOS 系统支付框），「取消」/ Esc 只收框。
+   购买页本身固定浅色，弹框配色写死（同 .cd-ask 一套做法） */
+.pu2-ask { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; }
+.pu2-ask-scrim { position: absolute; inset: 0; background: #10101A6B; }
+.pu2-ask-card { position: relative; display: flex; flex-direction: column; width: min(272px, 74%); padding: 26px 22px 22px; border-radius: 16px; background: #FFF; box-shadow: 0 18px 44px #10101038; text-align: center; animation: pu2-ask-in .2s cubic-bezier(.2, .8, .3, 1) both; }
+.pu2-ask-card h3 { font-size: 17px; font-weight: 700; color: #17171C; }
+.pu2-ask-card p { margin-top: 12px; font-size: 13px; line-height: 1.6; color: #5B5B66; }
+.pu2-ask-links { font-size: 12.5px; line-height: 1.7; }
+.pu2-ask-links .pu2-legal-link { margin-right: 6px; font-weight: 600; color: #5B6BE8; }
+.pu2-ask-links .pu2-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
+.pu2-ask-btns { display: flex; gap: 10px; margin-top: 20px; }
+.pu2-ask-btn { display: inline-flex; flex: 1; align-items: center; justify-content: center; height: 42px; border: 0; border-radius: 999px; font-size: 15px; font-weight: 600; cursor: pointer; }
+.pu2-ask-no { background: #F1F2F6; color: #6A6A74; }
+.pu2-ask-no:hover { background: #E8E9EF; }
+.pu2-ask-yes { background: linear-gradient(90deg, #5C73F7, #9573FF); color: #FFF; box-shadow: 0 6px 16px #6B6AE84D; }
+.pu2-ask-yes:hover { filter: brightness(1.05); }
+@keyframes pu2-ask-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
 /* iOS 系统支付框（ios-pay-sheet 组件）：iOS 上点会员开通层的「立即解锁」就地弹出的**系统级**弹窗
    （App Store 内购确认，照参考截图）—— 挂在手机根节点上、铺满整个手机屏（含键盘与宿主 App），
    自成一层皮肤：**固定系统深色外观**（系统弹窗不跟随键盘的浅色 / 深色皮肤）。
@@ -2497,9 +2529,14 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .app-hello > .chev svg { width: 15px; height: 15px; }
 /* 2026-10-04 需求：横幅与上方问候行拉开距离（原先只隔问候行的 9px 底内边距，太挤） */
 .member-banner { margin-top: 14px; margin-bottom: 16px; padding: 14px 16px; border-radius: 14px; background: linear-gradient(115deg, #6577F0, #4C5CE6); color: #fff; }
-/* 2026-10-05 晚些需求：到期日行挪进右侧列后，右列（胶囊 32px + 间隙 + 到期日一行）比左侧两行
-   文字高，这里把已开通态的上下内边距各收 7px / 5px 补偿回来 —— 横幅总高度与未开通两行态一致 */
-.member-banner.is-member { background: linear-gradient(115deg, #F7B544, #EE9520); padding-top: 7px; padding-bottom: 9px; }
+/* 2026-10-05 晚些需求：到期日行挪进右侧列后，右列（胶囊 32px + 间隙 3px + 到期日 12.59px
+   = 47.59px）比左侧两行文字（标题 24 + 间距 2 + 副文案 15.75 = 41.75px）高，需要收上下内边距补偿。
+   **2026-10-06 需求：两态横幅总高度严格一致**（原 7/9 的补偿少算了约 6px，实测未开通 69.75px、
+   已开通 63.59px）—— 实算上下 padding = (69.75 − 47.59) / 2 ≈ 11px（47.59 + 22 = 69.59 ≈ 69.75）。
+   永久会员态右列只有胶囊（32 < 41.75，左列撑高）→ 用 :has(.mb-expiry) 区分：
+   带到期日行的才收 padding，永久会员保持 14px（41.75 + 28 = 69.75，与未开通态精确一致） */
+.member-banner.is-member { background: linear-gradient(115deg, #F7B544, #EE9520); }
+.member-banner.is-member:has(.mb-expiry) { padding-top: 11px; padding-bottom: 11px; }
 .member-banner .mb-text strong { font-size: 16px; font-weight: 650; }
 /* 横幅内的副文案必须是白字：通用 small 规则把它压成灰字（--lc-muted），在蓝 / 橙底上读不出来 */
 .member-banner .mb-text small { margin-top: 2px; font-size: 10.5px; color: rgba(255, 255, 255, .9); }
@@ -3282,17 +3319,20 @@ html[data-view="device"] .sheet-footer {
    同注销页 / 协议页那种做法，选择器优先级高于 .dark 那几条）；状态栏连着转白
    （.guide-msg 挂手机根）、.app-main 清零边距让白底通底。尺寸按设计截图量（393 基准），
    2026-10-05 晚些**按反馈整体收小一档**（用户原话：「消息详情页面的文字图片、icon 又太大了」）：
-   页头返回钮左缘 20、状态栏下约 14；页名 21px 浅灰加粗；通知卡浅灰底 #F5F6F7、
+   页头返回钮左缘 20、状态栏下约 14；通知卡浅灰底 #F5F6F7、
    圆角 16、内边距 13/14 —— 白色圆底 38px 内一枚灰时钟图标（18px），标题 14.5px 加粗 +
-   说明 12px 灰，日期 11.5px 浅灰钉在右上角。 */
+   说明 12px 灰，日期 11.5px 浅灰钉在右上角。
+   **2026-10-06 需求：「消息」二字挪进页头顶栏** —— 页头复用全局 .user-head 骨架
+   （返回箭头 + 居中标题同一行，styles.css 的 .app-page-head 一组），原 .ms-back 圆钮 /
+   .ms-title 大页名两条作废删除；.ms-head 只把返回钮与标题钉在页面的固定墨色上
+   （--ms-ink，白底不跟随 .dark，同 .cd-head 的做法），通知卡上边距随之收小。 */
 .app-phone.guide-msg { --ms-ink: #1C1C1E; --ms-sub: #8E8E93; --ms-faint: #B9B9BE; background: #FFF; }
 .app-phone.guide-msg > .statusbar { background: #FFF; color: #191919; }
 .app-phone.guide-msg .app-main { width: 100%; padding: 0; }
 .ms-page { min-height: 100%; background: #FFF; color: var(--ms-ink); padding: 14px 20px 24px; }
-.ms-back { display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 50%; background: #F2F3F5; color: #3A3A3E; cursor: pointer; }
-.ms-back svg { width: 14px; height: 14px; }
-.ms-title { margin: 14px 0 0; font-size: 21px; line-height: 1.25; font-weight: 650; color: #9A9AA0; }
-.ms-card { position: relative; display: flex; align-items: center; gap: 11px; margin-top: 18px; padding: 13px 14px; border-radius: 16px; background: #F5F6F7; }
+.ms-head h2 { color: var(--ms-ink); }
+.ms-head .user-back { color: var(--ms-ink); }
+.ms-card { position: relative; display: flex; align-items: center; gap: 11px; margin-top: 8px; padding: 13px 14px; border-radius: 16px; background: #F5F6F7; }
 .ms-ic { flex: 0 0 auto; display: flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 50%; background: #FFF; color: var(--ms-sub); }
 .ms-ic svg { width: 18px; height: 18px; }
 .ms-main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
