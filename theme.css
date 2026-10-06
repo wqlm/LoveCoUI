@@ -3353,8 +3353,10 @@ html[data-view="device"] .sheet-footer {
       mdHtml 的 h4/p/ul/ol/blockquote/hr），用户文字气泡 #ECECF1；截图卡 = shot() 的深色
       聊天卡（158×~211，圆角 12、细描边）。
    ③ 历史抽屉白底：⊕ 新对话黑圆白加号；当前会话整行浅蓝底 #E5EEFC、图标转蓝 #3B82F6。
-   ④ 下半 = 键盘里的问AI页 —— 皮肤全部沿用键盘那套（.keyboard / .kb-free-chat / .free-picker），
-      这里只管嵌入（贴底、不参与压缩）。
+   ④ 下半 = 键盘里的问AI页 —— 键盘形态（.aai-kb）与底部弹窗的皮肤全部沿用键盘那套
+      （.keyboard / .kb-free-chat / .free-picker），这里只管嵌入（贴底、不参与压缩）；
+      **常驻输入栏（2026-10-06 再晚些需求）照豆包的输入栏改成白色悬浮卡片** ——
+      见下方 .aai-bar 那一组规则（白卡 + 柔影，头像 / 输入框 / 语音 / 图片都在卡内）。
    整页固定浅色、不跟随 .dark（同消息页 / 购买页的约定）。 */
 .app-phone.guide-ai { background: #FFF; }
 .app-phone.guide-ai > .statusbar { background: #F4F1F8; color: #191919; }
@@ -3410,9 +3412,40 @@ html[data-view="device"] .sheet-footer {
    都算在里面；点输入框调出「当前键盘」时（.aai-kb）按键盘那一档算高，高度公式与
    .keyboard.free-chat 相同（标题栏顶替菜单栏、输入行与 extra 另加），键区高度不变。
    底部弹窗（图片 / 对象）打开时 section 里是「输入区 + 弹窗」两块的 auto 高（弹窗贴底）——
-   与 .aai-kb（输入区 + 键区）同一种「面板在下、输入区被顶上去」的形态。 */
+   与 .aai-kb（输入区 + 键区）同一种「面板在下、输入区被顶上去」的形态。
+   **常驻输入栏 2026-10-06 再晚些按豆包的输入栏重做**：默认形态（.aai-bar 且没调出键盘）里，
+   输入行收进一张白色悬浮卡片 —— 头像 / 输入框 / 语音 / 图片都在卡片内（见下方那一组规则），
+   卡片圆角 24、带柔影、左右留边 16、与屏幕底之间留 18；调出键盘后（.aai-kb）不适用
+   （那时输入行是键盘的一块），底部弹窗态仍适用（卡片浮在弹窗上方、弹窗照旧贴底）。 */
 .keyboard.free-chat.aai-bar { height: auto; }
 .keyboard.free-chat.aai-bar.aai-kb { height: calc(var(--lc-keyboard-height) + var(--lc-free-row-height) + var(--lc-free-extra, 0px)); }
+/* 常驻输入栏的「悬浮卡片」形态（2026-10-06 再晚些需求，照豆包的输入栏）：只在**没调出键盘**
+   时生效。输入区底色转白（与聊天记录同底，卡片靠阴影浮起来）并去掉键盘那条顶边线；
+   卡片本体 = .free-input-row 换上白底 / 24 圆角 / 柔影 / 左右 16 外边距，行内元素改成**垂直居中**
+   （卡片内不再有「贴底对齐」的上下文），元素尺寸与字号都不动；卡片里的 textarea 去掉自己的
+   白底 / 边框、padding 收窄到 7/6（文字直接写在卡片上）；卡片与屏幕底之间留 18px（记在
+   .kb-free-chat 的 padding-bottom 上，弹窗态同样成立：空出来的是白底、弹窗照旧贴底）。
+   缩略图行 / 快捷栏在常驻态也不画分隔线（参考图里这一带没有线，卡片靠阴影浮起就够分区）。 */
+.keyboard.free-chat.aai-bar:not(.aai-kb) { background: #FFF; border-top-color: transparent; }
+.keyboard.free-chat.aai-bar:not(.aai-kb) .kb-free-chat { background: #FFF; padding-bottom: 18px; }
+.keyboard.free-chat.aai-bar:not(.aai-kb) .free-thumbs,
+.keyboard.free-chat.aai-bar:not(.aai-kb) .free-chips { border-bottom: 0; }
+.keyboard.free-chat.aai-bar:not(.aai-kb) .free-input-row {
+  align-items: center;
+  gap: 6px;
+  min-height: 50px;
+  margin: 5px 16px 0;
+  padding: 8px 12px 8px 8px;
+  border-radius: 24px;
+  background: #FFF;
+  box-shadow: 0 2px 8px #1D1D261A, 0 12px 28px #1D1D261F;
+}
+.keyboard.free-chat.aai-bar:not(.aai-kb) .free-input {
+  height: 34px;
+  padding: 7px 6px;
+  border-color: transparent;
+  background: transparent;
+}
 /* 系统键盘（.kbsw-sys，与「切换到 LoveCo 键盘」页同一套画法）：高度 = 键区那一档，
    接在输入行下方（整块 section 的高度因此 = 输入行 + 键盘） */
 .aai-sys { flex: 0 0 auto; height: var(--lc-keyboard-height); }
