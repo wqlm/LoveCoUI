@@ -1932,7 +1932,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 /* 2026-10-06 再晚些需求照新样式简化：无标题无说明段 —— 卡内只有一句左对齐的协议文案
    （「我已阅读并同意《…》《…》」，协议名蓝色可点）+ 「取消 / 同意」两颗圆角矩形按钮 */
 .pu2-ask-card { position: relative; display: flex; flex-direction: column; width: min(296px, 82%); padding: 26px 24px 22px; border-radius: 16px; background: #FFF; box-shadow: 0 18px 44px #10101038; text-align: left; animation: pu2-ask-in .2s cubic-bezier(.2, .8, .3, 1) both; }
-.pu2-ask-text { margin: 0; font-size: 16px; font-weight: 600; line-height: 1.65; color: #17171C; }
+.pu2-ask-text { margin: 0; font-size: 14px; font-weight: 600; line-height: 1.65; color: #17171C; }
 .pu2-ask-text .pu2-legal-link { font-weight: 600; color: #5B6BE8; }
 .pu2-ask-text .pu2-legal-link:hover { text-decoration: underline; text-underline-offset: 2px; }
 .pu2-ask-btns { display: flex; gap: 12px; margin-top: 38px; }
@@ -2517,30 +2517,37 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    已按需求整行删除、样式随之删掉 —— 横幅内的到期日行走 .mb-text small 那套（与副标题同款），
    2026-10-05 晚些需求再把它挪到**右侧胶囊列**（.mb-side：胶囊在上、到期日贴其下方右对齐），
    横幅高度与未开通态保持一致（.is-member 的上下内边距相应收紧补偿）。 */
-/* 2026-10-06 需求：问候行离状态栏太近，上内边距从 2px 加到 14px 往下压一压 */
-.app-hello { padding: 14px 2px 13px; }
+/* 2026-10-06 需求：问候行离状态栏太近，上内边距从 2px 加到 14px 往下压一压；
+   同日晚些需求：问候行与下方会员横幅间距太大，问候行再往下压（上内边距 14 → 18px）、
+   底内边距 9 → 7px 收一收（横幅 margin-top 同步收紧，见下面 .member-banner 一条） */
+.app-hello { padding: 18px 2px 13px; }
 .app-hello .hello-text strong { font-size: 21px; font-weight: 650; }
 .app-hello .hello-text small { margin-top: 3px; font-size: 11px; color: var(--lc-muted); }
-.app-hello.as-button { padding: 14px 2px 9px; border-radius: 12px; }
+.app-hello.as-button { padding: 18px 2px 7px; border-radius: 12px; }
 .app-hello > .chev { color: var(--lc-subtle); }
 .app-hello > .chev svg { width: 15px; height: 15px; }
-/* 2026-10-04 需求：横幅与上方问候行拉开距离（原先只隔问候行的 9px 底内边距，太挤） */
-.member-banner { margin-top: 14px; margin-bottom: 16px; padding: 14px 16px; border-radius: 14px; background: linear-gradient(115deg, #6577F0, #4C5CE6); color: #fff; }
-/* 2026-10-05 晚些需求：到期日行挪进右侧列后，右列（胶囊 32px + 间隙 3px + 到期日 12.59px
-   = 47.59px）比左侧两行文字（标题 24 + 间距 2 + 副文案 15.75 = 41.75px）高，需要收上下内边距补偿。
+/* 2026-10-04 需求：横幅与上方问候行拉开距离（原先只隔问候行的底内边距，太挤），当时定 14px；
+   2026-10-06 晚些需求反馈间距又太大，问候行底内边距 7px + 这里的 margin-top 收成 8px，
+   两块之间的空隙合计 15px（原 9 + 14 = 23px） */
+.member-banner { margin-top: 8px; margin-bottom: 16px; padding: 14px 16px; border-radius: 14px; background: linear-gradient(115deg, #6577F0, #4C5CE6); color: #fff; }
+/* 2026-10-05 晚些需求：到期日行挪进右侧列后，右列（胶囊 32px + 间隙 + 到期日 12.59px）
+   比左侧两行文字（标题 24 + 间距 2 + 副文案 15.75 = 41.75px）高，需要收上下内边距补偿。
    **2026-10-06 需求：两态横幅总高度严格一致**（原 7/9 的补偿少算了约 6px，实测未开通 69.75px、
-   已开通 63.59px）—— 实算上下 padding = (69.75 − 47.59) / 2 ≈ 11px（47.59 + 22 = 69.59 ≈ 69.75）。
+   已开通 63.59px）—— 当时按右列 47.59px（间隙 3px）实算上下 padding 11px。
+   **2026-10-06 晚些需求：到期日与胶囊贴得太近，间隙 3 → 8px**（右列 = 32 + 8 + 12.59 = 52.59px），
+   padding 相应再收成 (69.75 − 52.59) / 2 ≈ 8.5px（52.59 + 17 = 69.59 ≈ 69.75，仍与未开通态一致）。
    永久会员态右列只有胶囊（32 < 41.75，左列撑高）→ 用 :has(.mb-expiry) 区分：
    带到期日行的才收 padding，永久会员保持 14px（41.75 + 28 = 69.75，与未开通态精确一致） */
 .member-banner.is-member { background: linear-gradient(115deg, #F7B544, #EE9520); }
-.member-banner.is-member:has(.mb-expiry) { padding-top: 11px; padding-bottom: 11px; }
+.member-banner.is-member:has(.mb-expiry) { padding-top: 8.5px; padding-bottom: 8.5px; }
 .member-banner .mb-text strong { font-size: 16px; font-weight: 650; }
 /* 横幅内的副文案必须是白字：通用 small 规则把它压成灰字（--lc-muted），在蓝 / 橙底上读不出来 */
 .member-banner .mb-text small { margin-top: 2px; font-size: 10.5px; color: rgba(255, 255, 255, .9); }
 /* 2026-10-05 晚些需求：右侧列 .mb-side —— 胶囊在上、到期日（「2026-09-30到期」，有时限会员
    才渲染）贴在胶囊正下方、右缘与胶囊对齐；到期日行不占左侧文字列的高度。
+   2026-10-06 晚些需求：两者贴得太近，间隙 3 → 8px（到期日往下让一让）。
    永久会员 / 老存档的右列只有胶囊，无这一行 */
-.member-banner .mb-side { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 3px; }
+.member-banner .mb-side { flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 .member-banner .mb-expiry { font-size: 10.5px; line-height: 1.2; color: rgba(255, 255, 255, .9); }
 .member-banner .mb-cta { padding: 7px 15px; border-radius: 999px; background: #fff; font-size: 12px; font-weight: 600; color: #4C5CE6; }
 .member-banner.is-member .mb-cta { color: #E8901A; }
@@ -3396,3 +3403,7 @@ html[data-view="device"] .sheet-footer {
    键盘形态那一套（.keyboard / .kb-free-chat），高度换算也照旧（--lc-free-extra 记在 .phone 上，
    两种形态读同一份） */
 .aai-page .keyboard { flex-shrink: 0; width: 100%; }
+/* 「开启键盘」关闭时（2026-10-06 晚些需求）：AI 咨询师页不依赖键盘 —— 下半不是「键盘未开启」
+   占位，而是常驻的问AI输入栏（kb-free-chat 不出标题栏、只出输入区），贴底、高度随内容；
+   图片选择器展开时上面 with-picker 那条继续生效（仍拉到三分之二屏）。 */
+.keyboard.free-chat.aai-bar:not(.with-picker) { height: auto; }
