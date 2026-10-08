@@ -791,7 +791,7 @@ to{transform:translateY(0);opacity:1}
 /* 开场说明卡（只在第一步 shot）：两句话交代这层演示是干嘛的、第一句怎么用 ——
    搭在遮罩层里、**竖着居中在屏幕正中**（top:50% + translateY(-50%)；2026-10-08 需求：
    原先沉在聊天区下半部、贴输入栏上方，现挪到屏幕中央，卡片下方的空白正好让给
-   「点击模拟截屏」按钮 —— 提示块的竖直位置跟着改到卡片正下方，见 app.js 的
+   「模拟截屏」按钮 —— 提示块的竖直位置跟着改到卡片正下方，见 app.js 的
    paintKbUsageGuide 里 self 模式那一段，读起来是「说明 + 按钮」一叠）。
    卡片自己 pointer-events:none：挡板照旧吃掉高亮区以外的点击（点卡片 = 点别处，无反应） */
 .gx-intro{position:absolute;left:14px;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:16px;pointer-events:none}

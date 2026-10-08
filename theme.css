@@ -3322,7 +3322,7 @@ html[data-view="device"] .sheet-footer {
 .kb-usage-guide[data-step="shot"] .gx-tip { animation: gx-fade-in .32s ease-out .5s both; }
 @keyframes gx-fade-in { from { opacity: 0; } }
 /* 开场说明卡（只在第一步 shot）：深色玻璃卡 + 蓝色星标 —— 标题一行问句、正文一行提示，
-   「先截屏！」填成与「点击模拟截屏」提示块同一支蓝色渐变做重点。与遮罩同一拍进场
+   「先截屏！」填成与「模拟截屏」提示块同一支蓝色渐变做重点。与遮罩同一拍进场
    （比遮罩再晚 60ms 从下方浮起，读起来有先后：先压暗、再出说明），点掉后跟着遮罩一起消失 */
 .kb-usage-guide[data-step="shot"] .gx-intro { animation: gx-intro-in .4s cubic-bezier(.32, .72, .33, 1) .56s both; }
 /* 终态是基类那条 translateY(-50%)（卡片竖着居中在屏幕正中），所以起点要把这半个身位
@@ -3345,11 +3345,16 @@ html[data-view="device"] .sheet-footer {
 /* 「高亮移到发送键」那一步：高亮框从上方滑入落位（其余步都是就地出现） */
 .kb-usage-guide[data-step="send"] .gx-spot { animation: gx-spot-in .42s cubic-bezier(.3, 1.2, .4, 1); }
 @keyframes gx-spot-in { from { transform: translateY(-140px); opacity: 0; } }
-/* 提示块：蓝色笔刷（四个角的圆角各不相同 + 轻旋转做手绘感）白字加粗，整块轻浮动；
+/* 提示块：蓝色笔刷（四个角的圆角各不相同 + 轻旋转做手绘感）白字加粗，
+   整块**放大缩小地跳动**（2026-10-08 需求：原先动效是上下平移的轻浮动，现改成
+   scale 呼吸 —— 与真键盘菜单栏那颗「待分析截图」缩略图的跳动同一路数、
+   时长 / 幅度也取同一档 1.1s + 1 → 1.12）。
+   放大缩小只作用在文字块上（transform 不动布局），提示块的位置与高亮框仍按
+   未缩放的盒子算，跳动时不会把框带着抖。
    提示块与高亮框同一条动作（点提示也能推进） */
 .gx-tip-face { filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .45)); }
-.gx-tip-text { color: #fff; background: linear-gradient(135deg, #4C7DF0, #3355E8); border-radius: 16px 20px 15px 19px / 19px 15px 20px 16px; box-shadow: 0 8px 22px rgba(50, 85, 232, .45); animation: gx-tip-bob 1.6s ease-in-out infinite; }
-@keyframes gx-tip-bob { 0%, 100% { transform: rotate(-2deg) translateY(0); } 50% { transform: rotate(-2deg) translateY(-5px); } }
+.gx-tip-text { color: #fff; background: linear-gradient(135deg, #4C7DF0, #3355E8); border-radius: 16px 20px 15px 19px / 19px 15px 20px 16px; box-shadow: 0 8px 22px rgba(50, 85, 232, .45); animation: gx-tip-pulse 1.1s ease-in-out infinite; }
+@keyframes gx-tip-pulse { 0%, 100% { transform: rotate(-2deg) scale(1); } 50% { transform: rotate(-2deg) scale(1.12); } }
 /* 庆祝层（win）：键盘与聊天被压暗，彩带从上往下飘、「Nice～」弹入、胶囊按钮浮起 */
 .gx-win { background: rgba(10, 10, 14, .55); }
 .gx-win-title { color: #fff; text-shadow: 0 4px 18px rgba(0, 0, 0, .55); animation: gx-win-pop .5s cubic-bezier(.2, 1.4, .4, 1) both; }
