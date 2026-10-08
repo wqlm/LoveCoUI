@@ -3325,7 +3325,9 @@ html[data-view="device"] .sheet-footer {
    「先截屏！」填成与「点击模拟截屏」提示块同一支蓝色渐变做重点。与遮罩同一拍进场
    （比遮罩再晚 60ms 从下方浮起，读起来有先后：先压暗、再出说明），点掉后跟着遮罩一起消失 */
 .kb-usage-guide[data-step="shot"] .gx-intro { animation: gx-intro-in .4s cubic-bezier(.32, .72, .33, 1) .56s both; }
-@keyframes gx-intro-in { from { opacity: 0; transform: translateY(10px); } }
+/* 终态是基类那条 translateY(-50%)（卡片竖着居中在屏幕正中），所以起点要把这半个身位
+   一起算上，才是「从下方 10px 浮起」而不是从卡片左上角斜着飞进来 */
+@keyframes gx-intro-in { from { opacity: 0; transform: translateY(calc(-50% + 10px)); } }
 .gx-intro {
   background: linear-gradient(180deg, rgba(40, 42, 54, .94), rgba(26, 27, 36, .96));
   border: 1px solid rgba(255, 255, 255, .1);

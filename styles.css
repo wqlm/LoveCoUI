@@ -617,31 +617,6 @@ small{font-size:11px;color:#73847d}
 .iv-friend-phone{flex:1;min-width:0}
 .iv-tag{flex-shrink:0}
 .iv-rules{margin:0}
-/* 主 App「优惠券」页（appCouponPage，2026-10-06 新增）：整页一列 —— 页头（复用 .user-head 骨架：
-   返回箭头 + 居中标题）+ 三段分段（.cp-tabs）+ 券卡列表（.cp-list）+ 底部「使用说明」卡
-   （.cp-note，壳复用 .app-card）。骨架只管排布：券卡 = 左侧竖排面额块 + 右侧内容块
-   （标题 / 有效期 / 靠 margin-top:auto 沉底的按钮或状态徽标），中间那条虚线分隔与上下两个
-   半圆缺口由 .cp-body 的边框与两个伪元素给（缺口是画布色的圆，被卡片的 overflow:hidden 裁出边）。
-   皮肤（配色 / 字号 / 圆角 / 间距）在 theme.css 的「优惠券页」一组。 */
-.cp-page{min-height:100%}
-.cp-tabs{display:flex}
-.cp-tab{flex:1 1 0;min-width:0;display:inline-flex;align-items:center;justify-content:center;gap:4px;border:0;background:none;font:inherit;cursor:pointer}
-.cp-tab i{font-style:normal}
-.cp-list{flex:1 1 auto;display:flex;flex-direction:column}
-.cp-card{display:flex;align-items:stretch;overflow:hidden}
-.cp-amount{flex-shrink:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.cp-amount b{display:inline-flex;align-items:baseline}
-.cp-amount b i{font-style:normal}
-.cp-amount span{display:block}
-.cp-body{flex:1 1 auto;min-width:0;position:relative;display:flex;flex-direction:column}
-.cp-title{margin:0}
-.cp-valid{margin:0}
-.cp-foot{margin-top:auto;display:flex;justify-content:flex-end;align-items:center}
-.cp-use{border:0;cursor:pointer}
-.cp-tag{flex-shrink:0}
-.cp-empty{display:flex;justify-content:center}
-.cp-note-title{margin:0}
-.cp-rules{margin:0;padding-left:18px}
 /* 主 App 首页（appHomePage，2026-10-05 按设计图重做）：整页一列 —— ① 标语区（左文字块 +
    右插画，顶对齐）② 两张功能卡（等高、横向两列）③「进入体验台」一行（键位图芯片 + 行名 +
    折角箭头）。骨架只管排布：插画绝对定位钉在卡内设计图量到的位置上、卡名与说明靠
@@ -814,10 +789,12 @@ to{transform:translateY(0);opacity:1}
    （缩放原点 left bottom，动画在 theme.css） */
 .gx-shot-pop{position:absolute;left:14px;bottom:16px;z-index:22;padding:4px;pointer-events:none}
 /* 开场说明卡（只在第一步 shot）：两句话交代这层演示是干嘛的、第一句怎么用 ——
-   搭在遮罩层里、落在聊天区下半部那片空白上（消息与「点击模拟截屏」按钮都在上半屏，
-   互不遮挡）；卡片的底边离屏幕底 62px ≈ 宿主输入栏上方 14px，不压住输入栏。
+   搭在遮罩层里、**竖着居中在屏幕正中**（top:50% + translateY(-50%)；2026-10-08 需求：
+   原先沉在聊天区下半部、贴输入栏上方，现挪到屏幕中央，卡片下方的空白正好让给
+   「点击模拟截屏」按钮 —— 提示块的竖直位置跟着改到卡片正下方，见 app.js 的
+   paintKbUsageGuide 里 self 模式那一段，读起来是「说明 + 按钮」一叠）。
    卡片自己 pointer-events:none：挡板照旧吃掉高亮区以外的点击（点卡片 = 点别处，无反应） */
-.gx-intro{position:absolute;left:14px;right:14px;bottom:62px;display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:16px;pointer-events:none}
+.gx-intro{position:absolute;left:14px;right:14px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;padding:14px 16px;border-radius:16px;pointer-events:none}
 .gx-intro-head{display:flex;align-items:center;gap:8px;margin:0;font-size:15px;font-weight:800;letter-spacing:.3px}
 .gx-intro-mark{flex-shrink:0;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:8px}
 .gx-intro-mark svg{width:12px;height:12px}
