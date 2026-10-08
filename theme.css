@@ -3346,15 +3346,31 @@ html[data-view="device"] .sheet-footer {
 .kb-usage-guide[data-step="send"] .gx-spot { animation: gx-spot-in .42s cubic-bezier(.3, 1.2, .4, 1); }
 @keyframes gx-spot-in { from { transform: translateY(-140px); opacity: 0; } }
 /* 提示块：蓝色笔刷（四个角的圆角各不相同 + 轻旋转做手绘感）白字加粗，
-   整块**放大缩小地跳动**（2026-10-08 需求：原先动效是上下平移的轻浮动，现改成
-   scale 呼吸 —— 与真键盘菜单栏那颗「待分析截图」缩略图的跳动同一路数、
-   时长 / 幅度也取同一档 1.1s + 1 → 1.12）。
-   放大缩小只作用在文字块上（transform 不动布局），提示块的位置与高亮框仍按
-   未缩放的盒子算，跳动时不会把框带着抖。
+   整块轻浮动 —— 上下平移（translateY 0 → -5px，1.6s 一个来回）。
+   **只有第一步（shot，「模拟截屏」按钮）例外**：那颗改吃放大缩小地跳动
+   （scale 1 → 1.12，1.1s —— 与真键盘菜单栏那颗「待分析截图」缩略图的跳动同一路数、
+   时长 / 幅度也取同一档，2026-10-08 需求）。
+   （2026-10-08 后订：放大缩小只该给「模拟截屏」这一颗按钮，其余各步
+   —— 输入框 / 缩略图 / 回复卡 / 发送 —— 的提示块动效一律回到原先的上下浮动；
+   其中缩略图（thumb）那一步稍后又按需求单独改成左右浮动，见下面 gx-tip-slide）
+   放大缩小只作用在文字块上（transform 不动布局）—— 提示块的位置仍按未缩放的
+   盒子算，跳动时不会把框带着抖；第一步的框贴按钮自身（self 摆法），
+   左右刻意多留了跳动外扩的余量，跳到最大时四边间隙一致（见 app.js 的 paintKbUsageGuide）。
    提示块与高亮框同一条动作（点提示也能推进） */
 .gx-tip-face { filter: drop-shadow(0 6px 14px rgba(0, 0, 0, .45)); }
-.gx-tip-text { color: #fff; background: linear-gradient(135deg, #4C7DF0, #3355E8); border-radius: 16px 20px 15px 19px / 19px 15px 20px 16px; box-shadow: 0 8px 22px rgba(50, 85, 232, .45); animation: gx-tip-pulse 1.1s ease-in-out infinite; }
+.gx-tip-text { color: #fff; background: linear-gradient(135deg, #4C7DF0, #3355E8); border-radius: 16px 20px 15px 19px / 19px 15px 20px 16px; box-shadow: 0 8px 22px rgba(50, 85, 232, .45); animation: gx-tip-bob 1.6s ease-in-out infinite; }
+@keyframes gx-tip-bob { 0%, 100% { transform: rotate(-2deg) translateY(0); } 50% { transform: rotate(-2deg) translateY(-5px); } }
+/* 第一步（「模拟截屏」）单独改吃放大缩小 —— 只有这一颗按钮不上下浮动 */
+.kb-usage-guide[data-step="shot"] .gx-tip-text { animation: gx-tip-pulse 1.1s ease-in-out infinite; }
 @keyframes gx-tip-pulse { 0%, 100% { transform: rotate(-2deg) scale(1); } 50% { transform: rotate(-2deg) scale(1.12); } }
+/* 第五步（缩略图，「点这里，AI 帮你分析」）单独改吃左右平移 —— 这颗提示贴在缩略图
+   左侧、手指 👉 朝右指着它，「上下浮动」在这里跟指向不合拍，改成**朝目标（右）方向**
+   的左右往复（translateX 0 → 5px，1.6s —— 时长仍取基类那一档；2026-10-08 需求：
+   「AI帮你分析按钮 目前是上下移动 改为左右移动」；另有第一步的放大缩小见上）。
+   与基类同一口径：只作用在文字块上（transform 不动布局，位置 / 高亮框不受影响），
+   手势 emoji 留在原地不跟着动 */
+.kb-usage-guide[data-step="thumb"] .gx-tip-text { animation: gx-tip-slide 1.6s ease-in-out infinite; }
+@keyframes gx-tip-slide { 0%, 100% { transform: rotate(-2deg) translateX(0); } 50% { transform: rotate(-2deg) translateX(5px); } }
 /* 庆祝层（win）：键盘与聊天被压暗，彩带从上往下飘、「Nice～」弹入、胶囊按钮浮起 */
 .gx-win { background: rgba(10, 10, 14, .55); }
 .gx-win-title { color: #fff; text-shadow: 0 4px 18px rgba(0, 0, 0, .55); animation: gx-win-pop .5s cubic-bezier(.2, 1.4, .4, 1) both; }
