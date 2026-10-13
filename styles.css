@@ -206,10 +206,10 @@ small{font-size:11px;color:#73847d}
 .kb-chat-analysis .ca-dock-btn.ca-mic{flex:.72}
 .kb-chat-analysis .ca-dock-btn.ca-mic svg{width:17px;height:17px;fill:none;stroke:currentColor}
 /* 安全拦截态（blocked）：内容区整块换成一组水平垂直居中的提示（盾形图标 + 一行文案），皮肤见 theme.css；
-   图标尺寸（170px，原 34px × 5）的生效规则写在 theme.css 的无分层处 —— 这里的 svg 宽高会被
+   图标尺寸（85px，同日先 170px 再缩小一倍）的生效规则写在 theme.css 的无分层处 —— 这里的 svg 宽高会被
    全局 svg{width:var(--lc-icon-size)} 压过，保留作说明 */
 .kb-chat-analysis .ca-blocked{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:0 14px;text-align:center}
-.kb-chat-analysis .ca-blocked-icon{width:170px;height:170px}
+.kb-chat-analysis .ca-blocked-icon{width:85px;height:85px}
 .kb-chat-analysis .ca-blocked-icon svg{width:100%;height:100%}
 .kb-chat-analysis .ca-blocked-text{margin:0;font-size:13px;line-height:1.6;font-weight:550}
 /* 键盘内登录层（kb-login）：骨架（固定浅色皮肤、渐变与各档尺寸在 theme.css） */
