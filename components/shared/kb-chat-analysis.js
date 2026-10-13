@@ -15,7 +15,7 @@
               有建议回复时整张卡可点 —— 点中即高亮并把该条回复带入聊天输入框（先清空再带入）。
      blocked  安全拦截的失败态（app.js 的 generate() 在请求被 400 拒答时切进来）：四块内容
               一概不渲染，内容区只剩一组水平垂直居中的提示 —— 盾形图标 + 文案
-              「检测到敏感词，AI拒绝回答」（.ca-blocked，皮肤见 theme.css），X / Esc 关闭回干净键盘页。
+              「检测到敏感词，请重试！」（.ca-blocked，皮肤见 theme.css），X / Esc 关闭回干净键盘页。
    **四块内容都是「有就渲染」**（本次结果的结构由 app.js 的 makeOutcome 按输入决定），
    所以同一块面板承担两种结果：
      ① 建议回复：简报（卡内一段分析正文）+ 三组建议卡 —— 截图分析那条链路；
@@ -157,7 +157,7 @@ LoveCoUI.define('shared', 'kb-chat-analysis', (ctx) => {
   const blockedBlock = blocked
     ? `<div class="ca-blocked" role="alert">
         <span class="ca-blocked-icon" aria-hidden="true">${glyph.shield}</span>
-        <p class="ca-blocked-text">检测到敏感词，AI拒绝回答</p>
+        <p class="ca-blocked-text">检测到敏感词，请重试！</p>
       </div>`
     : '';
 
