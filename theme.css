@@ -203,6 +203,14 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .keyboard:has(.kb-partner-editor) .kb-body:has(+ .kb-sysbar) {
   height: calc(var(--lc-keyboard-height) - var(--lc-toolbar-height) - var(--lc-sysbar-height));
 }
+/* 对象编辑面板的键盘高度加一条下限（2026-10-13 晚些需求：表单末尾「关系阶段」与键区之间
+   必须有间距）：面板内容 = 标题栏 + 头像一档 + 两行表单 + 18px 底部留白（约 260px），
+   按「键盘总高 − 常规键盘高」算出的面板在矮窗口里装不下、关系阶段会贴到键区上 ——
+   键盘保底 520px（= 屏高 780px 时三分之二屏的值，两边**连续**、窗口拖动时无跳变）：
+   窗口高 ≤ 780px 时键盘恒 520px，多出来的高度全归上半的表单面板，键区与底栏贴底、
+   高度和每颗键的大小都不变；窗口更高时照旧是三分之二屏。极矮窗口（≤ 519px）另有一条
+   更小的值兜底（见文件后部的极矮档 media，那里键盘本身就只有 ~350px 高）。 */
+.keyboard:has(.kb-partner-editor) { height: max(var(--lc-keyboard-panel-height), 520px); }
 .keyboard .key-row { flex: 1; min-height: 0; }
 .keyboard .key { height: auto; min-height: 0; }
 .kb-toolbar { height: var(--lc-toolbar-height); padding: 0 8px; gap: 2px; border-bottom: 0; }
@@ -442,6 +450,23 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   font-size: 12px;
 }
 .dark .free-picker-btn { color: #232130; }
+/* ---- 问AI 页里的聊天对象列表（kb-partner-picker 的内嵌形态，2026-10-13 需求）----
+   点输入行左端的头像展开：输入行**下方**的整块键区（键体 + 平台底栏）换成对象列表，
+   与图片选择器同一块位置、同一套摆法（从底部往上滑出、盖住键区，超出后列表内滚动），
+   底纹同样取键盘色；区别只在内容 —— 这里是「不选择」+ 各聊天对象的**纯选择行**
+   （行样式与主 App「AI 咨询师」页的对象弹窗共用，见下方 .aai-prow / .free-prow 同组规则），
+   没有左滑手势、不挂编辑 / 删除按钮。
+   容器类名刻意避开 .free-partner —— 那是输入行左端那颗头像按钮（见上面的 .free-partner 规则）。 */
+.free-partner-list {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 6px 8px;
+  background: color-mix(in srgb, var(--lc-keyboard) 92%, var(--lc-surface));
+  border-top: 1px solid var(--lc-border);
+}
+.free-partner-list.entering { animation: picker-up .28s cubic-bezier(.32, .72, 0, 1) both; }
 .kb-body { padding: 4px var(--lc-keyboard-padding) var(--lc-keys-gap); overscroll-behavior: contain; }
 /* Android 不渲染键盘底部菜单栏（components/android/kb-navbar.js 是空实现），键区下补一条与菜单栏
    等高的留白（= 底栏高度 + 键区留白），三端键区到屏幕底边的距离因此一致（iOS / 鸿蒙是「底栏 + 键区留白」）。 */
@@ -1293,12 +1318,15 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    （2026-10-13 需求），让出来的那一条归表单面板，键区与底栏的高度、每颗键的大小
    跟平时的键盘完全一致；下半（无菜单栏的键盘）由上面 .keyboard:has(.kb-partner-editor)
    一组规则保持贴底。
-   面板内表单是**竖排居中**：**头像在上面一行**（「上传头像」虚线圆槽 + 小字提示，整行居中），
+   面板内表单是**竖排居中**：**头像在上面一行**（「上传头像」虚线圆槽 + 小字提示，整行居中，
+   槽与图标 2026-10-13 晚些需求小一档 64/26 → 54/20），
    **备注名 / 关系阶段两行在下面**（左标签 + 右控件）—— 2026-10-13 需求由「头像在左、
    表单在右」的横排改成这样；头像不再占左侧一列，两行表单因此整宽排开、比原先长出一截。
-   标题栏压到一行（此处覆盖 .picker-top 的共用 padding，不动选图面板），没有说明文案，
-   右端一颗「保存」按钮（2026-10-13 需求：原 X 号就地换成它，点击即落库并退出面板回管理页，
-   动作复用 close-kb-editor；`.picker-top` 随之由「绝对定位 X + 46px 右内边距」改成 flex 两端对齐）。
+   表单末尾与键区之间由 .pe-body 的 18px 底部留白保证有间距（2026-10-13 晚些需求），
+   矮窗口另由一条 media（键盘再顶高 28px）把面板撑够，不让「关系阶段」贴到键盘上。
+   标题栏压到一行，右端一枚 X（2026-10-13 晚些需求：当日的「保存」按钮又改回 X 号，
+   点击即落库并退出面板回管理页，动作复用 close-kb-editor；`.picker-top` 随之从
+   flex 两端对齐改回「绝对定位 X + 46px 右内边距」的共用规矩）。
    没有底部「确定」—— 表单一有变化即静默保存（逻辑见 app.js），编辑态也没有「删除这个对象」。 */
 .kb-partner-editor {
   bottom: auto;
@@ -1309,25 +1337,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .keyboard:has(.kb-partner-editor) .kb-toolbar.candidate-bar ~ .kb-partner-editor {
   height: calc(100% - var(--lc-keyboard-height));
 }
-.kb-partner-editor .picker-top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 7px 12px 1px 15px;
-}
-/* 标题栏右端的「保存」按钮（2026-10-13 需求：原 X 号就地换成它，点击即落库并退出面板，
-   动作复用 close-kb-editor）：26px 高小胶囊，「立即分析」同款紫渐变 + 轻投影 */
-.kb-partner-editor .picker-save {
-  flex: 0 0 auto;
-  height: 26px;
-  padding: 0 13px;
-  border-radius: 13px;
-  background: linear-gradient(105deg, #5340CE 0%, #7E68F0 55%, #A99BFF 100%);
-  color: #FFF;
-  font-size: 12.5px;
-  font-weight: 600;
-  box-shadow: 0 3px 10px #5340CE40;
-}
+/* 标题栏右端仍是共用那枚绝对定位 X（2026-10-13 晚些需求：当日的「保存」按钮又改回 X 号，
+   动作复用 close-kb-editor —— 点它先静默落库再回管理页）：右内边距 46px 给 X 留位，
+   与选图面板一套规矩 */
+.kb-partner-editor .picker-top { padding: 7px 46px 1px 15px; }
 /* 选择器带上根节点的 .kb-photo-picker（(0,3,0)）是为了压过窄屏那条
    `.kb-photo-picker .picker-body { padding: 2px 10px 16px }`（(0,2,0)，写在文件更后面）——
    两行表单改成整宽后左右要排到面板自己的边距上，与标题栏的 15px 对齐 */
@@ -1340,7 +1353,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
      （safe 关键字：有富余时与 center 完全一样，老内核不认则退回上一行的 center） */
   justify-content: safe center;
   gap: 20px;
-  padding: 0 15px;
+  /* 底部 18px 是恒定留白：表单末尾（关系阶段一行）与底下键盘之间因此总有间距
+     （2026-10-13 晚些需求）—— 有富余时与居中叠加，底部比顶部多这 18px；
+     矮窗口装不下时靠下面那条「键盘再顶高 28px」兜底，不靠它硬撑 */
+  padding: 0 15px 18px;
 }
 .kb-partner-editor .pe-avatar {
   flex: 0 0 auto;
@@ -1352,12 +1368,14 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   padding: 0;
   background: transparent;
 }
+/* 头像槽与槽里的人形图标（2026-10-13 晚些需求：整组小一档 —— 64/26 → 54/20，
+   表单更紧凑、也给「关系阶段」与键盘之间的留白腾地方） */
 .kb-partner-editor .pe-avatar-ph,
 .kb-partner-editor .pe-avatar-img {
   display: grid;
   place-items: center;
-  width: 64px;
-  height: 64px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
   overflow: hidden;
 }
@@ -1366,7 +1384,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   border: 1.5px dashed #4A4A52;
   color: var(--picker-sub);
 }
-.kb-partner-editor .pe-avatar-ph svg { width: 26px; height: 26px; }
+.kb-partner-editor .pe-avatar-ph svg { width: 20px; height: 20px; }
 .kb-partner-editor .pe-avatar:hover .pe-avatar-ph { border-color: #7E68F0; color: #C9BFFF; }
 .kb-partner-editor .pe-avatar-img { border: 1.5px solid #FFFFFF33; }
 .kb-partner-editor .pe-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
@@ -2456,9 +2474,8 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   /* 键盘选择器面板：窄屏收紧标题与网格 */
   .kb-photo-picker .picker-top { padding: 16px 42px 10px 12px; }
   .kb-photo-picker .picker-top h2 { font-size: 15px; }
-  /* 对象编辑面板（根节点同挂 .kb-photo-picker，上面那条 padding 会一并命中）：保存按钮改由
-     flex 排版后，右侧不再给绝对定位 X 留 42px —— 右内边距收回 12px（按钮尺寸不变） */
-  .kb-partner-editor .picker-top { padding-right: 12px; }
+  /* 对象编辑面板（根节点同挂 .kb-photo-picker）继续吃上面那条 padding：右 42px 正好是
+     共用 X 的位子（right 8 + 34px 宽）—— 2026-10-13 晚些「保存」按钮改回 X 号后不再另收 */
   .kb-photo-picker .picker-body { padding: 2px 10px 16px; }
   .kb-photo-picker .picker-grid { gap: 8px; }
   /* 权限引导（引导条 / 引导页）：窄屏收紧字号与留白 */
@@ -3016,19 +3033,20 @@ html[data-view="device"] .sheet-footer {
   html[data-view="device"] .keyboard .t9-blocks,
   html[data-view="device"] .keyboard .t9-bottom { gap: 2px; }
   html[data-view="device"] .modal-backdrop { inset: 0; }
-  /* 极矮窗口（device 视图演示）：键盘拉高后上半只剩 ~135px。编辑器表单改成竖排
-     （一行头像 + 两行表单）后比原先的横排高出一截，光收紧控件装不下 ——
-     整块键盘再往上顶 28px，多出来的全归上半的表单面板（键区 / 底栏贴底、高度不变）；
-     表单控件同时收紧一档，尽量一屏装完（万一还不够，面板可滚动、从顶部开始排，见 .pe-body） */
-  html[data-view="device"] .keyboard:has(.kb-partner-editor) { height: calc(var(--lc-keyboard-panel-height) + 28px); }
-  html[data-view="device"] .kb-partner-editor .picker-top { padding: 5px 12px 0 12px; }
+  /* 极矮窗口（device 视图演示）：键盘拉高后上半只剩 ~135px。编辑器表单（竖排：一行头像
+     + 两行表单 + 底部留白）装不下前面那条 520px 下限（屏幕本身还没 520 高）—— 这里按
+     「三分之二屏 + 44px」定高（特异度更高，盖过前面那条下限；多出来的高度只加在上半的
+     表单面板上，键区 / 底栏贴底、高度不变），控件同时收紧一档，尽量一屏装完 ——
+     加 44（比别处多）是为了连「键区打字、候选词栏顶上来」那一种也留得下间距
+     （万一还不够，面板可滚动、从顶部开始排，见 .pe-body） */
+  html[data-view="device"] .keyboard:has(.kb-partner-editor) { height: calc(var(--lc-keyboard-panel-height) + 44px); }
+  html[data-view="device"] .kb-partner-editor .picker-top { padding: 5px 40px 0 12px; }
   html[data-view="device"] .kb-partner-editor .picker-top h2 { font-size: 13px; }
-  html[data-view="device"] .kb-partner-editor .picker-save { height: 22px; padding: 0 10px; border-radius: 11px; font-size: 11px; }
-  html[data-view="device"] .kb-partner-editor .pe-body { gap: 8px; padding: 0 12px; }
+  html[data-view="device"] .kb-partner-editor .pe-body { gap: 8px; padding: 0 12px 12px; }
   html[data-view="device"] .kb-partner-editor .pe-avatar { gap: 3px; }
   html[data-view="device"] .kb-partner-editor .pe-avatar-ph,
-  html[data-view="device"] .kb-partner-editor .pe-avatar-img { width: 38px; height: 38px; }
-  html[data-view="device"] .kb-partner-editor .pe-avatar-ph svg { width: 16px; height: 16px; }
+  html[data-view="device"] .kb-partner-editor .pe-avatar-img { width: 34px; height: 34px; }
+  html[data-view="device"] .kb-partner-editor .pe-avatar-ph svg { width: 14px; height: 14px; }
   html[data-view="device"] .kb-partner-editor .pe-avatar-label { font-size: 9px; }
   html[data-view="device"] .kb-partner-editor .pe-fields { gap: 6px; }
   html[data-view="device"] .kb-partner-editor .pe-field { gap: 6px; font-size: 10px; }
@@ -3629,8 +3647,10 @@ html[data-view="device"] .sheet-footer {
 .aai-sheet-photo .free-picker { height: 100%; }
 /* 对象列表弹窗：一行 = 圆形头像 + 名字（当前选择整行浅底、取强调色）+ 关系阶段小字 */
 .aai-sheet-partner { overflow-y: auto; overscroll-behavior: contain; padding: 6px 8px; }
-.aai-prow { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 46px; padding: 4px 8px; border: 0; border-radius: 10px; background: transparent; color: var(--lc-text); text-align: left; }
-.aai-prow.on { background: var(--lc-accent-soft); }
-.aai-prow .avatar { flex: 0 0 34px; width: 34px; height: 34px; font-size: 12px; border-radius: 50%; }
-.aai-pname { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
-.aai-prow small { color: var(--lc-muted); font-size: 11px; }
+/* 对象行（两处共用同一套行样式：主 App「AI 咨询师」页的底部对象弹窗 .aai-prow、
+   键盘问AI 页的对象列表 .free-prow —— 都是「圆形头像 + 名字 + 关系阶段」的纯选择行） */
+.aai-prow, .free-prow { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 46px; padding: 4px 8px; border: 0; border-radius: 10px; background: transparent; color: var(--lc-text); text-align: left; }
+.aai-prow.on, .free-prow.on { background: var(--lc-accent-soft); }
+.aai-prow .avatar, .free-prow .avatar { flex: 0 0 34px; width: 34px; height: 34px; font-size: 12px; border-radius: 50%; }
+.aai-pname, .free-pname { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; }
+.aai-prow small, .free-prow small { color: var(--lc-muted); font-size: 11px; }

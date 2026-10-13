@@ -13,8 +13,11 @@
         （关系简报 + 三组建议），其余 → AI通用回复（见 app.js 的 pickFreeShortcut / sendFreeChat）。
         三条在窄机上放不下，这一行可左右滑（横向滚动、滚动条隐藏，见 .free-chips）；按钮文字不带箭头符号
      ④ 提问输入行：圆形头像 + 提问输入框（state.freeText）+ 右端两枚按钮（自左向右）——
-        头像 = 当前聊天对象（点击进聊天对象管理页；主 App「AI 咨询师」页改成从底部弹出
-        对象列表、选完即收，见 app.js 的 aiSheetHtml）
+        头像 = 当前聊天对象（**选完即收**：两个形态都在下方弹出对象列表、不跳页面 ——
+        键盘形态在输入行下方的键区里展开 kb-partner-picker 的内嵌列表（state.freePartnerPicker，
+        只能选择、不能左滑编辑 / 删除，见 app.js 的 openFreePartnerPicker，2026-10-13 需求，
+        此前这一下跳聊天对象管理页）；主 App「AI 咨询师」页从底部弹 2 行图片高度的对象窗口，
+        见 app.js 的 aiSheetHtml）
         「语音」（data-voice-hold="free"，**按住即进「按住说话」**，见 app.js 的 beginVoiceHold）
         与「图片」（data-action="free-picker"，点了展开选图；主 App「AI 咨询师」页则是从底部
         弹出 2 行图片高度的截图窗口）；图片选择器展开且已选图时后者
@@ -95,7 +98,7 @@ LoveCoUI.define('shared', 'kb-free-chat', (ctx) => {
      （textarea 自己被整块文本占满，没法只给一段字加线），由 app.js 的 paintComposeMirror 填内容。
      输入行右端两枚按钮的顺序：语音在前（贴着输入框）、图片 / 发送在后（保持它在行的最右端）。 */
   const input = `<div class="free-input-row">
-    <button type="button" class="free-partner" data-action="partner-manager" title="${appAi?'选择聊天对象':'聊天对象管理'}" aria-label="${appAi?'选择聊天对象':'聊天对象管理'}：${esc(personName())}">${partnerAvatar()}</button>
+    <button type="button" class="free-partner" data-action="${appAi?'partner-manager':'free-partner-picker'}" title="选择聊天对象" aria-label="选择聊天对象：${esc(personName())}">${partnerAvatar()}</button>
     <div class="input-wrap"><div class="compose-mirror" data-mirror="free-chat" aria-hidden="true"></div><textarea id="free-chat" class="free-input" rows="1" maxlength="1500" aria-label="${appAi ? '提问输入框：点一下调出键盘，或按住说话' : state.freePicker ? '提问输入框：点一下输入，按住说话' : '提问输入框：点一下输入你的问题，语音走右边的按钮'}" placeholder="${placeholder}">${esc(freeChatDisplay())}</textarea></div>
     ${voiceBtn}
     ${button}

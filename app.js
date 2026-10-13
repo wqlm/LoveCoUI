@@ -216,6 +216,12 @@
        已选图片记在 state.selectedPhotos：网格里的序号、输入框上方的缩略图行读的是同一份，
        最多 3 张（相册权限两档引导照旧生效）。 */
     freePicker:false,
+    /* 问AI 页里的聊天对象列表（kb-partner-picker 的**内嵌形态**，2026-10-13 需求）：
+       点提问输入行左端的圆形头像展开 —— 与图片选择器同一套摆法（输入行**下方**的整块键区换成
+       对象列表，从底部往上滑出、超出可滚动），但列表**只能选择**：没有左滑手势、不挂编辑 / 删除
+       按钮（那是聊天对象管理页 partner-manager 的形态），点任意一行即切换对象、列表收起、
+       留在问AI 页（输入行头像随之更新）。与 freePicker 互斥（同一块位置只摆一层）。 */
+    freePartnerPicker:false,
     /* 快捷栏（输入框上方那一行预设问题）刚点下的那一条：FREE_SHORTCUTS 里的 id 或 ''。
        这一栏**常驻**（2026-10-06 晚些需求，见 kb-free-chat.js），**点一下立即发送**
        （pickFreeShortcut），所以它只在发送那一刻有用 ——
@@ -861,10 +867,11 @@
     {id:'kb-candidates',group:'宿主会话与菜单栏',name:'候选词栏 · 打字中',route:'键盘 › 顶部菜单栏（第二状态）',trigger:'中文键盘键区按任意字母 / 数字键进入打字态',desc:'一行候选词 + 最右侧 X（退回菜单栏）；未确认的拼音带下划线显示在宿主聊天输入框里（问AI 页 / 对象编辑面板打开时则显示在各自的输入框里），点候选词 / 空格 / 回车替换那句字母；联想词按当前输入目标光标前的文字算',note:'英文键盘、数字层、符号层按键直接上屏，不进入打字态'},
     /* 问AI 页（kb-free-chat 组件）：键盘菜单栏气泡按钮进入的「与 AI 对话」页面 —— 标题栏 + 输入区 + 键区；
        下两条是它的两种形态（展开图片选择器 / 按住输入框说话） */
-    {id:'kb-free-chat',group:'宿主会话与菜单栏',name:'问AI（与AI对话的页面）',route:'键盘 › 键盘顶部（问AI 页）',trigger:'键盘菜单栏相册（图片）图标**右侧的气泡按钮**（data-action="free-chat"）；或从本列表点入（现场停在默认样式上：提问框留空、没有附图）',desc:'键盘里直接问 AI 的页面（标题就叫「问AI」），键盘顶部换成「标题栏 + 输入区」、键区照常在下（键区布局 / 层 / 中英与进入前一致）。① **标题栏**（高度 = 菜单栏 --lc-toolbar-height）—— 左侧 15px 加粗「问AI」、右侧一枚圆形 X（收起这一页回干净键盘页，与 Esc 同一条出口）；②③④ **输入区**（自上而下：缩略图行 / 快捷栏 / 提问输入行，其中 ② 只在选中过图片时出现、③ **常驻**（2026-10-06 晚些需求）—— 这一页默认是「标题栏 + 快捷栏 + 输入行」三行；②与③、③与④ 之间各有一条**分隔线**（整行铺满））；② **缩略图行**—— 已选截图最多 3 张（46px 圆角卡片、与下方网格同一份选择，左上角压一枚半透明黑底 X 提示「点一下移出」）+ 未满 3 张时的一枚「+」继续挑；③ **快捷栏**—— 一行预设问题「帮我回 / 这样回复如何 / 我最后一轮回复的如何」（文字**不带箭头符号**），**点一下立即发送**（点了就算发送，见下；这一栏常驻，既没打字也没附图时点它 = 把那句短语本身当作本次提问），窄机上三条放不下、这一行**可左右滑**（横向滚动，滚动条不出现在设计里）；④ **提问输入行**—— 左起当前聊天对象的圆形头像（32px，点击进聊天对象管理页；没设自定义头像时就是那张统一的默认头像插画）、中间白底圆角提问输入框（一行时 34px 高 / 圆角 8px / 13px 字 / 内边距 10px，**占位文案两态**：键区在下面时是「输入问题」、图片选择器展开时是「输入问题或按住说话」，内容超过一行自动长高、**最多三行**，再多框内滚动）、右端两枚按钮（自左向右：**语音**按钮 —— 按住即进「按住说话」；**图片**按钮 —— 图片选择器收起时是它，展开且已选图时换成蓝色圆形「发送」）。标题栏**顶替菜单栏**（同为 --lc-toolbar-height，不额外占高）；输入区涨出来的实际高度（缩略图行 + 快捷栏 + 输入框多出来的行）由 `.keyboard.free-chat` 的 --lc-free-extra 往上长，键区高度始终与平时一致（切进 / 切出这一页键区不跳）。**这一页打开时键区打字的目标就是那行提问输入框**：拼音字母带下划线落在框里、点候选词换成正文、删除键先删字母（与宿主输入框同一套输入法逻辑），光标锚点记在 state.freeCaret。**发送**（键区右下角那颗蓝键，或图片选择器展开时输入行右端那枚蓝色圆形**向上箭头**按钮，或快捷栏上任意一条短语 —— 后者点一下**立即发送**）把这次提问交给 AI：先「AI 分析过渡页」、再聊天分析面板的生成中，最后打字机输出结果；发送后这一页收起、输入与附图一并清空。**发起时点了哪条快捷栏短语决定结果结构**：点「帮我回」→ 聊天分析（draftKind = chat，关系简报 + 三组建议）；从蓝键 / 发送按钮 / 语音发的、以及其它那两条短语 → AI通用回复（draftKind = review，见「问AI · 图片选择器」一条）。点输入框是普通聚焦（放光标）；**按住不动 260ms 转成「按住说话」只在图片选择器展开时生效** —— 那时框下方是截图网格、框里没有光标，按住框就是「要说话」的手势；键区在下面时框里停着键盘的光标（键区打字的目标就是它），长按框留给编辑 / 选字，语音只能按右端那颗语音按钮（两种入口见「问AI · 按住说话」）。X / Esc 只收起这一页，提问内容留着（下次进来还在）；「设备权限 › 键盘完全访问」关着时发送与其它生成一样静默不执行',note:'AI 结果统一由聊天分析面板承接 —— 面板关闭即回干净键盘页；两种结果形态：点快捷栏「帮我回」→ 聊天分析（关系简报 + 三组建议，draftKind = chat），其余（其它短语、蓝键 / 发送按钮 / 语音发起）→ AI通用回复（不写分析正文的简报卡 + 卡内两段 markdown，draftKind = review）；附图时先走一遍上传仿真（/v1/uploads/complete），截图转写并入本次输入。打开这一页前会收起其它键盘层（管理页 / 设置页 / 选择器 / 分析面板 / 编辑面板），打字时这一页的标题栏那行换成候选词栏（见下一条）'},
+    {id:'kb-free-chat',group:'宿主会话与菜单栏',name:'问AI（与AI对话的页面）',route:'键盘 › 键盘顶部（问AI 页）',trigger:'键盘菜单栏相册（图片）图标**右侧的气泡按钮**（data-action="free-chat"）；或从本列表点入（现场停在默认样式上：提问框留空、没有附图）',desc:'键盘里直接问 AI 的页面（标题就叫「问AI」），键盘顶部换成「标题栏 + 输入区」、键区照常在下（键区布局 / 层 / 中英与进入前一致）。① **标题栏**（高度 = 菜单栏 --lc-toolbar-height）—— 左侧 15px 加粗「问AI」、右侧一枚圆形 X（收起这一页回干净键盘页，与 Esc 同一条出口）；②③④ **输入区**（自上而下：缩略图行 / 快捷栏 / 提问输入行，其中 ② 只在选中过图片时出现、③ **常驻**（2026-10-06 晚些需求）—— 这一页默认是「标题栏 + 快捷栏 + 输入行」三行；②与③、③与④ 之间各有一条**分隔线**（整行铺满））；② **缩略图行**—— 已选截图最多 3 张（46px 圆角卡片、与下方网格同一份选择，左上角压一枚半透明黑底 X 提示「点一下移出」）+ 未满 3 张时的一枚「+」继续挑；③ **快捷栏**—— 一行预设问题「帮我回 / 这样回复如何 / 我最后一轮回复的如何」（文字**不带箭头符号**），**点一下立即发送**（点了就算发送，见下；这一栏常驻，既没打字也没附图时点它 = 把那句短语本身当作本次提问），窄机上三条放不下、这一行**可左右滑**（横向滚动，滚动条不出现在设计里）；④ **提问输入行**—— 左起当前聊天对象的圆形头像（32px，**点击在下方弹出聊天对象列表、选完即收**（2026-10-13 需求，不再跳聊天对象管理页）；没设自定义头像时就是那张统一的默认头像插画）、中间白底圆角提问输入框（一行时 34px 高 / 圆角 8px / 13px 字 / 内边距 10px，**占位文案两态**：键区在下面时是「输入问题」、图片选择器展开时是「输入问题或按住说话」，内容超过一行自动长高、**最多三行**，再多框内滚动）、右端两枚按钮（自左向右：**语音**按钮 —— 按住即进「按住说话」；**图片**按钮 —— 图片选择器收起时是它，展开且已选图时换成蓝色圆形「发送」）。标题栏**顶替菜单栏**（同为 --lc-toolbar-height，不额外占高）；输入区涨出来的实际高度（缩略图行 + 快捷栏 + 输入框多出来的行）由 `.keyboard.free-chat` 的 --lc-free-extra 往上长，键区高度始终与平时一致（切进 / 切出这一页键区不跳）。**这一页打开时键区打字的目标就是那行提问输入框**：拼音字母带下划线落在框里、点候选词换成正文、删除键先删字母（与宿主输入框同一套输入法逻辑），光标锚点记在 state.freeCaret。**发送**（键区右下角那颗蓝键，或图片选择器展开时输入行右端那枚蓝色圆形**向上箭头**按钮，或快捷栏上任意一条短语 —— 后者点一下**立即发送**）把这次提问交给 AI：先「AI 分析过渡页」、再聊天分析面板的生成中，最后打字机输出结果；发送后这一页收起、输入与附图一并清空。**发起时点了哪条快捷栏短语决定结果结构**：点「帮我回」→ 聊天分析（draftKind = chat，关系简报 + 三组建议）；从蓝键 / 发送按钮 / 语音发的、以及其它那两条短语 → AI通用回复（draftKind = review，见「问AI · 图片选择器」一条）。点输入框是普通聚焦（放光标）；**按住不动 260ms 转成「按住说话」只在图片选择器展开时生效** —— 那时框下方是截图网格、框里没有光标，按住框就是「要说话」的手势；键区在下面时框里停着键盘的光标（键区打字的目标就是它），长按框留给编辑 / 选字，语音只能按右端那颗语音按钮（两种入口见「问AI · 按住说话」）。X / Esc 只收起这一页，提问内容留着（下次进来还在）；「设备权限 › 键盘完全访问」关着时发送与其它生成一样静默不执行',note:'AI 结果统一由聊天分析面板承接 —— 面板关闭即回干净键盘页；两种结果形态：点快捷栏「帮我回」→ 聊天分析（关系简报 + 三组建议，draftKind = chat），其余（其它短语、蓝键 / 发送按钮 / 语音发起）→ AI通用回复（不写分析正文的简报卡 + 卡内两段 markdown，draftKind = review）；附图时先走一遍上传仿真（/v1/uploads/complete），截图转写并入本次输入。打开这一页前会收起其它键盘层（管理页 / 设置页 / 选择器 / 分析面板 / 编辑面板），打字时这一页的标题栏那行换成候选词栏（见下一条）'},
     {id:'kb-free-chat-typing',group:'宿主会话与菜单栏',name:'问AI · 打字中',route:'键盘 › 键盘顶部（问AI 页 · 打字态）',trigger:'问AI 页里在键区按任意字母键（中文键盘）进入打字态',desc:'问AI 页的打字形态：**标题栏那一行换成候选词栏**（与平时打字完全一致，两者同为 --lc-toolbar-height，键盘高度不跳），**提问输入行保持可见** —— 候选词要落在它里面、提交时第几行都要看得见（快捷栏常驻，选中过图片时缩略图行也还在）；未确认的拼音字母带下划线显示在提问输入框里（下划线由 .compose-mirror 画，见 paintComposeMirror），点候选词 / 空格 / 回车把字母替换成候选词；候选词 / 联想词按这句提问光标前的文字算（targetContext）。两个出口：候选词栏最右侧的 X，或把组合串删干净后退回「问AI」标题栏 —— 两种都仍是这一页（提问内容不丢）。键区右下角那颗蓝键在打字态也还是「发送」：组合串非空时按第一下先上屏、再按才发送（不丢拼音）',note:'与「问AI（与AI对话的页面）」是同一页（kb-free-chat 组件）的两个状态；英文键盘 / 数字层 / 符号层按键直接上屏，不进打字态、不出候选词栏（与平时一致）'},
     /* 问AI 页的选图态与按住态：同一页（kb-free-chat 组件）的另外两种形态，各占一条 */
     {id:'kb-free-picker',group:'宿主会话与菜单栏',name:'问AI · 图片选择器',route:'键盘 › 输入行下方（问AI 页 · 选图态）',trigger:'问AI 页里点提问输入行右端的图片按钮（data-action="free-picker"），或点缩略图行尾的「+」（free-picker-add：补选第 2 / 3 张时唯一的入口）；或从本列表点入（现场带 1 张附图，缩略图行随之出现 —— 快捷栏本来就常驻）',desc:'问AI 页的选图形态 —— **不跳「选择聊天截图」整页**，输入行**下方**的键盘区域（键体 + 平台底栏）整个换成三列聊天截图网格：从底部往上滑出、盖住键区（`.free-picker`，超出后网格内滚动，一屏约两行半；底纹取键盘色，浅色外观下是浅底 + 深色聊天截图卡）。同时输入行上方多出**缩略图行**（**快捷栏**本来就常驻、不随选图出现，见 kb-free-chat 条目）—— 已选截图最多 3 张（与网格里选中的那张同源、读同一份 state.selectedPhotos），每张 46px 圆角、左上角压一枚半透明黑底 X 提示「点一下移出」（点整张即移出，复用选择器的 photo:<id> 动作），未满 3 张时跟一枚「+」继续挑；**快捷栏** —— 一行预设问题「帮我回 / 这样回复如何 / 我最后一轮回复的如何」（文字不带箭头符号，窄机上放不下可左右滑），**点一下立即发送**，点的那条决定结果结构：**「帮我回」→ 聊天分析**（关系简报 + 三组建议回复），**其余 → AI通用回复**。输入行右端那枚图片按钮此时换成**蓝色圆形「发送」（里面一枚白色向上箭头）**（free-send；未选图时仍是图片按钮）：按下把「输入的那句话 + 已选截图」一起交给 AI（带截图时先走一遍上传仿真，转写并入本次输入）→「AI 分析过渡页」→ 聊天分析面板生成中 → 打字机输出。相册权限两档引导照旧生效：有限访问只放出授权过的那张；完全没开时网格位置换成一行引导 +「去开启权限」',note:'出口：点提问输入框（回到键盘页，附图与那行文字还留着）、Esc（先收选择器，再按一次才收整页）、或直接发送（发送后附图一并清空）；再点一次图片按钮也收起（同一枚按钮的开 / 关，已选图时它已是「发送」）。缩略图行与网格是同一份状态：网格里点第 2 张，缩略图行就多第 2 张，最多 3 张'},
+    {id:'kb-free-partner',group:'宿主会话与菜单栏',name:'问AI · 选择聊天对象',route:'键盘 › 输入行下方（问AI 页 · 对象列表态）',trigger:'问AI 页里点**提问输入行左端的圆形头像**（data-action="free-partner-picker"，键盘形态，2026-10-13 需求；主 App「AI 咨询师」页那颗头像不走这里）；或从本列表点入（现场：空白提问 + 对象列表展开）',desc:'问AI 页的对象列表形态 —— **不跳聊天对象管理页**，输入行**下方**的键盘区域（键体 + 平台底栏）整个换成聊天对象列表：与图片选择器同一块位置、同一套摆法（从底部往上滑出、盖住键区，`.free-partner-list` 超出后列表内滚动；底纹取键盘色 —— 浅色外观下是浅底），区别只在内容与行 —— 首行「不选择」（头像同样是那张默认头像插画）+ 其余对象按当前顺序，一行 = 圆形头像（34px）+ 备注名 + 关系阶段小字，当前选择整行浅底（强调色软底，与主 App 对象弹窗同一套行样式）。**只能选择**：行里没有左滑手势、也不挂编辑 / 删除按钮（左滑编辑 / 删除只属于聊天对象管理页）。点任意一行（含「不选择」）即切换键盘侧对象并**收起列表、留在问AI 页**（输入行左端头像随之更新；键盘侧的生成结果一并重置，宿主会话与提问草稿不受影响）。出口：点提问输入框（回键盘页）、Esc（先收列表、再按一次才收整页）、再点一次头像按钮（同一枚按钮的开 / 关）、切换对象（选完即收）',note:'与「问AI（与AI对话的页面）」是同一页（kb-free-chat 组件）的又一种形态；与同页的图片选择器互斥（同一块位置只摆一层，开一个先收另一个）；主 App「AI 咨询师」页点输入行头像是从底部弹 2 行图片高度的对象窗口（同一份对象数据、同一套行样式，见该页条目）'},
     {id:'kb-free-voice',group:'宿主会话与菜单栏',name:'问AI · 按住说话',route:'键盘 › 键盘区域（问AI 页 · 按住态）',trigger:'问AI 页里**按住提问输入行右端那颗语音按钮**（data-voice-hold="free"，按下即进按住态，两种状态下都可用）；或**按住提问输入框**不动 260ms（FREE_HOLD_MS，**只在图片选择器展开时**：那时框里没有光标；短按仍是普通聚焦 + 放光标，点框还会收起图片选择器）；或从本列表点入（现场：图片选择器展开 + 附图 1 张 + 快捷栏选中「帮我回」+ 按住态）',desc:'问AI 页的按住说话形态：输入框**下方**的那一块（键区，或正展开着的图片选择器网格）被蓝色毛玻璃遮罩整体盖住（`.voice-rec` 与键盘区域同高，上缘渐隐、与上方输入区自然融合），提示「松手发送，上滑取消」，一排蓝色波浪条起伏模拟收音 —— 与聊天分析面板的麦克风是同一条交互。手指上滑超过阈值（56px）整体变红、提示换「松手取消」（回落到阈值内恢复发送态）。**松手（未上滑）直接发送**：先走一遍仿真转写（/mock/speech/recognize），转写并入提问框里的文字，随即走 sendFreeChat —— 发送内容 = 文字（含转写）+ 已选截图，结果结构仍由快捷栏决定（「帮我回」→ 聊天分析，其余 / 未选 → AI通用回复），接着「AI 分析过渡页」→ 生成中 → 打字机输出，这一页收起',note:'两个入口的分工：**键区在下面**（键盘激活、框里停着光标）时语音只能按那颗语音按钮 —— 输入框占位此刻写「输入问题」（不再提「按住说话」），长按框留给编辑 / 选字；**图片选择器展开**时按住框与按按钮都行（占位写回「输入问题或按住说话」）。与「按住说话 · 语音转写」共用同一条遮罩与同一套上滑取消逻辑，区别只在入口与去向（面板麦克风 → 语音追问；问AI 页的这条 → 连同附图与快捷栏选择直接发送）；「设备权限 › 麦克风」关着时按住不响应。按住输入框与「点框收起图片选择器」互不打扰：短按照常聚焦 / 收起选择器，按住才转语音'},
     {id:'kb-full-access',group:'键盘权限与登录',name:'键盘完全访问引导页',route:'键盘 › 整页覆盖层（从下往上弹出 · 权限引导）',trigger:'键盘被唤起（点宿主输入框把收起的键盘唤回 / 启动即常驻（键盘已启用时）/ 左栏打开「开启键盘」/ 左栏关掉「键盘完全访问」/ 切到需要授权的平台）时，键盘侧没有完全访问权限 —— iOS 叫「允许完全访问」、鸿蒙叫「完整访问」，Android 系统上该权限默认开启、不弹这一层。它是键盘唤起的第一道检查，通过之后才轮到登录检查（见同组三条登录页）',desc:'键盘侧没有完全访问权限时的引导页，键盘一被唤起就立刻弹出：从下往上滑入、**盖住整个键盘区域**（菜单栏 / 键区 / 底栏一并盖住；键盘高度不额外变化，就是常规键盘那一块）。面板自上而下四段：① **顶条**（与键盘菜单栏同高）—— 底色与下方主体完全一致的浅灰白、**不显示任何文字**，只在最右侧放一枚圆形叉号（= 关掉这一层、回到键盘页，键盘继续可用）；② **标题**「开启[允许完全访问]，AI 帮你回复」（鸿蒙端按系统叫法写成「[完整访问]」）居中排在引导图上方；③ **引导图** —— 居中一张白色圆角卡片（柔和投影），卡片里是**两张设置操作引导图的轮播**（一轮 6 秒、每张约 3 秒，交叉淡入淡出 + 上下小幅位移，纯 CSS 动画）：第一张画系统设置列表（Siri / 搜索 / 通知 / 无线数据 / 键盘，逐行小图标 + 名称 + 右折角箭头），一枚红色箭头点着底部的「键盘」行（该行浅灰高亮）；第二张画键盘详情页（顶部「LoveCo 键盘」页名行 + 白卡里「LoveCo 键盘」开关开着、「允许完全访问」开关关着 + 一行灰字说明），红箭头旋转 90° 后点着那颗权限开关；卡片下面是蓝底白字的「去开启」按钮（34px 高、圆角 10px、左右各 20px 内边距）；④ **平台底栏**（kb-navbar，Android 不渲染，面板直接铺到屏幕底边）',note:'两张引导图在真机上是系统设置截图，这里按截图结构用 CSS 画出（不引位图，窄机上也清晰；鸿蒙端共用同一套图，只把权限名与列表行名按系统叫法换掉）。「去开启」= 仿真「去系统设置开启完全访问」（复用左栏同一条判定：把 permissions.keyboard 置成已开启），随后接着做登录检查 —— 未登录就顺势弹出键盘内登录页，都满足才回键盘；右上角叉号 = 关掉这一层、回到键盘页（权限仍未开 —— 收起键盘后下次唤起会再弹一次），Esc 与它同一条出口；点宿主聊天区域收起键盘也会一并收起它'},
     {id:'kb-login-one-tap',group:'键盘权限与登录',name:'键盘内登录 · 本机号一键登录',route:'键盘 › 整页覆盖层（从下往上弹出）',trigger:'键盘被唤起的**前置检查走到第二环**（点宿主输入框把收起的键盘唤回 / 启动即常驻 / 左栏关掉「登录状态」开关）：完全访问权限已开（没开的话先弹「键盘完全访问引导页」）且未登录，并且「设备权限 › 蜂窝网络」打开（视为已插卡且有蜂窝网络）',desc:'未登录时的登录页，键盘一被唤起就立刻弹出：从下往上滑入、覆盖整个键盘 UI 区域（菜单栏 / 键区 / 底栏一并盖住），**高度与键盘保持一致**（常规 250px，不额外拉高整块键盘；内部按这条横带重排 —— 按钮 / 输入框取紧凑档，协议行沉到最下）。皮肤固定浅色：整块通底淡蓝（2026-09-29 起改蓝并通体纯色，原为淡粉紫渐变）；**顶部一条键盘菜单栏那么高的「X 顶条」**（高度取 --lc-toolbar-height：常规 40px、矮窗口 210px 档 27px），X 靠右独占这一行、关闭本次登录（键盘恢复可用）—— 本机号 / 主按钮 / 「手机号登录」入口 / 协议行整体跟着往下移这一行（本机号不再自己留上边距）；顶条下是居中的大号本机号（号码旁不标「上次登录」）；下方整宽蓝色胶囊主按钮「本机号一键登录」（带同色柔光投影）—— **未勾选协议时点它不静默无反应，而是让底部协议行左右抖一下**（提示先勾选：只抖一次、颜色不变、也不弹任何提示条）；再往下居中的「手机号登录」圆角方块入口（**38px 见方 / 圆角 11px** 的浅灰底，矮窗口 33px；深色描边手机图形 + 灰色小字，点它切到手机号验证登录形态）；底部一行协议勾选（圆形勾选框 + 十一号灰字，协议名是同一层里可点的深色文字按钮 —— 点开键盘内协议正文页，见「键盘内登录 · 协议正文」）。勾选后点主按钮即模拟登录成功，先弹出「登录成功」提示、约 1 秒后收起登录层回到键盘；点 X 则保持未登录（下次唤起键盘再弹一次）',note:'本机号取 state.phone（仿真「上次登录」号，默认 138****8000，号码旁不再显示「上次登录」小标），一键登录走 POST /v1/auth/one-tap/login 仿真接口（不调用运营商 SDK）；协议名可点开键盘内协议正文页（kb-legal）—— 与主 App 登录页的协议链接同一个数据源（legal-data.js）；设计图里的「登录 LOVEKEY · 添加聊天人设到键盘」标题、微信 / Apple 登录入口按要求不呈现'},
@@ -879,8 +886,8 @@
     {id:'kb-symbols',group:'键盘布局',name:'符号键盘',route:'键盘 › 按键区（符号层）',trigger:'九宫格 / 数字层左列末键「符号」，或九宫格 `@#` 键',desc:'左列四个分类（常用 / 中文 / 英文 / 表情）+ 右侧 4×4 符号面板（1px 网格线分隔）+ 底行「返回 / ，/ 空格 / 中英 / 发送」',note:'分类只换右侧 16 个符号，仅存在于当前页面内存'},
     {id:'partner-manager',group:'聊天对象',name:'聊天对象管理页',route:'键盘 › 整页覆盖层',trigger:'键盘菜单栏左侧的头像按钮',desc:'覆盖整个键盘区域（不覆盖宿主输入栏）：首行「不选择」（**2026-10-06 晚些需求起该行头像也用默认头像插画 AV.chat**，与下面对象行同一张），其余为对象列表（**顺序按最近操作在前** —— 新建的对象排在列表最前，编辑过的对象保存后也从原位提到最前，其余对象保持原有相对顺序）；单击行即选中并退出，左滑时编辑 / 删除从行右侧滑入、盖在行内容上（头像与名称保持可见，删除不二次确认、也不弹提示 —— 行收起后直接从列表消失并落库，退出再进来不会恢复）',note:'新建 / 编辑在键盘模式下打开「聊天对象编辑面板」（kb-partner-editor，新增 / 编辑两种形态各占一条）；主 App 形态仍用弹层'},
     {id:'partner-manager-empty',group:'聊天对象',name:'聊天对象管理页 · 空列表',route:'键盘 › 整页覆盖层（空态）',trigger:'列表里没有对象时（把对象全部删光）',desc:'「不选择」行下方显示空态文案：「还没有聊天对象，点右上角「新建」添加。」—— 文案只做水平居中、紧跟在「不选择」行下方（上方 24px 间距，剩余空白一律沉在下方，不做垂直居中）；本条目点入即为该空态（只影响渲染、不动对象数据），真实把对象删光后也是同一形态',note:'与「聊天对象管理页」是同一覆盖层的空态分支；「不选择」行始终在'},
-    {id:'kb-partner-editor',group:'聊天对象',name:'新增聊天对象',route:'键盘 › 覆盖层（键盘区域上半）',trigger:'聊天对象管理页右上角「新建」',desc:'聊天分析面板同款深色皮肤，页面分上下两部分：上半是表单、下半是键盘（键盘整块仍拉高到手机屏幕三分之二；**下半键盘没有菜单栏** —— 2026-10-13 需求整行不渲染，空出来的那条高度归上半的表单面板，键区与底栏跟平时一致、每颗键大小不变，键区打字时候选词栏照常顶上来）：标题栏压成一行，表单**竖排居中** —— 头像在上（虚线圆槽显示「上传头像」，点击进图片选择器的头像模式 —— 单选、底部「确定」），备注名 / 关系阶段两行在下面整宽排开（左标签 + 右控件，2026-10-13 需求：头像不再占左侧一列，两个 item 比原先长出一截）；打开面板光标默认落在备注名、键区打字直接写进备注名（拼音带下划线、候选词替换与宿主输入框同一套）；键区右下角的功能键在这个场景显示「确定」—— 按下先兜底落库再回聊天对象管理页（面板里不放确定按钮，标签见 enterKeyLabel、动作见 closeKbEditor）；称呼 / 关系阶段 / 头像一有变化即静默保存，关闭面板时兜底落库（对象随之排到聊天对象列表最前）；标题栏右端一颗「保存」按钮（2026-10-13 需求：原 X 号换成它 —— 点击即落库并退出面板回管理页）',note:'性别与备注信息已移除；与「修改聊天对象」是同一面板（kb-partner-editor）的两种形态；头像模式只列带位图的图片（插画样例），聊天截图卡没有位图当不了头像；进头像选择器时本面板收起（选择器铺满整个键盘区域），选择器关闭 / 确定后再弹回来；开管理页 / 开选图选择器前同样先收起本面板（dismissKbEditor，先兜底落库），选择器关闭 / 确定后再弹回来；菜单栏在这个场景整行不渲染，齿轮入口不再出现 —— 要切键盘形态点底栏那颗地球（switch-keyboard，全键盘 / 九宫格对切）'},
-    {id:'kb-partner-edit',group:'聊天对象',name:'修改聊天对象',route:'键盘 › 覆盖层（键盘区域上半）',trigger:'聊天对象管理页对象行左滑「编辑」',desc:'与「新增聊天对象」同一面板的编辑态（同样只占键盘区域上半；下半键盘同样没有菜单栏）：标题「编辑聊天对象」，头像在上 / 备注名 · 关系阶段在下面整宽排开，预填对象当前值（头像槽标注「更换头像」）且光标默认在备注名末尾、键区打字直接写进备注名，键区右下角的功能键显示「确定」（按下落库并回聊天对象管理页）、改动即静默保存、关闭时兜底落库（对象随之排到列表最前）；标题栏右端一颗「保存」按钮（2026-10-13 需求：原 X 号换成它，点击即落库并回管理页）；不再展示「删除这个对象」（删除只走列表左滑）',note:'保存保留面板中未提供的性别 / 备注信息原值'},
+    {id:'kb-partner-editor',group:'聊天对象',name:'新增聊天对象',route:'键盘 › 覆盖层（键盘区域上半）',trigger:'聊天对象管理页右上角「新建」',desc:'聊天分析面板同款深色皮肤，页面分上下两部分：上半是表单、下半是键盘（键盘整块仍拉高到手机屏幕三分之二 —— **2026-10-13 晚些需求：窗口高 ≤ 780px 时键盘保底 520px 高（两边连续、拖动窗口无跳变），多出来的高度全归上半表单，保证表单末尾与键区之间留得下间距**；**下半键盘没有菜单栏** —— 2026-10-13 需求整行不渲染，空出来的那条高度归上半的表单面板，键区与底栏跟平时一致、每颗键大小不变，键区打字时候选词栏照常顶上来）：标题栏压成一行，表单**竖排居中** —— 头像在上（虚线圆槽显示「上传头像」—— 槽与图标 2026-10-13 晚些需求小一档：64/26 → 54/20；点击进图片选择器的头像模式 —— 单选、底部「确定」），备注名 / 关系阶段两行在下面整宽排开（左标签 + 右控件，2026-10-13 需求：头像不再占左侧一列，两个 item 比原先长出一截；**表单末尾与键区之间另有固定底部留白 18px，2026-10-13 晚些需求，关系阶段不贴到键盘上**）；打开面板光标默认落在备注名、键区打字直接写进备注名（拼音带下划线、候选词替换与宿主输入框同一套）；键区右下角的功能键在这个场景显示「确定」—— 按下先兜底落库再回聊天对象管理页（面板里不放确定按钮，标签见 enterKeyLabel、动作见 closeKbEditor）；称呼 / 关系阶段 / 头像一有变化即静默保存，关闭面板时兜底落库（对象随之排到聊天对象列表最前）；标题栏右端一枚 X（2026-10-13 晚些需求：当日的「保存」按钮又改回 X 号 —— 点击即落库并退出面板回管理页）',note:'性别与备注信息已移除；与「修改聊天对象」是同一面板（kb-partner-editor）的两种形态；头像模式只列带位图的图片（插画样例），聊天截图卡没有位图当不了头像；进头像选择器时本面板收起（选择器铺满整个键盘区域），选择器关闭 / 确定后再弹回来；开管理页 / 开选图选择器前同样先收起本面板（dismissKbEditor，先兜底落库），选择器关闭 / 确定后再弹回来；菜单栏在这个场景整行不渲染，齿轮入口不再出现 —— 要切键盘形态点底栏那颗地球（switch-keyboard，全键盘 / 九宫格对切）'},
+    {id:'kb-partner-edit',group:'聊天对象',name:'修改聊天对象',route:'键盘 › 覆盖层（键盘区域上半）',trigger:'聊天对象管理页对象行左滑「编辑」',desc:'与「新增聊天对象」同一面板的编辑态（同样只占键盘区域上半；下半键盘同样没有菜单栏）：标题「编辑聊天对象」，头像在上 / 备注名 · 关系阶段在下面整宽排开，预填对象当前值（头像槽标注「更换头像」）且光标默认在备注名末尾、键区打字直接写进备注名，键区右下角的功能键显示「确定」（按下落库并回聊天对象管理页）、改动即静默保存、关闭时兜底落库（对象随之排到列表最前）；标题栏右端一枚 X（2026-10-13 晚些需求：当日的「保存」按钮又改回 X 号，点击即落库并回管理页）；不再展示「删除这个对象」（删除只走列表左滑）',note:'保存保留面板中未提供的性别 / 备注信息原值'},
     {id:'photo-picker-avatar',group:'聊天对象',name:'键盘选择器 · 选择头像',route:'键盘 › 整页覆盖层（从下往上弹出 · 头像模式）',trigger:'新增 / 编辑聊天对象面板点头像槽',desc:'同一选择器的头像模式：标题「选择头像」、候选是 12 张模拟头像 + 带位图的插画样例（聊天截图卡没有位图当不了头像）、方形磁贴（与裁出的方头像同规格）、单选（选中画 ✓，再点取消 / 点别的替换），底部按钮「确定」（未选时禁用）',note:'与「键盘选择器 · 选择聊天截图」是同一面板（kb-photo-picker）的两种形态；确定后把图居中裁成方形存进编辑面板草稿，X / Esc 同样返回编辑面板'},
     {id:'kb-settings',group:'键盘设置',name:'键盘设置页',route:'键盘 › 整页覆盖层',trigger:'键盘菜单栏最右侧的设置图标（新增 / 修改聊天对象面板打开时菜单栏整行不渲染，这个入口不出现 —— 那种场景要切形态点底栏地球）',desc:'「选择你喜欢的中文键盘」：九宫格拼音 / 全键盘拼音两张选项卡，选中即收起覆盖层并切换键区（键区形态见「键盘布局」组）',note:'切换的是中文键盘的布局；与聊天对象管理页互斥'},
     {id:'photo-picker',group:'聊天分析',name:'键盘选择器 · 选择聊天截图',route:'键盘 › 整页覆盖层（从下往上弹出）',trigger:'键盘菜单栏的相册图标（相册访问权限为「完整访问」时）',desc:'三列聊天截图网格（3:4 磁贴，一屏可见四行），最多选 3 张（蓝色圆形序号按选择顺序编号，再点取消），右下角「立即分析」把截图加入 AI 输入并直接生成；顶部是标题「选择聊天截图（最多3张）」+ 灰色副标题「按时间从前到后排序，分析更到位」+ 右上角 X',note:'面板固定深色（设计图即深色场景），键盘拉高到手机屏幕三分之二；打开前先验相册访问权限（左栏「设备权限 › 相册访问权限」），不是完整访问就换成另两种引导形态（见下两条）；编辑面板开着时打开，面板先收起、关闭选择器再弹回编辑面板'},
@@ -1472,6 +1479,9 @@
       /* 选图形态：带一张附图（缩略图行 + 网格里的序号 1；快捷栏常驻、与附图无关），
          再把输入行下方的键区换成图片选择器网格 —— 输入行右端那枚按钮此时是蓝色「发送」 */
       case 'kb-free-picker': kbReset(); state.freeText=''; state.selectedPhotos=photoItems()[0]?[photoItems()[0].id]:[]; openFreeChat(); return openFreePicker();
+      /* 对象列表形态（2026-10-13 需求）：空白提问现场再展开聊天对象列表（输入行下方的键区
+         换成对象列表，只能选择不能左滑编辑 / 删除）—— 静态查看时不停在别的东西上 */
+      case 'kb-free-partner': kbReset(); state.freeText=''; state.selectedPhotos=[]; state.freeShortcut=''; openFreeChat(); return openFreePartnerPicker();
       /* 按住说话：同一现场再叠上按住态遮罩（遮罩与键盘区域同高，整块键盘都在里面） */
       case 'kb-free-voice': kbReset(); state.freeText=''; state.selectedPhotos=photoItems()[0]?[photoItems()[0].id]:[]; openFreeChat(); openFreePicker(); state.voiceHold={cancel:false,y0:0,pid:-1,source:'free'}; return render();
       /* 完全访问引导层（静态查看）：把运行平台置成 iOS、左栏「键盘完全访问」置成关（两处都反映在
@@ -3874,11 +3884,16 @@
        + 卡片 + 按钮在键盘区域内排下来，登录层则沿用键盘高度。 */
     /* 问AI 页展开图片选择器时（state.freePicker），输入行**下方**的整块键区（键体 + 平台底栏）
        换成截图网格：网格从底部往上滑出、盖住键区、超出可滚动（kb-photo-picker 的内嵌形态，
-       见 theme.css 的 .free-picker）—— 面板铺满的「选择聊天截图」整页在这里不出现。 */
+       见 theme.css 的 .free-picker）—— 面板铺满的「选择聊天截图」整页在这里不出现。
+       展开聊天对象列表时（state.freePartnerPicker，2026-10-13 需求）是同一块位置的另一层：
+       键区换成对象列表（kb-partner-picker，样式 .free-partner-list），两者互斥。 */
     const freePickerOpen = state.freeChat && state.freePicker;
+    const freePartnerOpen = state.freeChat && state.freePartnerPicker;
     const keyboardBody = freePickerOpen
       ? LoveCoUI.render('kb-photo-picker', ctx)
-      : `<div class="kb-body" id="kbbody">${LoveCoUI.render('kb-keys', ctx)}</div>${LoveCoUI.render('kb-navbar', ctx)}`;
+      : freePartnerOpen
+        ? LoveCoUI.render('kb-partner-picker', ctx)
+        : `<div class="kb-body" id="kbbody">${LoveCoUI.render('kb-keys', ctx)}</div>${LoveCoUI.render('kb-navbar', ctx)}`;
     const keyboardSection = state.kbCollapsed ? '' : !state.permissions.kbEnabled ? `<section class="keyboard kb-off" aria-label="LoveCo 键盘未开启"><span class="kb-off-note">键盘未开启 · 宿主 App 使用系统键盘</span></section>` : `<section class="keyboard ${state.freeChat?'free-chat':''} ${state.photoPanel||state.chatPanel||state.scanPanel||state.kbEditor?'with-picker':''}" aria-label="LoveCo 模拟键盘">
               ${keyboardTopBar(ctx)}
               ${keyboardBody}
@@ -4585,20 +4600,20 @@
     dismissKbEditor();
     /* 以菜单栏第一状态进入这一页：候选词栏 / 数字 · 符号层都退回字母层 ——
        与「从页面列表点进某个键盘页面」一样，进来就是干净的底座 + 这一页；
-       图片选择器也收起（这一页默认是「标题栏 + 输入行 + 键区」的样子） */
+       图片选择器与对象列表也收起（这一页默认是「标题栏 + 输入行 + 键区」的样子） */
     state.typing=false;state.composition='';state.t9Path=0;state.layer='letters';
-    state.freePicker=false;
+    state.freePicker=false;state.freePartnerPicker=false;
     state.freeChat=true;state.freeCaret=state.freeText.length;state.pickerEnter=true;render();state.pickerEnter=false;
   }
   /* 收起问AI 页（不开别的东西）：输入法状态一并清干净 —— 组合串与打字态属于这一页，
      留着会串到宿主输入框（显示值里会插进拼音字母、下划线画到别人的框里，与 dismissKbEditor 同理）；
-     图片选择器也随这一页收起，按住说话的计时器一起摘掉。
+     图片选择器 / 对象列表也随这一页收起，按住说话的计时器一起摘掉。
      提问输入框的内容、已选截图同样留着（和那句话是同一份草稿：收起的是键盘 / 页面，
      不是用户打的字、挑的图），发送成功后才由 sendFreeChat 清空。 */
   function dismissFreeChat() {
     clearTimeout(state.freeHoldTimer);state.freeHoldTimer=null;
     if(!state.freeChat)return;
-    state.freeChat=false;state.freePicker=false;
+    state.freeChat=false;state.freePicker=false;state.freePartnerPicker=false;
     state.composition='';state.t9Path=0;state.typing=false;
   }
   /* 标题栏的 X / Esc：收起这一页，回到干净键盘页（菜单栏 + 键区） */
@@ -4611,13 +4626,29 @@
      已选图片最多 3 张，缩略图行与网格读的是同一份 state.selectedPhotos。 */
   function openFreePicker() {
     if(!state.freeChat||state.freePicker)return;
-    state.freePicker=true;state.pickerEnter=true;render();state.pickerEnter=false;
+    state.freePicker=true;state.freePartnerPicker=false;state.pickerEnter=true;render();state.pickerEnter=false;
   }
   function closeFreePicker() {
     if(!state.freePicker)return;
     state.freePicker=false;render();
   }
   function toggleFreePicker() { if(state.freePicker)closeFreePicker();else openFreePicker(); }
+  /* —— 问AI 页里的聊天对象列表（kb-partner-picker 的内嵌形态，2026-10-13 需求）——
+     点输入行**左端**的头像展开（此前这一下跳聊天对象管理页）：与图片选择器同一块位置
+     （输入行下方的键区换成对象列表，从底部往上滑出、超出可滚动，见 theme.css 的 .free-partner-list），
+     但这一层**只能选择** —— 行里没有左滑手势、也不挂编辑 / 删除按钮，点任意一行（含首行
+     「不选择」）即切换对象、列表收起、留在问AI 页（输入行头像随之更新，见 select-partner 动作）。
+     出口与图片选择器同一套：点输入框（回键盘页）、Esc（先收列表、再按一次才收整页）、
+     再点一次头像按钮（同一枚按钮的开 / 关）。与 freePicker 互斥。 */
+  function openFreePartnerPicker() {
+    if(!state.freeChat||state.freePartnerPicker)return;
+    state.freePartnerPicker=true;state.freePicker=false;state.pickerEnter=true;render();state.pickerEnter=false;
+  }
+  function closeFreePartnerPicker() {
+    if(!state.freePartnerPicker)return;
+    state.freePartnerPicker=false;render();
+  }
+  function toggleFreePartnerPicker() { if(state.freePartnerPicker)closeFreePartnerPicker();else openFreePartnerPicker(); }
   /* 快捷栏（帮我回 / 这样回复如何 / 我最后一轮回复的如何）：**点一下立即发送** ——
      点哪条决定结果结构（见 sendFreeChat 里的 kind）：「帮我回」→ 聊天分析（关系简报 + 三组建议），
      其余 → AI通用回复。组合串非空时先上屏（与键区那颗蓝键、Enter 一致，不丢未确认的拼音）。
@@ -4738,7 +4769,7 @@
        （显示值里会插进拼音字母、下划线画到别人的框里） */
     state.composition='';state.t9Path=0;state.typing=false;
   }
-  /* 关闭编辑面板并回聊天对象管理页：面板「保存」按钮（原 X 号）/ Esc、键区功能键「确定」共用同一条出口 ——
+  /* 关闭编辑面板并回聊天对象管理页：面板右上角 X 号（2026-10-13 晚些需求：当日那颗「保存」按钮改回它）/ Esc、键区功能键「确定」共用同一条出口 ——
      先兜底落库（dismissKbEditor 内的 settleKbPartner）再回列表；
      新增态名字为空时 settleKbPartner 不建对象，确定等价于放弃。
      顺手把设置页也收起（菜单栏 2026-10-13 起在编辑面板场景整行不渲染、齿轮不存在了，
@@ -6096,7 +6127,7 @@
       abortVoiceHold();state.modal=null;state.modalData={};state.settingsPanel=false;state.photoPanel=false;state.photoBack='';dismissChatPanel();state.partnersEmptyDemo=false;state.partnersRemoving.clear();state.partnerPanel=true;state.panelEnter=true;render();state.panelEnter=false;return;
     }
     if(name==='close-partner-manager'){state.partnerPanel=false;return render();}
-    /* 对象编辑面板（kb-partner-editor）的「保存」按钮（原 X 号）/ Esc 出口：先静默落库最终值，再回聊天对象管理页
+    /* 对象编辑面板（kb-partner-editor）右上角 X 号（2026-10-13 晚些需求：当日那颗「保存」按钮改回它）/ Esc 出口：先静默落库最终值，再回聊天对象管理页
        （与键区功能键「确定」是同一条出口，见 closeKbEditor） */
     if(name==='close-kb-editor'){closeKbEditor();return render();}
     /* 键盘顶部菜单栏最右侧的设置图标：切换到键盘设置页（同一个键盘区域内覆盖层，铺满整块键盘）。
@@ -6137,6 +6168,10 @@
     }
     if(name==='free-send')return sendFreeChat();
     if(name==='free-shortcut')return pickFreeShortcut(arg);
+    /* 问AI 页输入行左端头像按钮（键盘形态）：展开 / 收起**聊天对象列表**（内嵌形态：
+       列表盖住键区、只能选择不能左滑编辑，见 openFreePartnerPicker）。
+       主 App「AI 咨询师」页不走这条 —— 那里仍走 partner-manager 动作落它自己的底部弹窗。 */
+    if(name==='free-partner-picker')return toggleFreePartnerPicker();
     /* 键盘顶部菜单栏的相册图标：从下往上弹出键盘选择器（「选择聊天截图（最多3张）」），
        面板覆盖整个键盘区域，键盘整块拉高到手机屏幕的三分之二（.keyboard.with-picker，见 theme.css）。
        每次打开都从空选择开始。 */
@@ -6145,8 +6180,12 @@
     if(name==='select-partner'){
       /* 第三方 App 是固定聊天模板：切对象不动会话（消息 / 草稿原样保留），只重置键盘侧的生成。
          主 App「AI 咨询师」页从底部弹窗里选：**选完即收、留在聊天页**（输入行头像随之更新）；
-         其余主 App 形态选完留在「对象」页（这一页就是对象列表）；键盘形态回管理页 */
+         问AI 页的对象列表（state.freePartnerPicker，2026-10-13 需求）同样是**选完即收、
+         留在问AI 页**（输入行头像随之更新）—— 只有点进聊天对象管理页（partner-manager）选的
+         才回管理页；
+         其余主 App 形态选完留在「对象」页（这一页就是对象列表） */
       cancelAI(true);state.selectedPartner=arg;state.results=[];state.host='';state.partnerPanel=false;
+      if(state.freePartnerPicker){state.freePartnerPicker=false;return render();}
       if(state.appView==='app'&&state.appScreen==='app-ai'){state.aaiSheet='';state.freePicker=false;return render();}
       if(state.appView==='app')return openAppScreen('partners');
       closeModal();return;
@@ -6696,7 +6735,8 @@
        点击 / 移动光标时把 DOM 位置换算回光标锚点，长文本框内滚动时下划线跟着滚；
        内容多行长高（最多三行，见 paintFreeInputGrowth）；Enter 直接当「发送」
        （组合串非空时先上屏，见 sendFreeChat）。
-       **点这个框还有一层意思**：图片选择器展开时点它就收起、回到键盘页（见 closeFreePicker）。
+       **点这个框还有一层意思**：图片选择器 / 聊天对象列表展开时点它就收起、回到键盘页
+       （见 closeFreePicker / closeFreePartnerPicker）。
        按住呢？**只有图片选择器展开时**按住才转语音（pointerdown → startFreeVoiceWatch）：
        那时框下方是截图网格、框里没有光标，按住框就是自然的「要说话」手势。
        键区在下面时框里停着光标（键区打字的目标就是它），长按框留给编辑 / 选字、不进语音 ——
@@ -6710,7 +6750,8 @@
       /* 主 App「AI 咨询师」页：点输入框 = 调出「当前键盘」（LoveCo / 系统键盘，见 openAaiKeyboard；
          底部弹窗开着时这一下先收弹窗）—— 键盘形态的问AI 页仍是老习惯：点输入框收选择器 */
       if(state.appView==='app'&&state.appScreen==='app-ai'){openAaiKeyboard();return;}
-      if(state.freePicker){state.freePicker=false;render();}
+      /* 键盘形态：点输入框 = 收掉下方正展开的那一层（图片选择器 / 聊天对象列表），回键盘页 */
+      if(state.freePicker||state.freePartnerPicker){state.freePicker=false;state.freePartnerPicker=false;render();}
     });
     /* 主 App「AI 咨询师」页：点聊天记录区 = 收起调出的键盘 / 底部弹窗（点输入框以外收键盘，
        与豆包聊天页同一习惯；已经收干净时不重渲染、不抢输入框焦点） */
@@ -6903,7 +6944,7 @@
         if(closeAaiLayers()){render();return;}
         dismissFreeChat();openAppScreen('home');return;
       }
-      if(state.userSheet){state.userSheet='';render();return;}if(state.cancelAsk){state.cancelAsk=false;render();return;}if(state.supportSheet){state.supportSheet=false;render();return;}if(state.kbLegal){closeKbLegal();render();return;}if(state.kbConsentAsk){closeKbConsentAsk();render();return;}if(state.kbLogin){if(state.appView==='app'&&(state.appScreen==='login'||state.appScreen==='login-one-tap'))closeAppLogin();else closeKbLogin();render();return;}if(state.kbFullAccess){closeKbFullAccess();render();return;}if(state.kbPaywall){closeKbPaywall();render();return;}if(state.modal)closeModal();else if(state.chatPanel)closeChatAnalysis();else if(state.scanPanel)finishScan();else if(state.photoPanel)closePhotoPanel();else if(state.settingsPanel){state.settingsPanel=false;render();}else if(state.kbEditor){closeKbEditor();render();}else if(state.partnerPanel){state.partnerPanel=false;render();}else if(state.freePicker){closeFreePicker();}else if(state.freeChat){closeFreeChat();}else if(state.pending)cancelAI();return;}
+      if(state.userSheet){state.userSheet='';render();return;}if(state.cancelAsk){state.cancelAsk=false;render();return;}if(state.supportSheet){state.supportSheet=false;render();return;}if(state.kbLegal){closeKbLegal();render();return;}if(state.kbConsentAsk){closeKbConsentAsk();render();return;}if(state.kbLogin){if(state.appView==='app'&&(state.appScreen==='login'||state.appScreen==='login-one-tap'))closeAppLogin();else closeKbLogin();render();return;}if(state.kbFullAccess){closeKbFullAccess();render();return;}if(state.kbPaywall){closeKbPaywall();render();return;}if(state.modal)closeModal();else if(state.chatPanel)closeChatAnalysis();else if(state.scanPanel)finishScan();else if(state.photoPanel)closePhotoPanel();else if(state.settingsPanel){state.settingsPanel=false;render();}else if(state.kbEditor){closeKbEditor();render();}else if(state.partnerPanel){state.partnerPanel=false;render();}else if(state.freePartnerPicker){closeFreePartnerPicker();}else if(state.freePicker){closeFreePicker();}else if(state.freeChat){closeFreeChat();}else if(state.pending)cancelAI();return;}
     if(e.key==='Tab'&&state.modal){
       const nodes=[...document.querySelectorAll('.sheet button:not(:disabled),.sheet input,.sheet textarea,.sheet select,.sheet a[href]')].filter(n=>n.offsetParent!==null);
       if(!nodes.length)return;const first=nodes[0],last=nodes.at(-1);
