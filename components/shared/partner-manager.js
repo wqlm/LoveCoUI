@@ -7,10 +7,12 @@
    行内容固定不动，滑开时头像与名称仍可见（键盘面板窄，内容整行左移会被按钮组推出可视区）；
    滑动手势与防误触在 app.js 的 bind()，样式在 theme.css 的 .swipe-row。
    行内文字：头像后只显示备注名 + 关系阶段（性别 / 备注不再展示，与键盘编辑面板字段一致）。
+   首行「不选择」的头像 2026-10-06 晚些需求起也用默认头像插画（ctx.defaultAvatar = AV.chat），
+   与主 App「AI 咨询师」页那个对象列表弹层保持同一张。
    选中与否只靠行边框高亮表达，不再画 ✅；行内的选择 / 新建 / 编辑 / 删除
    全部复用 app.js 已有的聊天对象动作，本组件只产出结构。 */
 LoveCoUI.define('shared', 'partner-manager', (ctx) => {
-  const { esc, icon, ib, noneAvatar, state, person, partnerAvatar } = ctx;
+  const { esc, icon, ib, noneAvatar, state, person, partnerAvatar, defaultAvatar } = ctx;
   const current = person();
 
   /* 列表直接读 state.partners —— 删除是真删除（app.js deletePartner 落库后数据即少一条），
@@ -36,7 +38,7 @@ LoveCoUI.define('shared', 'partner-manager', (ctx) => {
       ${ib('Close','返回键盘','close-partner-manager')}
     </header>
     <div class="panel-list">
-      <button class="partner-row none-row ${current?'':'selected'}" data-action="select-partner:none" aria-pressed="${!current}">${noneAvatar()}<span class="person-meta"><strong>不选择</strong></span></button>
+      <button class="partner-row none-row ${current?'':'selected'}" data-action="select-partner:none" aria-pressed="${!current}">${noneAvatar(defaultAvatar)}<span class="person-meta"><strong>不选择</strong></span></button>
       ${rows || '<p class="panel-empty">还没有聊天对象，点右上角「新建」添加。</p>'}
     </div>
   </div>`;

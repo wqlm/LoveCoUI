@@ -16,8 +16,16 @@
     const safeImage = /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(image);
     return `<span class="avatar ${esc(color)}">${safeImage ? `<img src="${image}" alt="${esc(name)}的头像">` : esc(name.slice(0, 1))}</span>`;
   };
-  /** 「不选择」占位头像：虚线空槽 + 中性用户图标，表示没有具体聊天对象（样式见 theme.css 的 .avatar.none） */
-  const noneAvatar = () => `<span class="avatar none" aria-hidden="true">${icon('User')}</span>`;
+  /** 「不选择」占位头像：没传图片时是虚线空槽 + 中性用户图标（样式见 theme.css 的
+      .avatar.none），表示没有具体聊天对象；传了内联图片就用那张图 —— 对象列表里的
+      「不选择」行统一走这条（下发的是已绑定默认头像插画 AV.chat 的版本，见 app.js 的
+      uiContext），对象编辑器的「上传头像」槽不传图、仍是虚线空槽 */
+  const noneAvatar = (image = '') => {
+    const safeImage = /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(image);
+    return safeImage
+      ? `<span class="avatar none-img"><img src="${image}" alt="未选择聊天对象"></span>`
+      : `<span class="avatar none" aria-hidden="true">${icon('User')}</span>`;
+  };
   /** 平台展示名 */
   const platformName = (platform) => ({ harmony: 'HarmonyOS', android: 'Android', ios: 'iOS' }[platform] || 'HarmonyOS');
   /** 聊天截图缩略图：聊天类样例画成深色聊天截图（设计图里的样子，最多画 3 条气泡），
