@@ -1310,13 +1310,33 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    由上面 .keyboard:has(.kb-partner-editor) 一组规则保持贴底。
    面板内表单是横向一行：**头像在左**（「上传头像」虚线圆槽 + 小字提示），
    **备注名 / 关系阶段两行在右**（左标签 + 右控件），整行在剩余空间里垂直居中。
-   标题栏压到一行（此处覆盖 .picker-top 的共用 padding，不动选图面板），没有说明文案。
+   标题栏压到一行（此处覆盖 .picker-top 的共用 padding，不动选图面板），没有说明文案，
+   右端一颗「保存」按钮（2026-10-13 需求：原 X 号就地换成它，点击即落库并退出面板回管理页，
+   动作复用 close-kb-editor；`.picker-top` 随之由「绝对定位 X + 46px 右内边距」改成 flex 两端对齐）。
    没有底部「确定」—— 表单一有变化即静默保存（逻辑见 app.js），编辑态也没有「删除这个对象」。 */
 .kb-partner-editor {
   bottom: auto;
   height: calc(100% - var(--lc-keyboard-height));
 }
-.kb-partner-editor .picker-top { padding: 7px 46px 1px 15px; }
+.kb-partner-editor .picker-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 7px 12px 1px 15px;
+}
+/* 标题栏右端的「保存」按钮（2026-10-13 需求：原 X 号就地换成它，点击即落库并退出面板，
+   动作复用 close-kb-editor）：26px 高小胶囊，「立即分析」同款紫渐变 + 轻投影 */
+.kb-partner-editor .picker-save {
+  flex: 0 0 auto;
+  height: 26px;
+  padding: 0 13px;
+  border-radius: 13px;
+  background: linear-gradient(105deg, #5340CE 0%, #7E68F0 55%, #A99BFF 100%);
+  color: #FFF;
+  font-size: 12.5px;
+  font-weight: 600;
+  box-shadow: 0 3px 10px #5340CE40;
+}
 .kb-partner-editor .pe-body {
   display: flex;
   flex-direction: row;
@@ -2436,6 +2456,9 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   /* 键盘选择器面板：窄屏收紧标题与网格 */
   .kb-photo-picker .picker-top { padding: 16px 42px 10px 12px; }
   .kb-photo-picker .picker-top h2 { font-size: 15px; }
+  /* 对象编辑面板（根节点同挂 .kb-photo-picker，上面那条 padding 会一并命中）：保存按钮改由
+     flex 排版后，右侧不再给绝对定位 X 留 42px —— 右内边距收回 12px（按钮尺寸不变） */
+  .kb-partner-editor .picker-top { padding-right: 12px; }
   .kb-photo-picker .picker-body { padding: 2px 10px 16px; }
   .kb-photo-picker .picker-grid { gap: 8px; }
   /* 权限引导（引导条 / 引导页）：窄屏收紧字号与留白 */
@@ -2994,8 +3017,9 @@ html[data-view="device"] .sheet-footer {
   html[data-view="device"] .keyboard .t9-bottom { gap: 2px; }
   html[data-view="device"] .modal-backdrop { inset: 0; }
   /* 极矮窗口（device 视图演示）：键盘拉高后上半只剩 ~115px，编辑器表单控件收紧一档 */
-  html[data-view="device"] .kb-partner-editor .picker-top { padding: 5px 40px 0 12px; }
+  html[data-view="device"] .kb-partner-editor .picker-top { padding: 5px 12px 0 12px; }
   html[data-view="device"] .kb-partner-editor .picker-top h2 { font-size: 13px; }
+  html[data-view="device"] .kb-partner-editor .picker-save { height: 22px; padding: 0 10px; border-radius: 11px; font-size: 11px; }
   html[data-view="device"] .kb-partner-editor .pe-body { gap: 10px; padding: 0 12px; }
   html[data-view="device"] .kb-partner-editor .pe-avatar { gap: 3px; }
   html[data-view="device"] .kb-partner-editor .pe-avatar-ph,

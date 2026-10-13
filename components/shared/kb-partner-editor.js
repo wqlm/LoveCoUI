@@ -4,7 +4,8 @@
    （样式见 theme.css 的 .kb-partner-editor 一组规则）。
    入口：聊天对象管理页右上角「新建」/ 行内左滑「编辑」—— app.js 按形态分流，键盘模式开本面板，
    主 App 形态仍是弹层（partnerEditor()）。
-   出口：右上角 X / Esc（close-kb-editor，先静默落库再回聊天对象管理页）。
+   出口：右上角「保存」按钮（2026-10-13 需求：原 X 号就地换成它，点击即落库并退出面板回管理页）/ Esc，
+   共用 close-kb-editor 同一条出口（先静默落库再回聊天对象管理页）。
    与其它覆盖层互斥：选图选择器 / 聊天对象管理页打开前，本面板先收起
    （app.js 的 dismissKbEditor：先兜底落库再收起，避免它们被后渲染的本面板盖住），
    选择器关闭 / 确定后再按来源弹回本面板（见 kb-photo-picker 的 photoBack）。
@@ -28,7 +29,7 @@
    性别与备注信息已按需求移除（保存时保留对象原有值）。
    本组件只产出结构；表单值由 app.js 的 bind() 实时回存 state.modalData，重渲染不丢。 */
 LoveCoUI.define('shared', 'kb-partner-editor', (ctx) => {
-  const { esc, icon, ib, state, stages, defaultStage } = ctx;
+  const { esc, icon, state, stages, defaultStage } = ctx;
   const p = state.partners.find(item => item.id === state.modalData.id);
   const draft = state.modalData.avatar ?? p?.avatar ?? '';
   const isEdit = Boolean(p);
@@ -41,7 +42,7 @@ LoveCoUI.define('shared', 'kb-partner-editor', (ctx) => {
   return `<div class="kb-photo-picker kb-partner-editor${state.pickerEnter ? ' entering' : ''}" role="dialog" aria-modal="true" aria-label="${isEdit ? '编辑聊天对象' : '新增聊天对象'}">
     <header class="picker-top">
       <h2>${isEdit ? '编辑聊天对象' : '新增聊天对象'}</h2>
-      ${ib('Close', '返回聊天对象', 'close-kb-editor', 'picker-close')}
+      <button type="button" class="picker-save" data-action="close-kb-editor">保存</button>
     </header>
     <div class="picker-body pe-body">
       <button type="button" class="pe-avatar" data-action="avatar-photo-picker" title="选择头像" aria-label="选择头像">
