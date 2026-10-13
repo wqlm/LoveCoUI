@@ -2,12 +2,12 @@
    结构：右上角圆形收起按钮（V 形箭头，ArrowDown）+ 居中标题「选择你喜欢的中文键盘」，
    下面是一张圆角卡片，卡片里并排两个选项：九宫格拼音 / 全键盘拼音（图形 + 文字，
    选中项整体取强调色）。
-   入口：键盘顶部菜单栏最右侧的设置图标（data-action="kb-settings"）。
+   入口：键盘顶部菜单栏最右侧的设置图标（data-action="kb-settings"）——
+   新增 / 修改聊天对象面板打开时菜单栏整行不渲染，这个入口不出现（2026-10-13 需求；
+   那种场景要切键盘形态点底栏那颗地球，data-action="switch-keyboard"）。
    出口：圆形返回按钮（data-action="close-kb-settings"）或 Esc（见 app.js）；
    选完布局也直接收起（layout:* 动作）—— 收起后回键盘页。
-   对象编辑面板（kb-partner-editor）打开时：本覆盖层只覆盖**下半键盘区域**、面板留在上半，
-   两者上下分区共存（见 theme.css 的 .keyboard:has(.kb-partner-editor) .kb-settings）——
-   在新增 / 修改页面里切键盘形态时上方区域不消失，收起 / 选完布局后仍在编辑页面。
+   本覆盖层铺满整块键盘区域（打开时对象编辑面板先收起，见 app.js 的 dismissKbEditor）。
    选中项直接写 state.layout：qwerty = 全键盘（26 键），t9 = 九宫格，
    键区形态由 kb-keys 按 state.layout 输出，切换后立即变化。
    数字 / 符号 / 英文 / 九宫格中文 / 26 键中文是五套独立键盘，只有中文有两套布局：

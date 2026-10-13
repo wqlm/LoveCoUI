@@ -189,11 +189,13 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .keyboard .kb-body { display: flex; flex-direction: column; gap: 8px; }
 .keyboard .keys { flex: 1; min-height: 0; }
 /* 新增 / 编辑聊天对象面板打开时（kb-partner-editor）：上半让给表单面板，下半保持常规键盘，整体贴底 ——
-   键盘菜单栏照常占位，但**只留最右侧的「键盘设置」入口**（对象切换与相册不属于编辑场景，
-   见下面两条隐藏规则）；键区、底栏与平时的键盘一致（键区仍是常规高度）。
-   键区打字时顶部条照旧换成候选词栏，两者同为 --lc-toolbar-height，高度不跳。
-   上半的表单面板按「键盘总高 − 常规键盘高」定高，正好落在让出来的位置（见下方 .kb-partner-editor）。 */
+   **菜单栏整行不渲染**（2026-10-13 需求：编辑场景里这一行只剩设置图标、没有意义）。
+   空出来的那一条高度并进上半的表单面板，键区与底栏的高度、每颗键的大小跟平时的键盘完全一致
+   —— .kb-body 仍按「常规键盘高 − 菜单栏高」定高，所以这里的两条高度规则与从前一样。
+   键区打字时顶上照旧换成候选词栏 —— 候选词栏不是菜单栏、**照常出现**，
+   出现时表单面板缩回一条菜单栏的高度，键区不上跳（见下方 .kb-partner-editor 的两条高度）。 */
 .keyboard:has(.kb-partner-editor) { justify-content: flex-end; }
+.keyboard:has(.kb-partner-editor) .kb-toolbar:not(.candidate-bar) { display: none; }
 .keyboard:has(.kb-partner-editor) .kb-body {
   flex: 0 0 auto;
   height: calc(var(--lc-keyboard-height) - var(--lc-toolbar-height));
@@ -201,25 +203,6 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .keyboard:has(.kb-partner-editor) .kb-body:has(+ .kb-sysbar) {
   height: calc(var(--lc-keyboard-height) - var(--lc-toolbar-height) - var(--lc-sysbar-height));
 }
-/* 菜单栏只留设置按钮：聊天对象入口与相册入口在编辑面板下不出现
-   （.kb-toolbar-end 自带 margin-left:auto，剩下的设置图标照旧靠右）；
-   「待分析截图」缩略图（[data-action="pending-shot"] 取代相册图标）同属相册入口，一并让位 */
-.keyboard:has(.kb-partner-editor) .kb-toolbar:not(.candidate-bar) [data-action="partner-manager"],
-.keyboard:has(.kb-partner-editor) .kb-toolbar:not(.candidate-bar) [data-action="photo-picker"],
-.keyboard:has(.kb-partner-editor) .kb-toolbar:not(.candidate-bar) [data-action="pending-shot"],
-.keyboard:has(.kb-partner-editor) .kb-toolbar:not(.candidate-bar) [data-action="free-chat"] { display: none; }
-/* 编辑面板打开时点设置：面板保留在上半，设置页只覆盖下半键盘区域（菜单栏 + 键区 + 底栏），
-   与面板上下分区、互不重叠 —— 在新增 / 修改页面里切键盘形态时上方区域不消失。
-   高度取常规键盘高，与面板的「键盘总高 − 常规键盘高」正好拼满整块键盘（两种视图都适用：
-   device 视图下 --lc-keyboard-height 已降级为 210px）。 */
-.keyboard:has(.kb-partner-editor) .kb-settings {
-  top: auto;
-  height: var(--lc-keyboard-height);
-}
-/* 下半只有 250px（device 视图 210px）：压缩标题与卡片留白，保证两张布局卡完整可见 */
-.keyboard:has(.kb-partner-editor) .kb-settings .settings-top { height: 38px; }
-.keyboard:has(.kb-partner-editor) .kb-settings .settings-body { padding: 8px 20px 6px; }
-.keyboard:has(.kb-partner-editor) .kb-settings .layout-cards { padding: 30px 8px; }
 .keyboard .key-row { flex: 1; min-height: 0; }
 .keyboard .key { height: auto; min-height: 0; }
 .kb-toolbar { height: var(--lc-toolbar-height); padding: 0 8px; gap: 2px; border-bottom: 0; }
@@ -1305,17 +1288,25 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .kb-photo-picker .kb-sysbar .sys-key:hover { background: #FFFFFF1A; color: #FFF; }
 /* 新增 / 编辑聊天对象面板（kb-partner-editor 组件）：皮肤直接复用选图面板（根节点同挂 .kb-photo-picker）——
    页面分上下两部分：**上半是表单面板、下半是键盘**（模拟系统键盘弹起把表单顶上去）。
-   键盘整块仍拉高到手机屏幕的三分之二（.keyboard.with-picker），面板只占上半
-   （键盘总高 − 常规键盘高 250px）；下半（默认收起菜单栏的键盘）
-   由上面 .keyboard:has(.kb-partner-editor) 一组规则保持贴底。
-   面板内表单是横向一行：**头像在左**（「上传头像」虚线圆槽 + 小字提示），
-   **备注名 / 关系阶段两行在右**（左标签 + 右控件），整行在剩余空间里垂直居中。
+   键盘整块仍拉高到手机屏幕的三分之二（.keyboard.with-picker），面板占
+   「键盘总高 − 常规键盘高 250px + 菜单栏高 40px」—— 下半键盘的菜单栏整行去掉了
+   （2026-10-13 需求），让出来的那一条归表单面板，键区与底栏的高度、每颗键的大小
+   跟平时的键盘完全一致；下半（无菜单栏的键盘）由上面 .keyboard:has(.kb-partner-editor)
+   一组规则保持贴底。
+   面板内表单是**竖排居中**：**头像在上面一行**（「上传头像」虚线圆槽 + 小字提示，整行居中），
+   **备注名 / 关系阶段两行在下面**（左标签 + 右控件）—— 2026-10-13 需求由「头像在左、
+   表单在右」的横排改成这样；头像不再占左侧一列，两行表单因此整宽排开、比原先长出一截。
    标题栏压到一行（此处覆盖 .picker-top 的共用 padding，不动选图面板），没有说明文案，
    右端一颗「保存」按钮（2026-10-13 需求：原 X 号就地换成它，点击即落库并退出面板回管理页，
    动作复用 close-kb-editor；`.picker-top` 随之由「绝对定位 X + 46px 右内边距」改成 flex 两端对齐）。
    没有底部「确定」—— 表单一有变化即静默保存（逻辑见 app.js），编辑态也没有「删除这个对象」。 */
 .kb-partner-editor {
   bottom: auto;
+  height: calc(100% - var(--lc-keyboard-height) + var(--lc-toolbar-height));
+}
+/* 打字时顶上换成候选词栏（候选词栏不是菜单栏、照常出现）：面板缩回一条工具栏的高度 ——
+   下半键盘总高不变，键区不上跳 */
+.keyboard:has(.kb-partner-editor) .kb-toolbar.candidate-bar ~ .kb-partner-editor {
   height: calc(100% - var(--lc-keyboard-height));
 }
 .kb-partner-editor .picker-top {
@@ -1337,19 +1328,26 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   font-weight: 600;
   box-shadow: 0 3px 10px #5340CE40;
 }
-.kb-partner-editor .pe-body {
+/* 选择器带上根节点的 .kb-photo-picker（(0,3,0)）是为了压过窄屏那条
+   `.kb-photo-picker .picker-body { padding: 2px 10px 16px }`（(0,2,0)，写在文件更后面）——
+   两行表单改成整宽后左右要排到面板自己的边距上，与标题栏的 15px 对齐 */
+.kb-photo-picker.kb-partner-editor .pe-body {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   align-items: center;
-  gap: 14px;
-  padding: 0 16px;
+  justify-content: center;
+  /* 装不下时（极矮窗口）从顶部开始排、跟着 .picker-body 滚动，而不是把头像挤出可视区
+     （safe 关键字：有富余时与 center 完全一样，老内核不认则退回上一行的 center） */
+  justify-content: safe center;
+  gap: 20px;
+  padding: 0 15px;
 }
 .kb-partner-editor .pe-avatar {
   flex: 0 0 auto;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
+  gap: 6px;
   margin: 0;
   padding: 0;
   background: transparent;
@@ -1358,8 +1356,8 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .kb-partner-editor .pe-avatar-img {
   display: grid;
   place-items: center;
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   overflow: hidden;
 }
@@ -1368,19 +1366,21 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   border: 1.5px dashed #4A4A52;
   color: var(--picker-sub);
 }
-.kb-partner-editor .pe-avatar-ph svg { width: 22px; height: 22px; }
+.kb-partner-editor .pe-avatar-ph svg { width: 26px; height: 26px; }
 .kb-partner-editor .pe-avatar:hover .pe-avatar-ph { border-color: #7E68F0; color: #C9BFFF; }
 .kb-partner-editor .pe-avatar-img { border: 1.5px solid #FFFFFF33; }
 .kb-partner-editor .pe-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
 .kb-partner-editor .pe-avatar-label { font-size: 11px; color: var(--picker-sub); }
-.kb-partner-editor .pe-fields { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+/* 两行表单整宽（头像挪到上面后不再占左侧一列）：标签仍是左侧一列，控件吃掉剩下的整条 —— 
+   比原先长出一截，「备注名」「关系阶段」两个 item 的宽度由这里决定（2026-10-13 需求） */
+.kb-partner-editor .pe-fields { flex: 0 0 auto; width: 100%; min-width: 0; display: flex; flex-direction: column; gap: 10px; }
 .kb-partner-editor .pe-field { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--picker-sub); }
 .kb-partner-editor .pe-field > span { flex: 0 0 52px; }
 .kb-partner-editor .pe-field input,
 .kb-partner-editor .pe-field select {
   flex: 1;
   min-width: 0;
-  min-height: 38px;
+  min-height: 42px;
   padding: 8px 12px;
   border: 1px solid #2C2C32;
   border-radius: 9px;
@@ -3016,21 +3016,25 @@ html[data-view="device"] .sheet-footer {
   html[data-view="device"] .keyboard .t9-blocks,
   html[data-view="device"] .keyboard .t9-bottom { gap: 2px; }
   html[data-view="device"] .modal-backdrop { inset: 0; }
-  /* 极矮窗口（device 视图演示）：键盘拉高后上半只剩 ~115px，编辑器表单控件收紧一档 */
+  /* 极矮窗口（device 视图演示）：键盘拉高后上半只剩 ~135px。编辑器表单改成竖排
+     （一行头像 + 两行表单）后比原先的横排高出一截，光收紧控件装不下 ——
+     整块键盘再往上顶 28px，多出来的全归上半的表单面板（键区 / 底栏贴底、高度不变）；
+     表单控件同时收紧一档，尽量一屏装完（万一还不够，面板可滚动、从顶部开始排，见 .pe-body） */
+  html[data-view="device"] .keyboard:has(.kb-partner-editor) { height: calc(var(--lc-keyboard-panel-height) + 28px); }
   html[data-view="device"] .kb-partner-editor .picker-top { padding: 5px 12px 0 12px; }
   html[data-view="device"] .kb-partner-editor .picker-top h2 { font-size: 13px; }
   html[data-view="device"] .kb-partner-editor .picker-save { height: 22px; padding: 0 10px; border-radius: 11px; font-size: 11px; }
-  html[data-view="device"] .kb-partner-editor .pe-body { gap: 10px; padding: 0 12px; }
+  html[data-view="device"] .kb-partner-editor .pe-body { gap: 8px; padding: 0 12px; }
   html[data-view="device"] .kb-partner-editor .pe-avatar { gap: 3px; }
   html[data-view="device"] .kb-partner-editor .pe-avatar-ph,
-  html[data-view="device"] .kb-partner-editor .pe-avatar-img { width: 40px; height: 40px; }
+  html[data-view="device"] .kb-partner-editor .pe-avatar-img { width: 38px; height: 38px; }
   html[data-view="device"] .kb-partner-editor .pe-avatar-ph svg { width: 16px; height: 16px; }
   html[data-view="device"] .kb-partner-editor .pe-avatar-label { font-size: 9px; }
   html[data-view="device"] .kb-partner-editor .pe-fields { gap: 6px; }
   html[data-view="device"] .kb-partner-editor .pe-field { gap: 6px; font-size: 10px; }
   html[data-view="device"] .kb-partner-editor .pe-field > span { flex: 0 0 42px; }
   html[data-view="device"] .kb-partner-editor .pe-field input,
-  html[data-view="device"] .kb-partner-editor .pe-field select { min-height: 30px; padding: 4px 9px; font-size: 12px; border-radius: 7px; }
+  html[data-view="device"] .kb-partner-editor .pe-field select { min-height: 28px; padding: 4px 9px; font-size: 12px; border-radius: 7px; }
 }
 
 /* ---- 主 App「开启键盘」引导流程（2026-09-27，鸿蒙版；安卓 / iOS 已按需求补入）----
