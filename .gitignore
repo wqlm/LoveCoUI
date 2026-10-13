@@ -1,2 +1,14 @@
 .playwright-cli
 .workbuddy
+.DS_Store
+
+# 本地验证产物（playwright 的截图与 aria snapshot 导出，随手落根目录）——不入仓库
+/*.yaml
+/*.yml
+/c_*.png
+/crop_*.png
+/invite-*.png
+/lc7-*.png
+/lcg3-*.png
+/lcw*.png
+/v[0-9]*.png
