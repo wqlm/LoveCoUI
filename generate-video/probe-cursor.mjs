@@ -82,23 +82,30 @@ const send = (method, params = {}) => new Promise((res, rej) => {
 
 await send('Page.enable');
 await send('Runtime.enable');
-await send('Emulation.setDeviceMetricsOverride', { width: 640, height: 456, deviceScaleFactor: 2, mobile: false });
 await send('Page.navigate', { url: 'file://' + PAGE + '?render=1' });
 await new Promise(r => setTimeout(r, 900));
 await send('Runtime.evaluate', { expression: 'document.fonts.ready.then(()=>1)', awaitPromise: true });
 
+// 画布尺寸跟页面走，别写死
+const meta = JSON.parse((await send('Runtime.evaluate', {
+  expression: 'JSON.stringify({w:TIMELINE.width,h:TIMELINE.height})', returnByValue: true,
+})).result.value);
+await send('Emulation.setDeviceMetricsOverride', { width: meta.w, height: meta.h, deviceScaleFactor: 2, mobile: false });
+await send('Runtime.evaluate', { expression: `window.__seek(0)`, returnByValue: true });
+
 const res = await send('Runtime.evaluate', { returnByValue: true, expression: `(() => {
   const out = [];
   const total = Math.round(TIMELINE.duration * TIMELINE.fps);
-  const taps = [TIMELINE.events.tapToggle1, TIMELINE.events.tapToggle2];
+  // 点击时刻：页面里用 TIMELINE.taps 显式声明（老页面没有就退回两个开关）
+  const taps = TIMELINE.taps || [TIMELINE.events.tapToggle1, TIMELINE.events.tapToggle2].filter(v => v != null);
   for (let i = 0; i < total; i++) {
     const t = i / TIMELINE.fps;
     window.__seek(t);
-    const m = document.querySelector('#cursor').style.transform
-      .match(/translate3d\\(([-\\d.]+)px, ([-\\d.]+)px/);
+    const cur = document.querySelector('#cursor');
+    const m = cur.style.transform.match(/translate3d\\(([-\\d.]+)px, ([-\\d.]+)px/);
     const rip = document.querySelector('#ripple');
     const ages = taps.filter(a => t >= a).map(a => t - a);
-    out.push({ t: +t.toFixed(3), x: +m[1], y: +m[2],
+    out.push({ t: +t.toFixed(3), x: +m[1], y: +m[2], op: +cur.style.opacity,
       rc: rip.style.display === 'none' ? null : [parseFloat(rip.style.left), parseFloat(rip.style.top)],
       age: ages.length ? Math.min(...ages) : Infinity });
   }
@@ -110,19 +117,37 @@ const HS = JSON.parse((await send('Runtime.evaluate', {
   expression: 'JSON.stringify(TIMELINE.hotspot)', returnByValue: true,
 })).result.value);
 
+// 只统计"看得见"的帧：手指抬起（opacity=0）时的瞬移观众看不到，不算卡顿
 let maxJump = 0, worst = null;
 for (let i = 1; i < data.length; i++) {
+  if (data[i].op < 0.05 || data[i-1].op < 0.05) continue;
   const d = Math.hypot(data[i].x - data[i-1].x, data[i].y - data[i-1].y);
   if (d > maxJump) { maxJump = d; worst = [data[i-1].t, data[i].t]; }
 }
 // 波纹圆心 vs 指尖：只看敲下去的瞬间（波纹前 0.05s），之后指尖离开是正常的
+// 注意用 missAt===null 而不是 m>maxMiss 判断首个样本 —— 完美命中时 m 恒为 0，
+// 后者会让 maxMiss 永远是 0、missAt 永远 null，报告出来像"没测到"。
 let maxMiss = 0, missAt = null;
 for (const d of data) {
   if (!d.rc || d.age > 0.05) continue;
   const m = Math.hypot(d.x + HS[0] - d.rc[0], d.y + HS[1] - d.rc[1]);
-  if (m > maxMiss) { maxMiss = m; missAt = d.t; }
+  if (missAt === null || m > maxMiss) { maxMiss = m; missAt = d.t; }
 }
 console.log(`帧数        : ${data.length}`);
 console.log(`单帧位移峰值: ${maxJump.toFixed(2)} px  @ ${worst?.[0]}s -> ${worst?.[1]}s   ${maxJump < 10 ? 'OK' : '偏快，拉长这段的时间或缩短距离'}`);
 console.log(`点击命中偏差: ${maxMiss.toFixed(2)} px  @ ${missAt}s   ${maxMiss < 1.5 ? 'OK' : '热点算错了'}`);
+
+// DUMP=1.6,1.8 —— 打一小段逐帧表，定位尖峰到底发生在哪一帧（排查卡顿用）
+if (process.env.DUMP) {
+  const [a, b] = process.env.DUMP.split(',').map(Number);
+  console.log('   t        x         y       op     ripple          Δpx');
+  for (let i = 0; i < data.length; i++) {
+    const d = data[i];
+    if (a != null && d.t < a) continue;
+    if (b != null && d.t > b) break;
+    const p = data[i-1];
+    const dx = p ? Math.hypot(d.x - p.x, d.y - p.y) : 0;
+    console.log(`  ${d.t.toFixed(3)}  ${d.x.toFixed(2).padStart(8)}  ${d.y.toFixed(2).padStart(8)}  ${String(d.op).padStart(5)}  ${d.rc ? d.rc.map(v=>v.toFixed(1)).join(',') : '-'}   ${dx.toFixed(2)}`);
+  }
+}
 ws.close(); bye(0);

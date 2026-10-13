@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<title>LoveCo · 切换到 LoveCo 键盘</title>
+<style>
+  /* ============================================================
+     参考: ScreenRecording_09-28-2026 18-17-45_1.mov  (884x504)
+     参考整帧 = 640x365（参考尺寸 x 0.7240）。
+     布局坐标一律在 640x365 里量；出片画幅默认裁到键盘 #pad = 562x322
+     （SCALE=2 → 1124x644），见下面 html.crop 那段。
+     所有状态由 window.__seek(t) 算出，页面内无任何 CSS animation
+     ============================================================ */
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{width:640px;height:365px;overflow:hidden;background:transparent}
+  body{
+    font-family:"PingFang SC","Helvetica Neue",Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  #stage{position:relative;width:640px;height:365px;overflow:hidden}
+
+  /* ============================================================
+     画幅 = 键盘骨架图（#pad）本身。
+     参考视频整帧是 640x365，键盘只占中间一块，外面那圈是白卡/背景。
+     用户 2026-09-29：成片不要那圈，直接裁到键盘 —— 于是把舞台整体左上移
+     (39, 27)，视口缩成 562x322（@2x = 1124x644），视口外的内容自然被裁掉。
+     平移量必须是整数 px，并且和 #pad 的 left/top 严格一致，否则边上会漏透明缝。
+     ?frame=full 或 ?shell=1（三层复刻版）回到完整的 640x365。
+     ============================================================ */
+  html.crop,html.crop body{width:562px;height:322px}
+  html.crop #stage{left:-39px;top:-27px}
+
+  /* ============================================================
+     只出「最里面一层」（键盘底板 #pad + 内容），背景和卡片默认不画。
+     页面背景 = 透明 → 渲染时用 ?alpha=1 出带透明通道的 mov；
+     想让 Chrome 垫白底出 mp4（播放器兼容），就不发那条 background override —— 见 run.sh。
+     想回到复刻参考视频的三层外观，加 ?shell=1。
+     ============================================================ */
+  html.shell, html.shell body{
+    background:
+      radial-gradient(120% 120% at 8% 0%,  #f4f6fe 0%, #f5f5fd 45%, #faf3f7 100%);
+  }
+
+  /* ---- 卡片 + 键盘底板 ---- */
+  #card{
+    display:none;                            /* 第 2 层：默认不要 */
+    position:absolute;left:24.6px;top:13px;width:591.5px;height:343.2px;
+    background:#fff;border-radius:34px;
+    box-shadow:0 5px 22px rgba(112,122,180,.10), 0 1px 3px rgba(112,122,180,.04);
+  }
+  html.shell #card{display:block}
+  /* ---- 键盘底板 = 成片画幅本身 ----
+     裁到整数框 (39,27,562,322) 上，和上面 html.crop 的平移量严格对齐：
+     左边 39+39、上边 27+27 → 裁出来的第一像素就是底板的边。 */
+  #pad{
+    position:absolute;left:39px;top:27px;width:562px;height:322px;
+    background:#f2eef2;
+    border-radius:0;                  /* 用户 2026-09-29：键盘四角要直角 */
+  }
+  /* 只有复刻参考视频的三层版才用参考里的圆角 */
+  html.shell #pad{border-radius:21px}
+
+  /* ---- 按键（骨架 UI） ---- */
+  .key{position:absolute;background:#e6e2e6;border-radius:6.5px}
+
+  /* ---- 地球键 ---- */
+  #globe{position:absolute;left:60.7px;top:281.4px;width:42.7px;height:42.7px;color:#4b4b53}
+  /* 尺寸/位置量自参考帧：地球外沿 x 60.7..103.4  y 281.4..324.1（42.7 见方） */
+
+  /* ---- 长按涟漪 ---- */
+  #ripple{position:absolute;left:0;top:0;width:640px;height:365px;pointer-events:none}
+
+  /* ---- 菜单 ---- */
+  #menu{
+    position:absolute;left:60.8px;top:40.5px;width:213.6px;height:183.2px;
+    background:#fff;border-radius:13px;
+    box-shadow:0 3px 16px rgba(80,90,140,.16), 0 0 0 .5px rgba(80,90,140,.05);
+    overflow:hidden;
+  }
+  #menu .item{position:absolute;left:0;width:100%;display:flex;
+              align-items:center;justify-content:center;
+              font-size:21px;color:#1c1c1e}
+  #menu #mPinyin{top:0;height:74px}
+  #menu #mLove{top:125.2px;height:57.2px;background:#037cff;color:#fff;
+               font-size:22.5px;font-weight:400}
+
+  /* ---- 手势（用户提供的描边图标，potrace 矢量化；只有线条层，内部透明） ---- */
+  .hand{position:absolute;overflow:visible}
+  .hand .line{fill:#141414;fill-rule:evenodd}
+
+  /* ---- 落地大字（白描边黑字） ---- */
+  #titles{position:absolute;left:0;top:0;width:640px;height:365px;pointer-events:none}
+  #titles text{
+    font-family:"PingFang SC","Helvetica Neue",sans-serif;
+    font-size:55px;font-weight:600;letter-spacing:-2px;
+    stroke-linejoin:round;stroke-linecap:round;
+  }
+  /* 双层：外层撑白描边，内层用同色描边把笔画加粗到参考的厚度 */
+  #titles .out{fill:#0d0d0d;stroke:#fff;stroke-width:12;paint-order:stroke}
+  #titles .sol{fill:#0d0d0d;stroke:#0d0d0d;stroke-width:2.2;paint-order:stroke}
+  /* 标题里的品牌名单独上蓝色；两层各一个 class，描边层只改 fill、加粗层 fill+stroke 都要改 */
+  #titles .brandOut{fill:#0a6cf5}
+  #titles .brandSol{fill:#0a6cf5;stroke:#0a6cf5}
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="card"></div>
+  <div id="pad"></div>
+  <div id="keys"></div>
+
+  <!-- 地球图标：用户提供的 icons8-globe-50.png，按原图逐步量出几何后重画
+       （viewBox 46 = 墨迹包围盒；圆 r21.9 / 经线椭圆 rx11.2 / 赤道 / 两条纬线弧 R47.11，
+        stroke-width 2.0 由"墨迹质量=原图 98.9%"定出来） -->
+  <svg id="globe" viewBox="0 0 46 46" fill="none" stroke="currentColor"
+       stroke-width="2.0" stroke-linecap="round">
+    <circle cx="22.9" cy="22.9" r="21.9"/>
+    <ellipse cx="22.9" cy="22.9" rx="11.2" ry="21.9"/>
+    <path d="M22.9 1V44.8"/>
+    <path d="M1 22.9H44.8"/>
+    <path d="M5.58 9.5A47.11 47.11 0 0 0 40.22 9.5"/>
+    <path d="M5.58 36.3A47.11 47.11 0 0 1 40.22 36.3"/>
+  </svg>
+
+  <svg id="ripple" viewBox="0 0 640 365"></svg>
+
+  <div id="menu">
+    <div class="item" id="mPinyin">简体拼音</div>
+    <div class="item" id="mLove">LoveCo</div>
+  </div>
+
+
+  <svg class="hand" id="hand1" viewBox="0 0 339 458" width="31.9" height="43.1">
+    <path class="line" d="M133 458.2C122.5 457 112.1 452.9 103.7 446.5C99.9 443.6 97.4 441 81.6 423.7C78.1 419.8 73.1 414.4 70.6 411.7C68.2 409 63.2 403.6 59.6 399.7C56.1 395.8 51.1 390.4 48.6 387.7C46.2 385 41.2 379.6 37.6 375.7C34 371.8 29.1 366.4 26.6 363.8C17.6 353.9 13.3 349.2 11.7 347C-1.5 329.5 -3.7 305.8 6 286.1C8.5 281 9.4 279.7 30.7 251.4C41.4 237.1 50.4 225 50.6 224.6C51.1 223.9 51.1 222.2 51.3 133.3L51.4 42.6L51.9 39.9C61.3 -8 125.7 -14.6 143.9 30.5C146.9 38 147.1 39.3 147.2 62C147.3 85.9 146.8 83.4 151.4 82.3C170.2 77.6 189.5 84.3 200.6 99.2C203.7 103.5 203.9 103.6 206.4 102.3C228.8 91 256.7 100.1 268.7 122.5C270.7 126.2 270.8 126.2 273.6 125.2C304.8 114.2 333.4 131.9 338.7 165.5C339.3 169.3 339.4 360.9 338.8 366.5C334.8 403.9 311.5 436.1 277.8 450.5C267.8 454.8 257.3 457.3 245.9 458.2C242 458.6 135.8 458.5 133 458.2ZM249.4 425.7C279.1 420.2 300.9 398.3 306.2 368.6C307.3 362.7 307.3 363.1 307.2 264.5L307.1 169.6L306.6 167.4C302 149.2 280.3 149.2 276 167.4C275.5 169.4 275.4 170.8 275.3 179.8C275 192.4 274.8 193.5 270.5 197.8C262 206.4 248.3 203.1 243.9 191.4C243.4 189.9 243.4 189.8 243.2 167.5C243.1 143.5 243.1 144.3 241.8 140.4C236.7 125.8 217.8 125.8 212.7 140.4C211.4 144.3 211.4 143.5 211.3 167.5C211.1 192.5 211.2 190.5 209.3 194.2C202.9 206.6 185 204.9 179.9 191.4L179.4 189.9L179.2 159.1L179.1 128.4L178.4 125.9C173.5 108 152.4 108.2 147.9 126.2C147.4 128.3 147.4 128.8 147.3 159.1L147.1 189.9L146.6 191.4C144.8 196.1 142.3 199 138.1 201C129.4 205.2 119.5 201 115.9 191.4L115.4 189.9L115.2 117.4C115.1 36 115.3 44.3 113.3 40.4C106.9 27.8 88.4 29.8 83.8 43.5C83.4 44.8 83.4 49.2 83.2 170.5L83.1 296.1L82.4 298.1C77.5 312.8 56.9 312.8 52.1 298.1C51.4 296.2 51.4 296 51.3 287.9C51.1 279.4 51.1 279 50 279.4C49.6 279.5 38.9 293.5 36.3 297.3C31 305.1 30.7 316.7 35.5 325.1C37 327.7 37.5 328.3 49.6 341.5C52.1 344.2 57.1 349.6 60.6 353.5C64.2 357.4 69.2 362.8 71.6 365.5C74.1 368.2 79.1 373.6 82.6 377.5C86.2 381.4 91.2 386.8 93.6 389.5C96.1 392.2 101.1 397.6 104.6 401.5C124 422.7 124.4 423 131.1 425.2C134.9 426.5 132.6 426.5 191.1 426.4L245.9 426.3L249.4 425.7Z"/>
+  </svg>
+  <svg class="hand" id="hand2" viewBox="0 0 339 458" width="31.9" height="43.1">
+    <path class="line" d="M133 458.2C122.5 457 112.1 452.9 103.7 446.5C99.9 443.6 97.4 441 81.6 423.7C78.1 419.8 73.1 414.4 70.6 411.7C68.2 409 63.2 403.6 59.6 399.7C56.1 395.8 51.1 390.4 48.6 387.7C46.2 385 41.2 379.6 37.6 375.7C34 371.8 29.1 366.4 26.6 363.8C17.6 353.9 13.3 349.2 11.7 347C-1.5 329.5 -3.7 305.8 6 286.1C8.5 281 9.4 279.7 30.7 251.4C41.4 237.1 50.4 225 50.6 224.6C51.1 223.9 51.1 222.2 51.3 133.3L51.4 42.6L51.9 39.9C61.3 -8 125.7 -14.6 143.9 30.5C146.9 38 147.1 39.3 147.2 62C147.3 85.9 146.8 83.4 151.4 82.3C170.2 77.6 189.5 84.3 200.6 99.2C203.7 103.5 203.9 103.6 206.4 102.3C228.8 91 256.7 100.1 268.7 122.5C270.7 126.2 270.8 126.2 273.6 125.2C304.8 114.2 333.4 131.9 338.7 165.5C339.3 169.3 339.4 360.9 338.8 366.5C334.8 403.9 311.5 436.1 277.8 450.5C267.8 454.8 257.3 457.3 245.9 458.2C242 458.6 135.8 458.5 133 458.2ZM249.4 425.7C279.1 420.2 300.9 398.3 306.2 368.6C307.3 362.7 307.3 363.1 307.2 264.5L307.1 169.6L306.6 167.4C302 149.2 280.3 149.2 276 167.4C275.5 169.4 275.4 170.8 275.3 179.8C275 192.4 274.8 193.5 270.5 197.8C262 206.4 248.3 203.1 243.9 191.4C243.4 189.9 243.4 189.8 243.2 167.5C243.1 143.5 243.1 144.3 241.8 140.4C236.7 125.8 217.8 125.8 212.7 140.4C211.4 144.3 211.4 143.5 211.3 167.5C211.1 192.5 211.2 190.5 209.3 194.2C202.9 206.6 185 204.9 179.9 191.4L179.4 189.9L179.2 159.1L179.1 128.4L178.4 125.9C173.5 108 152.4 108.2 147.9 126.2C147.4 128.3 147.4 128.8 147.3 159.1L147.1 189.9L146.6 191.4C144.8 196.1 142.3 199 138.1 201C129.4 205.2 119.5 201 115.9 191.4L115.4 189.9L115.2 117.4C115.1 36 115.3 44.3 113.3 40.4C106.9 27.8 88.4 29.8 83.8 43.5C83.4 44.8 83.4 49.2 83.2 170.5L83.1 296.1L82.4 298.1C77.5 312.8 56.9 312.8 52.1 298.1C51.4 296.2 51.4 296 51.3 287.9C51.1 279.4 51.1 279 50 279.4C49.6 279.5 38.9 293.5 36.3 297.3C31 305.1 30.7 316.7 35.5 325.1C37 327.7 37.5 328.3 49.6 341.5C52.1 344.2 57.1 349.6 60.6 353.5C64.2 357.4 69.2 362.8 71.6 365.5C74.1 368.2 79.1 373.6 82.6 377.5C86.2 381.4 91.2 386.8 93.6 389.5C96.1 392.2 101.1 397.6 104.6 401.5C124 422.7 124.4 423 131.1 425.2C134.9 426.5 132.6 426.5 191.1 426.4L245.9 426.3L249.4 425.7Z"/>
+  </svg>
+
+  <svg id="titles" viewBox="0 0 640 365">
+    <g id="ttl1">
+      <text class="out" x="321" y="158" text-anchor="middle" textLength="462" lengthAdjust="spacingAndGlyphs">长按左下角地球图标</text>
+      <text class="sol" x="321" y="158" text-anchor="middle" textLength="462" lengthAdjust="spacingAndGlyphs">长按左下角地球图标</text>
+    </g>
+    <g id="ttl2" opacity="0">
+      <text class="out" x="321" y="158" text-anchor="middle" textLength="462" lengthAdjust="spacingAndGlyphs">切换到<tspan class="brandOut">LoveCo</tspan>键盘</text>
+      <text class="sol" x="321" y="158" text-anchor="middle" textLength="462" lengthAdjust="spacingAndGlyphs">切换到<tspan class="brandSol">LoveCo</tspan>键盘</text>
+    </g>
+  </svg>
+</div>
+
+<script>
+/* ================= 时间轴（数值全部量自参考视频） ================= */
+const TIMELINE = {
+  width: 640, height: 365, fps: 30, duration: 4.15,
+
+  // 落地大字：0.00-2.22 第一句，2.22-4.15 第二句
+  t1: { from: 0.00, to: 2.22 },
+  t2: { from: 2.22, to: 4.15 },
+
+  // 手势：硬切换（与参考一致）
+  hand1: { from: 0.30, to: 2.33 },
+  hand2: { from: 2.97, to: 99 },
+
+  // 菜单整体淡入（参考里是线性渐显）
+  menu: { from: 2.49, to: 3.00 },
+
+  // 涟漪跟着手势走：两处都有（参考里点 LoveCo 时同样有波纹）
+  ripple1: { from: 0.30, to: 2.33, cx: 85.4,  cy: 306.3 },
+  ripple2: { from: 2.97, to: 4.20, cx: 226.0, cy: 199.0 },
+
+  // 手势锚点（指尖）设计坐标。
+  // 画幅裁到键盘（562x322）之后，底板下沿只有 y=349 了：
+  // 指尖在 303，手高 458*0.094 = 43.1 → 下沿 346.1，加浮动仍然落在底板里。
+  // 这是「缩小画幅」逼出来的尺寸/位置（原画幅 365 高时是 0.17 / 306.3）。
+  tip1: [85.4, 303.0],
+  tip2: [226.0, 199.0],
+  tipPath: [99, 0],        // 指尖在 viewBox(339x458) 里的位置（已裁到墨迹包围盒）
+  handScale: 0.094,        // 位图原始px -> 设计px（339x458 显示成 31.9x43.1）
+  float: 0.8,              // 手停留时轻微浮动幅度(px)
+};
+
+/* ================= 骨架按键 ================= */
+(function buildKeys(){
+  const box = document.getElementById('keys');
+  const ROWS = [
+    { top: 27.5,  h: 39.8, n: 9 },
+    { top: 86.9,  h: 39.8, n: 9 },
+    { top: 169.4, h: 62.3, n: 9 },   // 最下一行字母键更高
+  ];
+  const W = 47.8, GAP = 9.6, LEFT = 60.6;
+  let html = '';
+  for (const r of ROWS){
+    for (let i = 0; i < r.n; i++){
+      html += `<div class="key" style="left:${(LEFT + i * (W + GAP)).toFixed(1)}px;`
+            + `top:${r.top}px;width:${W}px;height:${r.h}px"></div>`;
+    }
+  }
+  box.innerHTML = html;
+})();
+
+/* ================= 状态计算 ================= */
+const $ = (id) => document.getElementById(id);
+const smooth = (x) => { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); };
+
+function seg(t, a, b){ return t >= a && t < b ? 1 : 0; }
+// 短暂淡入淡出（8ms）：参考里是硬切换，这里留一点点过渡避免闪帧
+function edge(t, from, to, soft){
+  soft = soft === undefined ? 0.06 : soft;
+  if (t < from - soft || t >= to + soft) return 0;
+  return Math.min(smooth((t - from + soft) / (2 * soft)), smooth((to + soft - t) / (2 * soft)));
+}
+
+function placeHand(el, tip, t, from, opacity){
+  const s = TIMELINE.handScale, [px, py] = TIMELINE.tipPath;
+  el.style.left = (tip[0] - px * s).toFixed(2) + 'px';
+  el.style.top  = (tip[1] - py * s).toFixed(2) + 'px';
+  el.style.opacity = opacity;
+  // 停留期间轻微上下浮动，避免画面完全静止
+  el.style.transform = 'translateY(' + (opacity > 0 ? Math.sin(t * 2.0) * TIMELINE.float : 0).toFixed(2) + 'px)';
+}
+
+function drawRipple(t){
+  const rp = TIMELINE.ripple1, rq = TIMELINE.ripple2, svg = $('ripple');
+  let out = '';
+  for (const R of [rp, rq]){
+    const o = edge(t, R.from, R.to, 0.10);
+    if (o <= 0) continue;
+    const lt = t - R.from;
+    // 中心按压高亮
+    out += `<circle cx="${R.cx}" cy="${R.cy}" r="9" fill="#0a6cf5" opacity="${(0.34 * o).toFixed(3)}"/>`;
+    for (let i = 0; i < 3; i++){
+      const p = ((lt * 0.78 + i / 3) % 1);
+      const r = 12 + p * 44;
+      const a = (1 - p) * 0.95 * o;
+      out += `<circle cx="${R.cx}" cy="${R.cy}" r="${r.toFixed(1)}" fill="none"`
+           + ` stroke="#0a6cf5" stroke-width="${(5.0 - p * 2.2).toFixed(1)}" opacity="${a.toFixed(3)}"/>`;
+    }
+  }
+  svg.innerHTML = out;
+}
+
+window.__seek = function(t){
+  // 大字
+  const o1 = edge(t, TIMELINE.t1.from, TIMELINE.t1.to, 0.02);
+  const o2 = edge(t, TIMELINE.t2.from, TIMELINE.t2.to, 0.02);
+  $('ttl1').style.opacity = o1;
+  $('ttl2').style.opacity = o2;
+
+  // 菜单
+  const mo = Math.max(0, Math.min(1, (t - TIMELINE.menu.from) / (TIMELINE.menu.to - TIMELINE.menu.from)));
+  $('menu').style.opacity = mo;
+
+  // 手势
+  const h1 = edge(t, TIMELINE.hand1.from, TIMELINE.hand1.to, 0.05);
+  const h2 = edge(t, TIMELINE.hand2.from, TIMELINE.hand2.to, 0.05);
+  placeHand($('hand1'), TIMELINE.tip1, t, TIMELINE.hand1.from, h1);
+  placeHand($('hand2'), TIMELINE.tip2, t, TIMELINE.hand2.from, h2);
+
+  // 涟漪
+  drawRipple(t);
+};
+
+// ---- 画幅：默认裁到键盘骨架图（#pad）本身 ----
+// 布局坐标仍然在 640x365 里，这里只把视口缩成 562x322 并把舞台左上移；
+// 视口外的东西（原本那圈白底/透明边）自然就被裁掉了。
+// ?frame=full 或 ?shell=1（复刻参考片的三层版）回到完整 640x365。
+const Q = new URLSearchParams(location.search);
+const FRAME = { x: 39, y: 27, w: 562, h: 322 };   // 必须和 #pad / html.crop 一致
+const shell = Q.get('shell') === '1';
+const cropped = !shell && Q.get('frame') !== 'full';
+if (cropped){
+  document.documentElement.classList.add('crop');
+  TIMELINE.width = FRAME.w;
+  TIMELINE.height = FRAME.h;
+}
+if (shell) document.documentElement.classList.add('shell');
+
+// 手势尺寸跟着 handScale 走，省得 SVG 的 width/height 属性和它走散
+for (const el of document.querySelectorAll('.hand')){
+  el.setAttribute('width',  (339 * TIMELINE.handScale).toFixed(2));
+  el.setAttribute('height', (458 * TIMELINE.handScale).toFixed(2));
+}
+
+// ?t=1.23 直接定位到某一时刻（抽帧核对用）
+window.__seek(parseFloat(Q.get('t') || '0') || 0);
+</script>
+</body>
+</html>

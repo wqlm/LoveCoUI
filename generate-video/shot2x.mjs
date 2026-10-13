@@ -67,6 +67,10 @@ try {
   });
   await sendS('Page.enable');
   await sendS('Emulation.setDeviceMetricsOverride', { width: 640, height: 456, deviceScaleFactor: SCALE, mobile: false });
+  // ALPHA=1：截图带 alpha（否则 Chrome 会给页面铺白底）—— 核对透明素材用
+  if (process.env.ALPHA === '1') {
+    await sendS('Emulation.setDefaultBackgroundColorOverride', { color: { r: 0, g: 0, b: 0, a: 0 } });
+  }
   await sendS('Page.navigate', { url });
   await new Promise(r => setTimeout(r, 1200));
   await sendS('Runtime.evaluate', { expression: 'document.fonts.ready.then(()=>1)', awaitPromise: true });

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * HTML -> MP4 逐帧渲染器
- *   1) Puppeteer 打开 index.html
+ * HTML -> MP4 逐帧渲染器（备用，puppeteer-core；日常用 render-cdp.mjs）
+ *   1) Puppeteer 打开 PAGE（默认 index.html）
  *   2) 对每一帧调用 window.__seek(t)（确定性，不依赖实际播放速度）
  *   3) 截图存 PNG
  *   4) ffmpeg 把 PNG 序列 + 配音 合成为 MP4
@@ -9,7 +9,8 @@
  * 用法:
  *   node render.mjs                       # 默认 2x 缩放, 带配音
  *   SCALE=3 node render.mjs               # 3x 输出 1920x1368
- *   AUDIO=audio/voice.m4a node render.mjs # 指定音轨
+ *   PAGE=index-ios.html node render.mjs   # 换片子
+ *   AUDIO=audio/x.m4a node render.mjs     # 指定音轨
  *   NO_AUDIO=1 node render.mjs            # 纯画面
  */
 import fs from 'node:fs';
@@ -33,6 +34,7 @@ const FRAMES   = path.join(TMPROOT, 'frames');
 const OUT_DIR  = path.join(HERE, 'out');
 const FFMPEG   = process.env.FFMPEG || 'ffmpeg';
 const SCALE    = Number(process.env.SCALE || 2);
+const PAGE     = process.env.PAGE || 'index.html';
 const AUDIO    = process.env.AUDIO || path.join(HERE, 'audio', 'voice.m4a');
 const NO_AUDIO = process.env.NO_AUDIO === '1';
 const OUT      = process.env.OUT || path.join(OUT_DIR, `loveco-tutorial-${SCALE}x.mp4`);
@@ -58,7 +60,7 @@ const page = pages[0] || await browser.newPage();   // 用默认页，避免 "Re
 await new Promise(r => setTimeout(r, 300));
 
 // ?render=1 让页面停在渲染模式：只响应 __seek(t)，不跑实时动画 → 帧号可复现
-await page.goto('file://' + path.join(HERE, 'index.html') + '?render=1', { waitUntil: 'load' });
+await page.goto('file://' + path.join(HERE, PAGE) + '?render=1', { waitUntil: 'load' });
 await page.evaluate(() => { window.__renderMode = true; });
 await page.evaluate(() => document.fonts.ready);
 

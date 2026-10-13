@@ -5,14 +5,22 @@
 #   edge  = 微软 Edge 神经网络语音（edge-tts，音色自然，需要联网）—— 默认
 #   say   = macOS 内置离线合成（机械感重，作兜底）
 #
+# 文案/时间轴不在本脚本里，而在 plans/*.sh（配音方案）：
+#   plans/tutorial.sh      LoveCo App 教程
+#   plans/ios-keyboard.sh  iOS 键盘教程
+#
 # 用法：
-#   ./make-voice.sh                     # 默认 edge + zh-CN-XiaoxiaoNeural
+#   ./make-voice.sh                             # 默认 plans/tutorial.sh -> audio/voice.m4a
+#   PLAN=plans/ios-keyboard.sh VOICE_OUT=audio/xxx.m4a ./make-voice.sh
 #   VOICE=zh-CN-YunxiNeural ./make-voice.sh
-#   ENGINE=say ./make-voice.sh          # 强制离线兜底
+#   ENGINE=say ./make-voice.sh                  # 强制离线兜底
 #   EDGE_TTS=/path/to/edge-tts ./make-voice.sh
 set -e
 cd "$(dirname "$0")"
 mkdir -p audio
+
+PLAN="${PLAN:-plans/tutorial.sh}"              # 配音方案文件（定义 TEXTS/OFFSETS/SLOTS/DURATION）
+VOICE_OUT="${VOICE_OUT:-audio/voice.m4a}"      # 输出音频
 
 ENGINE="${ENGINE:-auto}"                       # auto | edge | say
 VOICE="${VOICE:-zh-CN-XiaoxiaoNeural}"         # edge 音色
@@ -24,18 +32,19 @@ SAY_VOICE="${SAY_VOICE:-Tingting}"             # say 音色
 SAY_RATE="${SAY_RATE:-205}"                    # say 语速（词/分钟）
 FFMPEG="${FFMPEG:-ffmpeg}"
 
-TEXTS=(
-  "先开启 LoveCo 键盘"
-  "再打开完整体验模式"
-  "完成后返回 LoveCo App"
-)
-OFFSETS=(60 2060 4300)    # 每句起始时间(ms)
-SLOTS=(2000 4250 6500)    # 每句必须在此刻之前说完(ms)，与 index.html 的 TIMELINE.script 对齐
-DURATION=6.5              # 总时长(秒)
+TEXTS=(); OFFSETS=(); SLOTS=(); DURATION=6.5   # 兜底，正常由 "$PLAN" 覆盖
 
 # 中间产物放 /tmp，让系统自动回收
-TMPDIR_VOICE="${TMPDIR_VOICE:-/tmp/loveco-video/voice}"
+TMPDIR_VOICE="${VOICE_TMPDIR:-/tmp/loveco-video/voice}"
 mkdir -p "$TMPDIR_VOICE"
+
+# ---------- 加载配音方案 ----------
+[[ -f "$PLAN" ]] || { echo "找不到配音方案 $PLAN"; exit 1; }
+source "$PLAN"
+[[ ${#TEXTS[@]} -gt 0 ]] || { echo "$PLAN 里没定义 TEXTS"; exit 1; }
+[[ ${#OFFSETS[@]} -eq ${#TEXTS[@]} && ${#SLOTS[@]} -eq ${#TEXTS[@]} ]] \
+  || { echo "$PLAN 的 TEXTS/OFFSETS/SLOTS 长度不一致"; exit 1; }
+echo "方案   : $PLAN"
 
 # ---------- 选引擎 ----------
 find_edge() {
@@ -98,6 +107,6 @@ done
 # ---------- 拼接 ----------
 $FFMPEG -y "${inputs[@]}" \
   -filter_complex "${(j:;:)filters};${mixin}amix=inputs=$n:normalize=0,apad=whole_dur=${DURATION},loudnorm=I=-16:TP=-1.5:LRA=11" \
-  -c:a aac -b:a 160k -ar 44100 -ac 2 "audio/voice.m4a" -loglevel error
+  -c:a aac -b:a 160k -ar 44100 -ac 2 "$VOICE_OUT" -loglevel error
 
-echo "-> audio/voice.m4a"
+echo "-> $VOICE_OUT"
