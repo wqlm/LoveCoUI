@@ -252,7 +252,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 #7E68F066; }
   50% { transform: scale(1.12); box-shadow: 0 0 0 3px #7E68F033; }
 }
-/* ---- 问AI 页（kb-free-chat 组件）：菜单栏相册（图片）图标左侧的气泡按钮进入的「与 AI 对话」页面 ----
+/* ---- 问AI 页（kb-free-chat 组件）：菜单栏相册（图片）图标右侧的气泡按钮进入的「与 AI 对话」页面 ----
    键盘顶部换成「问AI」标题栏 +（选中过图片时）缩略图行 + 快捷栏 + 提问输入行
    （见 components/shared/kb-free-chat.js），键区照常在下：
      ① 标题栏 —— **顶替菜单栏**（同为 --lc-toolbar-height，打字时换成的候选词栏也在这一行），不额外占高；

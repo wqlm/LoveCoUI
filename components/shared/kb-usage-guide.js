@@ -108,8 +108,8 @@ LoveCoUI.define('shared', 'kb-usage-guide', (ctx) => {
         <div class="kb-toolbar">
           <button type="button" class="kb-user" tabindex="-1">${icon('User')}<span class="kb-user-name empty">未选择</span></button>
           <div class="kb-toolbar-end">
-            <button type="button" class="icon-btn" tabindex="-1" aria-hidden="true">${icon('ChatDotRound')}</button>
             ${thumbBtn}
+            <button type="button" class="icon-btn" tabindex="-1" aria-hidden="true">${icon('ChatDotRound')}</button>
             <button type="button" class="icon-btn" tabindex="-1" aria-hidden="true">${icon('Setting')}</button>
           </div>
         </div>

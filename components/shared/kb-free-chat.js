@@ -1,5 +1,5 @@
 /* 问AI（与 AI 对话）页的键盘顶部 —— 取代键盘模式的菜单栏。三端共用。
-   入口：键盘菜单栏相册（图片）图标左侧的气泡按钮（data-action="free-chat"）。
+   入口：键盘菜单栏相册（图片）图标右侧的气泡按钮（data-action="free-chat"）。
    出口：标题栏右侧的 X（data-action="close-free-chat"）或 Esc —— 收起这一页回干净键盘页。
    结构自上而下（①③④ 常驻，② 只在选中过图片时出现）：
      ① 标题栏「问AI」+ 右侧 X（高度 = --lc-toolbar-height，**顶替菜单栏**；

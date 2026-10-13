@@ -1,7 +1,7 @@
 /* 键盘顶部菜单栏。三端共用。
    键盘菜单：左侧是当前聊天对象（头像 + 昵称，未选对象时为默认头像插画 +「未选择」），
-   最右侧三个入口 —— 问AI（气泡，进入与 AI 对话的页面，见 kb-free-chat.js）、
-   相册（图片与最近截图）、键盘设置。
+   最右侧三个入口 —— 相册（图片与最近截图）、问AI（气泡，进入与 AI 对话的页面，
+   见 kb-free-chat.js；2026-10-13 需求与相册互换位置，气泡移到相册右边）、键盘设置。
    打字时切换到「候选词栏」，是同一位置的另一种形态，独立成组件见 kb-candidates.js。
    深度思考开关已移除；键盘常驻后不再需要「打开输入键盘」按钮，点按键即进入候选词栏状态。 */
 LoveCoUI.define('shared', 'kb-toolbar', (ctx) => {
@@ -25,9 +25,9 @@ LoveCoUI.define('shared', 'kb-toolbar', (ctx) => {
   const album = pending
     ? `<button type="button" class="icon-btn kb-shot-thumb" title="分析刚刚的截图" aria-label="分析刚刚的截图" data-action="pending-shot"><img src="${ctx.shotThumb(pending)}" alt=""></button>`
     : ib('Picture', '选择聊天截图', 'photo-picker');
-  /* 相册左侧的气泡按钮 = 问AI 页（AI 对话）入口：键盘顶部换成「问AI」标题栏 + 输入区，
+  /* 相册右侧的气泡按钮 = 问AI 页（AI 对话）入口：键盘顶部换成「问AI」标题栏 + 输入区，
      键区照常在下（见 kb-free-chat.js / app.js 的 openFreeChat）。 */
-  const end = (extra = '') => `<div class="kb-toolbar-end">${ib('ChatDotRound', '问AI', 'free-chat')}${album}${ib('Setting', '键盘设置', 'kb-settings')}${extra}</div>`;
+  const end = (extra = '') => `<div class="kb-toolbar-end">${album}${ib('ChatDotRound', '问AI', 'free-chat')}${ib('Setting', '键盘设置', 'kb-settings')}${extra}</div>`;
 
   return `<div class="kb-toolbar">${user}${end()}</div>`;
 });
