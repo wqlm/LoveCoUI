@@ -6185,7 +6185,10 @@
          才回管理页；
          其余主 App 形态选完留在「对象」页（这一页就是对象列表） */
       cancelAI(true);state.selectedPartner=arg;state.results=[];state.host='';state.partnerPanel=false;
-      if(state.freePartnerPicker){state.freePartnerPicker=false;return render();}
+      /* 判 appView：freePartnerPicker 是键盘形态问AI 页的开关，但在键盘形态直接切主 App 时
+         （appEntryCheck 不清键盘侧状态）可能残留为真 —— 主 App 里必须继续走它自己的两条出口，
+         否则会只清掉这个残留标记、却没收起主 App 的底部对象弹窗（.aai-sheet-partner） */
+      if(state.appView==='keyboard'&&state.freePartnerPicker){state.freePartnerPicker=false;return render();}
       if(state.appView==='app'&&state.appScreen==='app-ai'){state.aaiSheet='';state.freePicker=false;return render();}
       if(state.appView==='app')return openAppScreen('partners');
       closeModal();return;
