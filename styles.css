@@ -554,6 +554,15 @@ small{font-size:11px;color:#73847d}
 .cd-ask-scrim{position:absolute;inset:0}
 .cd-ask-card{position:relative;display:flex;flex-direction:column;text-align:center}
 .cd-ask-primary{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px}
+/* 「删除聊天对象」二次确认框（2026-10-15 需求，partnerDeleteAskSheet）：只服务**主 App「聊天对象」页**
+   左滑露出的删除按钮 —— 骨架与「注销申请成功」弹框同套（铺满手机、深色蒙层只盖正文区、白卡居中），
+   卡内 = 标题 + 一句说明 + 「取消 / 删除」两颗等宽按钮。皮肤（尺寸 / 圆角 / 配色）在 theme.css 的
+   同一组；挂点见 renderApp（与 cancelAskSheet / pu2AskSheet 一处，z-index 6）。 */
+.pd-ask{position:absolute;inset:0;z-index:6;display:grid;place-items:center}
+.pd-ask-scrim{position:absolute;inset:0}
+.pd-ask-card{position:relative;display:flex;flex-direction:column;text-align:center}
+.pd-ask-btns{display:flex}
+.pd-ask-btn{display:inline-flex;flex:1;align-items:center;justify-content:center;border:0}
 /* 协议正文页（appLegalPage）：2026-10-04 需求 —— 协议由覆盖层改回整页，照设计图重排：
    链头只有一枚返回箭头，协议名改由正文首行的大号标题承担。
    骨架 = 整页弹性列（链头 + 可滚正文）；**链头 sticky 钉在正文区顶部**（2026-10-04 晚些需求：

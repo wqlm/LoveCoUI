@@ -2728,6 +2728,26 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .cd-ask-primary { align-self: center; min-width: 132px; height: 42px; margin-top: 20px; padding: 0 30px; background: var(--cd-accent); color: #FFF; font-size: 15px; font-weight: 600; }
 .cd-ask-primary:hover { background: #4756E0; }
 @keyframes cd-ask-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+/* —— 「删除聊天对象」二次确认框（partnerDeleteAskSheet / state.partnerDeleteAsk，2026-10-15 需求）——
+   只服务**主 App「聊天对象」页**：左滑露出的删除按钮点了先弹这一层（键盘形态的管理页不弹）。
+   骨架同「注销申请成功」弹框那套（.pd-ask：铺满手机、深色蒙层只盖正文区、白卡居中，见 styles.css），
+   皮肤也照它 + 协议确认框（.pu2-ask）现成的一档：卡宽 min(296px, 82%)、圆角 16、
+   内边距 26px 24px 22px、阴影与弹入动画（pu2-ask-in 0.2s 缩放淡入）；卡内一列居中 ——
+   17px 加粗标题「删除聊天对象」→ 一句说明 14px 灰字（行高 1.6，带上对象名字）→
+   「取消 / 删除」两颗等宽圆角矩形按钮（高 46、圆角 14、间距 12）：取消 = 浅灰底灰字
+   （与 .pu2-ask-no 同色：底 #F1F2F6 / 字 #7B7B85），**删除 = 危险动作用实心红 #F04452 + 白字**
+   （与左滑那枚粉底红字图标按钮同一语义，这里整颗实心、白字）；
+   对象列表页是浅色的，本层配色写死、**不跟随 .dark**（同 .cd-ask / .pu2-ask 的口径）。 */
+.pd-ask-scrim { background: #10101A6B; }
+.pd-ask-card { width: min(296px, 82%); padding: 26px 24px 22px; border-radius: 16px; background: #FFF; box-shadow: 0 18px 44px #10101038; animation: pu2-ask-in .2s cubic-bezier(.2, .8, .3, 1) both; }
+.pd-ask-card h3 { font-size: 17px; font-weight: 700; color: #17171C; }
+.pd-ask-card p { margin-top: 10px; font-size: 14px; line-height: 1.6; color: #6E6E78; }
+.pd-ask-btns { gap: 12px; margin-top: 22px; }
+.pd-ask-btn { height: 46px; border-radius: 14px; font-size: 15.5px; font-weight: 600; cursor: pointer; }
+.pd-ask-no { background: #F1F2F6; color: #7B7B85; }
+.pd-ask-no:hover { background: #E8E9EF; }
+.pd-ask-yes { background: #F04452; color: #FFF; }
+.pd-ask-yes:hover { background: #DE3B49; }
 /* —— 协议正文页（appLegalPage）（2026-10-04 需求）——
    照设计图把协议从**覆盖层改回整页**：整页白底（.guide-legal 挂手机根，状态栏连着转白、
    .app-main 清零边距让白底通底，同注销页 / 购买页的做法）、无底部 Tab（见 appTabBar）。

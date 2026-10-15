@@ -107,8 +107,12 @@
        点击删除即标记，渲染时该行挂 .removing 播 0.5s 收起动画（上移淡出 + 高度收到 0，
        下方行同步顶上去），请求返回后才真正移除。
        partnersEmptyDemo 只服务页面列表的「空列表」形态：置位时列表按空态渲染、不动对象数据，
-       kbReset / 进入管理页都会清掉。 */
-    selectedPartner:'p1', partnersRemoving:new Map(), partnersEmptyDemo:false, messages:[], selectedPhotos:[], results:[],
+       kbReset / 进入管理页都会清掉。
+       partnerDeleteAsk 是**主 App「聊天对象」页左滑删除的二次确认框**（2026-10-15 需求，
+       页见 partnerDeleteAskSheet）：存待删对象的 id（'' = 不显示）—— 点左滑露出的删除按钮
+       只开框（ask-remove-partner），框里点「删除」才真走 deletePartner；键盘形态的管理页
+       仍是点了就删（remove-partner 直接删），不弹这一层。 */
+    selectedPartner:'p1', partnersRemoving:new Map(), partnersEmptyDemo:false, partnerDeleteAsk:'', messages:[], selectedPhotos:[], results:[],
     pending:false, activeRequest:null, generation:0, calls:0,
     /* 打字机：思路卡片逐字输出。stream = {card,part,chars,generation} —— card 是正在输出的
        思路卡（0 起），part 是卡里的哪一段（title 策略 / reply 回复），chars 是它已输出的字数。 */
@@ -935,9 +939,9 @@
     {id:'feedback',group:'账户与协议',name:'问题反馈',route:'/feedback',trigger:'「我的」· 支持 ·「反馈与建议」（2026-10-04 晚些：栏目由「客户支持」改名「支持」；同组另一行是「联系客服」，弹客服弹层、不进本页 —— 原「键盘内容投诉与举报」那条预选来路已删）',desc:'**2026-10-04 按设计图从 sheet 卡片重做的深色整页**（页名同日从「反馈与建议」改成设计图上的「问题反馈」；设计图右上角那颗「我的反馈」按需求**不呈现** —— 原型里没有反馈历史页，重做后的页内也没有任何反馈历史入口）。**功能**：① 问题类型是一排胶囊按钮（**功能问题 / 键盘问题 / AI 效果 / 建议 / 投诉与举报** —— 最后一类是本轮需求新增，原有的「投诉」「举报」两类合成它；**2026-10-04 晚些需求起不再有入口预选它** —— 「我的 · 键盘内容投诉与举报」那一行已删、同位置换成「联系客服」，进页默认落在「功能问题」）点一颗即换选（feedback-type:<类型>）；② 问题描述多行输入（占位「请尽量描述复现步骤、期望结果和手机型号」，上限 1000 字、右下角实时计数 n/1000；**2026-10-04 后续需求：两处占位字号改为 13px / 行高 18px，与页内标签同档** —— 原随输入框 15px）；③ 联系方式单行输入（占位「联系方式（可选）」，上限 200 字、右下角计数 n/200）；④ 整宽蓝色「提交反馈」提交（POST /v1/feedback，成功回「我的」；描述不足 5 字不提交、焦点交回描述框）。草稿（类型 / 描述 / 联系方式）存在 state 里：换类型重渲染不丢已输入内容，**每次进页开一张新表单**（openAppScreen 里清场，原 sheet 那套 formCache 缓存已撤）。**设计**：整页深色（配色照设计图写死、**不跟随深色外观开关** —— 同购买页 / 登录页 / 注销页 / 协议页那种「按图定色」的做法）：底色 #111318、卡面与未选胶囊 #1C1F26、描边 #2A2E36、强调蓝 #4C8DFF（选中胶囊与提交按钮同色）；页头是返回箭头 + **居中标题「问题反馈」**（复用用户页 .user-head 骨架）；页边距 20px，类型胶囊 36px 高（全圆角、13px 字、横 10px 纵 20px 间距）、描述框 174px 高（15px 字、占位灰 #6F7580）、联系方式行 54px 高、提交按钮 52px 高（16px 字）；计数行（13px，#C2C3CD）右缘比卡右缘再内收 20px（设计图页尾那行 12px 居中灰字说明「提交后由客服团队处理…」已按 2026-10-04 后续需求删除，勿补回）。无底部 Tab 栏、状态栏连着转深色（.guide-feedback），返回箭头 / Esc 的同一条出口回「我的」',note:'提交成功后回「我的」页（原落点「我的反馈」页与反馈历史记录已删除，反馈不留历史列表）；页面尺寸与配色按设计图量出（393×852 口径），改样式时对照 theme.css 的「问题反馈页」一组'},
     {id:'about',group:'账户与协议',name:'关于 LoveCo',route:'/account/about',trigger:'「我的」·「更多」·「关于 LoveCo」行（appRowSub 的 action=\'about\'）；本列表点入（不落库）',desc:'**2026-10-04 晚些按设计图新增的整页**（此前这一行只是「我的」页尾的纯展示行）：自上而下 ① 页头（左侧圆形返回钮 → 回「我的」+ 居中标题「关于 LoveCo」，复用用户页 .user-head 骨架）；② **品牌区**（**LoveCo 图标** `assets/brand/LoveCo_128_128.png` 72px 圆角方块 → 应用名「LoveCo」→ 灰字版本号 **Version 1.9.0**，取 APP_VERSION 常量）—— **2026-10-06 需求起这一整组在页头与备案行之间纵向居中、并在居中之位再上移 48px**（.about-hero 的 flex:1 + justify-content:center，图标 / 应用名 / 版本号落在正文区的视觉中心；同日追加需求「位置在往上移一移」—— 皮肤内边距 14px 0 → 14px 0 110px，多出的 96px 下内边距把整组在居中基准上再抬一半 = 48px）；③ 页尾**沉底**的 APP 备案信息「APP 备案编号：鄂ICP备2026043044号-2A」（APP_ICP 常量，靠 margin-top:auto 贴正文底）。**2026-10-06 需求：原先在品牌区与备案行之间的「隐私与协议」卡片整块删除**（用户原话「关于 LoveCo页面删除 隐私与协议，然后 icon 和版本号居中」）—— 那张卡原有四行（用户协议 / 隐私协议 / 个人信息收集清单 / 第三方信息共享清单，行名取 legal-data.js 的 title、顺序见常量 ABOUT_LEGAL_KEYS、行与「我的」页同一套 .app-row 且不带行首图标、点行进对应协议正文整页），现连常量一起删掉；四条协议正文的入口只剩「我的」·「隐私与协议」组（协议快照本身保留 —— kb-paywall、购买页协议行、注销页仍在读；2026-10-04 需求更早删过这张卡里的《会员与积分协议》《VIP会员自动续费服务协议》两行）。无底部 Tab；走通用浅灰画布 + 白色卡片，**跟随深色外观**（不另开写死配色的皮肤）',note:'**设计图里三块按需求不呈现**：应用描述那两行、「联系客服」按钮、协议行左侧的小图标（图标那份设计图是「关于LoveCo键盘」参考页的形态；协议行本身 2026-10-06 已随卡片整块删除）；版本号取 APP_VERSION（改版本只改一处；「我的」页「更多」组那一行的副说明 2026-10-06 已按需求删掉）；本页不读登录态，返回箭头 / Esc 都回「我的」（同 feedback 的出口）'},
     {id:'legal',group:'账户与协议',name:'协议正文',route:'/legal/:key（本列表固定看《用户协议》）',trigger:'「我的」· 隐私与协议四条直链（用户协议 / 隐私政策 / 个人信息收集清单 / 第三方信息共享清单）、注销页「我已阅读并同意《账号注销协议》」、两张登录页的协议勾选行与「请阅读并同意以下条款」弹框里的协议名、会员购买页的协议行；本列表点入（现场摆成从「我的」点进的《用户协议》，不落库）',desc:'**协议正文整页**（2026-10-04 按设计图重做，route 回到 /legal/:key 口径）：① 页头**只有一枚返回箭头**、**常驻顶部**（2026-10-04 晚些需求：正文往下滚时页头钉在正文区顶部、不跟着滚走 —— .lg-head 的 position:sticky，骨架在 styles.css）—— 没有页名、没有 X（原 sheet 头那行协议名与页尾那颗整宽「返回」按钮一并去掉），协议名改在正文首行用 **27px 加粗大标题**承担；② 正文按空行分段、左对齐，**宋体** 15.5px / 行高 1.95（标题与正文都排宋体，与设计图一致），首行那份与标题重复的协议名在渲染时去掉（legalParagraphs，判据「首行不含句读且不超过 40 字」）。整页白底、无底部 Tab、状态栏连着转白；页面上**没有**「项目内置协议快照；模拟器本身不提供真实付费服务。」那条说明（模拟器口径只留在工作台与 README）。正文与键盘内 kb-legal 同一份快照（legal-data.js，8 份）',note:'返回箭头 / Esc 都回打开它的那一页（state.legalFrom）—— 从「我的」进的回「我的」、从注销页进的回注销页、从登录页 / 购买页进的回那一页（输入的表单、协议勾选状态、所选档位都留着；原「关于 LoveCo」页的协议卡 2026-10-06 需求已删，不再是来路）；2026-09-26 ～ 2026-10-04 之间它是浮在页面上的 sheet 覆盖层（state.appLegal），本轮改回整页后覆盖层字段与 legalSheet 一并删除；**同日晚些「协议中心」列表页（legal-list）按需求删除** —— 卡片末行入口与 appLegalListPage 一并去掉，这份正文页保留'},
-    {id:'partners',group:'聊天对象',name:'聊天对象',route:'/partners',trigger:'主 App 底部 Tab 第二项「对象」；编辑保存后回到这里',desc:'对象管理列表（整页，纯管理）：标题行一行「聊天对象」+ 右侧「新建」文字按钮 —— 标题行下**没有**「当前上下文：…」那行说明，列表里也**没有「不选择」行**（清空 / 切换当前上下文只在键盘形态的管理页里做）；每行 = 圆形头像（没设自定义头像的一律用默认头像插画，2026-10-06 起统一换成用户提供的那张中性线稿图）+ 备注名，**只有写过备注的对象才多一行备注**（最多两行 —— 没备注的行不占位、不写「还没有备注 —— …」提示语；**性别 · 关系阶段不在列表里出现**，进详情页才看得到）；顺序按最近操作在前（新建的排最前，编辑过的保存后提到最前）。**整行（含头像）都是点击区**：按下时整行铺一层淡紫高亮（`.partner-open:active`，不再画头像描边的选中态），松手进该对象的**详情页 = 编辑页**（字段预填，可改、底部只有一颗不带图标的「确定」）—— 点行**不改当前上下文**；左滑露出编辑 / 删除（从行右侧滑入、盖在行内容上，删除直接执行不二次确认，「编辑」与行点击同一动作）',note:'与键盘形态的管理页是同一份数据、同一套排序、同一套左滑动作，只是主 App 下渲染为整页；「不选择」条目与「切当前对象」只在键盘形态的管理页里 —— 两种形态的行点击语义不同：主 App 进详情（编辑页），键盘切当前对象'},
+    {id:'partners',group:'聊天对象',name:'聊天对象',route:'/partners',trigger:'主 App 底部 Tab 第二项「对象」；编辑保存后回到这里',desc:'对象管理列表（整页，纯管理）：标题行一行「聊天对象」+ 右侧「新建」文字按钮 —— 标题行下**没有**「当前上下文：…」那行说明，列表里也**没有「不选择」行**（清空 / 切换当前上下文只在键盘形态的管理页里做）；每行 = 圆形头像（没设自定义头像的一律用默认头像插画，2026-10-06 起统一换成用户提供的那张中性线稿图）+ 备注名，**只有写过备注的对象才多一行备注**（最多两行 —— 没备注的行不占位、不写「还没有备注 —— …」提示语；**性别 · 关系阶段不在列表里出现**，进详情页才看得到）；顺序按最近操作在前（新建的排最前，编辑过的保存后提到最前）。**整行（含头像）都是点击区**：按下时整行铺一层淡紫高亮（`.partner-open:active`，不再画头像描边的选中态），松手进该对象的**详情页 = 编辑页**（字段预填，可改、底部只有一颗不带图标的「确定」）—— 点行**不改当前上下文**；左滑露出编辑 / 删除（从行右侧滑入、盖在行内容上，「编辑」与行点击同一动作；**删除 2026-10-15 需求起不直接执行，先弹「删除聊天对象」二次确认框** —— 深色蒙层 + 居中白卡：17px 加粗标题「删除聊天对象」+ 一句说明「删除后「XX」的资料与备注会被永久删除，无法恢复。」+「取消 / 删除」两颗等宽圆角矩形按钮（取消灰底灰字、删除**实心红 #F04452 + 白字**）—— 取消 / Esc 只收框、对象不删，点「删除」才发 DELETE 仿真请求、行收起 + 列表少一条）',note:'与键盘形态的管理页是同一份数据、同一套排序、同一套左滑动作，只是主 App 下渲染为整页；本页的删除是两步（左滑删除按钮 ask-remove-partner 只开确认框，框里 partner-delete-ok 才真删），键盘形态的管理页仍是一步直删（remove-partner）；「不选择」条目与「切当前对象」只在键盘形态的管理页里 —— 两种形态的行点击语义不同：主 App 进详情（编辑页），键盘切当前对象'},
     {id:'partner-new',group:'聊天对象',name:'新增聊天对象',route:'/partners/new',trigger:'主 App「聊天对象」页右上角「新建」',desc:'对象编辑页（整页，底部「确定」保存并回到对象列表、该对象排最前）：头像槽（点它从本地选图上传，选完居中裁成方形）、备注名、**性别**（下拉：暂不设置 / 女 / 男 —— 新建态默认取当前用户性别的「反」，用户是男默认女、用户是女默认男，用户自己还没设置性别时落到「女」）、关系阶段（五档，默认「熟悉」）、**备注信息多行输入框**（提示语「写下 TA 的年龄、职业、爱好，例如「28 岁，设计师，喜欢露营和看展」。写得越细，AI 越懂 TA。」），表单是白色圆角卡片、字段自上而下单列排布；标题行右侧一枚**退出 X**（图标钮 `.icon-btn`，title / aria-label「退出」，`data-action="close"` —— 不保存直接回上一层，从对象列表点进来就回对象列表）；底部「确定」是一颗**不带图标**的整宽主按钮（此前的对勾符号按需求去掉）',note:'与键盘版编辑面板（kb-partner-editor）对应但字段更多：键盘版只有备注名 + 关系阶段、改动即静默保存；主 App 版保留性别与备注信息两个字段（性别默认取反、备注提示语带年龄 / 职业 / 爱好三个关键词），仍是「确定」保存'},
-    {id:'partner-edit',group:'聊天对象',name:'编辑聊天对象',route:'/partners/edit',trigger:'主 App「聊天对象」页点对象行（进详情）或对象行左滑「编辑」',desc:'与「新增聊天对象」同一表单的编辑态：字段预填对象当前值（含头像「更换头像」、性别与备注信息），「确定」保存回列表并把该对象提到最前；标题行右侧同样有**退出 X**（同一颗图标钮，不保存即回上一层）；**页内没有「删除这个对象」入口**（按需求去掉，原确认框链路 delete-partner / delete-partner-confirm 一并删除 —— 删除对象只走列表左滑那颗直接删的按钮）',note:'主 App 与键盘版的编辑面板现在都不给删除入口（键盘版更早去掉）—— 删除只走列表左滑，直接删、不二次确认'},
+    {id:'partner-edit',group:'聊天对象',name:'编辑聊天对象',route:'/partners/edit',trigger:'主 App「聊天对象」页点对象行（进详情）或对象行左滑「编辑」',desc:'与「新增聊天对象」同一表单的编辑态：字段预填对象当前值（含头像「更换头像」、性别与备注信息），「确定」保存回列表并把该对象提到最前；标题行右侧同样有**退出 X**（同一颗图标钮，不保存即回上一层）；**页内没有「删除这个对象」入口**（按需求去掉，原确认框链路 delete-partner / delete-partner-confirm 一并删除 —— 删除对象只走列表左滑那颗按钮：**主 App「聊天对象」页 2026-10-15 需求起先弹二次确认框**（见 partners 条目），键盘形态的管理页仍是点了就删）',note:'主 App 与键盘版的编辑面板现在都不给删除入口（键盘版更早去掉）—— 删除只走列表左滑；主 App 那一页 2026-10-15 需求起先弹二次确认框，键盘形态的管理页仍是点了就删、不弹框'},
     /* 「开启键盘」引导流程（2026-09-27）：进入主 App 按状态检查链走，键盘未开启就整页进这条流程。
        引导页按需求拆成**三端各一条**（形态大致相同、各有差异，见各条 desc）：演示动画素材
        按运行平台取（三端各一支，安卓版 2026-09-28 补入，见 GUIDE_VIDEOS；**引导第二步
@@ -2538,12 +2542,38 @@
      行内自上而下：圆形头像 + 备注名，**写过备注的对象**再跟一行备注（最多两行，见 .app-note，
      没备注的行不占位、不写「还没有备注 —— …」提示语）。
      整行（含头像）都是点击区（.partner-open）：按下时整行高亮，松开进该对象的编辑页（详情）；
-     左滑仍露出编辑 / 删除（编辑与行点击同一动作）。 */
+     左滑仍露出编辑 / 删除（编辑与行点击同一动作）—— **2026-10-15 需求：删除不再直接执行，
+     先弹「删除聊天对象」二次确认框**（partnerDeleteAskSheet），所以这一页的删除按钮发的是
+     ask-remove-partner（只开框）；键盘形态的管理页仍发 remove-partner（点了就删，见 partner-manager）。 */
   function appPartnersPage() {
-    const rows = state.partners.map(p=>`<div class="sheet-list-item swipe-row"><div class="row-actions"><button type="button" class="row-action edit" data-action="edit-partner:${esc(p.id)}" aria-label="编辑 ${esc(p.name)}">${icon('EditPen')}</button><button type="button" class="row-action del" data-action="remove-partner:${esc(p.id)}" aria-label="删除 ${esc(p.name)}">${icon('Delete')}</button></div><div class="row-slide"><button class="partner-open" data-action="edit-partner:${esc(p.id)}" aria-label="查看并编辑 ${esc(p.name)}">${partnerAvatar(p)}<span class="partner-open-text"><strong>${esc(p.name)}</strong>${p.note?`<p class="app-note">${esc(p.note)}</p>`:''}</span></button></div></div>`).join('');
+    const rows = state.partners.map(p=>`<div class="sheet-list-item swipe-row"><div class="row-actions"><button type="button" class="row-action edit" data-action="edit-partner:${esc(p.id)}" aria-label="编辑 ${esc(p.name)}">${icon('EditPen')}</button><button type="button" class="row-action del" data-action="ask-remove-partner:${esc(p.id)}" aria-label="删除 ${esc(p.name)}">${icon('Delete')}</button></div><div class="row-slide"><button class="partner-open" data-action="edit-partner:${esc(p.id)}" aria-label="查看并编辑 ${esc(p.name)}">${partnerAvatar(p)}<span class="partner-open-text"><strong>${esc(p.name)}</strong>${p.note?`<p class="app-note">${esc(p.note)}</p>`:''}</span></button></div></div>`).join('');
     return `<div class="app-content app-page">
       <div class="app-page-head"><h2>聊天对象</h2><button class="text-button" data-action="new-partner">${icon('Plus')}新建</button></div>
       <div class="app-card app-card-list">${rows||'<p class="muted app-empty">还没有聊天对象，点右上角「新建」添加。</p>'}</div>
+    </div>`;
+  }
+  /* 「删除聊天对象」二次确认框（state.partnerDeleteAsk，2026-10-15 需求，挂点见 renderApp
+     的 .app-shell 一处）—— 只服务**主 App「聊天对象」页**：左滑露出的删除按钮点了先弹这一层，
+     不在列表里直接删（键盘形态的管理页不弹，见 partner-manager 的 remove-partner）。
+     卡内：居中标题「删除聊天对象」+ 一句说明（带上该对象的名字 —— 名字从 state.partners 现取，
+     对象在此期间被删掉就取不到、回落到不带名字的说法）+「取消 / 删除」两颗等宽按钮：
+     取消（partner-delete-cancel）/ Esc 只收框、行不删；「删除」（partner-delete-ok）=
+     收起框再走原有的 deletePartner（DELETE 仿真请求 → 移除并落库）。
+     骨架 .pd-ask* 在 styles.css、皮肤在 theme.css（同「注销申请成功」弹框那一套口径：
+     深色蒙层只盖正文区、白卡居中、配色写死不跟随 .dark）。 */
+  function partnerDeleteAskSheet() {
+    const p = state.partners.find(x=>x.id===state.partnerDeleteAsk);
+    const who = p?`「${esc(p.name)}」`:'该对象';
+    return `<div class="pd-ask" role="dialog" aria-modal="true" aria-label="删除聊天对象">
+      <div class="pd-ask-scrim" aria-hidden="true"></div>
+      <div class="pd-ask-card">
+        <h3>删除聊天对象</h3>
+        <p>删除后${who}的资料与备注会被永久删除，无法恢复。</p>
+        <div class="pd-ask-btns">
+          <button type="button" class="pd-ask-btn pd-ask-no" data-action="partner-delete-cancel">取消</button>
+          <button type="button" class="pd-ask-btn pd-ask-yes" data-action="partner-delete-ok">删除</button>
+        </div>
+      </div>
     </div>`;
   }
   /* 我的：按设计图重做 —— 问候（点它进「用户」—— 原「个人资料」，2026-10-04 改成设置式整页）+ 会员横幅 +
@@ -3764,7 +3794,7 @@
     $('#app').innerHTML = `<div class="shell app-workspace">
       <header class="topbar"><div class="brand"><img src="assets/brand/LoveCo_108_108.png" alt="LoveCo"><span class="brand-name">LoveCo</span><span class="brand-tag">主 App 手机模拟器</span></div></header>
       <main class="workspace"><aside class="rail left-rail"><div class="rail-section"><div class="rail-heading"><h2>平台与app形态</h2></div>${deviceSwitchers()}</div>${permissionSection()}<div class="rail-section"><div class="rail-heading"><h2>模拟</h2></div>${simControls()}${simShotButton()}</div></aside>
-        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.kbGuideDemo?LoveCoUI.render('kb-usage-guide', ctx):''}${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${voiceHoldOverlay()}${state.offerBadge&&!state.member&&state.appScreen==='home'?offerBadge():''}${state.userSheet?userSheet():''}${state.cancelAsk?cancelAskSheet():''}${state.pu2Ask?pu2AskSheet():''}${state.pu2Offer?pu2OfferSheet():''}${state.redeemSheet?redeemSheet():''}${state.supportSheet?supportSheet():''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}${state.toast?`<div class="app-toast" role="status" aria-live="polite">${esc(state.toast)}</div>`:''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div></div></section><aside class="rail right-rail">${pageListSection()}</aside></main>
+        <section class="device-column"><div class="device-top"><span>${icon('Cellphone')}${platformName()} · 主 App 模式</span><span><i class="dot"></i>${state.loggedIn?'已登录':'未登录'}</span></div><div class="phone app-phone${state.dark?' dark':''}${guideCls}" data-platform="${state.platform}">${LoveCoUI.render('status-bar', ctx)}<div class="app-shell"><main class="app-main">${content}</main>${appTabBar()}${state.kbFullAccess?LoveCoUI.render('kb-full-access', ctx):''}${state.kbPaywall?LoveCoUI.render('kb-paywall', ctx):''}${state.kbLegal?LoveCoUI.render('kb-legal', ctx):''}${state.kbImeSwitch?ieSwitchSheet():''}</div>${state.kbGuideDemo?LoveCoUI.render('kb-usage-guide', ctx):''}${state.shotFlash?'<div class="shot-flash" aria-hidden="true"></div>':''}${voiceHoldOverlay()}${state.offerBadge&&!state.member&&state.appScreen==='home'?offerBadge():''}${state.userSheet?userSheet():''}${state.cancelAsk?cancelAskSheet():''}${state.partnerDeleteAsk?partnerDeleteAskSheet():''}${state.pu2Ask?pu2AskSheet():''}${state.pu2Offer?pu2OfferSheet():''}${state.redeemSheet?redeemSheet():''}${state.supportSheet?supportSheet():''}${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}${state.toast?`<div class="app-toast" role="status" aria-live="polite">${esc(state.toast)}</div>`:''}</div><div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>MAIN APP</div>${pageDetail()}<div class="mobile-testbar"><div class="testbar-switchers">${surfaceButtons()}${platformButtons()}</div></div></section><aside class="rail right-rail">${pageListSection()}</aside></main>
     </div>`;
     bind();
     /* 引导流程的演示动画：每次重建 DOM 后重新接一遍「拿到手势就开声音」（见 wireGuideVideos） */
@@ -4803,11 +4833,13 @@
        注销页的「注销申请成功」弹框（state.cancelAsk）、
        「会员购买页 · 新」的协议确认框（state.pu2Ask）、「永久会员立减优惠」挽留弹窗
        （state.pu2Offer）与它的「兑换码」半屏弹层（state.redeemSheet）、
-       「我的」页的「联系客服」弹层（state.supportSheet）一并收起。
+       「我的」页的「联系客服」弹层（state.supportSheet）、
+       「聊天对象」页左滑删除的二次确认框（state.partnerDeleteAsk，2026-10-15 需求）一并收起。
        （主 App 的协议正文 2026-10-04 起是**整页**，不再是浮层 —— state.appLegal 已删。） */
     state.iosPaySheet=false;
     state.userSheet='';
     state.cancelAsk=false;
+    state.partnerDeleteAsk='';
     state.pu2Ask=false;
     /* 挽留弹窗收起的同时停掉它的倒计时（定时器不跟着换页继续跑） */
     state.pu2Offer=false; stopOfferTimer();
@@ -5777,12 +5809,16 @@
      state.partners 里移除并 persist 落库 —— 列表直接读 partners，退出列表再进来 / 刷新页面
      都不会再出现。删掉的若是当前选中对象，回到「不选择」并清掉键盘侧的生成结果
      （结果属于该对象的上下文）；宿主输入框草稿不动。
-     删除只有一条入口：列表左滑露出的删除按钮直接走这里，不弹二次确认（编辑器里的
-     「删除这个对象」已按需求删除）。删除成功不弹提示 —— 行收起 + 列表少一条本身就是反馈。 */
+     删除只有一条入口：列表左滑露出的删除按钮 —— **主 App「聊天对象」页 2026-10-15 需求起
+     先弹二次确认框**（partnerDeleteAsk，确认后 partner-delete-ok 才调到这里），键盘形态的
+     管理页仍是点了就删（remove-partner 直接调这里）。（编辑器里的「删除这个对象」已按需求删除。）
+     删除成功不弹提示 —— 行收起 + 列表少一条本身就是反馈。 */
   function deletePartner(id) {
     /* 行高在 api() 起始那次整页重建前测好带给 --row-h（box-sizing:border-box，含内边距边框），
-       .removing 动画从当前高度收到 0 —— 行在动画期间不可再点，收完保持塌缩直到成功回调真正移除 */
-    const row=document.querySelector(`[data-action="remove-partner:${id}"]`)?.closest('.partner-row');
+       .removing 动画从当前高度收到 0 —— 行在动画期间不可再点，收完保持塌缩直到成功回调真正移除。
+       删除按钮两种动作名都认：主 App 列表那颗是 ask-remove-partner（确认后才走到这里），
+       键盘管理页那颗是 remove-partner；两处都认才量得到行高。 */
+    const row=document.querySelector(`[data-action="remove-partner:${id}"],[data-action="ask-remove-partner:${id}"]`)?.closest('.partner-row');
     state.partnersRemoving.set(id,row?row.offsetHeight:52);
     return runMutation('/v1/partners/'+id,{},()=>{
       state.partnersRemoving.delete(id);
@@ -6252,9 +6288,25 @@
         backToPartners();
       },{method:id?'PATCH':'POST'});
     }
-    /* 删除聊天对象只有一条入口：列表左滑露出的删除按钮，直接删、不弹二次确认
-       （编辑器里的「删除这个对象」按需求去掉后，原先那条确认框链路（delete-partner /
-       delete-partner-confirm）已整体删除）。 */
+    /* 删除聊天对象只有一条入口：列表左滑露出的删除按钮 —— **主 App「聊天对象」页 2026-10-15
+       需求起改两步**：ask-remove-partner 只开二次确认框（partnerDeleteAsk，页见
+       partnerDeleteAskSheet），框里「删除」（partner-delete-ok）才真走 deletePartner；
+       「取消」（partner-delete-cancel）/ Esc 只收框、行不删。键盘形态的管理页仍是
+       remove-partner 一步删（那一层不弹确认框）。
+       （编辑器里的「删除这个对象」按需求去掉后，原先那条确认框链路 delete-partner /
+       delete-partner-confirm 早已整体删除 —— 本轮的确认框是新做的一层，不是把旧链路补回来。） */
+    if(name==='ask-remove-partner'){
+      /* 只认列表里真实存在的对象：动作排队期间对象已被删掉就静默回渲染，不开框 */
+      if(!state.partners.some(p=>p.id===arg))return render();
+      state.partnerDeleteAsk=arg;return render();
+    }
+    if(name==='partner-delete-cancel'){state.partnerDeleteAsk='';return render();}
+    if(name==='partner-delete-ok'){
+      const id=state.partnerDeleteAsk;
+      state.partnerDeleteAsk='';
+      if(!id)return render();
+      return deletePartner(id);
+    }
     if(name==='remove-partner')return deletePartner(arg);
     /* 通用确认弹层的确认动作（confirm-action）随「重置会话」功能于 2026-10-03 一并删除，勿补回 */
     /* 「模拟截屏」（左栏「模拟」/ 仿真控制台的同名按钮，两处都只在键盘形态渲染 —— 2026-10-06 需求）：
@@ -6921,6 +6973,9 @@
       if(state.pu2Offer){leaveOfferSheet();return;}
       /* 「会员购买页 · 新」的协议确认框（2026-10-06 晚些需求）：Esc 只收框、停在购买页 */
       if(state.pu2Ask){state.pu2Ask=false;render();return;}
+      /* 「聊天对象」页左滑删除的二次确认框（2026-10-15 需求）：Esc = 「取消」——
+         只收框、停在列表页，对象不删 */
+      if(state.partnerDeleteAsk){state.partnerDeleteAsk='';render();return;}
       /* 「会员购买页 · 新」的「兑换码」半屏弹层（2026-10-06 需求）：Esc 只收弹层、停在购买页 ——
          必须排在下面那条整页出口（purchase2-copy → 回「我的」）之前：先收最上层的浮层、再退页面 */
       if(state.redeemSheet){state.redeemSheet=false;render();return;}
