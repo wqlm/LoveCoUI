@@ -3014,8 +3014,14 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .user-wheel .onb-wheel:before { background: var(--lc-canvas); box-shadow: none; }
 .user-wheel .onb-row { color: var(--lc-muted); }
 .user-wheel .onb-row.on { color: var(--lc-text); }
+/* 对象编辑页（主 App「新增 / 修改聊天对象」整页）的头像槽皮肤。2026-10-15 需求：
+   ① 整块水平居中、「上传头像」四字移到 icon 底下 —— 排布改在 styles.css 的
+   .editor-avatar-button（横排 → 竖排 + align-self:center）；
+   ② **icon 整体缩小 0.8 倍** —— 槽 56 → 44.8、槽内人形图标 16 → 12.8、
+   首字兜底字号 18 → 14.4、圆角 8 → 6.4（等比，视觉比例保持不变） */
 .editor-avatar-button { padding: 2px 0 4px; font-size: 11.5px; color: var(--lc-muted); }
-.editor-avatar-button .avatar { width: 56px; height: 56px; font-size: 18px; }
+.editor-avatar-button .avatar { width: 44.8px; height: 44.8px; font-size: 14.4px; border-radius: 6.4px; }
+.editor-avatar-button .avatar.none svg { width: 12.8px; height: 12.8px; }
 html[data-view="device"] .sheet-footer {
   padding-bottom: max(18px, var(--host-safe-bottom, env(safe-area-inset-bottom, 0px)));
 }

@@ -527,7 +527,10 @@ small{font-size:11px;color:#73847d}
 .app-page-head h2{flex:1;min-width:0}
 .app-page-head .text-button{display:inline-flex;align-items:center;gap:4px}
 .app-note{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden}
-.editor-avatar-button{display:inline-flex;align-items:center;gap:11px;align-self:flex-start;text-align:left}
+/* 对象编辑页的头像槽（2026-10-15 需求）：原先「icon 在左、文字在右」的横排靠左，
+   改为**竖排** —— 头像槽在上、「上传头像」四个字移到 icon 下面，整块**水平居中**
+   （align-self 从 flex-start 改 center；父级 .app-card-pad 是 flex 列容器） */
+.editor-avatar-button{display:inline-flex;flex-direction:column;align-items:center;gap:6px;align-self:center;text-align:center}
 .app-page-foot{display:flex}
 /* 「用户」页（原「个人资料」，2026-10-04 按设计图重做）：设置式整页的骨架 ——
    页头（返回钮 + 居中标题 + 右侧与返回钮等宽的占位）、三张白卡（复用 .app-card）、
