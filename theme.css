@@ -3550,9 +3550,9 @@ html[data-view="device"] .sheet-footer {
    整页紫蓝（#5B68F5 —— 与「开启键盘」引导页同一块紫蓝，状态栏连着转蓝白字，`.guide-photos`
    挂手机根、`.app-main` 清零边距让紫底铺满；无底部 Tab，见 appTabBar），自上而下两块：
    ① **说明区**占屏上部三分之二 —— 大标题 26px 纯白 + 一行说明 14px 白字 74%（行高 1.75）
-      + 其下一行**更小的灰白字** 12.5px 白字 58%（2026-10-20 需求：文案换成「app需要读取您的
-      截图，才能分析聊天内容，给出回复建议。」+「图片仅用于本次分析，不会浏览你的其他图片。」
-      两行，原合成的「键盘需要读取你刚截的图……」一句作废），整组在授权框以上的余高里
+      + 其下一行**更小的灰白字** 11.5px 白字 58%（2026-10-20 需求：文案换成「app需要读取您刚截的
+      图，才能自动给出回复建议。」+「图片仅用于本次分析，不会浏览您的其他图片。」两行，
+      原合成的「键盘需要读取你刚截的图……」一句作废；小字再小一号 = 12.5 → 11.5px），整组在授权框以上的余高里
       上下居中、略偏上（下内边距 72px 把整组往上提）；
    ② **底部授权框**（`pa-sheet`）—— 白色、顶部圆角 26px、贴屏底、向上投一层淡影：
       46px 浅灰圆角方块内一枚 25px 深灰照片图标 → 17px 加粗居中标题
@@ -3567,7 +3567,7 @@ html[data-view="device"] .sheet-footer {
 .pa-copy { padding: 0 30px 72px; }
 .pa-title { font-size: 26px; line-height: 1.28; font-weight: 700; letter-spacing: 0.2px; }
 .pa-body { margin-top: 14px; font-size: 14px; line-height: 1.75; color: rgba(255, 255, 255, 0.74); }
-.pa-note { margin-top: 8px; font-size: 12.5px; line-height: 1.6; color: rgba(255, 255, 255, 0.58); }
+.pa-note { margin-top: 8px; font-size: 11.5px; line-height: 1.6; color: rgba(255, 255, 255, 0.58); }
 .pa-sheet { padding: 20px 20px calc(16px + env(safe-area-inset-bottom, 0px)); border-radius: 26px 26px 0 0; background: #FFF; color: #1C1C1E; box-shadow: 0 -10px 30px rgba(14, 16, 64, 0.18); }
 .pa-sheet-icon { width: 46px; height: 46px; border-radius: 12px; background: #EFEFF1; color: #3A3A3C; }
 .pa-sheet-icon svg { width: 25px; height: 25px; }
