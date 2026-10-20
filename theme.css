@@ -3545,6 +3545,34 @@ html[data-view="device"] .sheet-footer {
 .ms-sub { font-size: 12px; line-height: 1.35; color: var(--ms-sub); }
 .ms-date { position: absolute; top: 13px; right: 14px; font-size: 11.5px; color: var(--ms-faint); }
 
+/* —— 主 App ·「允许访问照片」页（appPhotoAccessPage，appScreen='photo-access'，2026-10-20 需求）——
+   骨架在 styles.css 的 .pa-* 一组。首启引导里「键盘使用引导（演示）」收场后的**相册权限站**：
+   整页紫蓝（#5B68F5 —— 与「开启键盘」引导页同一块紫蓝，状态栏连着转蓝白字，`.guide-photos`
+   挂手机根、`.app-main` 清零边距让紫底铺满；无底部 Tab，见 appTabBar），自上而下两块：
+   ① **说明区**占屏上部三分之二 —— 大标题 26px 纯白 + 说明 14px 白字 74%（行高 1.75），
+      整组在授权框以上的余高里上下居中、略偏上（下内边距 72px 把整组往上提），
+      文案照需求给的两段（标题「允许访问全部照片」+ 键盘读截图那两句）；
+   ② **底部授权框**（`pa-sheet`）—— 白色、顶部圆角 26px、贴屏底、向上投一层淡影：
+      46px 浅灰圆角方块内一枚 25px 深灰照片图标 → 17px 加粗居中标题
+      「允许“LoveCo”访问照片和视频」（2026-10-20 需求：标题由截图里的 App 名改成 LoveCo）→
+      三颗整宽浅灰圆角 14px / 46px 高的按钮「拒绝 / 选择部分 / 允许访问全部」（间距 10px、
+      16.5px 深色字）—— 版式照 iOS 系统授权框，**原截图中间那三颗导航按钮已按需求去掉**。
+   配色全部写死、不跟随 .dark（同消息页 / 购买页那种「按图定色」的整页）。 */
+.app-phone.guide-photos { background: #5B68F5; }
+.app-phone.guide-photos > .statusbar { background: #5B68F5; color: #fff; }
+.app-phone.guide-photos .app-main { width: 100%; padding: 0; }
+.pa-page { background: #5B68F5; color: #fff; }
+.pa-copy { padding: 0 30px 72px; }
+.pa-title { font-size: 26px; line-height: 1.28; font-weight: 700; letter-spacing: 0.2px; }
+.pa-body { margin-top: 14px; font-size: 14px; line-height: 1.75; color: rgba(255, 255, 255, 0.74); }
+.pa-sheet { padding: 20px 20px calc(16px + env(safe-area-inset-bottom, 0px)); border-radius: 26px 26px 0 0; background: #FFF; color: #1C1C1E; box-shadow: 0 -10px 30px rgba(14, 16, 64, 0.18); }
+.pa-sheet-icon { width: 46px; height: 46px; border-radius: 12px; background: #EFEFF1; color: #3A3A3C; }
+.pa-sheet-icon svg { width: 25px; height: 25px; }
+.pa-sheet-title { margin-top: 15px; padding: 0 8px; font-size: 17px; line-height: 1.42; font-weight: 650; color: #1C1C1E; }
+.pa-actions { margin-top: 20px; gap: 10px; }
+.pa-btn { min-height: 46px; border-radius: 14px; background: #F2F2F5; color: #1C1C1E; font-size: 16.5px; font-weight: 500; }
+.pa-btn:active { background: #E7E7EB; }
+
 /* —— 主 App「问AI」页（appAiPage，2026-10-06 需求）：皮肤一组（骨架 .aai-* 在 styles.css）——
    按三张设计截图定稿（393 基准）：
    ① 顶部菜单栏 —— 底 #F4F1F8（按图取样）、墨 #29232F（汉堡与 17px 加粗标题）、新对话图标蓝

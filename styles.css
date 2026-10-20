@@ -665,6 +665,17 @@ small{font-size:11px;color:#73847d}
 .ms-ic{flex-shrink:0}
 .ms-main{flex:1;min-width:0}
 .ms-name,.ms-sub{display:block}
+/* —— 主 App ·「允许访问照片」页（appPhotoAccessPage，2026-10-20 需求）：骨架，配色 / 字号在
+   theme.css 的 .pa-* 与 .guide-photos 一组 —— 整页弹性列：说明区吃掉授权框以上的余高
+   （内容在其中上下居中），底部那张 iOS 授权框按内容定高、贴住屏底 */
+.pa-page{min-height:100%;display:flex;flex-direction:column;align-items:stretch}
+.pa-copy{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
+.pa-title,.pa-body,.pa-sheet-title{margin:0}
+.pa-sheet{flex-shrink:0;text-align:center}
+.pa-sheet-icon{display:inline-flex;align-items:center;justify-content:center}
+.pa-sheet-icon svg{display:block}
+.pa-actions{display:flex;flex-direction:column}
+.pa-btn{display:flex;align-items:center;justify-content:center;width:100%;border:0;font:inherit;cursor:pointer}
 /* —— 主 App「问AI」页（appAiPage，2026-10-06 需求）：骨架，配色 / 字号在 theme.css 的
    .aai-* 一组 —— 整页弹性列：顶部菜单栏定高、聊天记录吃满富余高度自己滚（#aai-thread）、
    下半是键盘问AI页（固定高、贴底，与键盘形态同一套高度换算）；
