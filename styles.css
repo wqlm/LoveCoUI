@@ -670,7 +670,7 @@ small{font-size:11px;color:#73847d}
    （内容在其中上下居中），底部那张 iOS 授权框按内容定高、贴住屏底 */
 .pa-page{min-height:100%;display:flex;flex-direction:column;align-items:stretch}
 .pa-copy{flex:1 1 auto;display:flex;flex-direction:column;justify-content:center}
-.pa-title,.pa-body,.pa-sheet-title{margin:0}
+.pa-title,.pa-body,.pa-note,.pa-sheet-title{margin:0}
 .pa-sheet{flex-shrink:0;text-align:center}
 .pa-sheet-icon{display:inline-flex;align-items:center;justify-content:center}
 .pa-sheet-icon svg{display:block}
