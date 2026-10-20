@@ -2956,9 +2956,11 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    尺寸 / 位置全按设计图逐个量出来的 CSS px 定（393 基准）：正文左右内边距 20（2026-10-05 晚些
    需求起整块内容垂直居中、上下内边距对称 24 —— 内容不满一屏时富余高度上下均分）、
    主标语 29/39、副标语 13/19.8 灰字、插画 189 宽（内含透明边、右缘贴正文右缘、与主标语顶对齐）；
-   两张卡间距 11 / 高 153 / 圆角 16（卡面 #1B2A45 深蓝与 #2C2925 暖棕），卡内插画绝对定位钉在
-   设计图量到的位置上、卡名 17px 与说明 12px 沉在卡底，右上角那枚外链箭头两张卡各一色
-   （浅蓝 #7AA7FF / 暖沙 #D4B993）；「进入体验台」行 80 高（芯片 64×47 圆角 12、底色 #181B21、
+   「使用教程」整宽卡 153 高 / 圆角 16（卡面 #1B2A45 深蓝 + 右侧一枚很淡的蓝光 rad-gradient ——
+   2026-10-20 需求：原「分析表达 / 自由对话」两张并排卡删掉，位置与大小由这一张接管），
+   卡内插画钉在卡右侧垂直居中（高 104）、卡名 17px 与说明 11.5px 在卡内垂直居中排在左侧，
+   右上角一枚外链箭头（浅蓝 #7AA7FF）；
+   「进入体验台」行 80 高（芯片 64×47 圆角 12、底色 #181B21、
    行名 15px、折角 #6F7580）。 */
 .app-phone.guide-home { --hm-bg: #111318; --hm-card: #1C1F26; --hm-ink: #F2F3F5; --hm-sub: #A9AEB8; --hm-faint: #6F7580; --hm-accent: #4C8DFF; background: var(--hm-bg); }
 .app-phone.guide-home > .statusbar { background: var(--hm-bg); color: #FFF; }
@@ -2984,14 +2986,16 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 /* 插画宽度取百分比（189/393 ≈ 48%）：窄机（工作台里 335px 的手机）上跟着缩，
    主标语那两行才不会被挤得折行（26px 的「自然一点。」要 130px，393 下正文宽 353 正好够） */
 .hm-art { width: 48%; margin-top: 2px; }
-.hm-cards { gap: 11px; margin-top: 24px; }
-.hm-card { flex: 1 1 0; min-width: 0; height: 153px; padding: 16px; border-radius: 16px; }
-.hm-card.is-analyze { background: #1B2A45; }
-.hm-card.is-talk { background: #2C2925; }
-.hm-card-art { left: 26px; top: 23px; height: 52px; width: auto; }
-.hm-card.is-talk .hm-card-art { left: 21px; top: 16px; height: 69px; }
-.hm-card-go { top: 18px; right: 19px; width: 13px; height: 13px; color: #7AA7FF; }
-.hm-card.is-talk .hm-card-go { color: #D4B993; }
+/* 「使用教程」卡（2026-10-20 需求）：**一张整宽卡接替原两张并排功能卡** —— 同高 153 / 同圆角 16，
+   只是从「横向两列各半」变成整行一张。卡面沿用原「分析表达」那张的深蓝 #1B2A45，右侧叠一枚
+   很淡的蓝光 radial-gradient（#264460 → #1B2A45，让整宽卡不至于死板）；插画钉在卡右侧、
+   垂直居中（高 104 —— 原「自由对话」卡那张摊开的书，接管过来当教程插图），
+   卡名与说明（17px / 11.5px）在卡内垂直居中排在左侧。
+   右上角那枚外链箭头按 2026-10-20 后续需求去掉（`.hm-card-go` 与 system-glyphs 的 `upRight`
+   一并删除 —— 整张卡就是可点区域，不再用角标提示）。 */
+.hm-card { justify-content: center; height: 153px; margin-top: 24px; padding: 16px 20px; border-radius: 16px; }
+.hm-card.is-guide { background: radial-gradient(120% 160% at 86% 50%, #264460 0%, #1B2A45 62%); }
+.hm-card-art { right: 16px; top: 50%; height: 104px; width: auto; transform: translateY(-50%); }
 .hm-card-title { font-size: 17px; line-height: 1.2; font-weight: 650; color: var(--hm-ink); }
 .hm-card-sub { margin-top: 8px; font-size: 11.5px; line-height: 1.2; color: var(--hm-sub); }
 .hm-exp { height: 80px; margin-top: 12px; padding: 0 19px 0 17px; border-radius: 16px; background: var(--hm-card); }
