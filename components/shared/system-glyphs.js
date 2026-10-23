@@ -22,20 +22,6 @@
     return cells + `<rect x="${((24 - barW) / 2).toFixed(2)}" y="${barY.toFixed(2)}" width="${barW}" height="${barH}" rx="${barH / 2}"/>`;
   })();
 
-  /* 主 App 首页「进入体验台」行的键位图（2026-10-05 首页重做）：3 行 × 7 颗键
-     （键 5.8×6.5、横距 7.63、行距 9.4 / 7.9）+ 一条居中空格条（29.2×6.3）——
-     画布 52×34，坐标按设计图逐个量出来的像素定；第三行最右那颗键由 kbdTiles 单独染蓝 */
-  const kbdTilesBody = () => {
-    const rows = [0, 9.4, 17.3];
-    let out = '';
-    rows.forEach((y, r) => {
-      for (let c = 0; c < 7; c++) {
-        const blue = (r === 2 && c === 6);
-        out += `<rect x="${(c * 7.63).toFixed(2)}" y="${y}" width="5.8" height="6.5" rx="1.6"${blue ? ' fill="#4C8DFF"' : ''}/>`;
-      }
-    });
-    return out + '<rect x="11.4" y="27.6" width="29.2" height="6.3" rx="2.1"/>';
-  };
   window.LoveCoSystemGlyphs = {
     /* WiFi：顶部状态栏，三端共用 */
     wifi: svg('<path d="M2.6 9.4a14.5 14.5 0 0 1 18.8 0"/><path d="M6 13a9.5 9.5 0 0 1 12 0"/><path d="M9.3 16.6a5 5 0 0 1 5.4 0"/><path d="M12 20.1h.01"/>'),
@@ -61,10 +47,9 @@
     users: svg('<circle cx="9.4" cy="8.2" r="3.5"/><path d="M3.3 20.2c0-3.4 2.7-5.9 6.1-5.9s6.1 2.5 6.1 5.9"/><path d="M16.6 5.6a3.5 3.5 0 0 1 0 5.3"/><path d="M17.6 14.8c1.9.7 3.2 2.8 3.2 5.4"/>'),
     user: svg('<circle cx="12" cy="8" r="3.8"/><path d="M4.6 20.4c0-3.7 3.3-6.6 7.4-6.6s7.4 2.9 7.4 6.6"/>'),
     /* 原首页功能卡右上角那枚外链箭头（upRight）已随 2026-10-20「使用教程」卡去掉箭头一并删除 */
-    /* 主 App 首页「进入体验台」行左侧那枚键位图（2026-10-05）：3 行 × 7 颗圆角小键 +
-       一条居中空格条，**第三行最右一颗取强调蓝**（设计图里那颗是蓝的）；
-       白的键取所在元素的 color。坐标是按设计图逐个量出来的（见 kbdTilesBody） */
-    kbdTiles: solid(kbdTilesBody(), '0 0 52 34'),
+    /* 原首页底部「进入体验台 / AI 咨询师」行左侧的键位图（kbdTiles）已在 2026-10-23
+       换成图标时删除；那枚图标现为自包含 SVG（assets/icons/ai-consultant.svg，
+       由用户提供的「心理咨询」图标 + 圆形渐变底改造），不再走本图形集 —— 勿补回 */
     /* 主 App 首页右上角的信封图标（2026-10-05 需求，进「消息」页的入口）：描边信封 ——
        圆角矩形 + V 形折线盖口，颜色取所在元素的 color */
     envelope: svg('<rect x="2.8" y="5" width="18.4" height="14" rx="3.4"/><path d="m4.6 8 7.4 5.4L19.4 8"/>'),

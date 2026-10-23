@@ -633,9 +633,9 @@ small{font-size:11px;color:#73847d}
 .iv-rules{margin:0}
 /* 主 App 首页（appHomePage，2026-10-05 按设计图重做）：整页一列 —— ① 标语区（左文字块 +
    右插画，顶对齐）②「使用教程」一张整宽卡（2026-10-20 需求：原并排的「分析表达 / 自由对话」
-   两张功能卡删掉，换成本卡占满同一行、同为 153 高）③「进入体验台」一行（键位图芯片 +
-   行名 + 折角箭头）。骨架只管排布：插画绝对定位钉在卡内右侧垂直居中、卡名与说明在卡内
-   垂直居中排在左侧、外链箭头绝对定位贴右上。
+   两张功能卡删掉，换成本卡占满同一行）③ 底部「AI 咨询师」一行（图标芯片 + 行名 +
+   折角箭头；2026-10-23 由原「进入体验台」行改名）。骨架只管排布：插画绝对定位钉在卡内
+   右侧垂直居中、卡名与说明在卡内垂直居中排在左侧、折角靠 margin-left:auto 贴右。
    皮肤（深色配色 / 字号 / 圆角 / 间距）在 theme.css 的「首页」一组。 */
 .hm-page{display:flex;flex-direction:column;justify-content:center;position:relative;min-height:100%}
 .hm-msg{position:absolute;top:4px;right:16px;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;padding:0;border:0;background:none;color:inherit;cursor:pointer}
@@ -651,8 +651,8 @@ small{font-size:11px;color:#73847d}
 .hm-card-title{margin:0}
 .hm-card-sub{display:block}
 .hm-exp{display:flex;align-items:center;width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer;border:0}
-.hm-exp-chip{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
-.hm-exp-chip svg{display:block}
+.hm-exp-chip{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.hm-exp-icon{display:block;width:100%;height:100%}
 .hm-exp-label{flex:1;min-width:0}
 .hm-exp .chev{flex-shrink:0;display:inline-flex;margin-left:auto}
 /* —— 「消息」页（appMessagesPage，2026-10-05 需求）：骨架，配色在 theme.css 的 .ms-* 一组 ——
