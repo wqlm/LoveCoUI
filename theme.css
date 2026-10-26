@@ -71,8 +71,9 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    槽里只放一枚小号默认头像图标（2026-10-26 需求，见下面 .avatar.none img） */
 .avatar.none { background: var(--lc-canvas); border: 1.5px dashed var(--lc-border); color: var(--lc-muted); }
 .avatar.none svg { width: 16px; height: 16px; }
-/* 虚线空槽里那枚小图（2026-10-26 需求起是默认头像图标）：取槽的一半、圆形，虚线框仍留得出来 */
-.avatar.none img { width: 50%; height: 50%; border-radius: 50%; }
+/* 虚线空槽里那枚图（2026-10-26 需求起是默认头像图标）：**铺满槽内**（原先取一半，用户
+   反馈「这个 icon 太小了，改成和方框一样大」），虚线框还留在最外一圈 */
+.avatar.none img { width: 100%; height: 100%; border-radius: 50%; }
 .avatar { border-radius: 8px; }
 .metric:first-child strong { color: var(--lc-mint); }
 .metric + .metric { padding-left: 18px; border-left: 1px solid var(--lc-border); }
@@ -1389,8 +1390,8 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   color: var(--picker-sub);
 }
 .kb-partner-editor .pe-avatar-ph svg { width: 20px; height: 20px; }
-/* 空槽里那枚小图：2026-10-26 需求起换成默认头像图标，取槽的一半 */
-.kb-partner-editor .pe-avatar-ph img { width: 50%; height: 50%; border-radius: 50%; }
+/* 空槽里那枚图：2026-10-26 需求起换成默认头像图标，铺满槽内（与主 App 同一口径） */
+.kb-partner-editor .pe-avatar-ph img { width: 100%; height: 100%; border-radius: 50%; }
 .kb-partner-editor .pe-avatar:hover .pe-avatar-ph { border-color: #7E68F0; color: #C9BFFF; }
 .kb-partner-editor .pe-avatar-img { border: 1.5px solid #FFFFFF33; }
 .kb-partner-editor .pe-avatar-img img { width: 100%; height: 100%; object-fit: cover; }
