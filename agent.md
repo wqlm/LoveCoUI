@@ -48,8 +48,9 @@ LoveCo 键盘交互原型（纯静态 HTML/CSS/JS，无构建）。工作台右�
   **从底部整页滑出**（`launchPaywall` 的 `LAUNCH_PAYWALL_DELAY_MS` 定时器 + 根节点 `.entering`
   的 `pu2-page-up` 滑入），且**自动弹出的这一次点叉号 / Esc 直接回首页**（`state.pu2Launch`
   —— 不走「每天第一次先弹挽留弹窗」那条；手动入口进来仍照旧））/ `login` / `login-one-tap` / `legal` /
-  `about` / `feedback` / `invite`（2026-10-05 新增的「邀请有礼」，保留底部 Tab））+ 2 个整屏流程子页
-  （`partner-new` 新增聊天对象 / `partner-edit` 编辑聊天对象，不在集合内）
+  `about` / `feedback` / `invite`（2026-10-05 新增的「邀请有礼」，保留底部 Tab））+ 3 个整屏流程子页
+  （`partner-detail` 聊天对象详情（2026-10-26 新增，只读整页、从「聊天对象」页对象行点入）/
+  `partner-new` 新增聊天对象 / `partner-edit` 编辑聊天对象，不在集合内）
   + 1 条会员态条目（`account-member`），**1 条购买页挽留形态条目（`purchase2-offer`「会员购买 · 优惠券」——
   「会员购买页 · 新」的第二种形态：页面本体仍是 `purchase2-copy`，这一形态是它上面盖着
   `pu2OfferSheet` 挽留弹窗；点入走 `setupPage()` 的 `purchase2-offer` 分支 → `openAppScreen('purchase2-copy')`

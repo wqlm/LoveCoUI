@@ -3034,12 +3034,13 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .editor-avatar-button { padding: 2px 0 4px; font-size: 11.5px; color: var(--lc-muted); }
 .editor-avatar-button .avatar { width: 44.8px; height: 44.8px; font-size: 14.4px; border-radius: 6.4px; }
 .editor-avatar-button .avatar.none svg { width: 12.8px; height: 12.8px; }
-/* 对象详情页（partner-detail，2026-10-26 需求）—— 骨架在 styles.css 的 .partner-detail* /
-   .field-value 一组。与编辑页同一张白卡，只把控件换成文字：头像 64px 圆形居中；
-   字段标签沿用 .field 那档小灰字（13px 的 margin-bottom 由本页收掉，块间距交给
-   .app-card-pad 的 12px gap），值 14px 深色；没写的值（性别缺省 / 备注为空）显灰字。
-   页尾「编辑」是整宽主按钮（primary，不带图标，与编辑页的「确定」同一档）。 */
-.partner-detail .detail-avatar .avatar { width: 64px; height: 64px; font-size: 20px; border-radius: 50%; }
+/* 对象详情页（partner-detail，2026-10-26 需求）—— 骨架在 styles.css 的 .partner-hero* /
+   .field-value 一组。与编辑页同一套字段，只把控件换成文字：头像 96px 圆形、备注名 22px
+   居中成一块头像区；信息卡里的标签沿用 .field 那档小灰字（13px 的 margin-bottom 由本页
+   收掉，块间距交给 .app-card-pad 的 12px gap），值 14px 深色；没写的值（性别缺省 /
+   备注为空）显灰字。页尾「编辑」是整宽主按钮（primary，不带图标，与编辑页的「确定」同一档）。 */
+.partner-hero .avatar { width: 96px; height: 96px; font-size: 30px; border-radius: 50%; }
+.partner-hero-name { font-size: 22px; font-weight: 650; color: var(--lc-text); }
 .partner-detail .field { margin-bottom: 0; }
 .partner-detail .field-value { font-size: 14px; line-height: 1.7; color: var(--lc-text); }
 .partner-detail .field-value.is-empty { color: var(--lc-subtle); }

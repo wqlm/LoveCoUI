@@ -531,6 +531,16 @@ small{font-size:11px;color:#73847d}
    改为**竖排** —— 头像槽在上、「上传头像」四个字移到 icon 下面，整块**水平居中**
    （align-self 从 flex-start 改 center；父级 .app-card-pad 是 flex 列容器） */
 .editor-avatar-button{display:inline-flex;flex-direction:column;align-items:center;gap:6px;align-self:center;text-align:center}
+/* 对象详情页（partner-detail，2026-10-26 需求）：与编辑页同一套字段的**只读**版本 ——
+   ① 头像区 .partner-hero 吃掉上半屏余高（头像 + 备注名一列居中）；
+   ② 信息卡沿用编辑页的 .field 骨架，值是纯文字（.field-value）排在标签下方，
+   位置正是编辑页输入框的位置（不再有输入框的边框 / 内边距，字号与颜色在 theme.css）；
+   ③ 页尾「编辑」。
+   整页撑满正文一屏高（min-height:100%）：内容比编辑页短，靠头像区吸收富余高度，
+   不让整块内容挤在顶部、下半屏留空白。 */
+.partner-detail-page{min-height:100%}
+.partner-hero{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:6px 0 64px;text-align:center}
+.field-value{margin-top:6px;overflow-wrap:anywhere;white-space:pre-wrap}
 .app-page-foot{display:flex}
 /* 「用户」页（原「个人资料」，2026-10-04 按设计图重做）：设置式整页的骨架 ——
    页头（返回钮 + 居中标题 + 右侧与返回钮等宽的占位）、三张白卡（复用 .app-card）、
