@@ -2644,6 +2644,14 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    按下时整行高亮 —— 这一页点行是进该对象的编辑页（详情），不再改当前上下文，
    所以行上也不画头像描边的选中态。 */
 .app-card-list .sheet-list-item { padding: 0; }
+/* 左滑色块要顶到**卡片右缘**（2026-10-26 再晚些需求，用户原话「左滑应该从最尾部开始」）：
+   这排行是缩进的（`.app-card-list` 自己 padding: 0 14px），行右缘离卡片内缘还差 14px，
+   色块原先就停在那条缝上。做法：① 行改成溢出可见（否则行自己的 overflow:hidden 会把
+   伸出去的部分裁掉）；② 按钮组右移 14px 抵到卡片内缘 —— 收起位的位移是 `100% + 6px`
+   （≥ 140px），远在卡片裁剪范围外，不会露馅。卡片本身是 overflow:hidden + 14px 圆角，
+   色块右上 / 右下两角仍会被裁圆。 */
+.app-card-list .sheet-list-item.swipe-row { overflow: visible; }
+.app-card-list .row-actions { right: -14px; }
 .partner-open:active { background: var(--lc-accent-soft); }
 /* 2026-10-06 需求（用户原话「我的、我的 · 已开通会员页面 item 的分隔线 再细一点」）：
    行分隔线由 1px 收到**半像素**（视网膜屏 DPR 2 下 = 1 物理像素，正好是原来的一半）。
