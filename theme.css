@@ -3031,9 +3031,11 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    ① 整块水平居中、「上传头像」四字移到 icon 底下 —— 排布改在 styles.css 的
    .editor-avatar-button（横排 → 竖排 + align-self:center）；
    ② **icon 整体缩小 0.8 倍** —— 槽 56 → 44.8、槽内人形图标 16 → 12.8、
-   首字兜底字号 18 → 14.4、圆角 8 → 6.4（等比，视觉比例保持不变） */
+   首字兜底字号 18 → 14.4、圆角 8 → 6.4（等比，视觉比例保持不变）。
+   2026-10-26 需求：**方框改圆框** —— 槽（含虚线空槽与带图 / 首字兜底两种实心态）一律
+   border-radius: 50%，与键盘模式编辑面板的圆形槽同一形状 */
 .editor-avatar-button { padding: 2px 0 4px; font-size: 11.5px; color: var(--lc-muted); }
-.editor-avatar-button .avatar { width: 44.8px; height: 44.8px; font-size: 14.4px; border-radius: 6.4px; }
+.editor-avatar-button .avatar { width: 44.8px; height: 44.8px; font-size: 14.4px; border-radius: 50%; }
 .editor-avatar-button .avatar.none svg { width: 12.8px; height: 12.8px; }
 /* 对象详情页（partner-detail，2026-10-26 需求）—— 骨架在 styles.css 的 .partner-hero* /
    .field-value 一组。与编辑页同一套字段，只把控件换成文字：头像 96px 圆形、备注名 22px
