@@ -546,10 +546,12 @@ small{font-size:11px;color:#73847d}
    蓝色标题 + 底下一行灰字说明，整卡可点，进该对象的记忆列表整页。
    记忆整页（partner-memory）用 .memory-list + 每行一个 .swipe-row：左滑编辑 / 删除的手势
    与按钮组复用主 App「聊天对象」列表那一套（见 bind()），只是行不是列表行、而是一张独立
-   白卡，所以按钮组右内边距单独给一档。配色 / 字号在 theme.css 的详情页一组。 */
+   卡片（2026-10-26 晚些需求：卡间距 10 → 12px，对齐用户参考图；卡内边距与字号在 theme.css），
+   所以按钮组右内边距单独给一档。配色 / 字号在 theme.css 的详情页一组。 */
 .partner-memory-entry{display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:100%;padding:16px 14px;border:0;font:inherit;text-align:left;cursor:pointer}
-.partner-memory-page .partner-memory-hint{margin:0 2px 10px}
-.memory-list{display:flex;flex-direction:column;gap:10px}
+.partner-memory-entry-head{display:flex;align-items:center;gap:8px;width:100%}
+.partner-memory-entry-head .chev{display:inline-flex;flex-shrink:0;margin-left:auto}
+.memory-list{display:flex;flex-direction:column;gap:12px}
 .memory-row .row-actions{padding-right:9px}
 .memory-row .row-slide{align-items:flex-start}
 .memory-text{white-space:pre-wrap;overflow-wrap:anywhere}
