@@ -3057,13 +3057,28 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    极淡的紫调卡面（强调色 3% 混白，深浅两态都跟着令牌走）、14 圆角、平铺无投影；正文
    13 → **16px**、行高 1.65 → **1.75**（参考图那种「一段长事实、大字号宽行距折行」的观感），
    卡内边距 13/14 → 16/16，卡间距 10 → 12px（styles.css 的 .memory-list）。
-   左滑的编辑 / 删除按钮沿用全局 .row-action（强调色 / 危险色）。 */
+   左滑的编辑 / 删除按钮 2026-10-26 再晚些按真机截图改成「整高色块 + 白字」，见下面 .memory-row
+   那两条（骨架 / 尺寸覆盖在 styles.css）。 */
 .partner-memory-entry-title { font-size: 14px; font-weight: 600; color: var(--lc-accent-strong); }
 .partner-memory-entry-head .chev svg { width: 14px; height: 14px; color: var(--lc-subtle); }
 .partner-memory-entry-sub { font-size: 12px; line-height: 1.6; color: var(--lc-subtle); }
 .partner-memory-entry:active { background: var(--lc-accent-soft); }
 .memory-row { border-radius: 14px; background: color-mix(in srgb, var(--lc-accent) 3%, var(--lc-surface)); }
 .memory-row .row-slide { padding: 16px; }
+/* 左滑露出的两颗按钮（**2026-10-26 再晚些需求，照真机截图改样式**）：全局那套是两枚 40px
+   圆角图标方钮（编辑浅紫底 + 强调色图标 / 删除浅粉底 + 危险色图标），这里整组换成
+   **贴卡右缘、上下顶满卡高的两个等宽色块**（各 70px、无间隙、无右内边距），白字 15px
+   居中写「编辑 / 删除」—— 编辑取品牌紫 `--lc-accent`（与截图取色 #7974E8 同值）、
+   删除取实心红 `#F04452`（与「删除聊天对象」确认框那颗同一色）。右侧两角不用自己圆：
+   卡本身 `.swipe-row` 是 overflow:hidden + 14px 圆角，色块会被卡角裁圆。 */
+/* 整组撑满行高、贴卡右缘：styles.css 在 @layer(base) 里，那条 `.row-actions` 的
+   align-items:center 只能靠这里（无分层）覆盖才生效 —— 写在 styles.css 会静默失效 */
+.memory-row .row-actions { padding-right: 0; gap: 0; align-items: stretch; }
+.memory-row .row-action { width: 70px; min-width: 70px; height: auto; border-radius: 0; font-size: 15px; font-weight: 500; }
+.memory-row .row-action.edit { background: var(--lc-accent); color: #FFF; }
+.memory-row .row-action.del { background: #F04452; color: #FFF; }
+/* 深色外观下 --lc-accent 会变浅（#A6A1FF），白字压不住 —— 色块自己钉一档更深的紫 */
+.dark .memory-row .row-action.edit { background: #5B54CC; }
 /* 左滑时按钮组左缘那层渐隐要跟卡面同色（全局那条吃的是 --lc-surface，紫调卡上会亮一道） */
 .memory-row .row-actions::before { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--lc-accent) 3%, var(--lc-surface))); }
 .memory-text { font-size: 16px; line-height: 1.75; color: var(--lc-text); }
