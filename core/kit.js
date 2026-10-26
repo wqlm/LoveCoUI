@@ -11,17 +11,18 @@
   const ib = (name, title, action, extra = '') => `<button type="button" class="icon-btn ${extra}" title="${esc(title)}" aria-label="${esc(title)}" data-action="${action}">${icon(name)}</button>`;
   /** 主按钮：第三个参数是图标名（传空串 = 这颗按钮不带图标，只出文字） */
   const primary = (label, action, name = 'MagicStick', disabled = false) => `<button type="button" class="primary full" data-action="${action}" ${disabled ? 'disabled' : ''}>${name ? icon(name) : ''}${label}</button>`;
-  /** 头像：只接受 data:image 内联图片，其余走首字兜底 */
+  /** 头像：只接受 data:image 内联图片（jpeg / png / webp / svg+xml），其余走首字兜底。
+      这里收 svg+xml 是给默认头像用的（2026-10-26 需求起 AV.chat 是内联 SVG 人形图标） */
   const avatar = (name, color = '', image = '') => {
-    const safeImage = /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(image);
+    const safeImage = /^data:image\/(?:jpeg|png|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(image);
     return `<span class="avatar ${esc(color)}">${safeImage ? `<img src="${image}" alt="${esc(name)}的头像">` : esc(name.slice(0, 1))}</span>`;
   };
   /** 「不选择」占位头像：没传图片时是虚线空槽 + 中性用户图标（样式见 theme.css 的
       .avatar.none），表示没有具体聊天对象；传了内联图片就用那张图 —— 对象列表里的
-      「不选择」行统一走这条（下发的是已绑定默认头像插画 AV.chat 的版本，见 app.js 的
-      uiContext），对象编辑器的「上传头像」槽不传图、仍是虚线空槽 */
+      「不选择」行统一走这条（下发的是已绑定默认头像 AV.chat 的版本 —— 2026-10-26 起是内联 SVG
+      人形图标，见 app.js 的 uiContext），对象编辑器的「上传头像」槽不传图、仍是虚线空槽 */
   const noneAvatar = (image = '') => {
-    const safeImage = /^data:image\/(?:jpeg|png|webp);base64,[A-Za-z0-9+/=]+$/.test(image);
+    const safeImage = /^data:image\/(?:jpeg|png|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(image);
     return safeImage
       ? `<span class="avatar none-img"><img src="${image}" alt="未选择聊天对象"></span>`
       : `<span class="avatar none" aria-hidden="true">${icon('User')}</span>`;

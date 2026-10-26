@@ -58,14 +58,15 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .avatar { background: var(--lc-yellow-soft); color: var(--lc-yellow); }
 .avatar.coral { background: var(--lc-pink-soft); color: var(--lc-pink); }
 .avatar.blue { background: var(--lc-blue-soft); color: var(--lc-blue); }
-/* 头像位出图时**一律白底垫一层**（2026-10-06 需求：图片背景默认白色填充）：默认头像插画
-   assets/avatars/default.png 是透明底的浅灰线稿，直接落在 .avatar 的黄色软底上会透出一圈橙色 ——
-   白底垫在图下面，浅灰人形照样看得清。候选头像那些都是 jpg（本来不透明），这条只影响那张透明底插画；
-   深浅两外观都是白底，不跟令牌走 —— 图本身是白底才自然。 */
+/* 头像位出图时**一律白底垫一层**（2026-10-06 需求：图片背景默认白色填充）：默认头像
+   （assets/avatars/default.svg —— 2026-10-26 需求起是透明底的灰色人形图标）落在 .avatar 的彩色软底上
+   会透出底色（插画那版是橙圈、这版是黄/粉/蓝的人形），白底垫在图下面才干净：灰圆仍是灰圆、
+   挖空的人形显白。候选头像那些都是 jpg（本来不透明），深浅两外观都是白底，不跟令牌走 ——
+   图本身是白底才自然。 */
 .avatar img { background: #FFF; }
 /* 「不选择」占位头像（core/kit.js 的 noneAvatar）：虚线空槽 + 中性用户图标，
    表示没有具体聊天对象 —— 与真实对象头像（插画 / 首字彩块）明确区分；取令牌色，深色外观自动跟随。
-   2026-10-06 晚些需求起「不选择」行改用默认头像插画（noneAvatar 传入图片 → .avatar.none-img，
+   2026-10-06 晚些需求起「不选择」行改用默认头像（noneAvatar 传入图片 → .avatar.none-img，
    不带 none 类，因此没有虚线空槽），对象编辑器的「上传头像」槽仍是无图的虚线空槽 */
 .avatar.none { background: var(--lc-canvas); border: 1.5px dashed var(--lc-border); color: var(--lc-muted); }
 .avatar.none svg { width: 16px; height: 16px; }
