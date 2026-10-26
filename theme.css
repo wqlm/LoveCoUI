@@ -3048,16 +3048,14 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .partner-detail .field { margin-bottom: 0; }
 .partner-detail .field-value { font-size: 14px; line-height: 1.7; color: var(--lc-text); }
 .partner-detail .field-value.is-empty { color: var(--lc-subtle); }
-/* —— 聊天记忆（2026-10-26 需求）—— 骨架在 styles.css 的 .partner-memory* / .memory-* 一组。
-   详情页那块卡：头行标题 13.5px 加粗 + 右端「管理记忆」文字按钮（12px 强调色、13px 折角箭头）；
-   预览气泡取画布灰底（卡片是白的，灰底气泡才照得出层次）、12.5px 灰字、各夹两行。
+/* —— 聊天记忆（2026-10-26 需求）—— 骨架在 styles.css 的 .partner-memory-entry* / .memory-* 一组。
+   详情页底部那个入口：整张白卡是一个按钮 —— 蓝色（强调色）标题「管理聊天记忆」15px 加粗 +
+   底下一行 12px 灰字「AI将纪录与TA对话中的关键信息」，按住整卡泛一层淡紫底（同对象行）。
    记忆整页：一条记忆一张白卡（14 圆角 + 极轻投影，与对象列表的卡同一档），正文 13px 深色、
    行高 1.65；左滑的编辑 / 删除按钮沿用全局 .row-action（强调色 / 危险色）。 */
-.partner-memory-title { font-size: 13.5px; font-weight: 600; color: var(--lc-text); }
-.partner-memory-head .text-button { font-size: 12px; color: var(--lc-accent-strong); }
-.partner-memory-head .text-button svg { width: 13px; height: 13px; color: var(--lc-subtle); }
-.memory-bubble { padding: 9px 11px; border-radius: 10px; background: var(--lc-canvas); font-size: 12.5px; line-height: 1.6; color: var(--lc-muted); }
-.memory-bubble.is-empty { padding: 0; background: none; }
+.partner-memory-entry-title { font-size: 15px; font-weight: 600; color: var(--lc-accent-strong); }
+.partner-memory-entry-sub { font-size: 12px; line-height: 1.6; color: var(--lc-subtle); }
+.partner-memory-entry:active { background: var(--lc-accent-soft); }
 .partner-memory-hint { font-size: 11.5px; line-height: 1.6; color: var(--lc-subtle); }
 .memory-row { border-radius: 14px; background: var(--lc-surface); box-shadow: 0 1px 2px #2621320A; }
 .memory-row .row-slide { padding: 13px 14px; }
