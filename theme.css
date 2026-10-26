@@ -899,7 +899,9 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    （只剩名称 + 关系阶段）按钮上下两端会从滑动层外露出残影，所以未滑开时干脆不画：
    visibility 跟 .revealed 走，拖动过程由 app.js 按当前位移同步 transform / class。
    选中态只靠 .partner-row.selected 边框表达（键盘形态的管理页），不画 ✅。
-   操作按钮重设计：40px 圆角方块 —— 编辑取强调色、删除取危险色。 */
+   操作按钮：**2026-10-26 再晚些需求照真机截图重做** —— 原 40px 圆角图标方钮改成
+   贴行右缘、上下顶满行高的两个等宽色块（编辑紫 / 删除红 + 白字），见下面 .row-action 一组；
+   「聊天记忆」列表也用同一套（那里只多一条渐隐同色）。 */
 .swipe-row {
   position: relative;
   overflow: hidden;
@@ -910,12 +912,14 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   bottom: 0;
   right: 0;
   display: flex;
-  align-items: center;
-  gap: 6px;
-  padding-right: inherit;
+  /* **2026-10-26 再晚些需求：整组改成两个贴右缘的整高色块** —— 上下顶满行高（stretch）、
+     两枚之间不留缝（gap 0）、不留右内边距（padding-right 0，原先 40px 圆角钮是靠它让出 6/9px 空） */
+  align-items: stretch;
+  gap: 0;
+  padding-right: 0;
   z-index: 2;
   visibility: hidden;
-  /* 收起位：整组退到行外右侧（比自身宽度多退一个 padding-right，保证完全被 overflow 裁掉） */
+  /* 收起位：整组退到行外右侧（多退 6px 保证完全被 overflow 裁掉） */
   transform: translateX(calc(100% + 6px));
   transition: transform .18s ease;
 }
@@ -935,29 +939,43 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   background: linear-gradient(90deg, transparent, var(--lc-surface));
   pointer-events: none;
 }
+/* 两颗按钮本体（**2026-10-26 再晚些需求照真机截图重做**）：40×40 圆角图标方钮 →
+   等宽 70px、上下顶满行高的实心色块，白字 15px 写「编辑 / 删除」—— 编辑取品牌紫
+   `--lc-accent`（真机取色 #7974E8 同值）、删除取实心红 `#F04452`（与「删除聊天对象」
+   确认框同一色）。右侧两角不做 border-radius：行本身 overflow:hidden + 行圆角会把色块裁圆。 */
 .row-action {
-  width: 40px;
-  min-width: 40px;
-  height: 40px;
+  width: 70px;
+  min-width: 70px;
+  height: auto;
   border: 0;
   padding: 0;
-  border-radius: 10px;
+  border-radius: 0;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 500;
   cursor: pointer;
 }
-.row-action svg {
-  width: 17px;
-  height: 17px;
-}
 .row-action.edit {
-  background: var(--lc-accent-soft);
-  color: var(--lc-accent-strong);
+  background: var(--lc-accent);
+  color: #FFF;
 }
 .row-action.del {
-  background: var(--lc-pink-soft);
-  color: var(--lc-danger);
+  background: #F04452;
+  color: #FFF;
+}
+/* 深色外观下 --lc-accent 会变浅（#A6A1FF），白字压不住 —— 编辑块自己钉一档更深的紫 */
+.dark .row-action.edit {
+  background: #5B54CC;
+}
+/* 键盘形态的对象管理页（.partner-row 窄一档，行高 ~52px）：色块跟着收一档，
+   别把 30px 头像 + 备注名整片盖住 */
+.partner-row .row-action {
+  width: 56px;
+  min-width: 56px;
+  font-size: 14px;
 }
 /* 行内容层：固定不动（滑动由 .row-actions 自己滑入完成），只在视觉上垫在按钮之下 */
 .row-slide {
@@ -3057,28 +3075,16 @@ html[data-view="device"] .wx-chat { min-height: 0; }
    极淡的紫调卡面（强调色 3% 混白，深浅两态都跟着令牌走）、14 圆角、平铺无投影；正文
    13 → **16px**、行高 1.65 → **1.75**（参考图那种「一段长事实、大字号宽行距折行」的观感），
    卡内边距 13/14 → 16/16，卡间距 10 → 12px（styles.css 的 .memory-list）。
-   左滑的编辑 / 删除按钮 2026-10-26 再晚些按真机截图改成「整高色块 + 白字」，见下面 .memory-row
-   那两条（骨架 / 尺寸覆盖在 styles.css）。 */
+   左滑的编辑 / 删除按钮 2026-10-26 再晚些按真机截图改成「整高色块 + 白字」，与「聊天对象」
+   列表共用全局 .row-action 那一套，本页只多一条渐隐同色。 */
 .partner-memory-entry-title { font-size: 14px; font-weight: 600; color: var(--lc-accent-strong); }
 .partner-memory-entry-head .chev svg { width: 14px; height: 14px; color: var(--lc-subtle); }
 .partner-memory-entry-sub { font-size: 12px; line-height: 1.6; color: var(--lc-subtle); }
 .partner-memory-entry:active { background: var(--lc-accent-soft); }
 .memory-row { border-radius: 14px; background: color-mix(in srgb, var(--lc-accent) 3%, var(--lc-surface)); }
 .memory-row .row-slide { padding: 16px; }
-/* 左滑露出的两颗按钮（**2026-10-26 再晚些需求，照真机截图改样式**）：全局那套是两枚 40px
-   圆角图标方钮（编辑浅紫底 + 强调色图标 / 删除浅粉底 + 危险色图标），这里整组换成
-   **贴卡右缘、上下顶满卡高的两个等宽色块**（各 70px、无间隙、无右内边距），白字 15px
-   居中写「编辑 / 删除」—— 编辑取品牌紫 `--lc-accent`（与截图取色 #7974E8 同值）、
-   删除取实心红 `#F04452`（与「删除聊天对象」确认框那颗同一色）。右侧两角不用自己圆：
-   卡本身 `.swipe-row` 是 overflow:hidden + 14px 圆角，色块会被卡角裁圆。 */
-/* 整组撑满行高、贴卡右缘：styles.css 在 @layer(base) 里，那条 `.row-actions` 的
-   align-items:center 只能靠这里（无分层）覆盖才生效 —— 写在 styles.css 会静默失效 */
-.memory-row .row-actions { padding-right: 0; gap: 0; align-items: stretch; }
-.memory-row .row-action { width: 70px; min-width: 70px; height: auto; border-radius: 0; font-size: 15px; font-weight: 500; }
-.memory-row .row-action.edit { background: var(--lc-accent); color: #FFF; }
-.memory-row .row-action.del { background: #F04452; color: #FFF; }
-/* 深色外观下 --lc-accent 会变浅（#A6A1FF），白字压不住 —— 色块自己钉一档更深的紫 */
-.dark .memory-row .row-action.edit { background: #5B54CC; }
+/* 左滑露出的两颗按钮：**整高色块 + 白字**（2026-10-26 再晚些需求，与「聊天对象」列表共用
+   全局那一套，见前面 .row-action 一组；这里只剩「渐隐要跟紫调卡面同色」这一条本页专属的） */
 /* 左滑时按钮组左缘那层渐隐要跟卡面同色（全局那条吃的是 --lc-surface，紫调卡上会亮一道） */
 .memory-row .row-actions::before { background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--lc-accent) 3%, var(--lc-surface))); }
 .memory-text { font-size: 16px; line-height: 1.75; color: var(--lc-text); }

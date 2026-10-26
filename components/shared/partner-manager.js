@@ -23,8 +23,8 @@ LoveCoUI.define('shared', 'partner-manager', (ctx) => {
     const h = state.partnersRemoving.get(p.id);
     return `<div class="partner-row swipe-row ${state.selectedPartner===p.id?'selected':''}${h!=null?' removing':''}"${h!=null?` style="--row-h:${h}px"`:''}>
       <div class="row-actions">
-        <button type="button" class="row-action edit" data-action="edit-partner:${esc(p.id)}" aria-label="编辑 ${esc(p.name)}">${icon('EditPen')}</button>
-        <button type="button" class="row-action del" data-action="remove-partner:${esc(p.id)}" aria-label="删除 ${esc(p.name)}">${icon('Delete')}</button>
+        <button type="button" class="row-action edit" data-action="edit-partner:${esc(p.id)}" aria-label="编辑 ${esc(p.name)}">编辑</button>
+        <button type="button" class="row-action del" data-action="remove-partner:${esc(p.id)}" aria-label="删除 ${esc(p.name)}">删除</button>
       </div>
       <div class="row-slide">
         <button class="partner-pick" data-action="select-partner:${esc(p.id)}" aria-pressed="${state.selectedPartner===p.id}" aria-label="选择 ${esc(p.name)}">${partnerAvatar(p)}<span class="person-meta"><strong>${esc(p.name)}</strong><small>${esc(p.stage)}</small></span></button>

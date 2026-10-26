@@ -553,10 +553,8 @@ small{font-size:11px;color:#73847d}
 .partner-memory-entry-head .chev{display:inline-flex;flex-shrink:0;margin-left:auto}
 .memory-list{display:flex;flex-direction:column;gap:12px}
 /* 记忆卡左滑露出的两颗按钮 2026-10-26 再晚些需求起改成「贴卡右缘、上下顶满卡高的色块」：
-   原先那条给圆角图标钮留 9px 空隙的 padding-right 已去掉 —— 组内的 padding-right / gap /
-   align-items 覆盖**必须写在 theme.css**（本文件在 @layer(base) 里，会输给 theme.css 无分层
-   的 `.row-actions`），这里不再重复声明。 */
-.memory-row .row-actions{padding-right:0}
+   原先给圆角图标钮留 9px 空隙的 padding-right 已去掉。这类 `.row-actions` 的尺寸 / 间距覆盖
+   **要写在 theme.css**（本文件在 @layer(base) 里，同名的分层声明会输给 theme.css 无分层那条）。 */
 .memory-row .row-slide{align-items:flex-start}
 .memory-text{white-space:pre-wrap;overflow-wrap:anywhere}
 .app-page-foot{display:flex}
