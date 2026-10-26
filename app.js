@@ -93,8 +93,11 @@
      记忆是落库的（persist 存 state.memories），老存档里还压着上一批 4 条演示记忆 ——
      不认批次号的话，刷新后新写的这 12 条一条都看不见。原型没有「新建记忆」入口，
      用户只能改 / 删默认那几条，所以换批次时整份换成新的演示记忆（改过的正文会被覆盖，
-     这点对演示原型可接受）。留意：删掉某个对象后它的记忆已清掉，换批次会连同它一起回来。 */
-  const MEMORY_SEED = 2;
+     这点对演示原型可接受）。留意：删掉某个对象后它的记忆已清掉，换批次会连同它一起回来。
+     **2 → 3（2026-10-26 再晚些需求）**：用户反馈「聊天记忆页面怎么是空的」—— 存档里
+     记忆被清空（或那批记忆属于别的对象）时批次号照样对得上，刷新也不会重播；顺手把批次号
+     提一档，让这些存档换一次新数据，再靠 memoryBackfill 给每个对象兜住两条。 */
+  const MEMORY_SEED = 3;
   /* 关系阶段：按关系由浅到深的五档，新建对象的默认档位是「熟悉」。
      键盘编辑面板（kb-partner-editor）与主 App 对象弹层共用这一份档位表。 */
   const stages = ['初识','熟悉','暧昧','恋人','伴侣'];
@@ -105,6 +108,9 @@
   function normalizeStage(v){ return stages.includes(v) ? v : (STAGE_MIGRATION[v] ?? DEFAULT_STAGE); }
   let saved = {};
   try { saved = JSON.parse(localStorage.getItem(STORE) || '{}'); } catch (_) {}
+  /* 存档里的聊天记忆能不能信（2026-10-26 晚些需求）：批次号对得上、且确实是数组才沿用；
+     否则整份换成 initialMemories，并把「哪些对象播过演示记忆」的标记一起清空（见 memoryBackfill）。 */
+  const memorySeedOk = saved.memorySeed === MEMORY_SEED && Array.isArray(saved.memories);
   /* 「模拟试用额度耗尽」的**开关状态与快照**也要跟着本地恢复（原来只存了被清零的积分）：
      只存积分不存开关，刷新后开关显示为关、积分却是 0 —— 一发起生成就弹「会员与积分」，
      看着像开关失灵。顺带兜一条旧数据：开关关着而积分 < 1（旧版本留下的脏值）时回到初始额度。 */
@@ -156,9 +162,14 @@
        **全部对象一张表**（{id, pid, text}），页面按 pid 过滤；改 / 删都 persist 落库。
        memoryEdit 是「编辑记忆」底部弹层的目标记忆 id（'' = 不显示；页见 memoryEditSheet）。
        memorySeed 是演示记忆的批次号（见 MEMORY_SEED）：老存档的批次号对不上就换成新一批，
-       否则刷新后看不到新写的演示记忆。 */
-    memories: saved.memorySeed === MEMORY_SEED && Array.isArray(saved.memories) ? saved.memories : structuredClone(initialMemories),
-    memorySeed: MEMORY_SEED, memoryEdit:'',
+       否则刷新后看不到新写的演示记忆。
+       memorySeeded 记「哪些对象已经播过演示记忆」（pid → 1，落库）：页面不能空着，见
+       memoryBackfill —— 用户自己新建 / 老存档里的对象没有记忆时按模板补两条；播过就记下，
+       用户把那两条删光后不会再长回来。 */
+    memories: memorySeedOk ? saved.memories : structuredClone(initialMemories),
+    memorySeed: MEMORY_SEED,
+    memorySeeded: memorySeedOk && saved.memorySeeded && typeof saved.memorySeeded === 'object' ? saved.memorySeeded : {},
+    memoryEdit:'',
     pending:false, activeRequest:null, generation:0, calls:0,
     /* 打字机：思路卡片逐字输出。stream = {card,part,chars,generation} —— card 是正在输出的
        思路卡（0 起），part 是卡里的哪一段（title 策略 / reply 回复），chars 是它已输出的字数。 */
@@ -715,7 +726,7 @@
         /* 资料引导的结果一起落库：生日（跳过则留空）+「模拟 › 已设置性别」开关（见 state.genderSet） */
         partners:state.partners,gender:state.gender,age:state.age,birthday:state.birthday,genderSet:state.genderSet,
         /* 聊天记忆（2026-10-26 需求）：改 / 删一条记忆后与对象数据一起落库 */
-        memories:state.memories,memorySeed:state.memorySeed,
+        memories:state.memories,memorySeed:state.memorySeed,memorySeeded:state.memorySeeded,
         /* 用户 ID（state.memberId）也落库（「用户」页显示的那枚展示值） */
         memberId:state.memberId,
         /* 「邀请有礼」页的四个落库字段（2026-10-05 新增，见 state 顶部说明）：
@@ -920,6 +931,30 @@
   function partnerMemoriesOf(pid) {
     return state.memories.filter(m=>m.pid===pid);
   }
+  /* 其余对象的**演示记忆模板**（2026-10-26 再晚些需求，配合 memoryBackfill）：initialMemories
+     只手写了林间（p1）那 8 条；用户自己新建的对象、老存档里带进来的对象没有记忆，整页就是
+     一片空白（页面去掉提示文案后尤其像坏掉）。这里按对象名现编两条兜底，写法跟手写那批一档。 */
+  const MEMORY_TEMPLATES = [
+    name => `用户要求回复短一点、口语化，称呼用「你」；和「${name}」聊天时不要写成小作文、也不要分点罗列。`,
+    name => `用户和「${name}」的相处背景：「${name}」平时回复不长，聊到感兴趣的话题才愿意展开；先顺着对方的话题接，一次只问一个问题，别一上来就抛一堆选择。`
+  ];
+  /* 给还没有记忆的聊天对象补两条演示记忆（2026-10-26 再晚些需求）：
+     启动时、新建 / 编辑保存对象后各跑一次；播过就把 pid 记进 state.memorySeeded（落库），
+     所以用户把某条对象的两条记忆全删掉后，刷新不会再长回来 —— 只有「从没播过的对象」才补。
+     返回 true 表示这次补了东西（调用方据此决定要不要 persist）。 */
+  function memoryBackfill() {
+    let seeded = false;
+    state.partners.forEach(p=>{
+      if(state.memorySeeded[p.id])return;
+      state.memorySeeded[p.id]=1;
+      if(partnerMemoriesOf(p.id).length)return;
+      MEMORY_TEMPLATES.forEach((tpl,i)=>{
+        state.memories.push({id:`${p.id}-demo${i+1}`,pid:p.id,text:tpl(p.name)});
+      });
+      seeded = true;
+    });
+    return seeded;
+  }
   /* 「聊天记忆」整页（partner-memory，2026-10-26 需求；入口 = 详情页底部那颗「管理聊天记忆」）：
      AI 记下的关于「用户 × 该聊天对象」的事实，一条一张卡（**2026-10-26 晚些需求按用户参考图
      重做样式**：浅紫调卡面、无投影，16px 正文 + 1.75 行高，长文自然折行）；**左滑露出编辑 / 删除**
@@ -1076,7 +1111,7 @@
     {id:'legal',group:'账户与协议',name:'协议正文',route:'/legal/:key（本列表固定看《用户协议》）',trigger:'「我的」· 隐私与协议四条直链（用户协议 / 隐私政策 / 个人信息收集清单 / 第三方信息共享清单）、注销页「我已阅读并同意《账号注销协议》」、两张登录页的协议勾选行与「请阅读并同意以下条款」弹框里的协议名、会员购买页的协议行；本列表点入（现场摆成从「我的」点进的《用户协议》，不落库）',desc:'**协议正文整页**（2026-10-04 按设计图重做，route 回到 /legal/:key 口径）：① 页头**只有一枚返回箭头**、**常驻顶部**（2026-10-04 晚些需求：正文往下滚时页头钉在正文区顶部、不跟着滚走 —— .lg-head 的 position:sticky，骨架在 styles.css）—— 没有页名、没有 X（原 sheet 头那行协议名与页尾那颗整宽「返回」按钮一并去掉），协议名改在正文首行用 **27px 加粗大标题**承担；② 正文按空行分段、左对齐，**宋体** 15.5px / 行高 1.95（标题与正文都排宋体，与设计图一致），首行那份与标题重复的协议名在渲染时去掉（legalParagraphs，判据「首行不含句读且不超过 40 字」）。整页白底、无底部 Tab、状态栏连着转白；页面上**没有**「项目内置协议快照；模拟器本身不提供真实付费服务。」那条说明（模拟器口径只留在工作台与 README）。正文与键盘内 kb-legal 同一份快照（legal-data.js，8 份）',note:'返回箭头 / Esc 都回打开它的那一页（state.legalFrom）—— 从「我的」进的回「我的」、从注销页进的回注销页、从登录页 / 购买页进的回那一页（输入的表单、协议勾选状态、所选档位都留着；原「关于 LoveCo」页的协议卡 2026-10-06 需求已删，不再是来路）；2026-09-26 ～ 2026-10-04 之间它是浮在页面上的 sheet 覆盖层（state.appLegal），本轮改回整页后覆盖层字段与 legalSheet 一并删除；**同日晚些「协议中心」列表页（legal-list）按需求删除** —— 卡片末行入口与 appLegalListPage 一并去掉，这份正文页保留'},
     {id:'partners',group:'聊天对象',name:'聊天对象',route:'/partners',trigger:'主 App 底部 Tab 第二项「对象」；编辑保存后回到这里',desc:'对象管理列表（整页，纯管理）：标题行一行「聊天对象」+ 右侧「新建」文字按钮 —— 标题行下**没有**「当前上下文：…」那行说明，列表里也**没有「不选择」行**（清空 / 切换当前上下文只在键盘形态的管理页里做）；每行 = 圆形头像（没设自定义头像的一律用默认头像 —— 2026-10-06 起统一成一张，**2026-10-26 需求起这张换成灰色人形图标**）+ 备注名，**只有写过备注的对象才多一行备注**（最多两行 —— 没备注的行不占位、不写「还没有备注 —— …」提示语；**性别 · 关系阶段不在列表里出现**，进详情页才看得到）；顺序按最近操作在前（新建的排最前，编辑过的保存后提到最前）。**整行（含头像）都是点击区**：按下时整行铺一层淡紫高亮（`.partner-open:active`，不再画头像描边的选中态），松手进该对象的**详情页**（**2026-10-26 需求新增的只读整页**：头像区（64px 圆头像 + 备注名）+ 同一张白卡里的性别 / 关系阶段 / 备注信息三个只读字段 + 底部「管理聊天记忆」入口（整卡可点）进记忆列表；页尾没有「编辑」按钮，编辑页只从本列表左滑的「编辑」进）—— 点行**不改当前上下文**；左滑露出编辑 / 删除（从行右侧滑入、盖在行内容上，「编辑」直接进编辑页、不经详情页；**删除 2026-10-15 需求起不直接执行，先弹「删除聊天对象」二次确认框** —— 深色蒙层 + 居中白卡：17px 加粗标题「删除聊天对象」+ 一句说明「删除后「XX」的资料与备注会被永久删除，无法恢复。」+「取消 / 删除」两颗等宽圆角矩形按钮（取消灰底灰字、删除**实心红 #F04452 + 白字**）—— 取消 / Esc 只收框、对象不删，点「删除」才发 DELETE 仿真请求、行收起 + 列表少一条）',note:'与键盘形态的管理页是同一份数据、同一套排序、同一套左滑动作，只是主 App 下渲染为整页；本页的删除是两步（左滑删除按钮 ask-remove-partner 只开确认框，框里 partner-delete-ok 才真删），键盘形态的管理页仍是一步直删（remove-partner）；「不选择」条目与「切当前对象」只在键盘形态的管理页里 —— 两种形态的行点击语义不同：主 App 进详情（编辑页），键盘切当前对象'},
     {id:'partner-detail',group:'聊天对象',name:'聊天对象详情',route:'/partners/:id',trigger:'主 App「聊天对象」页点对象行（整行都是点击区）；或从本列表点入（现场取列表第一只对象、不落库）',desc:'**2026-10-26 需求新增的只读整页**，参考同一份编辑页的字段与卡片：页头复用主 App 统一的返回箭头 + 居中标题「聊天对象详情」（`user-head` 骨架；返回箭头与 Esc 都回「聊天对象」列表）；自上而下 —— ① **头像区**（吃满余高、一列居中）：**64px 圆形头像**（与列表同一份来源，没设自定义头像时就是那张灰色人形默认头像）+ 18px 加粗备注名；② **信息卡**（与编辑页同一张白卡）：**性别 / 关系阶段 / 备注信息**三行（备注名已由头像区承担、不重复成一行），标签沿用编辑页那档小灰字、值排在标签下方 —— 位置正是编辑页输入框的位置，只把控件换成纯文字（**13px** 深色 —— 同日再按需求收小一档；备注信息保留换行，没写时显灰字「暂未填写」，性别缺省「暂不设置」，关系阶段走 normalizeStage 兜住旧档位）；③ **「管理聊天记忆」入口**（同日需求）：一整张白卡就是入口 —— **蓝色**标题「管理聊天记忆」14px 加粗 + **右端一枚右对齐的折角箭头 ›**（14px 灰字色）+ 底下一行 12px 灰字「AI将纪录与TA对话中的关键信息」，**整卡可点**（按住泛一层淡紫底）进该对象的记忆列表整页（`partner-memory`）；原「聊天记忆」标题 + 「管理记忆」文字按钮、以及记忆预览气泡都已按需求去掉。**页尾不再有「编辑」按钮**（同日需求去掉 —— 改资料改走「聊天对象」列表左滑的「编辑」）。本页只读：没有输入框、没有头像上传入口、也没有删除入口（删除仍只走列表左滑那颗按钮）',note:'与「编辑聊天对象」是**两份页面**，不是同一页的两种形态：列表点行进本页，编辑页只从「聊天对象」列表左滑的「编辑」进；对象在此期间被删掉时本页只渲染一句兜底文案；键盘形态没有这一页'},
-    {id:'partner-memory',group:'聊天对象',name:'聊天记忆',route:'/partners/:id/memory',trigger:'主 App「聊天对象详情」页底部的「管理聊天记忆」入口（整卡可点）；或从本列表点入（现场取列表第一只对象、不落库）',desc:'**2026-10-26 需求新增的整页**（AI 记下的关于「用户 × 某个聊天对象」的事实，参考用户给的记忆列表样式）：页头复用统一的返回箭头 + 居中标题「聊天记忆」（返回箭头 / Esc 都回该对象的详情页）；**页头下面那行灰字说明 2026-10-26 晚些需求已按需求去掉**，正文直接是记忆卡列表 —— 一条记忆一张卡（圆角 14、极淡的紫调卡面（强调色 3% 混白）、平铺无投影；16px 正文、行高 1.75、保留换行，长文自然折行；卡内边距 16、卡间距 12）—— **左滑露出编辑 / 删除**（与「聊天对象」列表同一套 `.swipe-row` 手势与 40px 圆角按钮：编辑取强调色、删除取危险色）；「编辑」开底部弹层改正文（`memoryEditSheet`：多行输入框 + 整宽「保存」，保存即写回并落库）、「删除」直接删（记忆是 AI 自己攒的，不弹二次确认）；**列表空态文案同日一并去掉**（一条都没有时只剩页头）。记忆与对象一起存本地：`state.memories`（`{id, pid, text}` 一张表）+ `persist()`，批次号 `state.memorySeed` 只用来换新一批演示记忆；默认三个对象各摆几条演示记忆（林间 8 条、陈一 2 条、小满 2 条）；删掉一个聊天对象时它的记忆一并清掉。注意这是**新做的页面**，与 2026-09-25 删掉的「对象记忆」功能无关（那套开关 / 会员权益 / `state.facts` 至今维持删除）',note:'只读列表 + 左滑改删，没有「新建记忆」入口（记忆由 AI 在聊天中攒，原型不做真实抽取）；不接 AI 请求体、不落会员权益'},
+    {id:'partner-memory',group:'聊天对象',name:'聊天记忆',route:'/partners/:id/memory',trigger:'主 App「聊天对象详情」页底部的「管理聊天记忆」入口（整卡可点）；或从本列表点入（现场取列表第一只对象、不落库）',desc:'**2026-10-26 需求新增的整页**（AI 记下的关于「用户 × 某个聊天对象」的事实，参考用户给的记忆列表样式）：页头复用统一的返回箭头 + 居中标题「聊天记忆」（返回箭头 / Esc 都回该对象的详情页）；**页头下面那行灰字说明 2026-10-26 晚些需求已按需求去掉**，正文直接是记忆卡列表 —— 一条记忆一张卡（圆角 14、极淡的紫调卡面（强调色 3% 混白）、平铺无投影；16px 正文、行高 1.75、保留换行，长文自然折行；卡内边距 16、卡间距 12）—— **左滑露出编辑 / 删除**（与「聊天对象」列表同一套 `.swipe-row` 手势与 40px 圆角按钮：编辑取强调色、删除取危险色）；「编辑」开底部弹层改正文（`memoryEditSheet`：多行输入框 + 整宽「保存」，保存即写回并落库）、「删除」直接删（记忆是 AI 自己攒的，不弹二次确认）；**列表空态文案同日一并去掉**（一条都没有时只剩页头）。记忆与对象一起存本地：`state.memories`（`{id, pid, text}` 一张表）+ `persist()`，批次号 `state.memorySeed` 只用来换新一批演示记忆；默认三个对象各摆几条演示记忆（林间 8 条、陈一 2 条、小满 2 条），其余对象（自己新建的 / 老存档带来的）由 `memoryBackfill()` 按 `MEMORY_TEMPLATES` 兜底补两条，补过的记进 `state.memorySeeded`（删光后刷新不会再长）；删掉一个聊天对象时它的记忆与这个标记一并清掉。注意这是**新做的页面**，与 2026-09-25 删掉的「对象记忆」功能无关（那套开关 / 会员权益 / `state.facts` 至今维持删除）',note:'只读列表 + 左滑改删，没有「新建记忆」入口（记忆由 AI 在聊天中攒，原型不做真实抽取）；不接 AI 请求体、不落会员权益'},
     {id:'partner-new',group:'聊天对象',name:'新增聊天对象',route:'/partners/new',trigger:'主 App「聊天对象」页右上角「新建」',desc:'对象编辑页（整页，底部「确定」保存并回到对象列表、该对象排最前）：头像槽（点它从本地选图上传，选完居中裁成方形；**2026-10-15 需求：整块水平居中、「上传头像」四字移到 icon 底下（横排改竖排），icon 整体缩小 0.8 倍 —— 槽 56 → 44.8、槽内人形图标 16 → 12.8、首字兜底 18 → 14.4、圆角 8 → 6.4**）、备注名、**性别**（下拉：暂不设置 / 女 / 男 —— 新建态默认取当前用户性别的「反」，用户是男默认女、用户是女默认男，用户自己还没设置性别时落到「女」）、关系阶段（五档，默认「熟悉」）、**备注信息多行输入框**（提示语「写下 TA 的年龄、职业、爱好，例如「28 岁，设计师，喜欢露营和看展」。写得越细，AI 越懂 TA。」），表单是白色圆角卡片、字段自上而下单列排布；标题行右侧一枚**退出 X**（图标钮 `.icon-btn`，title / aria-label「退出」，`data-action="close"` —— 不保存直接回上一层，从对象列表点进来就回对象列表）；底部「确定」是一颗**不带图标**的整宽主按钮（此前的对勾符号按需求去掉）',note:'与键盘版编辑面板（kb-partner-editor）对应但字段更多：键盘版只有备注名 + 关系阶段、改动即静默保存；主 App 版保留性别与备注信息两个字段（性别默认取反、备注提示语带年龄 / 职业 / 爱好三个关键词），仍是「确定」保存'},
     {id:'partner-edit',group:'聊天对象',name:'编辑聊天对象',route:'/partners/edit',trigger:'主 App「聊天对象」页对象行左滑「编辑」（详情页 2026-10-26 起不再有「编辑」按钮）',desc:'与「新增聊天对象」同一表单的编辑态：字段预填对象当前值（含头像「更换头像」、性别与备注信息；**头像槽与「新增聊天对象」同一套，2026-10-15 需求：水平居中、文字在 icon 底下、icon 整体缩到 0.8 倍 —— 有图时图同样按 44.8 方框居中裁**），「确定」保存回列表并把该对象提到最前；标题行右侧同样有**退出 X**（同一颗图标钮，不保存即回上一层）；**页内没有「删除这个对象」入口**（按需求去掉，原确认框链路 delete-partner / delete-partner-confirm 一并删除 —— 删除对象只走列表左滑那颗按钮：**主 App「聊天对象」页 2026-10-15 需求起先弹二次确认框**（见 partners 条目），键盘形态的管理页仍是点了就删）',note:'主 App 与键盘版的编辑面板现在都不给删除入口（键盘版更早去掉）—— 删除只走列表左滑；主 App 那一页 2026-10-15 需求起先弹二次确认框，键盘形态的管理页仍是点了就删、不弹框'},
     /* 「开启键盘」引导流程（2026-09-27）：进入主 App 按状态检查链走，键盘未开启就整页进这条流程。
@@ -4969,6 +5004,8 @@
     else p={id:'p'+Date.now(),name:s.n,gender:s.gender,stage:s.stage,note:s.note,color:'blue',avatar:s.avatar};
     state.modalData.id=p.id;
     frontPartner(p);
+    /* 键盘形态新建的对象同样补两条演示记忆（2026-10-26 再晚些需求，见 memoryBackfill） */
+    memoryBackfill();
     persist();
   }
   function scheduleKbPartnerSave() {
@@ -6042,8 +6079,10 @@
     return runMutation('/v1/partners/'+id,{},()=>{
       state.partnersRemoving.delete(id);
       state.partners=state.partners.filter(p=>p.id!==id);
-      /* 该对象的聊天记忆（2026-10-26 需求）一并删掉：记忆以 pid 挂在对象上，对象没了记忆也无主 */
+      /* 该对象的聊天记忆（2026-10-26 需求）一并删掉：记忆以 pid 挂在对象上，对象没了记忆也无主；
+         「播过演示记忆」的标记也一起清（同 id 再建出来是另一只对象，2026-10-26 再晚些需求） */
       state.memories=state.memories.filter(m=>m.pid!==id);
+      delete state.memorySeeded[id];
       if(state.selectedPartner===id){cancelAI(true);state.selectedPartner='none';state.results=[];}
       persist();
       backToPartners();
@@ -6552,6 +6591,9 @@
         const p=state.partners.find(x=>x.id===id)||{id:id||'p'+Date.now(),color:'blue'};
         Object.assign(p,{name:n,gender,stage,note,avatar:avatarData});
         frontPartner(p);
+        /* 新对象没有记忆的话补两条演示记忆（2026-10-26 再晚些需求，见 memoryBackfill）——
+           否则刚建完进「聊天记忆」是空白一片 */
+        memoryBackfill();
         persist();
         if(state.kbEditor){state.kbEditor=false;state.partnerPanel=true;}
         backToPartners();
@@ -7302,5 +7344,8 @@
     if(needsFullAccess())state.kbFullAccess=true;
     else if(!state.loggedIn){state.kbLogin=kbLoginMode();resetKbLoginForm();}
   }
+  /* 启动时给还没有记忆的聊天对象补两条演示记忆（2026-10-26 再晚些需求，见 memoryBackfill）：
+     老存档 / 用户自己新建的对象都靠这一步兜住，否则进「聊天记忆」是空白一片；补了就落库 */
+  if(memoryBackfill())persist();
   render();
 })();
