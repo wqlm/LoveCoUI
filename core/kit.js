@@ -20,12 +20,15 @@
   /** 「不选择」占位头像：没传图片时是虚线空槽 + 中性用户图标（样式见 theme.css 的
       .avatar.none），表示没有具体聊天对象；传了内联图片就用那张图 —— 对象列表里的
       「不选择」行统一走这条（下发的是已绑定默认头像 AV.chat 的版本 —— 2026-10-26 起是内联 SVG
-      人形图标，见 app.js 的 uiContext），对象编辑器的「上传头像」槽不传图、仍是虚线空槽 */
+      人形图标，见 app.js 的 uiContext）。
+      没传图时是虚线空槽（新增聊天对象的「上传头像」）：2026-10-26 需求起槽里那枚小图也换成默认头像
+      图标（AV.chat），与「没设自定义头像的对象长什么样」保持同一张；图标缺失时才退回线性人形 */
+  const chatDefault = () => (window.LOVECO_AVATARS || {}).chat || '';
   const noneAvatar = (image = '') => {
     const safeImage = /^data:image\/(?:jpeg|png|webp|svg\+xml);base64,[A-Za-z0-9+/=]+$/.test(image);
-    return safeImage
-      ? `<span class="avatar none-img"><img src="${image}" alt="未选择聊天对象"></span>`
-      : `<span class="avatar none" aria-hidden="true">${icon('User')}</span>`;
+    if (safeImage) return `<span class="avatar none-img"><img src="${image}" alt="未选择聊天对象"></span>`;
+    const fallback = chatDefault();
+    return `<span class="avatar none" aria-hidden="true">${fallback ? `<img src="${fallback}" alt="">` : icon('User')}</span>`;
   };
   /** 平台展示名 */
   const platformName = (platform) => ({ harmony: 'HarmonyOS', android: 'Android', ios: 'iOS' }[platform] || 'HarmonyOS');

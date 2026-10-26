@@ -20,7 +20,8 @@
    出现时面板缩回一条菜单栏的高度，键区不上跳。
    贴底与键区定高见 theme.css 的 .keyboard:has(.kb-partner-editor) 一组规则。
    面板内是**竖排居中**（2026-10-13 需求：原先是头像在左、表单在右的横排）：
-   **头像在上面一行**（虚线圆槽 +「上传头像」小字，点击进图片选择器的
+   **头像在上面一行**（虚线圆槽 +「上传头像」小字，槽里那枚小图 2026-10-26 需求起是默认头像图标
+   而不是线性人形；点击进图片选择器的
    avatarMode —— 单选、底部「确定」，见 kb-photo-picker），
    **备注名 / 关系阶段两行在下面、整宽排开**（左标签 + 右控件；头像不再占左侧一列，
    这两个 item 因此比原先长出一截）；备注名输入框外面也套了 .input-wrap + .compose-mirror 画拼音下划线，
@@ -32,7 +33,7 @@
    性别与备注信息已按需求移除（保存时保留对象原有值）。
    本组件只产出结构；表单值由 app.js 的 bind() 实时回存 state.modalData，重渲染不丢。 */
 LoveCoUI.define('shared', 'kb-partner-editor', (ctx) => {
-  const { esc, icon, ib, state, stages, defaultStage } = ctx;
+  const { esc, icon, ib, state, stages, defaultStage, defaultAvatar } = ctx;
   const p = state.partners.find(item => item.id === state.modalData.id);
   const draft = state.modalData.avatar ?? p?.avatar ?? '';
   const isEdit = Boolean(p);
@@ -49,7 +50,7 @@ LoveCoUI.define('shared', 'kb-partner-editor', (ctx) => {
     </header>
     <div class="picker-body pe-body">
       <button type="button" class="pe-avatar" data-action="avatar-photo-picker" title="选择头像" aria-label="选择头像">
-        ${draft ? `<span class="pe-avatar-img"><img src="${esc(draft)}" alt="头像预览"></span>` : `<span class="pe-avatar-ph">${icon('User')}</span>`}
+        ${draft ? `<span class="pe-avatar-img"><img src="${esc(draft)}" alt="头像预览"></span>` : `<span class="pe-avatar-ph">${defaultAvatar ? `<img src="${esc(defaultAvatar)}" alt="">` : icon('User')}</span>`}
         <span class="pe-avatar-label">${draft ? '更换头像' : '上传头像'}</span>
       </button>
       <div class="pe-fields">
