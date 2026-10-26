@@ -3038,15 +3038,33 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .editor-avatar-button .avatar { width: 44.8px; height: 44.8px; font-size: 14.4px; border-radius: 50%; }
 .editor-avatar-button .avatar.none svg { width: 12.8px; height: 12.8px; }
 /* 对象详情页（partner-detail，2026-10-26 需求）—— 骨架在 styles.css 的 .partner-hero* /
-   .field-value 一组。与编辑页同一套字段，只把控件换成文字：头像 96px 圆形、备注名 22px
-   居中成一块头像区；信息卡里的标签沿用 .field 那档小灰字（13px 的 margin-bottom 由本页
-   收掉，块间距交给 .app-card-pad 的 12px gap），值 14px 深色；没写的值（性别缺省 /
-   备注为空）显灰字。页尾「编辑」是整宽主按钮（primary，不带图标，与编辑页的「确定」同一档）。 */
-.partner-hero .avatar { width: 96px; height: 96px; font-size: 30px; border-radius: 50%; }
-.partner-hero-name { font-size: 22px; font-weight: 650; color: var(--lc-text); }
+   .field-value 一组。与编辑页同一套字段，只把控件换成文字：头像 64px 圆形、备注名 18px
+   居中成一块头像区（同日需求「头像和名称调小一点」：96/22 → 64/18）；信息卡里的标签沿用
+   .field 那档小灰字（13px 的 margin-bottom 由本页收掉，块间距交给 .app-card-pad 的 12px
+   gap），值 14px 深色；没写的值（性别缺省 / 备注为空）显灰字。
+   **页尾的「编辑」主按钮同日去掉** —— 页面以底部那块「聊天记忆」卡收尾。 */
+.partner-hero .avatar { width: 64px; height: 64px; font-size: 20px; border-radius: 50%; }
+.partner-hero-name { font-size: 18px; font-weight: 650; color: var(--lc-text); }
 .partner-detail .field { margin-bottom: 0; }
 .partner-detail .field-value { font-size: 14px; line-height: 1.7; color: var(--lc-text); }
 .partner-detail .field-value.is-empty { color: var(--lc-subtle); }
+/* —— 聊天记忆（2026-10-26 需求）—— 骨架在 styles.css 的 .partner-memory* / .memory-* 一组。
+   详情页那块卡：头行标题 13.5px 加粗 + 右端「管理记忆」文字按钮（12px 强调色、13px 折角箭头）；
+   预览气泡取画布灰底（卡片是白的，灰底气泡才照得出层次）、12.5px 灰字、各夹两行。
+   记忆整页：一条记忆一张白卡（14 圆角 + 极轻投影，与对象列表的卡同一档），正文 13px 深色、
+   行高 1.65；左滑的编辑 / 删除按钮沿用全局 .row-action（强调色 / 危险色）。 */
+.partner-memory-title { font-size: 13.5px; font-weight: 600; color: var(--lc-text); }
+.partner-memory-head .text-button { font-size: 12px; color: var(--lc-accent-strong); }
+.partner-memory-head .text-button svg { width: 13px; height: 13px; color: var(--lc-subtle); }
+.memory-bubble { padding: 9px 11px; border-radius: 10px; background: var(--lc-canvas); font-size: 12.5px; line-height: 1.6; color: var(--lc-muted); }
+.memory-bubble.is-empty { padding: 0; background: none; }
+.partner-memory-hint { font-size: 11.5px; line-height: 1.6; color: var(--lc-subtle); }
+.memory-row { border-radius: 14px; background: var(--lc-surface); box-shadow: 0 1px 2px #2621320A; }
+.memory-row .row-slide { padding: 13px 14px; }
+.memory-text { font-size: 13px; line-height: 1.65; color: var(--lc-text); }
+/* 「编辑记忆」弹层里的输入框：手机上不给右下角那枚拉伸手柄（弹层高度由内容定，
+   拖拽只会把底部「保存」挤出去） */
+.memory-input { resize: none; }
 html[data-view="device"] .sheet-footer {
   padding-bottom: max(18px, var(--host-safe-bottom, env(safe-area-inset-bottom, 0px)));
 }
