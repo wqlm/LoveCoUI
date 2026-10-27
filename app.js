@@ -3151,10 +3151,12 @@
     if(cells.length !== txt.length){ el.innerHTML = clockCells(ms); return; }
     for(let i=0;i<txt.length;i++) if(cells[i].textContent !== txt[i]) cells[i].textContent = txt[i];
   }
-  function stopOfferTimer() { if(state.pu2OfferTimer){clearInterval(state.pu2OfferTimer);state.pu2OfferTimer=null;} }
+  /* 停表：pu2OfferTimer 现在存的是 requestAnimationFrame 的句柄（2026-10-27 改动，见下），
+     不是 setInterval 的 id —— 这里必须 cancelAnimationFrame，别改成 clearInterval */
+  function stopOfferTimer() { if(state.pu2OfferTimer){cancelAnimationFrame(state.pu2OfferTimer);state.pu2OfferTimer=null;} }
   /* 打开挽留弹窗：先把「今天已弹过」记下（无论用户领不领，当天这一次机会就此用掉），
      再起 3 分钟倒计时（记到期时刻 pu2OfferEnds，2026-10-27 需求起带毫秒）。
-     47ms 的定时器只改 #pu2-offer-count 那一枚数字（不整页重渲染）——
+     逐帧回调（requestAnimationFrame）只改 #pu2-offer-count 那几个数字格（不整页重渲染）——
      其它 render 重建 DOM 后按 id 重新取到新节点、照常继续；归零 = 收层 + 放弃优惠。
      save=false = **页面列表点入「会员购买 · 优惠券」那条静态查看**（见 setupPage）：同样把
      offerDate 记成今天（页面内存内生效，关掉弹窗后当天点叉号就真退出，与真实链路一致），
@@ -3165,12 +3167,18 @@
     if(save)persist();
     render();
     stopOfferTimer();
-    state.pu2OfferTimer = setInterval(()=>{
-      if(!state.pu2Offer){stopOfferTimer();return;}
+    /* 逐帧走（2026-10-27 改动）：原来 47ms 的 setInterval 与屏幕刷新不同步，
+       一帧里可能重绘两次，弹窗里的按钮会跟着抖（用户反馈「领取优惠按钮缩放跳动」）。
+       换成 requestAnimationFrame —— 每帧最多写一次数字，重绘次数与帧率对齐；
+       paintClock 内部还比对了每个格子，没变的字符不写 DOM。 */
+    const loop = () => {
+      if(!state.pu2Offer){state.pu2OfferTimer=null;return;}
       const left = offerLeftMs();
-      if(left <= 0){stopOfferTimer();state.pu2Offer=false;render();return;}
+      if(left <= 0){state.pu2OfferTimer=null;state.pu2Offer=false;render();return;}
       paintClock('pu2-offer-count', left);
-    },47);
+      state.pu2OfferTimer = requestAnimationFrame(loop);
+    };
+    state.pu2OfferTimer = requestAnimationFrame(loop);
   }
   function closeOfferSheet() { state.pu2Offer=false; stopOfferTimer(); }
   /* 「会员购买页 · 新」的出口（左上角 x 与 Esc 同一条，2026-10-06 同日再改一次弹出逻辑）：
