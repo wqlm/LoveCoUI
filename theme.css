@@ -1954,7 +1954,12 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-offer-title { margin: 0; padding-top: 38px; font-size: 20px; font-weight: 800; line-height: 1.35; color: #577CFF; text-align: center; letter-spacing: .2px; }
 .pu2-offer-timer { display: flex; align-items: center; justify-content: center; gap: 4px; margin: 22px 0 0; font-size: 13px; font-weight: 700; color: #FF4E60; }
 .pu2-offer-timer svg { width: 14px; height: 14px; }
-.pu2-offer-timer b { font-size: 14.5px; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+.pu2-offer-timer b { display: inline-block; width: 76px; font-size: 14.5px; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; letter-spacing: .5px; text-align: center; }
+/* 倒计时逐字符定宽（2026-10-27 需求「整行左右抖动」）：PingFang 没有 tabular-nums，
+   比例数字下 `MM:SS:mmm` 每秒宽度都变（73.4 ↔ 56.9px），整行居中就会左右跳。
+   数字格 8.3px、冒号格 4.9px 把每个字符的进深钉死，串宽恒定（≈72.4px）。 */
+.pu2-offer-timer b i { display: inline-block; width: 8.3px; font-style: normal; text-align: center; }
+.pu2-offer-timer b i.c { width: 4.9px; }
 .pu2-offer-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0 0; padding: 0; list-style: none; }
 .pu2-offer-list li { display: flex; align-items: center; gap: 9px; font-size: 14px; font-weight: 600; line-height: 1.1; color: #4F72FF; }
 .pu2-offer-check { display: grid; place-items: center; flex-shrink: 0; width: 15px; height: 15px; border-radius: 50%; background: #5B76FB; color: #FFF; }
@@ -1988,6 +1993,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .ofb:active { cursor: grabbing; }
 .ofb-label { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: center; height: 24px; border-radius: 14px 14px 0 0; background: #BD0262; font-size: 12px; font-weight: 700; letter-spacing: 1px; }
 .ofb-time { margin-top: 22px; font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+/* 同一套逐字符定宽（18px 档：数字 10.4px、冒号 6.1px，串宽 ≈90px）——
+   卡宽固定，不定宽时数字会随每秒宽度变化在卡内左右漂 */
+.ofb-time i { display: inline-block; width: 10.4px; font-style: normal; text-align: center; }
+.ofb-time i.c { width: 6.1px; }
 .ofb-hint { font-size: 10px; font-weight: 500; color: #FFFFFFD9; }
 @keyframes ofb-in { from { opacity: 0; transform: translateY(14px) scale(.94); } to { opacity: 1; transform: none; } }
 /* —— 「会员购买页 · 新」的「兑换码」半屏弹层（redeemSheet / state.redeemSheet，2026-10-06 需求）——

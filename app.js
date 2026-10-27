@@ -3079,7 +3079,9 @@
      ③ 标题「确定放弃永久会员立减优惠？」（20px 800 蓝 #577CFF、居中）；
      ④ **3 分钟倒计时**（用户需求）：**「领取优惠」按钮上方**居中一行「优惠剩余 03:00:000」
         （红 #FF4E60 + 时钟图标、等宽数字；**2026-10-27 需求把这一行从标题下移到按钮上方、
-        并加毫秒** —— 格式 `MM:SS:mmm`，与首页「限时特惠」悬浮卡同一口径），进弹窗即起跳、
+        并加毫秒** —— 格式 `MM:SS:mmm`，与首页「限时特惠」悬浮卡同一口径；数字**逐字符
+        定宽**渲染（`clockCells()` / `paintClock()`），否则 PingFang 的比例数字会让整行抖），
+        进弹窗即起跳、
         约每帧走一格（openOfferSheet 的 47ms 定时器只改这一枚数字、不整页重渲染，
         剩余量按 `state.pu2OfferEnds - Date.now()` 现算）；**归零自动收层**（放弃优惠、
         仍停在购买页，当天不再弹）；
@@ -3131,6 +3133,21 @@
     const v = Math.max(0, ms), s = Math.floor(v/1000);
     return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}:${String(v%1000).padStart(3,'0')}`;
   }
+  /* `MM:SS:mmm` 逐字符拆成定宽 <i>（2026-10-27 需求「倒计时整行左右抖动」的修法）：
+     项目字体 PingFang 没有 tabular-nums，比例数字下整串宽度会变（实测 `02:59:999`
+     73.4px、`01:11:111` 56.9px），整行居中的倒计时就跟着左右跳 —— 每格宽度由 CSS
+     钉死（`.pu2-offer-timer b i` / `.ofb-time i`）后串宽恒定，再也不会抖。
+     冒号挂 `.c` 类拿一个更窄的宽度，数字之间才不会空得像断行。 */
+  const clockCells = ms => [...offerClock(ms)].map(c=>`<i${c===':'?' class="c"':''}>${c}</i>`).join('');
+  /* 把某一档毫秒画进指定容器的数字位：格子已就位就只改变化的那几个 textContent，
+     格子数对不上（首帧 / 别的 render 重建过 DOM）才整块重铺 —— 两种路径都不动布局宽度。 */
+  function paintClock(id, ms) {
+    const el = document.getElementById(id);
+    if(!el)return;
+    const txt = offerClock(ms), cells = el.children;
+    if(cells.length !== txt.length){ el.innerHTML = clockCells(ms); return; }
+    for(let i=0;i<txt.length;i++) if(cells[i].textContent !== txt[i]) cells[i].textContent = txt[i];
+  }
   function stopOfferTimer() { if(state.pu2OfferTimer){clearInterval(state.pu2OfferTimer);state.pu2OfferTimer=null;} }
   /* 打开挽留弹窗：先把「今天已弹过」记下（无论用户领不领，当天这一次机会就此用掉），
      再起 3 分钟倒计时（记到期时刻 pu2OfferEnds，2026-10-27 需求起带毫秒）。
@@ -3149,8 +3166,7 @@
       if(!state.pu2Offer){stopOfferTimer();return;}
       const left = offerLeftMs();
       if(left <= 0){stopOfferTimer();state.pu2Offer=false;render();return;}
-      const el = document.getElementById('pu2-offer-count');
-      if(el)el.textContent = offerClock(left);
+      paintClock('pu2-offer-count', left);
     },47);
   }
   function closeOfferSheet() { state.pu2Offer=false; stopOfferTimer(); }
@@ -3210,11 +3226,10 @@
   const OFFER_BADGE_HINT = '点击立即支付';
   /* 剩余毫秒：按到期时刻现算（定时器被节流也不走慢） */
   const offerBadgeLeft = () => Math.max(0, state.offerBadgeEnds - Date.now());
-  /* `MM:SS:mmm` —— 例 03:00:000（用户需求指定的这一格式，秒后是三位毫秒） */
-  function offerBadgeClock(ms) {
-    const s = Math.floor(ms/1000);
-    return `${String(Math.floor(s/60)).padStart(2,'0')}:${String(s%60).padStart(2,'0')}:${String(ms%1000).padStart(3,'0')}`;
-  }
+  /* `MM:SS:mmm` 格式（例 03:00:000）与逐格渲染都共用上面 offerClock / clockCells /
+     paintClock —— 卡上的数字同样要逐格定宽，否则比例数字下整串宽度每秒都变、数字会漂 */
+
+
   function stopOfferBadgeTimer() { if(state.offerBadgeTimer){clearInterval(state.offerBadgeTimer);state.offerBadgeTimer=null;} }
   /* 整枚卡收摊（归零 / 已成会员）：开关、坐标与定时器一起清 */
   function stopOfferBadge() { state.offerBadge=false; state.offerBadgePos=null; stopOfferBadgeTimer(); }
@@ -3232,14 +3247,13 @@
     if(state.member){stopOfferBadge();render();return;}
     const left=offerBadgeLeft();
     if(left<=0){stopOfferBadge();render();return;}
-    const el=document.getElementById('ofb-time');
-    if(el)el.textContent=offerBadgeClock(left);
+    paintClock('ofb-time', left);
   }
   function offerBadge() {
     const pos=state.offerBadgePos;
     return `<div class="ofb" id="ofb-badge"${pos?` style="left:${pos.x}px;top:${pos.y}px;right:auto;bottom:auto;"`:''} role="button" tabindex="0" aria-label="${esc(OFFER_BADGE_LABEL)}，${esc(OFFER_BADGE_HINT)}">
       <span class="ofb-label">${esc(OFFER_BADGE_LABEL)}</span>
-      <b class="ofb-time" id="ofb-time">${offerBadgeClock(offerBadgeLeft())}</b>
+      <b class="ofb-time" id="ofb-time">${clockCells(offerBadgeLeft())}</b>
       <span class="ofb-hint">${esc(OFFER_BADGE_HINT)}</span>
     </div>`;
   }
@@ -3302,7 +3316,7 @@
           <div class="pu2-offer-left"><span>永久会员</span><span>立减优惠</span></div>
           <div class="pu2-offer-right"><b class="pu2-offer-cut"><span>立减</span><i>¥</i>${OFFER_SAVE}</b></div>
         </div>
-        <p class="pu2-offer-timer">${icon('Clock')}<span>优惠剩余</span><b id="pu2-offer-count">${offerClock(offerLeftMs())}</b></p>
+        <p class="pu2-offer-timer">${icon('Clock')}<span>优惠剩余</span><b id="pu2-offer-count">${clockCells(offerLeftMs())}</b></p>
         <button type="button" class="pu2-offer-cta" data-action="offer-claim">领取优惠</button>
       </div>
     </div>`;
