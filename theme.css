@@ -1938,9 +1938,10 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    （红 #FF4E60 + 14px 时钟图标 + 等宽数字 02:59，参考图没有、本轮需求自加）→
    权益四条（15px 蓝圆白勾 + 14px 蓝字 #4F72FF、行距约 25px）→ **一张票券**（高 96、
    圆角 14：2026-10-27 需求重设计，原「两块分开 + 右端条形码」作废 —— 整券一体，
-   左段红对角渐变 #FF4D60 → #FF9AA5 + 两行白字「永久会员 / 立减优惠」（占 44%），
-   中间一道竖向虚线分割（上下各留 10px 不到边、淡红线 #FFA9B2），右段米→粉对角渐变 +
-   深灰「立减 ¥40」居中）→「领取优惠」紫粉渐变胶囊
+   左段红对角渐变 #FF4D60 → #FF9AA5 + 两行白字「永久会员 / 立减优惠」（占 48%，
+   **右缘紧贴分割线、不留米色缝** —— 2026-10-27 二次需求「红色区域再大一点紧贴着分割线」），
+   中间一道竖向虚线分割（10px 留白带、2px 深红虚线 #F03A56 贴在留白带最左、通高），
+   右段米→粉对角渐变 + 深灰「立减 ¥40」居中）→「领取优惠」紫粉渐变胶囊
    （#4C60F8 → #FA6076、高 46、宽 73%，与参考图同款双色渐变）。 */
 .pu2-offer { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; }
 .pu2-offer-scrim { position: absolute; inset: 0; background: #10101A6B; }
@@ -1957,12 +1958,12 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .pu2-offer-check { display: grid; place-items: center; flex-shrink: 0; width: 15px; height: 15px; border-radius: 50%; background: #5B76FB; color: #FFF; }
 .pu2-offer-check svg { width: 9px; height: 9px; }
 .pu2-offer-deal { position: relative; display: flex; align-items: stretch; height: 96px; margin-top: 26px; border-radius: 14px; overflow: hidden; background: linear-gradient(135deg, #FBE0D4, #FEF3EE 55%, #FFD6D8); box-shadow: 0 8px 18px #FF4D601F; }
-.pu2-offer-deal::before, .pu2-offer-deal::after { content: ''; position: absolute; left: calc(42% + 6px); z-index: 2; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; }
+.pu2-offer-deal::before, .pu2-offer-deal::after { content: ''; position: absolute; left: calc(48% + 1px); z-index: 2; width: 14px; height: 14px; margin-left: -7px; border-radius: 50%; }
 .pu2-offer-deal::before { top: -7px; background: #E7EAFC; }
 .pu2-offer-deal::after { bottom: -7px; background: #F5ECF4; }
-.pu2-offer-left { display: flex; flex: 0 0 42%; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: linear-gradient(135deg, #FF4D60, #FF9AA5); color: #FFF; font-size: 16px; font-weight: 700; letter-spacing: 1px; }
-.pu2-offer-divider { position: relative; flex: 0 0 12px; }
-.pu2-offer-divider::before { content: ''; position: absolute; top: 0; bottom: 0; left: 5px; width: 2px; background: repeating-linear-gradient(180deg, #FF6379 0 5px, transparent 5px 10px); }
+.pu2-offer-left { display: flex; flex: 0 0 48%; flex-direction: column; align-items: center; justify-content: center; gap: 4px; background: linear-gradient(135deg, #FF4D60, #FF9AA5); color: #FFF; font-size: 16px; font-weight: 700; letter-spacing: 1px; }
+.pu2-offer-divider { position: relative; flex: 0 0 10px; }
+.pu2-offer-divider::before { content: ''; position: absolute; top: 0; bottom: 0; left: 1px; width: 2px; background: repeating-linear-gradient(180deg, #F03A56 0 5px, transparent 5px 10px); }
 .pu2-offer-right { position: relative; display: flex; flex: 1 1 0; align-items: center; justify-content: center; }
 .pu2-offer-cut { display: flex; align-items: baseline; font-size: 27px; font-weight: 800; color: #3E3936; }
 .pu2-offer-cut span { margin-right: 4px; font-size: 15px; font-weight: 700; }
