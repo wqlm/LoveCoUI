@@ -3094,6 +3094,9 @@
         分割线**（同日需求「去掉分隔线吧」；此前那版竖虚线已删、别补回），只靠红米两色
         分左右 + 交界处上下各一个 14px 半圆缺口做票券撕口；
      ⑦ 「领取优惠」紫粉渐变胶囊（#4C60F8 → #FA6076，高 46、宽 73%）：
+        **一缩一放的跳动**（2026-10-27 需求）—— `pu2-offer-cta-beat` 1.4s ease-in-out
+        无限循环，scale 1 ↔ 1.05、投影同步加深（与购买页「立即解锁」的 pu2-cta-bounce
+        同一套手法，只是投影换成这枚胶囊的紫粉，见 theme.css）；
         **领取 = 记下优惠（落库 offerClaimed，永久档随即按 128 显示）+ 直接进入支付** ——
         关闭本层后按下与「立即解锁」（p2-buy）同一条分路继续（未勾协议先弹协议确认框，
         点「同意」即勾上并继续；iOS 弹 iOS 系统支付框 / 安卓·鸿蒙一键到账，见 offer-claim）。
@@ -3148,12 +3151,10 @@
     if(cells.length !== txt.length){ el.innerHTML = clockCells(ms); return; }
     for(let i=0;i<txt.length;i++) if(cells[i].textContent !== txt[i]) cells[i].textContent = txt[i];
   }
-  /* 停表：pu2OfferTimer 现在存的是 requestAnimationFrame 的句柄（2026-10-27 改动，见下），
-     不是 setInterval 的 id —— 这里必须 cancelAnimationFrame，别改成 clearInterval */
-  function stopOfferTimer() { if(state.pu2OfferTimer){cancelAnimationFrame(state.pu2OfferTimer);state.pu2OfferTimer=null;} }
+  function stopOfferTimer() { if(state.pu2OfferTimer){clearInterval(state.pu2OfferTimer);state.pu2OfferTimer=null;} }
   /* 打开挽留弹窗：先把「今天已弹过」记下（无论用户领不领，当天这一次机会就此用掉），
      再起 3 分钟倒计时（记到期时刻 pu2OfferEnds，2026-10-27 需求起带毫秒）。
-     逐帧回调（requestAnimationFrame）只改 #pu2-offer-count 那几个数字格（不整页重渲染）——
+     47ms 的定时器只改 #pu2-offer-count 那一枚数字（不整页重渲染）——
      其它 render 重建 DOM 后按 id 重新取到新节点、照常继续；归零 = 收层 + 放弃优惠。
      save=false = **页面列表点入「会员购买 · 优惠券」那条静态查看**（见 setupPage）：同样把
      offerDate 记成今天（页面内存内生效，关掉弹窗后当天点叉号就真退出，与真实链路一致），
@@ -3164,18 +3165,12 @@
     if(save)persist();
     render();
     stopOfferTimer();
-    /* 逐帧走（2026-10-27 改动）：原来 47ms 的 setInterval 与屏幕刷新不同步，
-       一帧里可能重绘两次，弹窗里的按钮会跟着抖（用户反馈「领取优惠按钮缩放跳动」）。
-       换成 requestAnimationFrame —— 每帧最多写一次数字，重绘次数与帧率对齐；
-       paintClock 内部还比对了每个格子，没变的字符不写 DOM。 */
-    const loop = () => {
-      if(!state.pu2Offer){state.pu2OfferTimer=null;return;}
+    state.pu2OfferTimer = setInterval(()=>{
+      if(!state.pu2Offer){stopOfferTimer();return;}
       const left = offerLeftMs();
-      if(left <= 0){state.pu2OfferTimer=null;state.pu2Offer=false;render();return;}
+      if(left <= 0){stopOfferTimer();state.pu2Offer=false;render();return;}
       paintClock('pu2-offer-count', left);
-      state.pu2OfferTimer = requestAnimationFrame(loop);
-    };
-    state.pu2OfferTimer = requestAnimationFrame(loop);
+    },47);
   }
   function closeOfferSheet() { state.pu2Offer=false; stopOfferTimer(); }
   /* 「会员购买页 · 新」的出口（左上角 x 与 Esc 同一条，2026-10-06 同日再改一次弹出逻辑）：
