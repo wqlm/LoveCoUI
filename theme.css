@@ -1947,12 +1947,14 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    （#4C60F8 → #FA6076、高 46、宽 73%，与参考图同款双色渐变）。 */
 .pu2-offer { position: absolute; inset: 0; z-index: 6; display: grid; place-items: center; }
 .pu2-offer-scrim { position: absolute; inset: 0; background: #10101A6B; }
-.pu2-offer-card { position: relative; width: 82%; padding: 0 24px 20px; border-radius: 22px; background: linear-gradient(180deg, #CAD5FD 0%, #DEE5FD 42%, #F1F4FE 74%, #FCFDFF 100%); box-shadow: 0 18px 44px #10101038; animation: pu2-ask-in .2s cubic-bezier(.2, .8, .3, 1) both; }
+.pu2-offer-card { position: relative; width: 82%; padding: 0 24px 20px; border-radius: 22px; background: linear-gradient(180deg, #CAD5FD 0%, #DEE5FD 42%, #F1F4FE 74%, #FCFDFF 100%); box-shadow: 0 18px 44px #10101038; animation: pu2-ask-in .2s cubic-bezier(.2, .8, .3, 1); }
 .pu2-offer-close { position: absolute; top: 12px; right: 12px; display: flex; align-items: center; justify-content: center; width: 28px; height: 28px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, .6); color: #8181A0; cursor: pointer; }
 .pu2-offer-close:hover { background: #FFF; }
 .pu2-offer-close svg { width: 13px; height: 13px; }
 .pu2-offer-title { margin: 0; padding-top: 38px; font-size: 20px; font-weight: 800; line-height: 1.35; color: #577CFF; text-align: center; letter-spacing: .2px; }
-.pu2-offer-timer { display: flex; align-items: center; justify-content: center; gap: 4px; margin: 22px 0 0; font-size: 13px; font-weight: 700; color: #FF4E60; }
+/* contain: layout paint —— 每帧都在变的这一行单独成为布局 / 绘制边界，重绘不会外溢到
+   下面的「领取优惠」按钮（2026-10-27 用户反馈「按钮缩放跳动」的隔离层） */
+.pu2-offer-timer { display: flex; align-items: center; justify-content: center; gap: 4px; margin: 22px 0 0; font-size: 13px; font-weight: 700; color: #FF4E60; contain: layout paint; }
 .pu2-offer-timer svg { width: 14px; height: 14px; }
 .pu2-offer-timer b { display: inline-block; width: 76px; font-size: 14.5px; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; letter-spacing: .5px; text-align: center; }
 /* 倒计时逐字符定宽（2026-10-27 需求「整行左右抖动」）：PingFang 没有 tabular-nums，
