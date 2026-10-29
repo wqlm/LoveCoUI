@@ -531,24 +531,41 @@ small{font-size:11px;color:#73847d}
    改为**竖排** —— 头像槽在上、「上传头像」四个字移到 icon 下面，整块**水平居中**
    （align-self 从 flex-start 改 center；父级 .app-card-pad 是 flex 列容器） */
 .editor-avatar-button{display:inline-flex;flex-direction:column;align-items:center;gap:6px;align-self:center;text-align:center}
-/* 对象详情页（partner-detail，2026-10-26 需求）：与编辑页同一套字段的**只读**版本 ——
-   ① 头像区 .partner-hero 吃掉上半屏余高（头像 + 备注名一列居中）；
-   ② 信息卡沿用编辑页的 .field 骨架，值是纯文字（.field-value）排在标签下方，
-   位置正是编辑页输入框的位置（不再有输入框的边框 / 内边距，字号与颜色在 theme.css）；
-   ③ 页尾「编辑」。
-   整页撑满正文一屏高（min-height:100%）：内容比编辑页短，靠头像区吸收富余高度，
-   不让整块内容挤在顶部、下半屏留空白。 */
-.partner-detail-page{min-height:100%}
-.partner-detail-page > .app-card + .app-card{margin-top:12px}
-.partner-hero{flex:1 1 auto;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:6px 0 44px;text-align:center}
-.field-value{margin-top:6px;overflow-wrap:anywhere;white-space:pre-wrap}
+/* 聊天对象详情页（partner-detail，2026-10-29 需求：按设计图重新设计为**可编辑**的资料整页）——
+   页头（.user-head：返回 + 居中「聊天对象」）下面是一列白卡，版式自上而下：
+   ① 头像区 .pd-avatar：圆形头像 + 底下一行紫字「上传头像 / 更换头像」（整块是按钮，
+      点它走主 App 的 #avatar-input 选图）；
+   ② .pd-field 浮动标签卡：备注名 / 性别各一张 —— 标签（11px 灰字）在卡内左上角、
+      值在下面一行；性别是原生 select，右端一枚 ▾（.pd-chev）；
+   ③ .pd-section 分区：小标题（「关系阶段」/「备注信息」）+ 内容 ——
+      关系阶段是一颗紫描边胶囊 .pd-stage，透明 select 铺满整颗，点哪儿都能选五档；
+      备注信息是 .pd-note 多行框（无边框、圆角白底）。
+   ④ 页尾「管理聊天记忆」入口卡。
+   **整页没有底部「确定」**（2026-10-29 需求去掉）：字段都是真控件，一改就静默保存（见 app.js
+   的 schedulePartnerDetailSave）。配色 / 字号 / 圆角在 theme.css 的详情页一组。 */
+.partner-detail-page{min-height:100%;padding:0 6px}
+.partner-detail-page > * + *{margin-top:12px}
+.pd-avatar{display:flex;flex-direction:column;align-items:center;gap:6px;align-self:center;margin-top:12px;padding:2px 0 4px;border:0;background:transparent;font:inherit}
+.pd-avatar:active .pd-avatar-label{opacity:.6}
+.pd-field{display:flex;flex-direction:column;gap:1px;padding:8px 14px 10px;text-align:left}
+.pd-field-label{font-size:11px;line-height:1.4}
+.pd-field input,.pd-field select{width:100%;padding:0;border:0;background:transparent;font:inherit;-webkit-appearance:none;appearance:none}
+.pd-field-select{position:relative}
+.pd-chev{position:absolute;display:inline-flex;align-items:center;justify-content:center;pointer-events:none}
+.pd-field-select .pd-chev{right:13px;top:50%;transform:translateY(-50%)}
+.pd-section{display:flex;flex-direction:column;gap:10px;margin-top:6px;padding:0 2px}
+.pd-section-title{font-size:14px;font-weight:650;line-height:1.4}
+.pd-stage{position:relative;display:inline-flex;align-items:center;gap:10px;align-self:flex-start;padding:9px 14px;border-radius:10px}
+.pd-stage select{position:absolute;inset:0;width:100%;height:100%;border:0;font:inherit;opacity:0;cursor:pointer}
+.pd-stage .pd-chev{position:static;transform:none}
+.pd-note{width:100%;min-height:118px;padding:13px 14px;border:0;font:inherit;resize:none}
 /* 详情页底部的「管理聊天记忆」入口（2026-10-26 需求，同日再改）：整张白卡就是一个按钮 ——
-   蓝色标题 + 底下一行灰字说明，整卡可点，进该对象的记忆列表整页。
+   蓝色标题 + 右端一枚折角箭头 › + 底下一行灰字说明，整卡可点，进该对象的记忆列表整页。
    记忆整页（partner-memory）用 .memory-list + 每行一个 .swipe-row：左滑编辑 / 删除的手势
    与按钮组复用主 App「聊天对象」列表那一套（见 bind()），只是行不是列表行、而是一张独立
    卡片（2026-10-26 晚些需求：卡间距 10 → 12px，对齐用户参考图；卡内边距与字号在 theme.css），
    所以按钮组右内边距单独给一档。配色 / 字号在 theme.css 的详情页一组。 */
-.partner-memory-entry{display:flex;flex-direction:column;align-items:flex-start;gap:6px;width:100%;padding:16px 14px;border:0;font:inherit;text-align:left;cursor:pointer}
+.partner-memory-entry{display:flex;flex-direction:column;align-items:flex-start;gap:8px;width:100%;padding:18px;border:0;font:inherit;text-align:left;cursor:pointer}
 .partner-memory-entry-head{display:flex;align-items:center;gap:8px;width:100%}
 .partner-memory-entry-head .chev{display:inline-flex;flex-shrink:0;margin-left:auto}
 .memory-list{display:flex;flex-direction:column;gap:12px}

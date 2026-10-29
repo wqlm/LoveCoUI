@@ -3087,31 +3087,39 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .editor-avatar-button { padding: 2px 0 4px; font-size: 11.5px; color: var(--lc-muted); }
 .editor-avatar-button .avatar { width: 44.8px; height: 44.8px; font-size: 14.4px; border-radius: 50%; }
 .editor-avatar-button .avatar.none svg { width: 12.8px; height: 12.8px; }
-/* 对象详情页（partner-detail，2026-10-26 需求）—— 骨架在 styles.css 的 .partner-hero* /
-   .field-value 一组。与编辑页同一套字段，只把控件换成文字：头像 64px 圆形、备注名 18px
-   居中成一块头像区（同日需求「头像和名称调小一点」：96/22 → 64/18）；信息卡里的标签沿用
-   .field 那档小灰字（13px 的 margin-bottom 由本页收掉，块间距交给 .app-card-pad 的 12px
-   gap），值 13px 深色（同日再按需求收小一档：14 → 13px）；没写的值（性别缺省 / 备注为空）显灰字。
-   **页尾的「编辑」主按钮同日去掉** —— 页面以底部那块「管理聊天记忆」入口收尾。 */
-.partner-hero .avatar { width: 64px; height: 64px; font-size: 20px; border-radius: 50%; }
-.partner-hero-name { font-size: 18px; font-weight: 650; color: var(--lc-text); }
-.partner-detail .field { margin-bottom: 0; }
-.partner-detail .field-value { font-size: 13px; line-height: 1.7; color: var(--lc-text); }
-.partner-detail .field-value.is-empty { color: var(--lc-subtle); }
+/* 聊天对象详情页（partner-detail，2026-10-29 需求：按设计图重新设计）—— 骨架在 styles.css
+   的 .pd-* 一组。白卡一列：头像区（72px 圆形 + 底下一行紫字）、备注名 / 性别两张浮动标签卡
+   （卡面 --lc-surface、12 圆角、标签 11px 灰字、值 15px 深色、右端 12px 灰 ▾）、
+   关系阶段一颗紫描边胶囊（14px）、备注信息多行框（13.5px，placeholder 灰字）；
+   页尾收在「管理聊天记忆」入口卡上，**没有底部「确定」** —— 改完即存。 */
+.pd-avatar .avatar { width: 72px; height: 72px; font-size: 22px; border-radius: 50%; }
+.pd-avatar .avatar.none svg { width: 26px; height: 26px; }
+.pd-avatar-label { font-size: 11.5px; line-height: 1.4; color: var(--lc-accent-strong); }
+.pd-field { background: var(--lc-surface); border-radius: 12px; box-shadow: 0 1px 2px #2621320A; }
+.pd-field-label { color: var(--lc-muted); }
+.pd-field input, .pd-field select { color: var(--lc-text); font-size: 15px; line-height: 1.5; }
+.pd-field input::placeholder { color: var(--lc-subtle); }
+.pd-chev svg { width: 12px; height: 12px; color: var(--lc-subtle); }
+.pd-section-title { color: var(--lc-text); }
+.pd-stage { background: var(--lc-surface); border: 1.5px solid var(--lc-accent); font-size: 14px; color: var(--lc-text); }
+.pd-stage .pd-chev svg { width: 13px; height: 13px; color: var(--lc-muted); }
+.pd-note { background: var(--lc-surface); border-radius: 12px; box-shadow: 0 1px 2px #2621320A; font-size: 13.5px; line-height: 1.75; color: var(--lc-text); }
+.pd-note::placeholder { color: var(--lc-subtle); }
 /* —— 聊天记忆（2026-10-26 需求）—— 骨架在 styles.css 的 .partner-memory-entry* / .memory-* 一组。
-   详情页底部那个入口：整张白卡是一个按钮 —— 蓝色（强调色）标题「管理聊天记忆」14px 加粗 +
-   右端一枚右对齐的折角箭头（13px 灰字色，`margin-left:auto` 顶到卡右缘）+ 底下一行 12px 灰字
+   详情页底部那个入口：整张白卡是一个按钮 —— 蓝色（强调色）标题「管理聊天记忆」**16px** 加粗 +
+   右端一枚右对齐的折角箭头（**16px** 灰字色，`margin-left:auto` 顶到卡右缘）+ 底下一行 **13px** 灰字
    「AI将纪录与TA对话中的关键信息」，按住整卡泛一层淡紫底（同对象行）。
-   字号 2026-10-26 同日按需求收小一档：字段值 14 → 13px、入口标题 15 → 14px。
+   2026-10-29 需求换设计稿后，这一块按参考图放大一档（14/14/12 → 16/16/13、卡内边距 16/14 → 18，
+   见 styles.css 的 .partner-memory-entry）。
    **2026-10-26 晚些需求：记忆整页按用户给的参考图重做样式** —— 不再是白卡 + 投影，改成
    极淡的紫调卡面（强调色 3% 混白，深浅两态都跟着令牌走）、14 圆角、平铺无投影；正文
    13 → **16px**、行高 1.65 → **1.75**（参考图那种「一段长事实、大字号宽行距折行」的观感），
    卡内边距 13/14 → 16/16，卡间距 10 → 12px（styles.css 的 .memory-list）。
    左滑的编辑 / 删除按钮 2026-10-26 再晚些按真机截图改成「整高色块 + 白字」，与「聊天对象」
    列表共用全局 .row-action 那一套，本页只多一条渐隐同色。 */
-.partner-memory-entry-title { font-size: 14px; font-weight: 600; color: var(--lc-accent-strong); }
-.partner-memory-entry-head .chev svg { width: 14px; height: 14px; color: var(--lc-subtle); }
-.partner-memory-entry-sub { font-size: 12px; line-height: 1.6; color: var(--lc-subtle); }
+.partner-memory-entry-title { font-size: 16px; font-weight: 600; color: var(--lc-accent-strong); }
+.partner-memory-entry-head .chev svg { width: 16px; height: 16px; color: var(--lc-subtle); }
+.partner-memory-entry-sub { font-size: 13px; line-height: 1.6; color: var(--lc-subtle); }
 .partner-memory-entry:active { background: var(--lc-accent-soft); }
 .memory-row { border-radius: 14px; background: color-mix(in srgb, var(--lc-accent) 3%, var(--lc-surface)); }
 .memory-row .row-slide { padding: 16px; }
