@@ -1956,10 +1956,14 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
    下面的「领取优惠」按钮（2026-10-27 用户反馈「按钮缩放跳动」的隔离层） */
 .pu2-offer-timer { display: flex; align-items: center; justify-content: center; gap: 4px; margin: 22px 0 0; font-size: 13px; font-weight: 700; color: #FF4E60; contain: layout paint; }
 .pu2-offer-timer svg { width: 14px; height: 14px; }
-.pu2-offer-timer b { display: inline-block; width: 76px; font-size: 14.5px; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; letter-spacing: .5px; text-align: center; }
+/* 数字串宽度由逐字符定宽的 <i> 自然撑出（**2026-10-30 需求：弹窗倒计时改分秒式
+   `MM:SS`、去掉毫秒**，5 格 ≈40.6px；原来给 `MM:SS:mmm` 留的 76px 会把这一行
+   两侧撑出空白，改成 auto 后「优惠剩余」与时钟图标紧贴数字） */
+.pu2-offer-timer b { display: inline-block; width: auto; font-size: 14.5px; font-variant-numeric: tabular-nums; font-feature-settings: "tnum" 1; letter-spacing: .5px; text-align: center; }
 /* 倒计时逐字符定宽（2026-10-27 需求「整行左右抖动」）：PingFang 没有 tabular-nums，
    比例数字下 `MM:SS:mmm` 每秒宽度都变（73.4 ↔ 56.9px），整行居中就会左右跳。
-   数字格 8.3px、冒号格 4.9px 把每个字符的进深钉死，串宽恒定（≈72.4px）。 */
+   数字格 8.3px、冒号格 4.9px 把每个字符的进深钉死，串宽恒定（`MM:SS:mmm` ≈72.4px；
+   **2026-10-30 起弹窗是分秒式 `MM:SS`，5 格 ≈40.6px**，悬浮卡 `ofb-time` 仍 8 格）。 */
 .pu2-offer-timer b i { display: inline-block; width: 8.3px; font-style: normal; text-align: center; }
 .pu2-offer-timer b i.c { width: 4.9px; }
 .pu2-offer-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0 0; padding: 0; list-style: none; }
