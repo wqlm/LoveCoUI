@@ -1987,10 +1987,11 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   0%, 100% { transform: scale(1); box-shadow: 0 10px 22px #5C5CE84D; }
   50% { transform: scale(1.05); box-shadow: 0 14px 30px #5C5CE873; }
 }
-/* —— 首页「限时特惠」悬浮卡（offerBadge / state.offerBadge，2026-10-06 需求）——
-   放弃「永久会员立减优惠」挽留弹窗后，优惠资格再留 3 分钟；首页浮出这颗**可拖动的卡**
+/* —— 「限时特惠」悬浮卡（offerBadge / state.offerBadge，2026-10-06 需求）——
+   放弃「永久会员立减优惠」挽留弹窗后，优惠资格再留 3 分钟；浮出这颗**可拖动的卡**
    兜住（页见 app.js 的 offerBadge()，拖动见 bindOfferBadge）。挂点在手机根（同 .pu2-ask /
-   .rd-* 一处，铺满整机的浮层一串里），**只在首页渲染**、层级 5（压住 68 高的底部 Tab 栏、
+   .rd-* 一处，铺满整机的浮层一串里），**2026-10-30 需求起首页 / 对象 / 我的三个 Tab 页
+   都渲染**（app.js 的 OFFER_BADGE_SCREENS；其余页不画）、层级 5（压住 68 高的底部 Tab 栏、
    让开 z-index 6 的各弹层）。照参考图的浮标结构重绘（深红标题条 + 粉色卡身 + 倒计时），
    标题文案换成本产品的「限时特惠」：
    · 整枚卡 116×82、圆角 14、粉→洋红对角渐变（#FF5C8A → #FE2CCF）+ 柔和投影，
