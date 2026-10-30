@@ -1963,7 +1963,7 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 /* 倒计时逐字符定宽（2026-10-27 需求「整行左右抖动」）：PingFang 没有 tabular-nums，
    比例数字下 `MM:SS:mmm` 每秒宽度都变（73.4 ↔ 56.9px），整行居中就会左右跳。
    数字格 8.3px、冒号格 4.9px 把每个字符的进深钉死，串宽恒定（`MM:SS:mmm` ≈72.4px；
-   **2026-10-30 起弹窗是分秒式 `MM:SS`，5 格 ≈40.6px**，悬浮卡 `ofb-time` 仍 8 格）。 */
+   **2026-10-30 起弹窗与悬浮卡都是分秒式 `MM:SS`，5 格 ≈40.6px**）。 */
 .pu2-offer-timer b i { display: inline-block; width: 8.3px; font-style: normal; text-align: center; }
 .pu2-offer-timer b i.c { width: 4.9px; }
 .pu2-offer-list { display: flex; flex-direction: column; gap: 10px; margin: 20px 0 0; padding: 0; list-style: none; }
@@ -1997,15 +1997,15 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
      默认钉在右下（right 14 / bottom 84 —— 84 = 底部 Tab 68 + 16 的呼吸），
      拖动后由内联的 left / top 接管（JS 里四边各留 8、下边让开 Tab 栏）；
    · 顶部深红标题条 #BD0262（高 24）：居中白字 12px 700、字距 1px；
-   · 卡身两行居中：毫秒倒计时 18px 800 白字（等宽数字 tabular-nums，格式 MM:SS:mmm）
-     + 下面一行 10px「点击立即支付」（白字 85%）；
+   · 卡身两行居中：分秒倒计时 18px 800 白字（等宽数字 tabular-nums，格式 MM:SS ——
+     2026-10-30 需求去掉毫秒，只展示分、秒）+ 下面一行 10px「点击立即支付」（白字 85%）；
    · touch-action:none 让拖动不被浏览器当成滚动；cursor 按住变 grabbing。
    配色写死（与首页那套「按图定色、不跟随 .dark」一致）：首页是深色的，这颗卡要跳出来。 */
 .ofb { position: absolute; right: 14px; bottom: 84px; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 116px; height: 82px; border-radius: 14px; background: linear-gradient(135deg, #FF5C8A 0%, #FF3FA8 52%, #FE2CCF 100%); box-shadow: 0 10px 24px #2A0A1B45, 0 2px 6px #2A0A1B2E; color: #FFF; cursor: grab; touch-action: none; user-select: none; animation: ofb-in .26s cubic-bezier(.2, .8, .3, 1) both; }
 .ofb:active { cursor: grabbing; }
 .ofb-label { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: center; height: 24px; border-radius: 14px 14px 0 0; background: #BD0262; font-size: 12px; font-weight: 700; letter-spacing: 1px; }
 .ofb-time { margin-top: 22px; font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
-/* 同一套逐字符定宽（18px 档：数字 10.4px、冒号 6.1px，串宽 ≈90px）——
+/* 同一套逐字符定宽（18px 档：数字 10.4px、冒号 6.1px；`MM:SS` 5 格串宽 ≈50px）——
    卡宽固定，不定宽时数字会随每秒宽度变化在卡内左右漂 */
 .ofb-time i { display: inline-block; width: 10.4px; font-style: normal; text-align: center; }
 .ofb-time i.c { width: 6.1px; }
