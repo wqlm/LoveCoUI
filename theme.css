@@ -1987,19 +1987,20 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   0%, 100% { transform: scale(1); box-shadow: 0 10px 22px #5C5CE84D; }
   50% { transform: scale(1.05); box-shadow: 0 14px 30px #5C5CE873; }
 }
-/* —— 「限时特惠」悬浮卡（offerBadge / state.offerBadge，2026-10-06 需求）——
+/* —— 「限时价格」悬浮卡（offerBadge / state.offerBadge，2026-10-06 需求）——
    放弃「永久会员立减优惠」挽留弹窗后，优惠资格再留 3 分钟；浮出这颗**可拖动的卡**
    兜住（页见 app.js 的 offerBadge()，拖动见 bindOfferBadge）。挂点在手机根（同 .pu2-ask /
    .rd-* 一处，铺满整机的浮层一串里），**2026-10-30 需求起首页 / 对象 / 我的三个 Tab 页
    都渲染**（app.js 的 OFFER_BADGE_SCREENS；其余页不画）、层级 5（压住 68 高的底部 Tab 栏、
    让开 z-index 6 的各弹层）。照参考图的浮标结构重绘（深红标题条 + 粉色卡身 + 倒计时），
-   标题文案换成本产品的「限时特惠」：
+   标题文案按 2026-10-30 需求是「限时价格」（原「限时特惠」）：
    · 整枚卡 116×82、圆角 14、粉→洋红对角渐变（#FF5C8A → #FE2CCF）+ 柔和投影，
      默认钉在右下（right 14 / bottom 84 —— 84 = 底部 Tab 68 + 16 的呼吸），
      拖动后由内联的 left / top 接管（JS 里四边各留 8、下边让开 Tab 栏）；
    · 顶部深红标题条 #BD0262（高 24）：居中白字 12px 700、字距 1px；
    · 卡身两行居中：分秒倒计时 18px 800 白字（等宽数字 tabular-nums，格式 MM:SS ——
-     2026-10-30 需求去掉毫秒，只展示分、秒）+ 下面一行 10px「点击立即支付」（白字 85%）；
+     2026-10-30 需求去掉毫秒，只展示分、秒）+ 下面一行 10px「低至0.01/天」（白字 85%，
+     2026-10-30 需求换的文案，原「点击立即支付」）；
    · touch-action:none 让拖动不被浏览器当成滚动；cursor 按住变 grabbing。
    配色写死（与首页那套「按图定色、不跟随 .dark」一致）：首页是深色的，这颗卡要跳出来。 */
 .ofb { position: absolute; right: 14px; bottom: 84px; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 116px; height: 82px; border-radius: 14px; background: linear-gradient(135deg, #FF5C8A 0%, #FF3FA8 52%, #FE2CCF 100%); box-shadow: 0 10px 24px #2A0A1B45, 0 2px 6px #2A0A1B2E; color: #FFF; cursor: grab; touch-action: none; user-select: none; animation: ofb-in .26s cubic-bezier(.2, .8, .3, 1) both; }
