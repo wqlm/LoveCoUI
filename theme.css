@@ -2006,7 +2006,12 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .ofb { position: absolute; right: 14px; bottom: 84px; z-index: 5; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; width: 116px; height: 82px; border-radius: 14px; background: linear-gradient(135deg, #FF5C8A 0%, #FF3FA8 52%, #FE2CCF 100%); box-shadow: 0 10px 24px #2A0A1B45, 0 2px 6px #2A0A1B2E; color: #FFF; cursor: grab; touch-action: none; user-select: none; animation: ofb-in .26s cubic-bezier(.2, .8, .3, 1) both; }
 .ofb:active { cursor: grabbing; }
 .ofb-label { position: absolute; top: 0; left: 0; right: 0; display: flex; align-items: center; justify-content: center; height: 24px; border-radius: 14px 14px 0 0; background: #BD0262; font-size: 12px; font-weight: 700; letter-spacing: 1px; }
-.ofb-time { margin-top: 22px; font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+/* 倒计时那一行：「02:33」+ 紧跟一枚小字「后失效」（2026-10-30 需求「倒计时 后面添加
+   后失效」）—— 外层 .ofb-row 用 baseline 对齐，18px 数字与小字坐在同一条基线上；
+   margin-top 22 从 .ofb-time 挪到这里（让开 24 高的标题条，位置不变） */
+.ofb-row { display: flex; align-items: baseline; justify-content: center; gap: 3px; margin-top: 22px; }
+.ofb-time { font-size: 18px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: .5px; }
+.ofb-exp { font-style: normal; font-size: 10px; font-weight: 600; color: #FFFFFFE6; letter-spacing: 0; white-space: nowrap; }
 /* 同一套逐字符定宽（18px 档：数字 10.4px、冒号 6.1px；`MM:SS` 5 格串宽 ≈50px）——
    卡宽固定，不定宽时数字会随每秒宽度变化在卡内左右漂 */
 .ofb-time i { display: inline-block; width: 10.4px; font-style: normal; text-align: center; }

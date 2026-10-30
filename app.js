@@ -3285,8 +3285,10 @@
         默认**贴右下**（距右 14、距底 84 —— 让开 68 高的底部 Tab 栏），拖动后按坐标定位；
      ② 顶部**深红标题条**（#BD0262，高 24）：居中白字「限时价格」（12px 700、字距 1px）；
      ③ 卡身两行居中：**分秒倒计时**（18px 800 白字、等宽数字，格式 `MM:SS`，
-        默认从「03:00」起跳；**2026-10-30 需求去掉毫秒** —— 只展示分、秒）+ 下面一行小字
-        「低至0.01/天」（10px、白字 85%）；
+        默认从「03:00」起跳；**2026-10-30 需求去掉毫秒** —— 只展示分、秒）——
+        倒计时**后面紧跟一枚 10px 小字「后失效」**（2026-10-30 需求「倒计时 后面添加 后失效」，
+        两者同包在 `.ofb-row` 里 baseline 对齐、gap 3px，整行居中；小字不在 `#ofb-time` 内，
+        逐格刷新只动数字）+ 下面一行小字「低至0.01/天」（10px、白字 85%）；
      ④ **可以拖**：按住即跟着手指 / 鼠标走，松手停在原地（不出屏、不压状态栏与 Tab 栏）；
         拖过的那一下不算点击（阈值 4px），松手也不重渲染（只改内联样式 + 记坐标）；
      ⑤ **点一下 = 直接调起支付**（payFromOfferBadge，不进购买页再按一次「立即解锁」）；
@@ -3333,7 +3335,7 @@
     const pos=state.offerBadgePos;
     return `<div class="ofb" id="ofb-badge"${pos?` style="left:${pos.x}px;top:${pos.y}px;right:auto;bottom:auto;"`:''} role="button" tabindex="0" aria-label="${esc(OFFER_BADGE_LABEL)}，${esc(OFFER_BADGE_HINT)}，点击立即支付">
       <span class="ofb-label">${esc(OFFER_BADGE_LABEL)}</span>
-      <b class="ofb-time" id="ofb-time">${clockCells(offerBadgeLeft(), false)}</b>
+      <span class="ofb-row"><b class="ofb-time" id="ofb-time">${clockCells(offerBadgeLeft(), false)}</b><i class="ofb-exp">后失效</i></span>
       <span class="ofb-hint">${esc(OFFER_BADGE_HINT)}</span>
     </div>`;
   }
