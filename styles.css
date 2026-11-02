@@ -540,7 +540,8 @@ small{font-size:11px;color:#73847d}
       值在下面一行（.pd-field-value，纯文字；原先的 select + ▾ 已去掉）；
    ③ .pd-section 分区：小标题（「关系阶段」/「备注信息」）+ 内容 ——
       关系阶段是一颗紫描边胶囊 .pd-stage，里面只有档位文字（透明 select 与 ▾ 已去掉）；
-      备注信息是 .pd-note 白卡（只展示已写下的备注，没有占位提示语）。
+      备注信息是 .pd-note 白卡（只展示已写下的备注；一个字都没写时卡里是灰字「暂无」，
+      见 .pd-note-empty，没有表单式的占位提示语）。
    ④ 页尾「管理聊天记忆」入口卡。
    本页没有底部「确定」（2026-10-29 需求去掉）。配色 / 字号 / 圆角在 theme.css 的详情页一组。 */
 .partner-detail-page{min-height:100%;padding:0 6px}

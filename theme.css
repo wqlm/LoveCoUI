@@ -3114,6 +3114,8 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .pd-section-title { color: var(--lc-text); }
 .pd-stage { background: var(--lc-surface); border: 1.5px solid var(--lc-accent); font-size: 14px; color: var(--lc-text); }
 .pd-note { background: var(--lc-surface); border-radius: 12px; box-shadow: 0 1px 2px #2621320A; font-size: 13.5px; line-height: 1.75; color: var(--lc-text); }
+/* 备注一个字都没写时卡里的占位灰字（2026-11-02 需求：显示「暂无」） */
+.pd-note-empty { color: var(--lc-subtle); }
 /* —— 聊天记忆（2026-10-26 需求）—— 骨架在 styles.css 的 .partner-memory-entry* / .memory-* 一组。
    详情页底部那个入口：整张白卡是一个按钮 —— 蓝色（强调色）标题「管理聊天记忆」**16px** 加粗 +
    右端一枚右对齐的折角箭头（**16px** 灰字色，`margin-left:auto` 顶到卡右缘）+ 底下一行 **13px** 灰字
