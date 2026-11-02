@@ -3098,24 +3098,22 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .editor-avatar-button { padding: 2px 0 4px; font-size: 11.5px; color: var(--lc-muted); }
 .editor-avatar-button .avatar { width: 44.8px; height: 44.8px; font-size: 14.4px; border-radius: 50%; }
 .editor-avatar-button .avatar.none svg { width: 12.8px; height: 12.8px; }
-/* 聊天对象详情页（partner-detail，2026-10-29 需求：按设计图重新设计）—— 骨架在 styles.css
-   的 .pd-* 一组。白卡一列：头像区（72px 圆形 + 底下一行紫字）、备注名 / 性别两张浮动标签卡
-   （卡面 --lc-surface、12 圆角、标签 11px 灰字、值 15px 深色、右端 12px 灰 ▾）、
-   关系阶段一颗紫描边胶囊（14px）、备注信息多行框（13.5px，placeholder 灰字）；
-   页尾收在「管理聊天记忆」入口卡上，**没有底部「确定」** —— 改完即存。 */
+/* 聊天对象详情页（partner-detail，2026-10-29 需求按设计图重做；**2026-11-02 需求：整页只读**）——
+   骨架在 styles.css 的 .pd-* 一组。白卡一列：头像区（72px 圆形 + 底下一行紫字）、
+   备注名 / 性别两张浮动标签卡（卡面 --lc-surface、12 圆角、标签 11px 灰字、值 15px 深色纯文字，
+   原先的下拉 ▾ 已去掉）、关系阶段一颗紫描边胶囊（14px，只有档位文字）、
+   备注信息白卡（13.5px，只展示已写下的备注、没有占位提示语）；
+   页尾收在「管理聊天记忆」入口卡上。资料只读，改资料走页头右侧「编辑」。 */
+.user-head .pd-edit { width: 32px; padding: 0; font-size: 13px; text-align: right; color: var(--lc-accent-strong); }
 .pd-avatar .avatar { width: 72px; height: 72px; font-size: 22px; border-radius: 50%; }
 .pd-avatar .avatar.none svg { width: 26px; height: 26px; }
 .pd-avatar-label { font-size: 11.5px; line-height: 1.4; color: var(--lc-accent-strong); }
 .pd-field { background: var(--lc-surface); border-radius: 12px; box-shadow: 0 1px 2px #2621320A; }
 .pd-field-label { color: var(--lc-muted); }
-.pd-field input, .pd-field select { color: var(--lc-text); font-size: 15px; line-height: 1.5; }
-.pd-field input::placeholder { color: var(--lc-subtle); }
-.pd-chev svg { width: 12px; height: 12px; color: var(--lc-subtle); }
+.pd-field-value { color: var(--lc-text); font-size: 15px; line-height: 1.5; }
 .pd-section-title { color: var(--lc-text); }
 .pd-stage { background: var(--lc-surface); border: 1.5px solid var(--lc-accent); font-size: 14px; color: var(--lc-text); }
-.pd-stage .pd-chev svg { width: 13px; height: 13px; color: var(--lc-muted); }
 .pd-note { background: var(--lc-surface); border-radius: 12px; box-shadow: 0 1px 2px #2621320A; font-size: 13.5px; line-height: 1.75; color: var(--lc-text); }
-.pd-note::placeholder { color: var(--lc-subtle); }
 /* —— 聊天记忆（2026-10-26 需求）—— 骨架在 styles.css 的 .partner-memory-entry* / .memory-* 一组。
    详情页底部那个入口：整张白卡是一个按钮 —— 蓝色（强调色）标题「管理聊天记忆」**16px** 加粗 +
    右端一枚右对齐的折角箭头（**16px** 灰字色，`margin-left:auto` 顶到卡右缘）+ 底下一行 **13px** 灰字

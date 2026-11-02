@@ -888,27 +888,29 @@
       <div class="app-page-foot">${primary('确定','save-partner','')}</div>
     </div>`;
   }
-  /* 聊天对象详情页（2026-10-29 需求：按设计图重新设计整页）。
-     **这一页本身就是一张可编辑的资料页**，不再分「只读详情 + 另一页编辑」：
+  /* 聊天对象详情页（2026-10-29 需求：按设计图重新设计整页；
+     **2026-11-02 需求：本页收成只读展示 + 页头右侧「编辑」**）——
+     资料只展示、页内不再有输入 / 下拉控件：性别与关系阶段的 ▾ 下拉按钮、备注信息框里的
+     默认提示语（placeholder）都按需求去掉；要改资料点页头右侧「编辑」进对象编辑页
+     （partner-edit，见 partnerEditor），保存后回本页。
      ① 头像区：72px 圆形头像（没设过自定义头像时是那张灰色人形默认图）+ 底下一行紫字
-        「上传头像 / 更换头像」，点它从本地选图（走主 App 的 #avatar-input，选完居中裁 320 方图）；
-     ② 备注名 / 性别：两张浮动标签白卡 —— 标签（11px 灰字）在卡内左上角、值在下方一行
-        （性别是原生 select，右端一枚 ▾）；
-     ③ 关系阶段：一颗紫描边胶囊，原生 select 透明铺满整颗 —— 点哪儿都能在五档里选；
-     ④ 备注信息：带 placeholder 的多行框（写 TA 的年龄 / 职业 / 爱好）；
+        「上传头像 / 更换头像」，点它从本地选图（走主 App 的 #avatar-input，选完居中裁 320 方图，
+        这一处仍就地换图、随后静默落库）；
+     ② 备注名 / 性别：两张浮动标签白卡 —— 标签（11px 灰字）在卡内左上角、值在下方一行（只读文字）；
+     ③ 关系阶段：一颗紫描边胶囊，里面只有档位文字（不再铺透明 select、不再带 ▾）；
+     ④ 备注信息：无边框白卡，只展示已写下的备注（没写就是空卡，不再有占位提示语）；
      ⑤ 页尾只留「管理聊天记忆」整卡入口（2026-10-26 需求那一块，文案与整卡点击一行未动）。
-     **底部那排「确定 + 协议小字」已按需求去掉**：任何字段一改就静默保存 ——
-     输入防抖 600ms（schedulePartnerDetailSave）、名字为空 / 与别的对象重名时静默跳过，
-     返回 / Esc / 切页前兜底落库（settlePartnerDetail）；头像选完立刻落库。
      出口：页头返回箭头（partner-detail-back）/ Esc 都回「聊天对象」列表。
      对象在此期间被删掉（例如在别的层里删了）时只渲染一句兜底文案，不抛错。
      骨架 .pd-* / .partner-memory-entry* 在 styles.css、皮肤在 theme.css。 */
   function partnerDetailPage() {
     const p = state.partners.find(item => item.id === state.modalData.id) || state.partners[0];
+    /* 页头右侧（2026-11-02 需求）：有对象时是「编辑」文字按钮（进对象编辑页）；
+       没对象时保留与返回钮等宽的占位，标题仍居中 */
     const head = `<div class="app-page-head user-head">
         <button class="user-back" data-action="partner-detail-back" aria-label="返回">${icon('ArrowLeft')}</button>
         <h2>聊天对象</h2>
-        <span class="user-head-side" aria-hidden="true"></span>
+        ${p ? `<button class="text-button pd-edit" data-action="edit-partner:${esc(p.id)}">编辑</button>` : '<span class="user-head-side" aria-hidden="true"></span>'}
       </div>`;
     if (!p) return `<div class="app-content app-page partner-detail-page">${head}
       <div class="app-card app-card-pad"><p class="muted app-empty">还没有聊天对象。</p></div>
@@ -925,17 +927,15 @@
         ${avatar(p.name, p.color, draft || AV.chat || '')}
         <span class="pd-avatar-label">${ownAvatar ? '更换头像' : '上传头像'}</span>
       </button>
-      <label class="pd-field"><span class="pd-field-label">备注名</span><input id="pd-name" maxlength="20" value="${esc(p.name)}" placeholder="输入备注名"></label>
-      <label class="pd-field pd-field-select"><span class="pd-field-label">性别</span><select id="pd-gender">${['暂不设置','女','男'].map(v=>`<option${v===gender?' selected':''}>${v}</option>`).join('')}</select><i class="pd-chev" aria-hidden="true">${icon('ArrowDown')}</i></label>
+      <div class="pd-field"><span class="pd-field-label">备注名</span><span class="pd-field-value">${esc(p.name)}</span></div>
+      <div class="pd-field"><span class="pd-field-label">性别</span><span class="pd-field-value">${esc(gender)}</span></div>
       <div class="pd-section">
         <h3 class="pd-section-title">关系阶段</h3>
-        <div class="pd-stage"><span class="pd-stage-text">${esc(stage)}</span><i class="pd-chev" aria-hidden="true">${icon('ArrowDown')}</i>
-          <select id="pd-stage" aria-label="关系阶段">${stages.map(v=>`<option${v===stage?' selected':''}>${esc(v)}</option>`).join('')}</select>
-        </div>
+        <div class="pd-stage"><span class="pd-stage-text">${esc(stage)}</span></div>
       </div>
       <div class="pd-section">
         <h3 class="pd-section-title">备注信息</h3>
-        <textarea id="pd-note" class="pd-note" maxlength="200" rows="3" placeholder="写下 TA 的年龄、职业、爱好，例如「28 岁，设计师，喜欢露营和看展」。写得越细，AI 越懂 TA。">${esc(p.note||'')}</textarea>
+        <div class="pd-note">${esc(p.note||'')}</div>
       </div>
       <button class="app-card partner-memory-entry" data-action="partner-memory:${esc(p.id)}">
         <span class="partner-memory-entry-head">
@@ -946,29 +946,20 @@
       </button>
     </div>`;
   }
-  /* 详情页的静默保存（2026-10-29 需求：底部「确定」去掉之后，字段一改就存）——
-     partnerDetailSnapshot 读当前控件值（控件不在时退回对象原值），
-     schedulePartnerDetailSave 防抖 600ms（打字时每个键都重新计时），
-     settlePartnerDetail 立刻落库（性别 / 关系阶段选完、头像选完、返回 / Esc / 切页时用）。
-     名字为空或与其它对象重名一律静默跳过 —— 与编辑页「确定」的校验口径一致，只是不提示。 */
+  /* 详情页的静默保存（2026-10-29 需求；2026-11-02 需求收窄）——
+     这一页现在是只读展示，页内唯一的可改项是头像（点头像换图）：选完图防抖 600ms
+     （schedulePartnerDetailSave）、返回 / Esc / 切页前兜底落库（settlePartnerDetail）。
+     其它资料一律走页头「编辑」进对象编辑页改，不再在详情页就地输入。 */
   function partnerDetailSnapshot() {
     const p = state.partners.find(item => item.id === state.modalData.id);
     if (!p) return null;
-    return {
-      p,
-      name: ($('#pd-name')?.value ?? p.name).trim(),
-      gender: $('#pd-gender')?.value ?? (p.gender || '暂不设置'),
-      stage: normalizeStage($('#pd-stage')?.value ?? p.stage),
-      note: ($('#pd-note')?.value ?? p.note ?? '').trim(),
-      avatar: state.modalData.avatar ?? p.avatar ?? ''
-    };
+    return { p, avatar: state.modalData.avatar ?? p.avatar ?? '' };
   }
   function settlePartnerDetail() {
     clearTimeout(state.pdSaveTimer);
     const s = partnerDetailSnapshot();
-    if (!s || !s.name) return;
-    if (state.partners.some(item => item.name === s.name && item.id !== s.p.id)) return;
-    Object.assign(s.p, { name: s.name, gender: s.gender, stage: s.stage, note: s.note, avatar: s.avatar });
+    if (!s) return;
+    s.p.avatar = s.avatar;
     /* 头像已经落进对象，「更换头像 / 上传头像」那行字下一次渲染就该按对象值算 */
     if (state.modalData.avatar !== undefined) delete state.modalData.avatar;
     persist();
@@ -1163,8 +1154,8 @@
     {id:'feedback',group:'账户与协议',name:'问题反馈',route:'/feedback',trigger:'「我的」· 支持 ·「反馈与建议」（2026-10-04 晚些：栏目由「客户支持」改名「支持」；同组另一行是「联系客服」，弹客服弹层、不进本页 —— 原「键盘内容投诉与举报」那条预选来路已删）',desc:'**2026-10-04 按设计图从 sheet 卡片重做的深色整页**（页名同日从「反馈与建议」改成设计图上的「问题反馈」；设计图右上角那颗「我的反馈」按需求**不呈现** —— 原型里没有反馈历史页，重做后的页内也没有任何反馈历史入口）。**功能**：① 问题类型是一排胶囊按钮（**功能问题 / 键盘问题 / AI 效果 / 建议 / 投诉与举报** —— 最后一类是本轮需求新增，原有的「投诉」「举报」两类合成它；**2026-10-04 晚些需求起不再有入口预选它** —— 「我的 · 键盘内容投诉与举报」那一行已删、同位置换成「联系客服」，进页默认落在「功能问题」）点一颗即换选（feedback-type:<类型>）；② 问题描述多行输入（占位「请尽量描述复现步骤、期望结果和手机型号」，上限 1000 字、右下角实时计数 n/1000；**2026-10-04 后续需求：两处占位字号改为 13px / 行高 18px，与页内标签同档** —— 原随输入框 15px）；③ 联系方式单行输入（占位「联系方式（可选）」，上限 200 字、右下角计数 n/200）；④ 整宽蓝色「提交反馈」提交（POST /v1/feedback，成功回「我的」；描述不足 5 字不提交、焦点交回描述框）。草稿（类型 / 描述 / 联系方式）存在 state 里：换类型重渲染不丢已输入内容，**每次进页开一张新表单**（openAppScreen 里清场，原 sheet 那套 formCache 缓存已撤）。**设计**：整页深色（配色照设计图写死、**不跟随深色外观开关** —— 同购买页 / 登录页 / 注销页 / 协议页那种「按图定色」的做法）：底色 #111318、卡面与未选胶囊 #1C1F26、描边 #2A2E36、强调蓝 #4C8DFF（选中胶囊与提交按钮同色）；页头是返回箭头 + **居中标题「问题反馈」**（复用用户页 .user-head 骨架）；页边距 20px，类型胶囊 36px 高（全圆角、13px 字、横 10px 纵 20px 间距）、描述框 174px 高（15px 字、占位灰 #6F7580）、联系方式行 54px 高、提交按钮 52px 高（16px 字）；计数行（13px，#C2C3CD）右缘比卡右缘再内收 20px（设计图页尾那行 12px 居中灰字说明「提交后由客服团队处理…」已按 2026-10-04 后续需求删除，勿补回）。无底部 Tab 栏、状态栏连着转深色（.guide-feedback），返回箭头 / Esc 的同一条出口回「我的」',note:'提交成功后回「我的」页（原落点「我的反馈」页与反馈历史记录已删除，反馈不留历史列表）；页面尺寸与配色按设计图量出（393×852 口径），改样式时对照 theme.css 的「问题反馈页」一组'},
     {id:'about',group:'账户与协议',name:'关于 LoveCo',route:'/account/about',trigger:'「我的」·「更多」·「关于 LoveCo」行（appRowSub 的 action=\'about\'）；本列表点入（不落库）',desc:'**2026-10-04 晚些按设计图新增的整页**（此前这一行只是「我的」页尾的纯展示行）：自上而下 ① 页头（左侧圆形返回钮 → 回「我的」+ 居中标题「关于 LoveCo」，复用用户页 .user-head 骨架）；② **品牌区**（**LoveCo 图标** `assets/brand/LoveCo_128_128.png` 72px 圆角方块 → 应用名「LoveCo」→ 灰字版本号 **Version 1.9.0**，取 APP_VERSION 常量）—— **2026-10-06 需求起这一整组在页头与备案行之间纵向居中、并在居中之位再上移 48px**（.about-hero 的 flex:1 + justify-content:center，图标 / 应用名 / 版本号落在正文区的视觉中心；同日追加需求「位置在往上移一移」—— 皮肤内边距 14px 0 → 14px 0 110px，多出的 96px 下内边距把整组在居中基准上再抬一半 = 48px）；③ 页尾**沉底**的 APP 备案信息「APP 备案编号：鄂ICP备2026043044号-2A」（APP_ICP 常量，靠 margin-top:auto 贴正文底）。**2026-10-06 需求：原先在品牌区与备案行之间的「隐私与协议」卡片整块删除**（用户原话「关于 LoveCo页面删除 隐私与协议，然后 icon 和版本号居中」）—— 那张卡原有四行（用户协议 / 隐私协议 / 个人信息收集清单 / 第三方信息共享清单，行名取 legal-data.js 的 title、顺序见常量 ABOUT_LEGAL_KEYS、行与「我的」页同一套 .app-row 且不带行首图标、点行进对应协议正文整页），现连常量一起删掉；四条协议正文的入口只剩「我的」·「隐私与协议」组（协议快照本身保留 —— kb-paywall、购买页协议行、注销页仍在读；2026-10-04 需求更早删过这张卡里的《会员与积分协议》《VIP会员自动续费服务协议》两行）。无底部 Tab；走通用浅灰画布 + 白色卡片，**跟随深色外观**（不另开写死配色的皮肤）',note:'**设计图里三块按需求不呈现**：应用描述那两行、「联系客服」按钮、协议行左侧的小图标（图标那份设计图是「关于LoveCo键盘」参考页的形态；协议行本身 2026-10-06 已随卡片整块删除）；版本号取 APP_VERSION（改版本只改一处；「我的」页「更多」组那一行的副说明 2026-10-06 已按需求删掉）；本页不读登录态，返回箭头 / Esc 都回「我的」（同 feedback 的出口）'},
     {id:'legal',group:'账户与协议',name:'协议正文',route:'/legal/:key（本列表固定看《用户协议》）',trigger:'「我的」· 隐私与协议四条直链（用户协议 / 隐私政策 / 个人信息收集清单 / 第三方信息共享清单）、注销页「我已阅读并同意《账号注销协议》」、两张登录页的协议勾选行与「请阅读并同意以下条款」弹框里的协议名、会员购买页的协议行；本列表点入（现场摆成从「我的」点进的《用户协议》，不落库）',desc:'**协议正文整页**（2026-10-04 按设计图重做，route 回到 /legal/:key 口径）：① 页头**只有一枚返回箭头**、**常驻顶部**（2026-10-04 晚些需求：正文往下滚时页头钉在正文区顶部、不跟着滚走 —— .lg-head 的 position:sticky，骨架在 styles.css）—— 没有页名、没有 X（原 sheet 头那行协议名与页尾那颗整宽「返回」按钮一并去掉），协议名改在正文首行用 **27px 加粗大标题**承担；② 正文按空行分段、左对齐，**宋体** 15.5px / 行高 1.95（标题与正文都排宋体，与设计图一致），首行那份与标题重复的协议名在渲染时去掉（legalParagraphs，判据「首行不含句读且不超过 40 字」）。整页白底、无底部 Tab、状态栏连着转白；页面上**没有**「项目内置协议快照；模拟器本身不提供真实付费服务。」那条说明（模拟器口径只留在工作台与 README）。正文与键盘内 kb-legal 同一份快照（legal-data.js，8 份）',note:'返回箭头 / Esc 都回打开它的那一页（state.legalFrom）—— 从「我的」进的回「我的」、从注销页进的回注销页、从登录页 / 购买页进的回那一页（输入的表单、协议勾选状态、所选档位都留着；原「关于 LoveCo」页的协议卡 2026-10-06 需求已删，不再是来路）；2026-09-26 ～ 2026-10-04 之间它是浮在页面上的 sheet 覆盖层（state.appLegal），本轮改回整页后覆盖层字段与 legalSheet 一并删除；**同日晚些「协议中心」列表页（legal-list）按需求删除** —— 卡片末行入口与 appLegalListPage 一并去掉，这份正文页保留'},
-    {id:'partners',group:'聊天对象',name:'聊天对象',route:'/partners',trigger:'主 App 底部 Tab 第二项「对象」；编辑保存后回到这里',desc:'对象管理列表（整页，纯管理）：标题行一行「聊天对象」+ 右侧「新建」文字按钮 —— 标题行下**没有**「当前上下文：…」那行说明，列表里也**没有「不选择」行**（清空 / 切换当前上下文只在键盘形态的管理页里做）；每行 = 圆形头像（没设自定义头像的一律用默认头像 —— 2026-10-06 起统一成一张，**2026-10-26 需求起这张换成灰色人形图标**）+ 备注名，**只有写过备注的对象才多一行备注**（最多两行 —— 没备注的行不占位、不写「还没有备注 —— …」提示语；**性别 · 关系阶段不在列表里出现**，进详情页才看得到）；顺序按最近操作在前（新建的排最前，编辑过的保存后提到最前）。**整行（含头像）都是点击区**：按下时整行铺一层淡紫高亮（`.partner-open:active`，不再画头像描边的选中态），松手进该对象的**详情页**（**2026-10-26 需求新增的只读整页**：头像区（64px 圆头像 + 备注名）+ 同一张白卡里的性别 / 关系阶段 / 备注信息三个只读字段 + 底部「管理聊天记忆」入口（整卡可点）进记忆列表；页尾没有「编辑」按钮，编辑页只从本列表左滑的「编辑」进）—— 点行**不改当前上下文**；左滑露出编辑 / 删除（**2026-10-26 再晚些按真机截图改样式：贴行右缘的两个等宽 70px 整高色块 + 白字 15px「编辑 / 删除」，编辑紫 `--lc-accent`、删除红 `#F04452`；色块右缘再横移 14px 抵到卡片右缘 —— 行本身缩进在 `.app-card-list` 的 14px 内边距里**；从行右侧滑入、盖在行内容上，「编辑」直接进编辑页、不经详情页；**删除 2026-10-15 需求起不直接执行，先弹「删除聊天对象」二次确认框** —— 深色蒙层 + 居中白卡：17px 加粗标题「删除聊天对象」+ 一句说明「删除后「XX」的资料与备注会被永久删除，无法恢复。」+「取消 / 删除」两颗等宽圆角矩形按钮（取消灰底灰字、删除**实心红 #F04452 + 白字**）—— 取消 / Esc 只收框、对象不删，点「删除」才发 DELETE 仿真请求、行收起 + 列表少一条）',note:'与键盘形态的管理页是同一份数据、同一套排序、同一套左滑动作，只是主 App 下渲染为整页；本页的删除是两步（左滑删除按钮 ask-remove-partner 只开确认框，框里 partner-delete-ok 才真删），键盘形态的管理页仍是一步直删（remove-partner）；「不选择」条目与「切当前对象」只在键盘形态的管理页里 —— 两种形态的行点击语义不同：主 App 进详情（编辑页），键盘切当前对象'},
-    {id:'partner-detail',group:'聊天对象',name:'聊天对象详情',route:'/partners/:id',trigger:'主 App「聊天对象」页点对象行（整行都是点击区）；或从本列表点入（现场取列表第一只对象、不落库）',desc:'**2026-10-29 需求按设计图重新设计成「可编辑」整页**（此前的只读版 + 页尾「编辑」已作废）：页头复用主 App 统一的返回箭头 + 居中标题「聊天对象」（`user-head` 骨架；返回箭头与 Esc 都回「聊天对象」列表）；自上而下 —— ① **头像区**：72px 圆形头像（没设过自定义头像时是那张灰色人形默认图）+ 底下紫字「上传头像 / 更换头像」（整块是按钮，点它从本地选图、选完居中裁 320 方图）；② **备注名 / 性别**：两张浮动标签白卡（11px 灰标签在卡内左上角、15px 值在下方一行，性别是原生下拉、右端一枚 ▾）；③ **关系阶段**：14px 加粗小标题 + 一颗紫描边胶囊（14px 文字，原生 select 透明铺满整颗 —— 点哪儿都能在五档里选）；④ **备注信息**：13.5px 多行框（118px 高，placeholder 带年龄 / 职业 / 爱好三个关键词）；⑤ **「管理聊天记忆」入口**：一整张可点的白卡（紫色 16px 标题 + 右端一枚折角箭头 + 13px 灰字「AI将纪录与TA对话中的关键信息」），点卡进该对象的记忆列表整页。**底部那排「确定 + 协议小字」已按需求去掉** —— 字段都是真控件、改完即静默保存（输入防抖 600ms，空名 / 重名静默跳过；返回 / Esc / 切页 / 失焦前兜底落库），头像选完立刻落库。',note:'与「编辑聊天对象」（底部「确定」那种表单页）仍是**两份页面**：列表点行进本页，编辑页只从「聊天对象」列表左滑的「编辑」进；本页没有删除入口（删除仍只走列表左滑那颗按钮）；对象在此期间被删掉时只渲染一句兜底文案；键盘形态没有这一页'},
+    {id:'partners',group:'聊天对象',name:'聊天对象',route:'/partners',trigger:'主 App 底部 Tab 第二项「对象」；编辑保存后回到这里',desc:'对象管理列表（整页，纯管理）：标题行一行「聊天对象」+ 右侧「新建」文字按钮 —— 标题行下**没有**「当前上下文：…」那行说明，列表里也**没有「不选择」行**（清空 / 切换当前上下文只在键盘形态的管理页里做）；每行 = 圆形头像（没设自定义头像的一律用默认头像 —— 2026-10-06 起统一成一张，**2026-10-26 需求起这张换成灰色人形图标**）+ 备注名，**只有写过备注的对象才多一行备注**（最多两行 —— 没备注的行不占位、不写「还没有备注 —— …」提示语；**性别 · 关系阶段不在列表里出现**，进详情页才看得到）；顺序按最近操作在前（新建的排最前，编辑过的保存后提到最前）。**整行（含头像）都是点击区**：按下时整行铺一层淡紫高亮（`.partner-open:active`，不再画头像描边的选中态），松手进该对象的**详情页**（**2026-10-26 新增、2026-10-29 按设计图重做、2026-11-02 收成只读展示 + 页头右侧「编辑」**：头像区（72px 圆头像 + 紫字「上传头像 / 更换头像」）+ 备注名 / 性别两张浮动标签卡 + 关系阶段胶囊 + 备注信息白卡，全部只读、没有下拉 ▾ 与占位提示语；改资料走详情页页头右上「编辑」（保存后回详情页），本列表左滑的「编辑」也仍直达编辑页；页尾是「管理聊天记忆」入口卡）—— 点行**不改当前上下文**；左滑露出编辑 / 删除（**2026-10-26 再晚些按真机截图改样式：贴行右缘的两个等宽 70px 整高色块 + 白字 15px「编辑 / 删除」，编辑紫 `--lc-accent`、删除红 `#F04452`；色块右缘再横移 14px 抵到卡片右缘 —— 行本身缩进在 `.app-card-list` 的 14px 内边距里**；从行右侧滑入、盖在行内容上，「编辑」直接进编辑页、不经详情页；**删除 2026-10-15 需求起不直接执行，先弹「删除聊天对象」二次确认框** —— 深色蒙层 + 居中白卡：17px 加粗标题「删除聊天对象」+ 一句说明「删除后「XX」的资料与备注会被永久删除，无法恢复。」+「取消 / 删除」两颗等宽圆角矩形按钮（取消灰底灰字、删除**实心红 #F04452 + 白字**）—— 取消 / Esc 只收框、对象不删，点「删除」才发 DELETE 仿真请求、行收起 + 列表少一条）',note:'与键盘形态的管理页是同一份数据、同一套排序、同一套左滑动作，只是主 App 下渲染为整页；本页的删除是两步（左滑删除按钮 ask-remove-partner 只开确认框，框里 partner-delete-ok 才真删），键盘形态的管理页仍是一步直删（remove-partner）；「不选择」条目与「切当前对象」只在键盘形态的管理页里 —— 两种形态的行点击语义不同：主 App 进详情（编辑页），键盘切当前对象'},
+    {id:'partner-detail',group:'聊天对象',name:'聊天对象详情',route:'/partners/:id',trigger:'主 App「聊天对象」页点对象行（整行都是点击区）；或从本列表点入（现场取列表第一只对象、不落库）',desc:'**2026-10-29 需求按设计图重做；2026-11-02 需求收成「只读展示 + 页头右侧编辑」**：页头复用主 App 统一的返回箭头 + 居中标题「聊天对象」+ **右侧「编辑」文字按钮**（点它进对象编辑页 partner-edit，保存后回本页；返回箭头与 Esc 都回「聊天对象」列表）；自上而下 —— ① **头像区**：72px 圆形头像（没设过自定义头像时是那张灰色人形默认图）+ 底下紫字「上传头像 / 更换头像」（整块是按钮，点它从本地选图、选完居中裁 320 方图，本页唯一还能就地改的项，换完静默落库）；② **备注名 / 性别**：两张浮动标签白卡（11px 灰标签在卡内左上角、15px 值在下方一行，**纯文字展示**）；③ **关系阶段**：14px 加粗小标题 + 一颗紫描边胶囊（14px 文字，里面只有档位文字）；④ **备注信息**：13.5px 白卡（118px 高，只展示已写下的备注）；⑤ **「管理聊天记忆」入口**：一整张可点的白卡（紫色 16px 标题 + 右端一枚折角箭头 + 13px 灰字「AI将纪录与TA对话中的关键信息」），点卡进该对象的记忆列表整页。**2026-11-02 需求去掉页内所有下拉 / 输入控件** —— 性别与关系阶段右端那两枚 ▾ 下拉按钮、备注信息框里的默认提示语（placeholder）都去掉，资料只读；**底部那排「确定 + 协议小字」2026-10-29 起就没有**',note:'与「编辑聊天对象」（底部「确定」那种表单页）仍是**两份页面**：列表点行进本页只读展示，改资料走本页页头右上「编辑」（保存后回本页）或列表左滑的「编辑」；本页没有删除入口（删除仍只走列表左滑那颗按钮）；对象在此期间被删掉时只渲染一句兜底文案；键盘形态没有这一页'},
     {id:'partner-memory',group:'聊天对象',name:'聊天记忆',route:'/partners/:id/memory',trigger:'主 App「聊天对象详情」页底部的「管理聊天记忆」入口（整卡可点）；或从本列表点入（现场取列表第一只对象、不落库）',desc:'**2026-10-26 需求新增的整页**（AI 记下的关于「用户 × 某个聊天对象」的事实，参考用户给的记忆列表样式）：页头复用统一的返回箭头 + 居中标题「聊天记忆」（返回箭头 / Esc 都回该对象的详情页）；**页头下面那行灰字说明 2026-10-26 晚些需求已按需求去掉**，正文直接是记忆卡列表 —— 一条记忆一张卡（圆角 14、极淡的紫调卡面（强调色 3% 混白）、平铺无投影；16px 正文、行高 1.75、保留换行，长文自然折行；卡内边距 16、卡间距 12）—— **左滑露出编辑 / 删除**（与「聊天对象」列表同一套 `.swipe-row` 手势；按钮 2026-10-26 再晚些按真机截图改样式：两枚**贴卡右缘、上下顶满卡高的等宽 70px 色块**，白字 15px 写「编辑 / 删除」，编辑取品牌紫 `--lc-accent`、删除取实心红 `#F04452`，右侧两角由卡圆角裁出，深色外观下编辑块换成 `#5B54CC`）；「编辑」开底部弹层改正文（`memoryEditSheet`：多行输入框 + 整宽「保存」，保存即写回并落库）、「删除」直接删（记忆是 AI 自己攒的，不弹二次确认）；**列表空态文案同日一并去掉**（一条都没有时只剩页头）。记忆与对象一起存本地：`state.memories`（`{id, pid, text}` 一张表）+ `persist()`，批次号 `state.memorySeed` 只用来换新一批演示记忆；默认三个对象各摆几条演示记忆（林间 8 条、陈一 2 条、小满 2 条），其余对象（自己新建的 / 老存档带来的）由 `memoryBackfill()` 按 `MEMORY_TEMPLATES` 兜底补两条，补过的记进 `state.memorySeeded`（删光后刷新不会再长）；删掉一个聊天对象时它的记忆与这个标记一并清掉。注意这是**新做的页面**，与 2026-09-25 删掉的「对象记忆」功能无关（那套开关 / 会员权益 / `state.facts` 至今维持删除）',note:'只读列表 + 左滑改删，没有「新建记忆」入口（记忆由 AI 在聊天中攒，原型不做真实抽取）；不接 AI 请求体、不落会员权益'},
     {id:'partner-new',group:'聊天对象',name:'新增聊天对象',route:'/partners/new',trigger:'主 App「聊天对象」页右上角「新建」',desc:'对象编辑页（整页，底部「确定」保存并回到对象列表、该对象排最前）：头像槽（点它从本地选图上传，选完居中裁成方形；**2026-10-15 需求：整块水平居中、「上传头像」四字移到 icon 底下（横排改竖排），icon 整体缩小 0.8 倍 —— 槽 56 → 44.8、槽内人形图标 16 → 12.8、首字兜底 18 → 14.4、圆角 8 → 6.4**）、备注名、**性别**（下拉：暂不设置 / 女 / 男 —— 新建态默认取当前用户性别的「反」，用户是男默认女、用户是女默认男，用户自己还没设置性别时落到「女」）、关系阶段（五档，默认「熟悉」）、**备注信息多行输入框**（提示语「写下 TA 的年龄、职业、爱好，例如「28 岁，设计师，喜欢露营和看展」。写得越细，AI 越懂 TA。」），表单是白色圆角卡片、字段自上而下单列排布；标题行右侧一枚**退出 X**（图标钮 `.icon-btn`，title / aria-label「退出」，`data-action="close"` —— 不保存直接回上一层，从对象列表点进来就回对象列表）；底部「确定」是一颗**不带图标**的整宽主按钮（此前的对勾符号按需求去掉）',note:'与键盘版编辑面板（kb-partner-editor）对应但字段更多：键盘版只有备注名 + 关系阶段、改动即静默保存；主 App 版保留性别与备注信息两个字段（性别默认取反、备注提示语带年龄 / 职业 / 爱好三个关键词），仍是「确定」保存'},
     {id:'partner-edit',group:'聊天对象',name:'编辑聊天对象',route:'/partners/edit',trigger:'主 App「聊天对象」页对象行左滑「编辑」（详情页 2026-10-26 起不再有「编辑」按钮）',desc:'与「新增聊天对象」同一表单的编辑态：字段预填对象当前值（含头像「更换头像」、性别与备注信息；**头像槽与「新增聊天对象」同一套，2026-10-15 需求：水平居中、文字在 icon 底下、icon 整体缩到 0.8 倍 —— 有图时图同样按 44.8 方框居中裁**），「确定」保存回列表并把该对象提到最前；标题行右侧同样有**退出 X**（同一颗图标钮，不保存即回上一层）；**页内没有「删除这个对象」入口**（按需求去掉，原确认框链路 delete-partner / delete-partner-confirm 一并删除 —— 删除对象只走列表左滑那颗按钮：**主 App「聊天对象」页 2026-10-15 需求起先弹二次确认框**（见 partners 条目），键盘形态的管理页仍是点了就删）',note:'主 App 与键盘版的编辑面板现在都不给删除入口（键盘版更早去掉）—— 删除只走列表左滑；主 App 那一页 2026-10-15 需求起先弹二次确认框，键盘形态的管理页仍是点了就删、不弹框'},
@@ -2821,8 +2812,8 @@
      行内自上而下：圆形头像 + 备注名，**写过备注的对象**再跟一行备注（最多两行，见 .app-note，
      没备注的行不占位、不写「还没有备注 —— …」提示语）。
      整行（含头像）都是点击区（.partner-open）：按下时整行高亮，松开进该对象的**详情页**
-     （partner-detail，2026-10-26 需求新增的只读整页，见 partnerDetailPage —— 详情页页尾那颗
-     「编辑」才进编辑页）；左滑仍露出编辑 / 删除（「编辑」直接进编辑页，不经详情页）——
+     （partner-detail，见 partnerDetailPage —— 2026-11-02 需求起这一页是只读展示，改资料走页头
+     右上那颗「编辑」进编辑页、保存后回详情页）；左滑仍露出编辑 / 删除（「编辑」直接进编辑页，不经详情页）——
      **2026-10-15 需求：删除不再直接执行，
      先弹「删除聊天对象」二次确认框**（partnerDeleteAskSheet），所以这一页的删除按钮发的是
      ask-remove-partner（只开框）；键盘形态的管理页仍发 remove-partner（点了就删，见 partner-manager）。 */
@@ -4177,18 +4168,9 @@
       node.addEventListener('input',()=>{state.formCache[cacheKey]=node.value;});
       node.addEventListener('change',()=>{state.formCache[cacheKey]=node.value;});
     });
-    /* 聊天对象详情页（partner-detail）的字段一改就静默保存（2026-10-29 需求：底部「确定」去掉）：
-       备注名 / 备注信息打字只调度防抖、**不重渲染**（否则丢焦点、光标跳走）；
-       性别 / 关系阶段选完立刻落库；关系阶段那颗胶囊的文字直接改 DOM，同样不整页重渲染。
-       失焦再兜一次底（切走前最后几个字一定存下）。 */
-    document.querySelectorAll('.partner-detail-page input[id],.partner-detail-page select[id],.partner-detail-page textarea[id]').forEach(node=>{
-      node.addEventListener('input', schedulePartnerDetailSave);
-      node.addEventListener('change', ()=>{
-        settlePartnerDetail();
-        if(node.id==='pd-stage'){const t=document.querySelector('.pd-stage-text');if(t)t.textContent=node.value;}
-      });
-      node.addEventListener('blur', settlePartnerDetail);
-    });
+    /* 聊天对象详情页（partner-detail）2026-11-02 需求起是只读展示，页内没有输入控件 ——
+       原先那组「字段一改就静默保存」的监听（#pd-name / #pd-gender / #pd-stage / #pd-note）
+       随控件一起去掉；只剩点头像换图那条链路（选完图走 schedulePartnerDetailSave）。 */
     /* 键盘对象编辑面板（kb-partner-editor）的输入实时回存 modalData：进出头像选择器、
        保存失败的提示重渲染，都不会丢已输入的称呼 / 关系阶段（面板不在时查不到节点，空跑）。
        面板里不放确定按钮 —— 键区右下角的功能键在这个场景就是「确定」（见 enterKeyLabel）；
@@ -5202,7 +5184,7 @@
     state.modal=null;state.modalData={};state.partnerPanel=true;render();
   }
   function openAppScreen(screen,data={}) {
-    /* 离开聊天对象详情页（2026-10-29 需求：这一页改为「改完即存」）前先兜底落库 ——
+    /* 离开聊天对象详情页前先兜底落库（2026-11-02 需求起这一页只剩头像会就地改）——
        返回箭头 / Esc / 底部 Tab / 页内其它跳转都走这里，一个出口都不漏 */
     if(state.appScreen==='partner-detail'&&screen!=='partner-detail')settlePartnerDetail();
     abortVoiceHold();dismissKbEditor();
@@ -6651,7 +6633,8 @@
       return state.appView==='keyboard'?openKbEditor({id:arg}):openModal('partner-edit',{id:arg});
     }
     /* 主 App「聊天对象」页点对象行 → 只读的「聊天对象详情」页（2026-10-26 需求，
-       页见 partnerDetailPage）；详情页页尾的「编辑」仍走上面那条 edit-partner。
+       页见 partnerDetailPage）；详情页页头右侧的「编辑」走的也是上面那条 edit-partner
+       （2026-11-02 需求：该页只读，编辑入口从页尾挪到了页头右侧）。
        返回（partner-detail-back）/ Esc 都回「聊天对象」列表。键盘形态没有这一页。 */
     if(name==='partner-detail'){
       if(needLogin())return;
@@ -6732,6 +6715,12 @@
         memoryBackfill();
         persist();
         if(state.kbEditor){state.kbEditor=false;state.partnerPanel=true;}
+        /* 从「聊天对象详情」页头右侧的「编辑」进来的（2026-11-02 需求）：
+           保存后回该对象的详情页看结果，而不是甩回「聊天对象」列表 */
+        if(state.modalBack&&state.modalBack.modal==='partner-detail'){
+          const pid=p.id;state.modalBack=null;
+          return openAppScreen('partner-detail',{id:pid});
+        }
         backToPartners();
       },{method:id?'PATCH':'POST'});
     }
