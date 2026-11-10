@@ -3522,7 +3522,7 @@
       <div class="ac-ask-scrim" data-action="auto-clean-dismiss" aria-hidden="true"></div>
       <div class="ac-ask-card">
         <h3>需要开启完全相册访问权限</h3>
-        <p>该功能将在您上传聊天截图后，自动为您清理该聊天截图</p>
+        <p>该功能将在您上传聊天截图后，<br>自动为您清理该聊天截图</p>
         <button type="button" class="ac-ask-primary" data-action="auto-clean-grant">去开启</button>
       </div>
     </div>`;
