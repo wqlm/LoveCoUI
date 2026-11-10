@@ -1,11 +1,12 @@
 /* 键盘顶部菜单栏。三端共用。
    键盘菜单：左侧是当前聊天对象（头像 + 昵称，未选对象时为默认头像 +「未选择」），
    最右侧三个入口 —— 相册（图片与最近截图）、问AI（气泡，进入与 AI 对话的页面，
-   见 kb-free-chat.js；2026-10-13 需求与相册互换位置，气泡移到相册右边）、键盘设置。
+   见 kb-free-chat.js；2026-10-13 需求与相册互换位置，气泡移到相册右边）、键盘设置；
+   相册图标**左侧**是「自动清理截图」胶囊开关（2026-11-10 需求，见 autoClean）。
    打字时切换到「候选词栏」，是同一位置的另一种形态，独立成组件见 kb-candidates.js。
    深度思考开关已移除；键盘常驻后不再需要「打开输入键盘」按钮，点按键即进入候选词栏状态。 */
 LoveCoUI.define('shared', 'kb-toolbar', (ctx) => {
-  const { esc, icon, ib, person, personName, partnerAvatar, noneAvatar, defaultAvatar } = ctx;
+  const { esc, icon, ib, person, personName, partnerAvatar, noneAvatar, defaultAvatar, state } = ctx;
   const name = person() ? personName() : '';
 
   /* 左侧的聊天对象入口：已选对象时显示对方头像（与聊天页同一张），未选择时也用
@@ -25,9 +26,16 @@ LoveCoUI.define('shared', 'kb-toolbar', (ctx) => {
   const album = pending
     ? `<button type="button" class="icon-btn kb-shot-thumb" title="分析刚刚的截图" aria-label="分析刚刚的截图" data-action="pending-shot"><img src="${ctx.shotThumb(pending)}" alt=""></button>`
     : ib('Picture', '选择聊天截图', 'photo-picker');
+  /* 「自动清理截图」胶囊开关（2026-11-10 需求）：紧贴在相册图标左侧，胶囊里是文字 + 一枚小开关。
+     默认关（state.autoCleanShots）；点它先验「相册访问权限 = 完整访问」（state.permissions.photos）——
+     不是完整访问就弹「需要开启完全相册访问权限」提示框（app.js 的 autoCleanAskSheet），
+     框里「去开启」跳主 App 的「允许访问照片」页；已是完整访问才真的打开，并浮一记轻提示
+     「上传截图后，自动为您清理该截图」。开关只在页面内存、不落库（相册权限本身也不落库）。 */
+  const autoClean = `<button type="button" class="kb-autoclean${state.autoCleanShots ? ' on' : ''}" data-action="kb-auto-clean" role="switch" aria-checked="${state.autoCleanShots ? 'true' : 'false'}" title="自动清理截图" aria-label="自动清理截图，${state.autoCleanShots ? '已开启' : '已关闭'}"><span class="kb-autoclean-label">自动清理截图</span><i class="kb-autoclean-track" aria-hidden="true"></i></button>`;
   /* 相册右侧的气泡按钮 = 问AI 页（AI 对话）入口：键盘顶部换成「问AI」标题栏 + 输入区，
-     键区照常在下（见 kb-free-chat.js / app.js 的 openFreeChat）。 */
-  const end = (extra = '') => `<div class="kb-toolbar-end">${album}${ib('ChatDotRound', '问AI', 'free-chat')}${ib('Setting', '键盘设置', 'kb-settings')}${extra}</div>`;
+     键区照常在下（见 kb-free-chat.js / app.js 的 openFreeChat）。
+     自动清理截图胶囊排在相册左侧（与相册、问AI、设置同一行，不吃键区高度）。 */
+  const end = (extra = '') => `<div class="kb-toolbar-end">${autoClean}${album}${ib('ChatDotRound', '问AI', 'free-chat')}${ib('Setting', '键盘设置', 'kb-settings')}${extra}</div>`;
 
   return `<div class="kb-toolbar">${user}${end()}</div>`;
 });

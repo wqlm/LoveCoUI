@@ -405,6 +405,13 @@ small{font-size:11px;color:#73847d}
 .kb-user-name{font-size:11px;font-weight:550;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .kb-user-name.empty{font-weight:400;color:#8a9991}
 .kb-toolbar-end{display:flex;align-items:center;gap:2px;margin-left:auto;min-width:0}
+/* 「自动清理截图」胶囊开关（骨架；皮肤在 theme.css）：菜单栏相册图标左侧，文字 + 一枚小开关。
+   胶囊本身与旁边图标同排、不吃键区高度；空间不够时先收文字（省略号），小开关保持完整。 */
+.kb-autoclean{display:inline-flex;align-items:center;gap:4px;flex:0 0 auto;height:22px;padding:0 5px 0 7px;border:0;border-radius:999px;cursor:pointer;white-space:nowrap}
+.kb-autoclean-label{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis;font-size:10px;line-height:1}
+.kb-autoclean-track{position:relative;flex:0 0 auto;width:22px;height:12px;border-radius:6px}
+.kb-autoclean-track::after{content:'';position:absolute;top:1.5px;left:1.5px;width:9px;height:9px;border-radius:50%;transition:transform .16s ease}
+.kb-autoclean.on .kb-autoclean-track::after{transform:translateX(10px)}
 .kb-body{flex:1;min-height:0;overflow:auto;padding:11px}
 .kb-sysbar{display:flex;align-items:center;justify-content:space-between;height:34px;flex-shrink:0;padding:0 12px;color:#899a8c}
 .kb-sysbar .sys-key{display:grid;place-items:center;width:36px;height:30px;border-radius:9px;color:inherit}
@@ -596,6 +603,14 @@ small{font-size:11px;color:#73847d}
 .cd-ask-scrim{position:absolute;inset:0}
 .cd-ask-card{position:relative;display:flex;flex-direction:column;text-align:center}
 .cd-ask-primary{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px}
+/* 「自动清理截图」权限提示框（2026-11-10 需求，autoCleanAskSheet）：铺满手机、深色蒙层 + 居中白卡，
+   骨架与「注销申请成功」弹框（.cd-ask）同一套；皮肤（尺寸 / 圆角 / 配色）在 theme.css 的 .ac-ask 一组。
+   挂点在键盘形态 render() 的 .phone 里、压在键盘与宿主会话之上（z-index 22：高于键盘内各层覆盖层，
+   低于轻提示 toast 与整屏白闪）。 */
+.ac-ask{position:absolute;inset:0;z-index:22;display:grid;place-items:center}
+.ac-ask-scrim{position:absolute;inset:0}
+.ac-ask-card{position:relative;display:flex;flex-direction:column;text-align:center}
+.ac-ask-primary{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px;cursor:pointer}
 /* 「删除聊天对象」二次确认框（2026-10-15 需求，partnerDeleteAskSheet）：只服务**主 App「聊天对象」页**
    左滑露出的删除按钮 —— 骨架与「注销申请成功」弹框同套（铺满手机、深色蒙层只盖正文区、白卡居中），
    卡内 = 标题 + 一句说明 + 「取消 / 删除」两颗等宽按钮。皮肤（尺寸 / 圆角 / 配色）在 theme.css 的

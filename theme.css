@@ -228,6 +228,17 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
 .kb-user-name.empty { color: var(--lc-subtle); }
 /* 菜单栏右侧：相册与键盘设置，常驻在最右侧 */
 .kb-toolbar-end { display: flex; align-items: center; gap: 2px; margin-left: auto; }
+/* 菜单栏空间不够时先收左侧的聊天对象名（昵称省略号），自动清理截图胶囊与三枚入口保持完整 */
+.kb-toolbar .kb-user { flex-shrink: 1; min-width: 0; }
+/* 「自动清理截图」胶囊开关（2026-11-10 需求；骨架在 styles.css）：相册图标左侧、与图标同排。
+   关 = 半透明白底 + 灰字 / 灰轨道（圆点在左）；开 = 淡紫底 + 强调色字 / 强调色轨道（圆点在右）。
+   配色全走令牌，深色外观自动跟随；胶囊只是「文字 + 小开关」，不吃键区高度。 */
+.kb-autoclean { background: color-mix(in srgb, var(--lc-surface) 78%, transparent); color: var(--lc-muted); }
+.kb-autoclean:hover { background: var(--lc-accent-soft); color: var(--lc-accent-strong); }
+.kb-autoclean-track { background: var(--lc-key-function); box-shadow: inset 0 0 0 1px #00000012; }
+.kb-autoclean-track::after { background: #FFF; box-shadow: 0 1px 2px #26213238; }
+.kb-autoclean.on { background: var(--lc-accent-soft); color: var(--lc-accent-strong); }
+.kb-autoclean.on .kb-autoclean-track { background: var(--lc-accent); }
 /* 「待分析截图」：键盘不在屏时截的图，等键盘被唤起、三关都过了才由相册图标换成它的缩略图
    （app.js 的 pendingShotItem / kb-toolbar 的 album 分支）。缩略图是一张**方形真位图** ——
    core/kit.js 的 shotThumb 用 canvas 把这张聊天截图画成方形后导出 data URL（app.js 的
@@ -667,6 +678,11 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   from { opacity: 0; transform: translateX(-50%) translateY(6px); }
   to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
+/* 键盘形态的轻提示（2026-11-10 需求：打开「自动清理截图」时那一记「上传截图后，自动为您清理该截图」）：
+   同一枚 .app-toast 胶囊，只是抬到**键盘上沿**之上 —— 键盘常驻在屏幕下半，按底部 Tab 那档的
+   bottom: 92px 会被键盘盖住。高度取键盘总高（--lc-keyboard-height）+ 一截留白；
+   键盘收起时用不到这枚提示（它只从菜单栏那颗开关触发），不另做收起态。 */
+.kb-toast { bottom: calc(var(--lc-keyboard-height) + 18px); width: max-content; max-width: 76%; box-sizing: border-box; }
 /* 按住说话遮罩（皮肤，骨架在 styles.css）：**高度跟着键盘区域走**（与 .keyboard 同高、同贴底），
    遮罩层自己走「底部 1 → 顶部 0」的渐隐 —— 背景色渐变负责压暗、mask 让毛玻璃一起淡出，
    上缘与聊天分析面板的内容自然融合，不再整屏压黑。固定深色（截图即深色场景），
@@ -2796,6 +2812,18 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 .cd-ask-primary { align-self: center; min-width: 132px; height: 42px; margin-top: 20px; padding: 0 30px; background: var(--cd-accent); color: #FFF; font-size: 15px; font-weight: 600; }
 .cd-ask-primary:hover { background: #4756E0; }
 @keyframes cd-ask-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+/* —— 「自动清理截图」权限提示框（autoCleanAskSheet / state.autoCleanAsk，2026-11-10 需求）——
+   键盘菜单栏相册图标左侧那颗胶囊开关想打开、但相册访问权限还不是「完整访问」时弹这一层：
+   铺满手机、深色蒙层 + 居中白卡（骨架见 styles.css 的 .ac-ask）。
+   与「注销申请成功」弹框同一套口径：配色写死、不跟随 .dark（它压在键盘的浅 / 深色外观之上，
+   白卡在哪一档都成立）。卡内自上而下：17px / 700 标题 + 13.5px 灰色说明（行高 1.6）+
+   蓝底白字胶囊「去开启」（#5B68F5，与「允许访问照片」页那颗蓝同族）。 */
+.ac-ask-scrim { background: #10101A6B; }
+.ac-ask-card { width: min(284px, 80%); padding: 26px 22px 22px; border-radius: 16px; background: #FFF; box-shadow: 0 18px 44px #10101038; animation: cd-ask-in .2s cubic-bezier(.2, .8, .3, 1) both; }
+.ac-ask-card h3 { font-size: 17px; font-weight: 700; line-height: 1.4; color: #17171C; }
+.ac-ask-card p { margin-top: 11px; font-size: 13.5px; line-height: 1.65; color: #6E6E78; }
+.ac-ask-primary { align-self: center; min-width: 132px; height: 42px; margin-top: 20px; padding: 0 30px; background: #5B68F5; color: #FFF; font-size: 15px; font-weight: 600; }
+.ac-ask-primary:hover { background: #4B58E8; }
 /* —— 「删除聊天对象」二次确认框（partnerDeleteAskSheet / state.partnerDeleteAsk，2026-10-15 需求）——
    只服务**主 App「聊天对象」页**：左滑露出的删除按钮点了先弹这一层（键盘形态的管理页不弹）。
    骨架同「注销申请成功」弹框那套（.pd-ask：铺满手机、深色蒙层只盖正文区、白卡居中，见 styles.css），

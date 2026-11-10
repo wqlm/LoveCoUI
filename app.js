@@ -246,6 +246,16 @@
        要看新机从零引导的整条链路，开左栏「模拟 › 首启引导」（firstLaunchReset 摆回新机）；
        platform 为 android 时键盘完全访问本来就默认开启、不弹那一层（needsFullAccess） */
     permissions:{network:true,cellular:true,kbEnabled:true,keyboard:true,photos:'denied',microphone:true,ime:'system'},
+    /* 「自动清理截图」胶囊开关（2026-11-10 需求）：键盘菜单栏相册图标**左侧**那一枚（kb-toolbar 组件），
+       autoCleanShots = 开关状态，默认关 —— 打开后上传的聊天截图用完即从相册清掉（原型里只是把开关
+       与提示做出来，没有真的删图）。打开前先验「相册访问权限」：不是完整访问（denied / limited）
+       就把 autoCleanAsk 置起来弹「需要开启完全相册访问权限」提示框（见 autoCleanAskSheet），
+       开关保持关；已是完整访问才真的打开并浮一记轻提示（showToast）。
+       autoCleanAsk = 那个提示框的开关，框里「去开启」跳主 App 的「允许访问照片」页
+       （openAppScreen('photo-access')），点蒙层 / Esc 只收框。
+       相册权限降到非完整档时 autoCleanShots 一并复位成关（见 photos / photo-access 动作）；
+       两者都只在页面内存、不落库 —— 相册权限本身也不落库，刷新即回到「默认关」。 */
+    autoCleanShots:false, autoCleanAsk:false,
     modal:null, modalData:{}, modalBack:null, partnerPanel:false, settingsPanel:false, photoPanel:false,
     /* 新增 / 编辑聊天对象面板（kb-partner-editor）：键盘模式下替代弹层；
        photoMode 记录选择器是聊天截图模式（chat）还是头像模式（avatar，单选、底部「确定」）；
@@ -1082,9 +1092,11 @@
     {id:'host-chat-collapsed',group:'宿主会话与菜单栏',name:'宿主会话 · 键盘收起',route:'宿主 App › 会话界面（键盘已收起）',trigger:'点宿主聊天区域（消息区 / 会话头部，不含输入栏）；键盘处在任何状态 / 页面时都生效',desc:'收起态：整块 LoveCo 键盘不渲染，由消息区与输入栏之间的一块「键盘让位区」（.wx-kb-space，高度 = 常规键盘高、会话底色 #111）顶上原来键盘占的那段 —— 消息区的高度与键盘在屏时完全一致、气泡列停原位不下移，只有输入栏被顶到屏幕底边（下方不再有键盘的浅色块）；手机里自上而下仍是顶部状态栏、会话头部（36px 居中备注名）、消息区、让位区、输入栏；点输入框（含框内麦克风以外的整块输入区）即把键盘唤回，唤回时落在干净底座（菜单栏 + 字母层，布局沿用设置里选的那套），光标交回输入框。功能上它是一次「全清」：无论键盘此刻是菜单栏 / 候选词栏 / 数字 · 符号层，还是开着对象管理页、键盘设置页、选图选择器、AI 分析过渡页、聊天分析面板、对象编辑面板，点聊天区域都一次性收走并清场（生成中的 AI 请求随之取消、未确认的拼音组合串丢弃、编辑面板先兜底落库）；已经收起时再点聊天区域不重渲染。宿主输入框草稿与会话消息不受影响 —— 收起的是键盘，不是用户打的字。**唤回键盘时会先跑一遍前置检查**：没有完全访问权限先弹「键盘完全访问引导页」，权限已开又未登录再弹键盘内登录层（见「键盘权限与登录」组），都通过才回到底座键盘',note:'与「宿主会话（微信）」是同一屏的两种形态（键盘在 / 键盘收起）；键盘已激活时点输入框不做任何操作（只更新光标锚点与下划线镜像）；进主 App 再返回、切运行平台、从页面列表点进任何键盘页面都会把键盘拉回常驻'},
     {id:'composer-empty',group:'宿主会话与菜单栏',name:'宿主输入栏 · 空态',route:'宿主 App › 会话输入栏',trigger:'宿主输入框没有内容时（默认状态）',desc:'左侧语音圆钮（按住说话）+ 输入框（框内麦克风同样是按住说话），右侧只有一个表情圆钮',note:'与「宿主输入栏 · 输入中」是同一输入栏（chat-composer）的两种形态'},
     {id:'composer-typing',group:'宿主会话与菜单栏',name:'宿主输入栏 · 输入中',route:'宿主 App › 会话输入栏',trigger:'输入框里有文字（键盘输入 / 语音转写写入 / 思路带入）',desc:'右侧表情圆钮换成蓝色的「发送」键，点击把输入框内容作为「我」的消息发进会话并清空输入框',note:'两种形态只差右侧按键；左侧语音圆钮与框内麦克风在两种状态下都在'},
-    {id:'kb-toolbar-default',group:'宿主会话与菜单栏',name:'键盘菜单栏 · 未选择对象',route:'键盘 › 顶部菜单栏（第一状态）',trigger:'唤起键盘默认显示；或在聊天对象管理页选「不选择」后返回',desc:'左侧灰色用户图标 +「未选择」（点击进聊天对象管理页），右侧三个入口：相册（键盘选择器）、问AI（气泡）、键盘设置',note:'与「已选择对象」是同一组件（kb-toolbar）的两种形态'},
-    {id:'kb-toolbar-partner',group:'宿主会话与菜单栏',name:'键盘菜单栏 · 已选择对象',route:'键盘 › 顶部菜单栏（第一状态）',trigger:'在聊天对象管理页选择任一对象后返回',desc:'左侧显示当前对象的圆形插画头像（没设自定义头像的一律用默认头像 —— 2026-10-06 起三张旧插画统一成一张，**2026-10-26 需求起这张换成灰色人形图标**）+ 备注名（点击回聊天对象管理页），右侧入口同上（相册 / 问AI / 键盘设置）',note:'头像即键盘侧上下文来源，切换对象只影响键盘侧的生成，不影响宿主会话'},
+    {id:'kb-toolbar-default',group:'宿主会话与菜单栏',name:'键盘菜单栏 · 未选择对象',route:'键盘 › 顶部菜单栏（第一状态）',trigger:'唤起键盘默认显示；或在聊天对象管理页选「不选择」后返回',desc:'左侧灰色用户图标 +「未选择」（点击进聊天对象管理页），右侧入口自左向右：**「自动清理截图」胶囊开关**（2026-11-10 需求，默认关，见 kb-auto-clean / kb-auto-clean-ask 两条）、相册（键盘选择器）、问AI（气泡）、键盘设置',note:'与「已选择对象」是同一组件（kb-toolbar）的两种形态'},
+    {id:'kb-toolbar-partner',group:'宿主会话与菜单栏',name:'键盘菜单栏 · 已选择对象',route:'键盘 › 顶部菜单栏（第一状态）',trigger:'在聊天对象管理页选择任一对象后返回',desc:'左侧显示当前对象的圆形插画头像（没设自定义头像的一律用默认头像 —— 2026-10-06 起三张旧插画统一成一张，**2026-10-26 需求起这张换成灰色人形图标**）+ 备注名（点击回聊天对象管理页），右侧入口同上（自动清理截图 / 相册 / 问AI / 键盘设置）',note:'头像即键盘侧上下文来源，切换对象只影响键盘侧的生成，不影响宿主会话'},
     {id:'kb-toolbar-shot',group:'宿主会话与菜单栏',name:'键盘菜单栏 · 待分析截图',route:'键盘 › 顶部菜单栏（截屏提示态）',trigger:'键盘收起 / 不在屏时点左栏「模拟 › 模拟截屏」（或仿真控制台里的同名按钮）产生一张截屏 —— 键盘当时感知不到这次截屏，截图先躺在相册里；随后把键盘唤起（点宿主输入框），**完全访问权限 → 登录状态 → 相册访问权限 = 完整访问** 三关都通过后，菜单栏最左侧的相册图标就地换成这张截图的缩略图',desc:'菜单栏相册入口的第三种形态（前两种是「未选择对象」「已选择对象」）：键盘不在屏时截的图会在键盘回来时补一个入口 —— 相册图标**就地换成那张截图的缩略图**：一枚**方形真缩略图**（28×28，与旁边两枚图标同宽）—— 这张聊天截图由 canvas 画成位图后导出（core/kit.js 的 shotThumb，同一张只画一次），深色底 + 几条气泡，缩略图边缘裁切、文字不再溢出（不再用 DOM 拼 3:4 卡片），整枚图标**持续放大缩小**（1.1s 一个来回，scale 1 → 1.12 配一圈淡紫呼吸光环）一闪一闪地引导点击；点它**不再经过选图面板**（不点图片按钮、不选图、不点分析），直接进「AI 分析」过渡动画页，之后的链路与「立即分析」完全一样。功能上这是键盘**感知截屏事件**的落点：键盘在屏时截屏根本不用提示 —— 那一下就自动进分析链路（「模拟截屏」的另一条分支）；只有键盘不在屏时，这次截屏才需要等键盘回来补一个入口。点掉它、再截一张，或从页面列表跳转，即回到普通相册图标；截图本身留在相册里，打开选择器仍可照常选用',note:'三关任一没过都不露脸（菜单栏仍是普通相册图标：没完全访问权限先弹引导页、未登录先弹登录页、相册不是完整访问则点图标走权限引导形态），条件补齐后同一张图自动露脸；提示位同一时刻只有一张（再截以最新那张为准），截图与提示都只在页面内存里（刷新即清 —— 「重置会话」入口 2026-10-03 已删）。本条目点入 = 现场补一张「刚刚的截图」并把三关置成通过（键盘完全访问开、已登录、相册完整访问），停在提示态便于查看 —— 点缩略图即真实走一遍 AI 分析链路'},
+    {id:'kb-auto-clean',group:'宿主会话与菜单栏',name:'键盘菜单栏 · 自动清理截图（已开启）',route:'键盘 › 顶部菜单栏（相册左侧的胶囊开关）',trigger:'「设备权限 › 相册访问权限」= 完整访问时点菜单栏相册左侧的「自动清理截图」胶囊；或从本列表点入（相册权限摆成完整访问、开关置开，并就地浮出一次轻提示）',desc:'**功能**：菜单栏相册图标左侧那枚胶囊开关的「已开启」形态 —— 打开后，键盘上传的聊天截图在分析完就自动从相册清掉（原型只做开关与提示，不真删图）。真实链路上点它先验相册访问权限：不是「完整访问」就弹权限提示框（见下一条「自动清理截图权限提示」），开关保持关；已是完整访问才真的打开，并浮一记轻提示「上传截图后，自动为您清理该截图」（1.4s 自动收起），再点一次即关闭（无提示）。相册权限被降到关闭 / 有限访问时，这颗开关跟着复位成关。**设计**：胶囊与相册 / 问AI / 设置三枚图标同排、紧贴相册左侧，高 22px、圆角 11px，内为 10px 文字「自动清理截图」+ 一枚 22×12 的小开关；关态 = 半透明白底 + 灰字 + 灰轨道（白色圆点在左），开态 = 淡紫底 + 强调色字 + 强调色轨道（圆点右移 10px、0.16s 过渡）；浅 / 深色外观都走令牌配色，不吃键区高度。',note:'开关状态只在页面内存（state.autoCleanShots），不落库 —— 相册权限本身也不落库，刷新即回到默认关'},
+    {id:'kb-auto-clean-ask',group:'宿主会话与菜单栏',name:'键盘菜单栏 · 自动清理截图权限提示',route:'键盘 › 机身居中提示框',trigger:'相册访问权限不是「完整访问」（关闭 / 有限访问）时点「自动清理截图」胶囊；或从本列表点入（现场把相册权限摆成「关闭」、开关保持关，停在这层提示框上）',desc:'**功能**：开关的「权限未开」分支 —— 相册访问权限是关闭 / 有限访问时点「自动清理截图」，开关不打开（保持关），先弹这一层提示框；框里「去开启」收起提示框并跳主 App 的「允许访问照片」页（appScreen=photo-access），在那里选「允许访问全部」把 permissions.photos 置成完整访问，回键盘再点开关即可打开并收到轻提示；点蒙层 / 按 Esc 只收框、开关仍关。**设计**：铺满手机的深色蒙层 + 居中白卡（宽 min(284px, 80%)、圆角 16px、22px 内边距，0.2s 由 0.96 放大淡入），卡内居中排 —— 17px / 700 标题「需要开启完全相册访问权限」+ 13.5px 灰色说明「该功能将在您上传聊天截图后，自动为您清理该聊天截图」（行高 1.65）+ 蓝底白字胶囊「去开启」（42px 高、圆角 999px、#5B68F5）；配色写死不跟随 .dark。',note:'提示框只在键盘形态出现（state.autoCleanAsk，内存不落库）；它压在键盘与宿主会话之上（z-index 22），高于键盘内各层覆盖层'},
     {id:'kb-candidates',group:'宿主会话与菜单栏',name:'候选词栏 · 打字中',route:'键盘 › 顶部菜单栏（第二状态）',trigger:'中文键盘键区按任意字母 / 数字键进入打字态',desc:'一行候选词 + 最右侧 X（退回菜单栏）；未确认的拼音带下划线显示在宿主聊天输入框里（问AI 页 / 对象编辑面板打开时则显示在各自的输入框里），点候选词 / 空格 / 回车替换那句字母；联想词按当前输入目标光标前的文字算',note:'英文键盘、数字层、符号层按键直接上屏，不进入打字态'},
     /* 问AI 页（kb-free-chat 组件）：键盘菜单栏气泡按钮进入的「与 AI 对话」页面 —— 标题栏 + 输入区 + 键区；
        下两条是它的两种形态（展开图片选择器 / 按住输入框说话） */
@@ -1239,6 +1251,9 @@
     dismissKbEditor();
     state.modal=null;state.modalData={};
     state.partnerPanel=false;state.settingsPanel=false;state.photoPanel=false;state.photoBack='';
+    /* 「自动清理截图」的权限提示框只服务那一次点击：跳页面 / 收起键盘时一并收起
+       （开关状态 autoCleanShots 不动，2026-11-10 需求） */
+    state.autoCleanAsk=false;
     state.partnersEmptyDemo=false;
     dismissChatPanel();
     /* 问AI 页（kb-free-chat）也是键盘底座上的一层：跳页面 / 收起键盘时一并收起
@@ -1705,6 +1720,12 @@
          并把三关（键盘完全访问 / 登录 / 相册完整访问）一并置成通过 —— 此刻相册图标就是
          那张截图的缩略图（持续放大缩小），点它即真实走一遍 AI 分析链路 */
       case 'kb-toolbar-shot': kbReset(); state.permissions.keyboard=true; state.loggedIn=true; state.permissions.photos='full'; state.pendingShot=makeScreenshot().id; return render();
+      /* 「自动清理截图」已开启形态（2026-11-10 需求，静态查看）：相册权限摆成完整访问、开关置开，
+         并就地浮一记轻提示（与真实打开时同一条文案，1.4s 后自己收掉） */
+      case 'kb-auto-clean': kbReset(); state.permissions.photos='full'; state.autoCleanShots=true; state.autoCleanAsk=false; showToast('上传截图后，自动为您清理该截图'); return;
+      /* 「自动清理截图」权限提示框（静态查看）：相册权限摆成「关闭」（不是完整访问），
+         再把那层提示框弹出来 —— 点「去开启」即跳主 App 的「允许访问照片」页 */
+      case 'kb-auto-clean-ask': kbReset(); state.permissions.photos='denied'; state.autoCleanShots=false; state.autoCleanAsk=true; return render();
       case 'kb-candidates': kbReset(); state.language='zh'; state.composition='n'; state.typing=true; return render();
       /* 问AI 页（与 AI 对话的页面）：kbReset() 已把这一页收起（含提问内容以外的状态），
          这里按真实入口重新打开 —— 输入框留空、没有附图（真实链路里发送后也会清空），停在默认样式上 */
@@ -3486,6 +3507,26 @@
   function supportSheet() {
     return sheet('联系客服',`<button class="row-button sp-row" data-action="support-copy:email" aria-label="复制客服邮箱"><span>客服邮箱</span><span class="end">${esc(SUPPORT_EMAIL)}</span><span class="user-copy" aria-hidden="true">${icon('CopyDocument')}</span></button>`,'','support-close');
   }
+  /* —— 键盘 ·「自动清理截图」权限提示框（state.autoCleanAsk，2026-11-10 需求）——
+     键盘菜单栏相册图标左侧的胶囊开关（kb-toolbar 组件）想打开、但相册访问权限还不是
+     「完整访问」时弹这一层：开关保持关，先把「为什么打不开」讲清楚。
+     挂在手机根上（.phone 里、压住键盘与宿主会话）、深色蒙层 + 居中白卡，骨架 .ac-ask 在 styles.css、
+     皮肤在 theme.css（与「注销申请成功」弹框 .cd-ask 同一套口径，配色写死、不跟随 .dark）：
+     卡内自上而下 —— 标题「需要开启完全相册访问权限」（17px / 700）+ 说明
+     「该功能将在您上传聊天截图后，自动为您清理该聊天截图」（13.5px / 行高 1.6 / 灰）+ 一颗胶囊
+     「去开启」（蓝底白字）。「去开启」= 收起本层并跳主 App 的「允许访问照片」页
+     （appScreen='photo-access'，那里选「允许访问全部」才把 permissions.photos 置成 full，见 photo-access 动作）；
+     蒙层 / Esc 只收框、仍回到键盘（开关保持关）。 */
+  function autoCleanAskSheet() {
+    return `<div class="ac-ask" role="dialog" aria-modal="true" aria-label="需要开启完全相册访问权限">
+      <div class="ac-ask-scrim" data-action="auto-clean-dismiss" aria-hidden="true"></div>
+      <div class="ac-ask-card">
+        <h3>需要开启完全相册访问权限</h3>
+        <p>该功能将在您上传聊天截图后，自动为您清理该聊天截图</p>
+        <button type="button" class="ac-ask-primary" data-action="auto-clean-grant">去开启</button>
+      </div>
+    </div>`;
+  }
   /* —— 主 App · 协议正文页（appLegalPage，appScreen='legal'）—— 2026-10-04 按设计图把协议
      从**覆盖层改回整页**：
      协议正文 2026-09-26 曾是浮在页面上的 sheet（`legalSheet` + state.appLegal，sheet 头显示协议名、
@@ -4309,6 +4350,8 @@
             ${voiceHoldOverlay()}
             ${state.modal?renderModal():''}
             ${state.iosPaySheet?LoveCoUI.render('ios-pay-sheet', ctx):''}
+            ${state.autoCleanAsk?autoCleanAskSheet():''}
+            ${state.toast?`<div class="app-toast kb-toast" role="status" aria-live="polite">${esc(state.toast)}</div>`:''}
           </div>
           <div class="device-caption">LoveCo<span></span>com.gasairea.loveco<span></span>KEYBOARD · HOST APP</div>
           ${pageDetail()}
@@ -5213,6 +5256,8 @@
     state.kbImeSwitch=false;
     /* 键盘选择器（「切换到 LoveCo 键盘」页上的浮层）同理：换页不该跟着走 */
     state.kbSwitchPicker=false;
+    /* 「自动清理截图」的权限提示框（只属于键盘菜单栏那一次点击）也一并收起（2026-11-10 需求） */
+    state.autoCleanAsk=false;
     state.partnerPanel=false; state.settingsPanel=false; state.photoPanel=false; state.photoBack=''; dismissChatPanel();
     /* 主 App「AI 咨询师」页底部区的两个开关（调出的键盘 / 底部弹窗）也是「只服务那一页的浮层」：
        换页（含由 openAppAi 进站）一律复位 —— 进来 / 离开都是干净的贴底输入栏 */
@@ -5252,7 +5297,7 @@
   /* 返回键盘形态：从主 App 回来一律落在「键盘常驻」的底座上 —— 收起态只属于宿主会话里的一次收起动作
      （切回键盘也等于离开了「会员购买页 · 新」：首启那一轮同样到此为止，见 firstLaunchTail）；
      切形态 = 离开主 App 里正在走的引导链路，演示待演标记（guideDemoPending）一并清掉 */
-  function returnKeyboard() { if(state.firstLaunchTail)finishFirstLaunch(); abortVoiceHold();dismissKbEditor();dismissFreeChat(); state.iosPaySheet=false; state.kbCollapsed=false; state.partnerPanel=false; state.settingsPanel=false; state.photoPanel=false; state.photoBack=''; dismissChatPanel(); state.appView='keyboard'; state.appScreen=null; state.modal=null; state.modalData={}; state.kbGuidePage=''; state.kbImeSwitch=false; state.kbSwitchPicker=false; state.guideDemoPending=false; render(); }
+  function returnKeyboard() { if(state.firstLaunchTail)finishFirstLaunch(); abortVoiceHold();dismissKbEditor();dismissFreeChat(); state.iosPaySheet=false; state.autoCleanAsk=false; state.kbCollapsed=false; state.partnerPanel=false; state.settingsPanel=false; state.photoPanel=false; state.photoBack=''; dismissChatPanel(); state.appView='keyboard'; state.appScreen=null; state.modal=null; state.modalData={}; state.kbGuidePage=''; state.kbImeSwitch=false; state.kbSwitchPicker=false; state.guideDemoPending=false; render(); }
   /* 「打开 App 自动弹会员购买页」的延时：**落到首页后等 1 秒**再从底部弹出（2026-10-06 需求，
      见 launchPaywall；原来是不延时、落首页那一刻直接切页） */
   const LAUNCH_PAYWALL_DELAY_MS = 1000;
@@ -5325,6 +5370,8 @@
     /* ① 设备权限回新机（只留蜂窝网络；网络访问 / 麦克风无 UI 入口、不动） */
     const P = state.permissions;
     P.kbEnabled = false; P.keyboard = false; P.ime = 'system'; P.photos = 'denied';
+    /* 「自动清理截图」回默认关（新设备 / 新账号，相册权限也已回到关闭；2026-11-10 需求） */
+    state.autoCleanShots = false; state.autoCleanAsk = false;
     /* 键盘侧挂着的那几层覆盖层一并收起（登录 / 协议正文 / 完全访问 / 付费 / 切换悬浮窗）；
        「键盘使用引导（演示）」层若还开着也收掉（连同引导待演标记，见 guideDemoPending） */
     closeKbLogin(); state.kbLoginCode=''; state.kbLoginSent=false; state.kbLoginBusy=false;
@@ -6503,17 +6550,40 @@
     /* 左栏「设备权限」的相册访问权限三档（关闭 / 有限访问 / 完整访问）：只记状态，不做拦截 ——
        消费方是键盘选择器（kb-photo-picker）的两套引导形态；面板里的「开启权限」/「去开启权限」
        也走这条动作（仿真「去系统设置开启完全访问」：置成完整访问，面板就地切回正常选择器） */
-    if(name==='photos'){state.permissions.photos=arg;return render();}
+    if(name==='photos'){
+      state.permissions.photos=arg;
+      /* 相册权限退到非完整档（关闭 / 有限访问）：自动清理截图跟着关掉 —— 它只在完整访问下可用
+         （2026-11-10 需求，见 autoCleanShots） */
+      if(arg!=='full')state.autoCleanShots=false;
+      return render();
+    }
     /* 「允许访问照片」页（appScreen='photo-access'，2026-10-20 需求）：底部那张 iOS 授权框的
        三颗按钮 ——「拒绝 / 选择部分 / 允许访问全部」= permissions.photos 的 denied / limited / full
        （与左栏「设备权限 › 相册访问权限」同一个状态）。选完不论哪一档都继续引导收尾：
        finishGuide 里「相册站」那道闸门见 photo-access 已过、直接落首页 + 排自动付费墙；
-       从页面列表单独点入这一页时同样落到首页（授权框收起的表现与真实系统一致）。 */
+       从页面列表单独点入这一页时同样落到首页（授权框收起的表现与真实系统一致）。
+       2026-11-10：非完整档同样把「自动清理截图」复位成关（与上面 photos 动作同一口径）。 */
     if(name==='photo-access'){
       state.permissions.photos=arg;
+      if(arg!=='full')state.autoCleanShots=false;
       if(state.appView==='app'&&state.appScreen==='photo-access')return finishGuide();
       return render();
     }
+    /* 「自动清理截图」胶囊开关（键盘菜单栏相册图标左侧，2026-11-10 需求）：
+       开→关：直接关；关→开：先验相册访问权限 —— 不是完整访问就弹权限提示框
+       （state.autoCleanAsk，开关保持关，权限到位后再点一次）；已是完整访问才真的打开，
+       并浮一记轻提示「上传截图后，自动为您清理该截图」。 */
+    if(name==='kb-auto-clean'){
+      if(state.autoCleanShots){state.autoCleanShots=false;return render();}
+      if(state.permissions.photos!=='full'){state.autoCleanAsk=true;return render();}
+      state.autoCleanShots=true;showToast('上传截图后，自动为您清理该截图');return;
+    }
+    /* 权限提示框的「去开启」：收起提示框、跳主 App 的「允许访问照片」页（与首启引导里的
+       相册站同一个页面）—— 在那里选「允许访问全部」即把 permissions.photos 置成 full，
+       之后再回键盘点这颗开关就能打开 */
+    if(name==='auto-clean-grant'){state.autoCleanAsk=false;return openAppScreen('photo-access');}
+    /* 提示框的其它出口（点蒙层 / Esc）：只收框、开关仍保持关 */
+    if(name==='auto-clean-dismiss'){state.autoCleanAsk=false;return render();}
     /* 左栏「平台与app形态」的当前输入法两档（系统默认 / LoveCo；2026-09-29 起挪到运行平台下面）：选 LoveCo = 在系统里切好了输入法，
        键盘必然是已启用的（未启用的键盘不可能当当前输入法）—— 顺带把「开启键盘」打开；
        若此刻正停在引导流程、两步都已齐，直接完成引导（等价于「返回 App 重新校验」，见 finishGuideIfDone） */
@@ -7452,6 +7522,8 @@
         if(closeAaiLayers()){render();return;}
         dismissFreeChat();openAppScreen('home');return;
       }
+      /* 「自动清理截图」的权限提示框（键盘菜单栏那一层，2026-11-10 需求）：Esc 只收框、开关仍保持关 */
+      if(state.autoCleanAsk){state.autoCleanAsk=false;render();return;}
       if(state.userSheet){state.userSheet='';render();return;}if(state.cancelAsk){state.cancelAsk=false;render();return;}if(state.supportSheet){state.supportSheet=false;render();return;}if(state.kbLegal){closeKbLegal();render();return;}if(state.kbConsentAsk){closeKbConsentAsk();render();return;}if(state.kbLogin){if(state.appView==='app'&&(state.appScreen==='login'||state.appScreen==='login-one-tap'))closeAppLogin();else closeKbLogin();render();return;}if(state.kbFullAccess){closeKbFullAccess();render();return;}if(state.kbPaywall){closeKbPaywall();render();return;}if(state.modal)closeModal();else if(state.chatPanel)closeChatAnalysis();else if(state.scanPanel)finishScan();else if(state.photoPanel)closePhotoPanel();else if(state.settingsPanel){state.settingsPanel=false;render();}else if(state.kbEditor){closeKbEditor();render();}else if(state.partnerPanel){state.partnerPanel=false;render();}else if(state.freePartnerPicker){closeFreePartnerPicker();}else if(state.freePicker){closeFreePicker();}else if(state.freeChat){closeFreeChat();}else if(state.pending)cancelAI();return;}
     if(e.key==='Tab'&&state.modal){
       const nodes=[...document.querySelectorAll('.sheet button:not(:disabled),.sheet input,.sheet textarea,.sheet select,.sheet a[href]')].filter(n=>n.offsetParent!==null);
