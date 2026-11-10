@@ -603,13 +603,16 @@ small{font-size:11px;color:#73847d}
 .cd-ask-scrim{position:absolute;inset:0}
 .cd-ask-card{position:relative;display:flex;flex-direction:column;text-align:center}
 .cd-ask-primary{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px}
-/* 「自动清理截图」权限提示框（2026-11-10 需求，autoCleanAskSheet）：铺满手机、深色蒙层 + 居中白卡，
-   骨架与「注销申请成功」弹框（.cd-ask）同一套；皮肤（尺寸 / 圆角 / 配色）在 theme.css 的 .ac-ask 一组。
-   挂点在键盘形态 render() 的 .phone 里、压在键盘与宿主会话之上（z-index 22：高于键盘内各层覆盖层，
-   低于轻提示 toast 与整屏白闪）。 */
-.ac-ask{position:absolute;inset:0;z-index:22;display:grid;place-items:center}
+/* 「自动清理截图」权限提示框（2026-11-10 需求，autoCleanAskSheet）：铺满手机、深色蒙层 + **居键盘
+   区域正中**的白卡（2026-11-10 用户反馈：弹窗内容要在键盘区域的中间，不是屏幕中间 —— .ac-ask-body
+   就是键盘那一块：贴底、高 = --lc-keyboard-height，卡在其中 flex 居中；卡比键盘还高时向上下自然溢出，
+   不裁切）。骨架与「注销申请成功」弹框（.cd-ask）同一套；皮肤（尺寸 / 圆角 / 配色）在 theme.css 的
+   .ac-ask 一组。挂点在键盘形态 render() 的 .phone 里、压在键盘与宿主会话之上（z-index 22：高于键盘内
+   各层覆盖层，低于轻提示 toast 与整屏白闪）。 */
+.ac-ask{position:absolute;inset:0;z-index:22}
 .ac-ask-scrim{position:absolute;inset:0}
-.ac-ask-card{position:relative;display:flex;flex-direction:column;text-align:center}
+.ac-ask-body{position:absolute;left:0;right:0;bottom:0;height:var(--lc-keyboard-height);display:flex;align-items:center;justify-content:center;pointer-events:none}
+.ac-ask-card{position:relative;pointer-events:auto;display:flex;flex-direction:column;text-align:center}
 .ac-ask-primary{display:inline-flex;align-items:center;justify-content:center;border:0;border-radius:999px;cursor:pointer}
 /* 「删除聊天对象」二次确认框（2026-10-15 需求，partnerDeleteAskSheet）：只服务**主 App「聊天对象」页**
    左滑露出的删除按钮 —— 骨架与「注销申请成功」弹框同套（铺满手机、深色蒙层只盖正文区、白卡居中），

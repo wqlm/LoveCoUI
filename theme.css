@@ -679,10 +679,15 @@ a, .text-button, .row-button:hover { color: var(--lc-accent-strong); }
   to { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 /* 键盘形态的轻提示（2026-11-10 需求：打开「自动清理截图」时那一记「上传截图后，自动为您清理该截图」）：
-   同一枚 .app-toast 胶囊，只是抬到**键盘上沿**之上 —— 键盘常驻在屏幕下半，按底部 Tab 那档的
-   bottom: 92px 会被键盘盖住。高度取键盘总高（--lc-keyboard-height）+ 一截留白；
-   键盘收起时用不到这枚提示（它只从菜单栏那颗开关触发），不另做收起态。 */
-.kb-toast { bottom: calc(var(--lc-keyboard-height) + 18px); width: max-content; max-width: 76%; box-sizing: border-box; }
+   同一枚 .app-toast 胶囊，位置改成**键盘区域的正中**（2026-11-10 用户反馈：toast 内容也要在键盘区域
+   中间，不是屏幕中间）—— bottom 取键盘总高的一半，再用 translateY(50%) 把胶囊自身的中心压在那条线上；
+   水平仍靠 translateX(-50%) 居中。键盘收起时用不到这枚提示（它只从菜单栏那颗开关触发），
+   不另做收起态。 */
+.kb-toast { bottom: calc(var(--lc-keyboard-height) * .5); width: max-content; max-width: 76%; box-sizing: border-box; animation-name: kb-toast-in; }
+@keyframes kb-toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(calc(50% + 6px)); }
+  to { opacity: 1; transform: translateX(-50%) translateY(50%); }
+}
 /* 按住说话遮罩（皮肤，骨架在 styles.css）：**高度跟着键盘区域走**（与 .keyboard 同高、同贴底），
    遮罩层自己走「底部 1 → 顶部 0」的渐隐 —— 背景色渐变负责压暗、mask 让毛玻璃一起淡出，
    上缘与聊天分析面板的内容自然融合，不再整屏压黑。固定深色（截图即深色场景），
@@ -2814,7 +2819,7 @@ html[data-view="device"] .wx-chat { min-height: 0; }
 @keyframes cd-ask-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
 /* —— 「自动清理截图」权限提示框（autoCleanAskSheet / state.autoCleanAsk，2026-11-10 需求）——
    键盘菜单栏相册图标左侧那颗胶囊开关想打开、但相册访问权限还不是「完整访问」时弹这一层：
-   铺满手机、深色蒙层 + 居中白卡（骨架见 styles.css 的 .ac-ask）。
+   深色蒙层铺满手机、白卡**居键盘区域正中**（.ac-ask-body 就贴在键盘那一块，骨架见 styles.css）。
    与「注销申请成功」弹框同一套口径：配色写死、不跟随 .dark（它压在键盘的浅 / 深色外观之上，
    白卡在哪一档都成立）。卡内自上而下：17px / 700 标题 + 13.5px 灰色说明（行高 1.6）+
    蓝底白字胶囊「去开启」（#5B68F5，与「允许访问照片」页那颗蓝同族）。 */
